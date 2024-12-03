@@ -137,5 +137,6 @@ static inline T bswap(T val) {
 		u32 byte7 = (val >> 56) & 0xff;
 		return (byte0 << 56) | (byte1 << 48) | (byte2 << 40) | (byte3 << 32) | (byte4 << 24) | (byte5 << 16) | (byte6 << 8) | byte7;
 	}
+	else return 0;
 }
 }	// End namespace Helpers

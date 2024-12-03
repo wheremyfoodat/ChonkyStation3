@@ -3,7 +3,7 @@
 
 using namespace ELFIO;
 
-void ELFLoader::load(const fs::path& path) {
+u64 ELFLoader::load(const fs::path& path) {
 	elfio elf;
 
 	auto str = path.generic_string();
@@ -12,7 +12,6 @@ void ELFLoader::load(const fs::path& path) {
 	}
 
 	printf("Loading ELF %s\n", str.c_str());
-	printf("* Entry point: 0x%016llx\n", elf.get_entry());
 	printf("* %d segments\n", elf.segments.size());
 	for (int i = 0; i < elf.segments.size(); i++) {
 		auto seg = elf.segments[i];
@@ -26,7 +25,7 @@ void ELFLoader::load(const fs::path& path) {
 			printf("* Segment %d type %s: 0x%016llx -> 0x%016llx\n", i, segment_type_string[seg->get_type()].c_str(), seg->get_virtual_address(), seg->get_virtual_address() + seg->get_memory_size());
 		// PROC_PARAM
 		else if (seg->get_type() == PROC_PARAM) {
-			printf("* Segment %d type %s: magic 0x%08x\n", i, segment_type_string[seg->get_type()].c_str(), 0);
+			printf("* Segment %d type %s\n", i, segment_type_string[seg->get_type()].c_str());
 		}
 		// PRX_PARAM
 		else if (seg->get_type() == PRX_PARAM) {
@@ -54,15 +53,16 @@ void ELFLoader::load(const fs::path& path) {
 				printf("s_imports    : %d\n", (u32)stub->s_imports);
 
 				std::string name;
-				u64 nameAddr = mem.translateAddr(stub->s_modulename);
-				while (mem.ram[nameAddr] != '\0')
-					name += mem.ram[nameAddr++];
+				u8* namePtr = mem.getPtr(stub->s_modulename);
+				while (*namePtr != '\0')
+					name += *namePtr++;
 				printf("Found module %s with %d imports\n", name.c_str(), (u16)stub->s_imports);
+				// TODO: Patch stubs
 			}
 		}
 
 		// Load segment only if it's of type PT_LOAD
-		if (seg->get_type() == PT_LOAD) {
+		if (seg->get_type() == PT_LOAD || seg->get_type() == PT_TLS) {
 			u64 size = seg->get_memory_size();
 			u64 paddr = mem.alloc(size);
 			mem.mmap(seg->get_virtual_address(), paddr, size);
@@ -70,4 +70,9 @@ void ELFLoader::load(const fs::path& path) {
 		}
 	}
 
+	// The entry point in the ELF header is actually an address from which you read the actual entry point
+	u64 entry = mem.read<u64>(elf.get_entry());
+	printf("* Entry point: 0x%016llx (0x%016llx)\n", elf.get_entry(), entry);
+
+	return entry;
 }

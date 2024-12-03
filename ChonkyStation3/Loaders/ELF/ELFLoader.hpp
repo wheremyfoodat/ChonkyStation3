@@ -20,7 +20,7 @@ class ELFLoader {
 public:
 	ELFLoader(Memory& mem) : mem(mem) {}
 	Memory& mem;
-	void load(const fs::path& path);
+	u64 load(const fs::path& path);
 
 	std::map<u64, std::string> segment_type_string {
 		{ ELFIO::PT_LOAD,	"PT_LOAD    " },

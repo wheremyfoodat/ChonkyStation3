@@ -50,3 +50,45 @@ u64 Memory::translateAddr(u64 vaddr) {
 
 	return map->paddr + (vaddr - map->vaddr);
 }
+
+// Returns a pointer to the data at the specified virtual address
+u8* Memory::getPtr(u64 vaddr) {
+	u64 paddr = translateAddr(vaddr);
+	return &ram[paddr & (256_MB) - 1];
+}
+
+template<typename T>
+T Memory::read(u64 vaddr) {
+	u64 paddr = translateAddr(vaddr);
+	T data;
+
+	if (paddr >= RAM_START && paddr <= RAM_END) {
+		std::memcpy(&data, &ram[paddr & (256_MB - 1)], sizeof(T));
+	}
+	else {
+		Helpers::panic("Unhandled read%d v:0x%016x p:0x%016x\n", sizeof(T) * 8, vaddr, paddr);
+	}
+
+	return Helpers::bswap<T>(data);
+}
+template u8  Memory::read(u64 vaddr);
+template u16 Memory::read(u64 vaddr);
+template u32 Memory::read(u64 vaddr);
+template u64 Memory::read(u64 vaddr);
+
+template<typename T>
+void Memory::write(u64 vaddr, T data) {
+	u64 paddr = translateAddr(vaddr);
+	data = Helpers::bswap<T>(data);
+
+	if (paddr >= RAM_START && paddr <= RAM_END) {
+		std::memcpy(&ram[paddr & (256_MB - 1)], &data, sizeof(T));
+	}
+	else {
+		Helpers::panic("Unhandled write%d v:0x%016x p:0x%016x", sizeof(T) * 8, vaddr, paddr);
+	}
+}
+template void Memory::write(u64 vaddr, u8  data);
+template void Memory::write(u64 vaddr, u16 data);
+template void Memory::write(u64 vaddr, u32 data);
+template void Memory::write(u64 vaddr, u64 data);
