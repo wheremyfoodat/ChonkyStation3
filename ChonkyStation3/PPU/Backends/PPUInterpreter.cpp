@@ -9,19 +9,19 @@ void PPUInterpreter::step() {
     
     switch (instr.opc) {
     
-    case ADDI:	addi(instr);	break;
-    case ORI:	ori(instr);		break;
-    case ORIS:	oris(instr);	break;
-    case XORI:	xori(instr);	break;
-    case XORIS:	xoris(instr);	break;
-    case ANDI:	andi(instr);	break;
-    case ANDIS:	andis(instr);	break;
-    case LWZ:	lwz(instr);		break;
+    case ADDI:  addi(instr);    break;
+    case ORI:   ori(instr);     break;
+    case ORIS:  oris(instr);    break;
+    case XORI:  xori(instr);    break;
+    case XORIS: xoris(instr);   break;
+    case ANDI:  andi(instr);    break;
+    case ANDIS: andis(instr);   break;
+    case LWZ:   lwz(instr);     break;
     case G_3E: {
         switch (instr.g_3e_field) {
 
-        case STD:	std(instr);		break;
-        case STDU:	stdu(instr);	break;
+        case STD:   std(instr);     break;
+        case STDU:  stdu(instr);    break;
 
         default:
             Helpers::panic("Unimplemented G_3E instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3e_field, (u32)instr.g_3e_field, instr.raw);
@@ -84,5 +84,5 @@ void PPUInterpreter::stdu(const Instruction& instr) {
     const s32 sds = (s32)(s16)(instr.ds << 2);
     const u32 addr = state.gprs[instr.ra] + sds;
     mem.write(addr, state.gprs[instr.rs]);
-    state.gprs[instr.ra] = addr;	// Update
+    state.gprs[instr.ra] = addr;    // Update
 }

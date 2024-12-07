@@ -13,6 +13,7 @@
 #include <cstring>
 
 
+
 // Types
 using u8 = std::uint8_t;
 using u16 = std::uint16_t;
@@ -139,4 +140,4 @@ static inline T bswap(T val) {
     }
     else return 0;
 }
-}	// End namespace Helpers
+}   // End namespace Helpers

@@ -23,10 +23,10 @@ public:
     u64 load(const fs::path& path);
 
     std::map<u64, std::string> segment_type_string {
-        { ELFIO::PT_LOAD,	"PT_LOAD    " },
-        { ELFIO::PT_TLS,	"PT_TLS     " },
-        { PROC_PARAM,		"PROC_PARAM " },
-        { PRX_PARAM,		"PRX_PARAM  " },
+        { ELFIO::PT_LOAD,   "PT_LOAD    " },
+        { ELFIO::PT_TLS,    "PT_TLS     " },
+        { PROC_PARAM,       "PROC_PARAM " },
+        { PRX_PARAM,        "PRX_PARAM  " },
     };
 
     struct PrxParam {
