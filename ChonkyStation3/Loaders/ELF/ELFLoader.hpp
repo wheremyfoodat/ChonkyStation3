@@ -35,6 +35,7 @@ public:
 		BEField<u32> version;
 		BEField<u32> pad0;
 		BEField<u32> libentstart;
+		BEField<u32> libentend;
 		BEField<u32> libstubstart;
 		BEField<u32> libstubend;
 		BEField<u16> ver;

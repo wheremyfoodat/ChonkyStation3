@@ -16,7 +16,7 @@ u64 ELFLoader::load(const fs::path& path) {
 	for (int i = 0; i < elf.segments.size(); i++) {
 		auto seg = elf.segments[i];
 		// Skip the segment if it's empty
-		if (seg->get_file_size() == 0) {
+		if (seg->get_memory_size() == 0) {
 			printf("* Segment %d type %s: empty\n", i, segment_type_string[seg->get_type()].c_str());
 			continue;
 		}
@@ -44,13 +44,18 @@ u64 ELFLoader::load(const fs::path& path) {
 			printf("ver          : 0x%08x\n", (u16)prx_param->ver);
 
 			// Stubs
-			for (int i = prx_param->libstubstart; i <= prx_param->libstubend; i += sizeof(PrxStubHeader)) {
+			for (int i = prx_param->libstubstart; i < prx_param->libstubend; i += sizeof(PrxStubHeader)) {
 				u64 ptr = mem.translateAddr(i);
 				PrxStubHeader* stub = (PrxStubHeader*)&mem.ram[ptr];
 
-				printf("Found stub\n");
+				/*printf("Found stub\n");
 				printf("s_modulename : 0x%016x\n", (u32)stub->s_modulename);
-				printf("s_imports    : %d\n", (u32)stub->s_imports);
+				printf("s_imports    : %d\n", (u32)stub->s_imports);*/
+
+				if (stub->s_modulename == 0) {
+					printf("Skipping null module\n");
+					continue;
+				}
 
 				std::string name;
 				u8* namePtr = mem.getPtr(stub->s_modulename);
@@ -62,7 +67,7 @@ u64 ELFLoader::load(const fs::path& path) {
 		}
 
 		// Load segment only if it's of type PT_LOAD
-		if (seg->get_type() == PT_LOAD || seg->get_type() == PT_TLS) {
+		if (seg->get_type() == PT_LOAD) {
 			u64 size = seg->get_memory_size();
 			u64 paddr = mem.alloc(size);
 			mem.mmap(seg->get_virtual_address(), paddr, size);
@@ -71,7 +76,7 @@ u64 ELFLoader::load(const fs::path& path) {
 	}
 
 	// The entry point in the ELF header is actually an address from which you read the actual entry point
-	u64 entry = mem.read<u64>(elf.get_entry());
+	u64 entry = mem.read<u32>(elf.get_entry());
 	printf("* Entry point: 0x%016llx (0x%016llx)\n", elf.get_entry(), entry);
 
 	return entry;
