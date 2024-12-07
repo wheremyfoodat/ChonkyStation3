@@ -6,5 +6,5 @@
 
 class PPUDisassembler {
 public:
-	static void disasm(PPUTypes::State& state, PPUTypes::Instruction instr);
+    static void disasm(PPUTypes::State& state, PPUTypes::Instruction instr);
 };

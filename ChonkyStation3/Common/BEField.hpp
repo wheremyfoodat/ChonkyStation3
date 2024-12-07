@@ -6,9 +6,9 @@
 template<typename T>
 struct BEField {
 public:
-	T val;
+    T val;
 
-	operator T() {
-		return Helpers::bswap<T>(val);
-	}
+    operator T() {
+        return Helpers::bswap<T>(val);
+    }
 };

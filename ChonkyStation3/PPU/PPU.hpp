@@ -9,9 +9,9 @@
 
 class PPU {
 public:
-	PPU(Memory& mem) : mem(mem) {}
-	Memory& mem;
-	virtual void step();
+    PPU(Memory& mem) : mem(mem) {}
+    Memory& mem;
+    virtual void step();
 
-	PPUTypes::State state;
+    PPUTypes::State state;
 };

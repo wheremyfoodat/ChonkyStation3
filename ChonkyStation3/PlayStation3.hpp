@@ -9,10 +9,10 @@
 
 class PlayStation3 {
 public:
-	PlayStation3(const fs::path& executable);
-	Memory mem;
-	PPU* ppu;
-	PPUInterpreter interpreter;
+    PlayStation3(const fs::path& executable);
+    Memory mem;
+    PPU* ppu;
+    PPUInterpreter interpreter;
 
-	void step();
+    void step();
 };
