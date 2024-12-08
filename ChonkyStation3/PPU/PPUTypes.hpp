@@ -5,22 +5,53 @@
 
 namespace PPUTypes {
 
+struct ConditionRegister {
+    u32 cr;
+    enum {
+        Negative = 0b1000,
+        Positive = 0b0100,
+        Zero     = 0b0010
+    };
+    
+    void setCRField(u8 n, u8 v, u8 so = 0) {
+        const auto bit = 28 - (n * 4);  // CR Fields are reversed (CR0 is bits 28-31)
+        cr &= ~(0b1111 << bit);
+        cr |= (v | so) << bit;
+    }
+
+    template <typename T>
+    void compareAndUpdateCRField(u8 n, T a, T b, u8 so = 0) {
+        if (a < b) setCRField(n, Negative, so);
+        else if (a > b) setCRField(n, Positive, so);
+        else setCRField(n, Zero, so);
+    }
+};
+
 struct State {
     u64 gprs[32] = { 0 };
     u64 pc = 0;
+    u64 lr;
+    ConditionRegister cr;
 };
 
 union Instruction {
     u32 raw;
-    BitField<0, 2,  u32> g_3e_field;
-    BitField<0, 16, u32> ui;
-    BitField<0, 16, u32> d;     // ui == d
-    BitField<0, 16, u32> si;    // ui == si
-    BitField<2, 14, u32> ds;
-    BitField<16, 5, u32> ra;
-    BitField<21, 5, u32> rt;
-    BitField<21, 5, u32> rs;    // rt == rs
-    BitField<26, 6, u32> opc;
+    BitField<0, 1,   u32> lk;
+    BitField<0, 1,   u32> rc;   // lk == rc
+    BitField<0, 2,   u32> g_3e_field;
+    BitField<0, 16,  u32> ui;
+    BitField<0, 16,  u32> d;     // ui == d
+    BitField<0, 16,  u32> si;    // ui == si
+    BitField<1, 1,   u32> aa;
+    BitField<1, 10,  u32> g_1f_field;
+    BitField<2, 14,  u32> ds;
+    BitField<2, 24,  u32> li;
+    BitField<11, 10, u32> spr;
+    BitField<11, 5,  u32> rb;
+    BitField<16, 5,  u32> ra;
+    BitField<21, 5,  u32> rt;
+    BitField<21, 5,  u32> rs;    // rt == rs
+    BitField<26, 6,  u32> opc;
 };
 
 enum Instructions {
@@ -103,7 +134,7 @@ enum G_13Opcodes {      // Field 21 - 30
 };
 
 enum G_1EOpcodes {      // Field 27 - 29
-    RLDICL  = 0x00,
+    RLDICL  = 0x00,     // Rotate Left Doubleword Immediate then Clear Left
     RLDICR  = 0x01,
     RLDIC   = 0x02,
     RLDIMI  = 0x03,
