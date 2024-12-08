@@ -6,12 +6,17 @@
 #include <PPUTypes.hpp>
 #include <PPUDisassembler.hpp>
 
+// Circular dependency
+class PlayStation3;
 
 class PPU {
 public:
-    PPU(Memory& mem) : mem(mem) {}
+    PPU(Memory& mem, PlayStation3* ps3) : mem(mem), ps3(ps3) {}
     Memory& mem;
+    PlayStation3* ps3;
     virtual void step();
 
     PPUTypes::State state;
+
+    bool branchCondition(u8 bo, u8 bi);
 };

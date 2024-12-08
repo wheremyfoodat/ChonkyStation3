@@ -1,11 +1,15 @@
 #include "PlayStation3.hpp"
 
 
-PlayStation3::PlayStation3(const fs::path& executable) : mem(), interpreter(mem) {
+PlayStation3::PlayStation3(const fs::path& executable) : mem(), interpreter(mem, this), syscall(this) {
     mem = Memory();
+    module_manager = ModuleManager();
     ppu = &interpreter;
     ELFLoader elf = ELFLoader(mem);
-    ppu->state.pc = elf.load(executable);
+    std::unordered_map<u32, u32> imports = {};
+    ppu->state.pc = elf.load(executable, imports);
+    for (auto& i : imports)
+        module_manager.registerImport(i.first, i.second);
     // Setup stack
     // TODO: will have to slightly change this to allow multiple threads in the future
     u64 stack = mem.alloc(DEFAULT_STACK_SIZE);

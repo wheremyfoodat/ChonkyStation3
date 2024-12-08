@@ -4,7 +4,8 @@
 #include <BEField.hpp>
 #include <elfio/elfio.hpp>
 #include <Memory.hpp>
-#include <map>
+#include <ModuleManager.hpp>
+#include <unordered_map>
 
 
 //constexpr u32 PT_LOAD = 0x00000001; // Already defined in ELFIO
@@ -20,9 +21,9 @@ class ELFLoader {
 public:
     ELFLoader(Memory& mem) : mem(mem) {}
     Memory& mem;
-    u64 load(const fs::path& path);
+    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports);
 
-    std::map<u64, std::string> segment_type_string {
+    std::unordered_map<u64, std::string> segment_type_string {
         { ELFIO::PT_LOAD,   "PT_LOAD    " },
         { ELFIO::PT_TLS,    "PT_TLS     " },
         { PROC_PARAM,       "PROC_PARAM " },
