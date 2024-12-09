@@ -4,7 +4,11 @@
 #include <unordered_map>
 
 
-class Module {
-public:
+// Circular dependency
+class PlayStation3;
 
+class Module {
+protected:
+    Module(PlayStation3* ps3) : ps3(ps3) {}
+    PlayStation3* ps3;
 };

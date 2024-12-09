@@ -59,17 +59,16 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports)
 
                 std::string name;
                 u8* namePtr = mem.getPtr(stub->s_modulename);
-                while (*namePtr != '\0')
-                    name += *namePtr++;
+                name = Helpers::readString(namePtr);
                 printf("\nFound module %s with %d imports\n", name.c_str(), (u16)stub->s_imports);
                 for (int i = 0; i < stub->s_imports; i++) {
                     u32 nid = mem.read<u32>(stub->s_nid + i * 4);
                     u32 addr = mem.read<u32>(stub->s_text + i * 4);
                     imports[addr] = nid;
                     if (ModuleManager::import_names.find(nid) != ModuleManager::import_names.end())
-                        printf("* %s @ 0x%08x\n", ModuleManager::import_names[nid].c_str(), addr);
+                        printf("* %s	@ 0x%08x\n", ModuleManager::import_names[nid].c_str(), addr);
                     else
-                        printf("* unk_0x%08x @ 0x%08x\n", nid, addr);
+                        printf("* unk_0x%08x	@ 0x%08x\n", nid, addr);
 
                     // Patch import stub
                     mem.write<u32>(addr + 4 * 6, 0x39600010);   // li r11, 0x10

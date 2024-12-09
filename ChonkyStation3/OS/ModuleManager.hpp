@@ -5,9 +5,13 @@
 #include <Module.hpp>
 
 
+// Circular dependency
+class PlayStation3;
+
 class ModuleManager {
 public:
-    ModuleManager() {}
+    ModuleManager(PlayStation3* ps3) : ps3(ps3) {}
+    PlayStation3* ps3;
 
     void call(u32 nid);
 

@@ -91,6 +91,20 @@ static inline bool inRangeSized(T num, T start, T size) {
     else return false;
 }
 
+static std::string readString(u8* ptr) {
+    std::string str;
+    while (*ptr)
+        str += *ptr++;
+    return str;
+}
+
+static std::string readString(const u8* ptr) {
+    std::string str;
+    while (*ptr)
+        str += *ptr++;
+    return str;
+}
+
 static inline u16 bswap16(u16 val) {
     return (val >> 8) | (val << 8);
 }

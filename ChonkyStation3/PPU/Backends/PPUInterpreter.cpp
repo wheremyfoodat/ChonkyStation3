@@ -80,6 +80,7 @@ void PPUInterpreter::addi(const Instruction& instr) {
 
 void PPUInterpreter::sc(const Instruction& instr) {
     ps3->syscall.doSyscall();
+    state.pc -= 4;
 }
 
 void PPUInterpreter::b(const Instruction& instr) {
