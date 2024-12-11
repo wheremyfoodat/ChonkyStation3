@@ -18,5 +18,6 @@ public:
 
     PPUTypes::State state;
 
+    void printState();
     bool branchCondition(u8 bo, u8 bi);
 };

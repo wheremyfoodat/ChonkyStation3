@@ -5,6 +5,14 @@ void PPU::step() {
     Helpers::panic("Backend did not define step function\n");
 }
 
+void PPU::printState() {
+    printf("pc:  0x%016llx\n", state.pc);
+    printf("ctr: 0x%016llx\n", state.ctr);
+    printf("cr:  0x%016llx\n", state.cr.raw);
+    for (int i = 0; i < 32; i++)
+        printf("r%02d:  0x%016llx\n", i, state.gprs[i]);
+}
+
 bool PPU::branchCondition(u8 bo, u8 bi) {
     // BO bit 4: don't test CR if set
     // BO bit 2: don't test CTR (and don't decrement) if set

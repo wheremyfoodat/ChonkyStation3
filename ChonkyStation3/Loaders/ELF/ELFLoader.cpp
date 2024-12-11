@@ -3,7 +3,7 @@
 
 using namespace ELFIO;
 
-u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports) {
+u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports, ModuleManager& module_manager) {
     elfio elf;
 
     auto str = path.generic_string();
@@ -21,12 +21,19 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports)
             continue;
         }
 
-        if (seg->get_type() != PROC_PARAM && seg->get_type() != PRX_PARAM)
-            printf("* Segment %d type %s: 0x%016llx -> 0x%016llx\n", i, segment_type_string[seg->get_type()].c_str(), seg->get_virtual_address(), seg->get_virtual_address() + seg->get_memory_size());
+        printf("* Segment %d type %s: 0x%016llx -> 0x%016llx\n", i, segment_type_string[seg->get_type()].c_str(), seg->get_virtual_address(), seg->get_virtual_address() + seg->get_memory_size());
+        
+        // PT_TLS
+        if (seg->get_type() == PT_TLS) {
+            tls_vaddr = seg->get_virtual_address();
+            tls_filesize = seg->get_file_size();
+            tls_memsize = seg->get_memory_size();
+        }
+
         // PROC_PARAM
         else if (seg->get_type() == PROC_PARAM) {
-            printf("* Segment %d type %s\n", i, segment_type_string[seg->get_type()].c_str());
         }
+        
         // PRX_PARAM
         else if (seg->get_type() == PRX_PARAM) {
             // Check prx magic
@@ -34,7 +41,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports)
             if (prx_param->magic != PRX_MAGIC) {
                 Helpers::panic("PRX PARAM wrong magic (0x%08x)", prx_param->magic);
             }
-            printf("* Segment %d type %s\n", i, segment_type_string[seg->get_type()].c_str());
+
             printf("size         : 0x%08x\n", (u32)prx_param->size);
             printf("magic        : 0x%08x\n", (u32)prx_param->magic);
             printf("version      : 0x%08x\n", (u32)prx_param->version);
@@ -65,10 +72,10 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports)
                     u32 nid = mem.read<u32>(stub->s_nid + i * 4);
                     u32 addr = mem.read<u32>(stub->s_text + i * 4);
                     imports[addr] = nid;
-                    if (ModuleManager::import_names.find(nid) != ModuleManager::import_names.end())
-                        printf("* %s	@ 0x%08x\n", ModuleManager::import_names[nid].c_str(), addr);
+                    if (module_manager.import_map.find(nid) != module_manager.import_map.end())
+                        printf("* %s			@ 0x%08x\n", module_manager.import_map[nid].name.c_str(), addr);
                     else
-                        printf("* unk_0x%08x	@ 0x%08x\n", nid, addr);
+                        printf("* unk_0x%08x			@ 0x%08x\n", nid, addr);
 
                     // Patch import stub
                     mem.write<u32>(addr + 4 * 6, 0x39600010);   // li r11, 0x10
@@ -90,6 +97,6 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports)
     // The entry point in the ELF header is actually an address from which you read the actual entry point
     u64 entry = mem.read<u32>(elf.get_entry());
     printf("* Entry point: 0x%016llx (0x%016llx)\n", elf.get_entry(), entry);
-
-    return entry;
+    // But we return the address from the ELF header (need it, R2 is loaded to entry + 4 on load)
+    return elf.get_entry();
 }

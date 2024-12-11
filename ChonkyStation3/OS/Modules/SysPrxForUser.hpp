@@ -1,9 +1,18 @@
 #pragma once
 
-#include <Module.hpp>
+#include <common.hpp>
+#include <CellTypes.hpp>
 
 
-class SysPrxForUser : Module {
+// Circular dependency
+class PlayStation3;
+
+using namespace CellTypes;
+
+class SysPrxForUser {
 public:
+    SysPrxForUser(PlayStation3* ps3) : ps3(ps3) {}
+    PlayStation3* ps3;
 
+    Result sysThreadInitializeTLS();
 };

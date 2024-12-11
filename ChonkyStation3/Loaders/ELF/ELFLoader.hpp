@@ -21,7 +21,7 @@ class ELFLoader {
 public:
     ELFLoader(Memory& mem) : mem(mem) {}
     Memory& mem;
-    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports);
+    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports, ModuleManager& module_manager);
 
     std::unordered_map<u64, std::string> segment_type_string {
         { ELFIO::PT_LOAD,   "PT_LOAD    " },
@@ -60,4 +60,8 @@ public:
         BEField<u32> s_unk6;
         BEField<u32> s_unk7;
     };
+
+    u32 tls_vaddr = 0;
+    u32 tls_filesize = 0;
+    u32 tls_memsize = 0;
 };
