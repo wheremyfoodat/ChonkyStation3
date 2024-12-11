@@ -29,6 +29,7 @@ public:
     void unmap(u64 vaddr);
     u64 translateAddr(u64 vaddr);
     u8* getPtr(u64 vaddr);
+    u8* getPtrPhys(u64 paddr);
 
     template<typename T> T read(u64 vaddr);
     template<typename T> void write(u64 vaddr, T data);

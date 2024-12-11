@@ -2,9 +2,12 @@
 #include "PlayStation3.hpp"
 
 
+Result SysPrxForUser::sysLwMutexCreate() {
+    return Result::CELL_OK;
+}
+
 // Allocate TLS memory, copy TLS image to the newly allocated area. Return TLS address in R13
 Result SysPrxForUser::sysThreadInitializeTLS() {
-    ps3->ppu->printState();
     const u64 thread_id = ARG0;
     const u32 tls_seg_addr = ARG1;
     const u32 tls_seg_size = ARG2;

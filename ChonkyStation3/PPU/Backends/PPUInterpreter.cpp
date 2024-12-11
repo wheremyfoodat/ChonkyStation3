@@ -10,7 +10,9 @@ void PPUInterpreter::step() {
 
     switch (instr.opc) {
     
+    case CMPI:  cmpi(instr);    break;
     case ADDI:  addi(instr);    break;
+    case BC:    bc(instr);      break;
     case SC:    sc(instr);      break;
     case B:     b(instr);       break;
     case G_13: {
@@ -42,6 +44,7 @@ void PPUInterpreter::step() {
     case G_1F: {
         switch (instr.g_1f_field) {
 
+        case CMPL:  cmpl(instr);    break;
         case MFSPR: mfspr(instr);   break;
         case OR:    or_(instr);     break;
         case MTSPR: mtspr(instr);   break;
@@ -53,6 +56,17 @@ void PPUInterpreter::step() {
     }
     case LWZ:   lwz(instr);     break;
     case STW:   stw(instr);     break;
+    case G_3A: {
+        switch (instr.g_3a_field) {
+
+        case LD:   ld(instr);     break;
+        case LDU:  ldu(instr);    break;
+
+        default:
+            Helpers::panic("Unimplemented G_3A instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3a_field, (u32)instr.g_3a_field, instr.raw);
+        }
+        break;
+    }
     case G_3E: {
         switch (instr.g_3e_field) {
 
@@ -73,9 +87,24 @@ void PPUInterpreter::step() {
 }
 
 // Main
+void PPUInterpreter::cmpi(const Instruction& instr) {
+    const s64 a = (instr.l) ? state.gprs[instr.ra] : (s64)(s32)state.gprs[instr.ra];
+    const s64 b = (s64)(s16)instr.si;
+    state.cr.compareAndUpdateCRField<s64>(instr.bf, a, b, 0);
+}
 
 void PPUInterpreter::addi(const Instruction& instr) {
     state.gprs[instr.rt] = (instr.ra ? state.gprs[instr.ra] : 0) + (s64)(s16)instr.si;
+}
+
+void PPUInterpreter::bc(const Instruction& instr) {
+    const s32 sbd = (s32)(s16)(instr.bd << 2);
+    if (instr.lk)  // Link
+        state.lr = state.pc + 4;
+
+    if (branchCondition(instr.bo, instr.bi)) {
+        state.pc = (instr.aa == 1) ? sbd : state.pc + sbd;
+    }
 }
 
 void PPUInterpreter::sc(const Instruction& instr) {
@@ -154,6 +183,13 @@ void PPUInterpreter::rldicl(const Instruction& instr) {
 
 // G_1F
 
+void PPUInterpreter::cmpl(const Instruction& instr) {
+    if (instr.l)
+        state.cr.compareAndUpdateCRField<u64>(instr.bf, state.gprs[instr.ra], state.gprs[instr.rb], 0);
+    else
+        state.cr.compareAndUpdateCRField<u32>(instr.bf, state.gprs[instr.ra], state.gprs[instr.rb], 0);
+}
+
 void PPUInterpreter::mfspr(const Instruction& instr) {
     auto reversed_spr = ((instr.spr & 0x1f) << 5) | (instr.spr >> 5);
     switch (reversed_spr) {
@@ -176,6 +212,21 @@ void PPUInterpreter::mtspr(const Instruction& instr) {
     }
 }
 
+// G_3A
+
+void PPUInterpreter::ld(const Instruction& instr) {
+    const s32 sds = (s32)(s16)(instr.ds << 2);
+    const u32 addr = (instr.ra == 0) ? sds : state.gprs[instr.ra] + sds;
+    state.gprs[instr.rt] = mem.read<u64>(addr);
+}
+
+void PPUInterpreter::ldu(const Instruction& instr) {
+    const s32 sds = (s32)(s16)(instr.ds << 2);
+    const u32 addr = state.gprs[instr.ra] + sds;
+    state.gprs[instr.rt] = mem.read<u64>(addr);
+    state.gprs[instr.ra] = addr;    // Update
+}
+
 // G_3E
 
 void PPUInterpreter::std(const Instruction& instr) {
@@ -186,7 +237,7 @@ void PPUInterpreter::std(const Instruction& instr) {
 
 void PPUInterpreter::stdu(const Instruction& instr) {
     const s32 sds = (s32)(s16)(instr.ds << 2);
-    const u32 addr = (instr.ra == 0) ? sds : state.gprs[instr.ra] + sds;
+    const u32 addr = state.gprs[instr.ra] + sds;
     mem.write<u64>(addr, state.gprs[instr.rs]);
     state.gprs[instr.ra] = addr;    // Update
 }

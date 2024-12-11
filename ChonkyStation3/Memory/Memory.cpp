@@ -57,6 +57,11 @@ u8* Memory::getPtr(u64 vaddr) {
     return &ram[paddr & (256_MB) - 1];
 }
 
+// Returns a pointer to the data at the specified physical address
+u8* Memory::getPtrPhys(u64 paddr) {
+    return &ram[paddr & (256_MB) - 1];
+}
+
 template<typename T>
 T Memory::read(u64 vaddr) {
     u64 paddr = translateAddr(vaddr);

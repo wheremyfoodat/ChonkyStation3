@@ -21,8 +21,11 @@ public:
     void registerImport(u32 addr, u32 nid);
     std::unordered_map<u32, u32> imports = {};
     std::unordered_map<u32, Import> import_map {
-        { 0x744680a2, { "sysThreadInitializeTLS", std::bind(&SysPrxForUser::sysThreadInitializeTLS, &sysPrxForUser) }}
+        { 0x2f85c0ef, { "sysLwMutexCreate",         std::bind(&SysPrxForUser::sysLwMutexCreate, &sysPrxForUser) }},
+        { 0x744680a2, { "sysThreadInitializeTLS",   std::bind(&SysPrxForUser::sysThreadInitializeTLS, &sysPrxForUser) }}
     };
 
     SysPrxForUser sysPrxForUser;
+
+    static Result stub(void* a) { Helpers::panic("Unimplemented function\n"); }
 };

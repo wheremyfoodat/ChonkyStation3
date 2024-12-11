@@ -39,7 +39,8 @@ union Instruction {
     u32 raw;
     BitField<0,  1,  u32> lk;
     BitField<0,  1,  u32> rc;           // lk == rc
-    BitField<0,  2,  u32> g_3e_field;
+    BitField<0,  2,  u32> g_3a_field;
+    BitField<0,  2,  u32> g_3e_field;   // g_3a_field == g_3e_field
     BitField<0,  16, u32> ui;
     BitField<0,  16, u32> d;            // ui == d
     BitField<0,  16, u32> si;           // ui == si
@@ -49,6 +50,7 @@ union Instruction {
     BitField<1,  10, u32> g_1f_field;   // g_13_field == g_1f_field
     BitField<2,  3,  u32> g_1e_field;
     BitField<2,  14, u32> ds;
+    BitField<2,  14, u32> bd;           // ds == bd
     BitField<2,  24, u32> li;
     BitField<5,  6,  u32> mb;
     BitField<11, 3,  u32> bh;
@@ -57,9 +59,11 @@ union Instruction {
     BitField<11, 10, u32> spr;
     BitField<16, 5,  u32> ra;
     BitField<16, 5,  u32> bi;           // ra == bi
+    BitField<21, 1,  u32> l;
     BitField<21, 5,  u32> rt;
     BitField<21, 5,  u32> rs;           // rt == rs
     BitField<21, 5,  u32> bo;           // rt == bo
+    BitField<23, 3,  u32> bf;
     BitField<26, 6,  u32> opc;
 };
 
@@ -165,7 +169,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     CNTLZW  = 0x01a,
     SLD     = 0x01b,
     AND     = 0x01c,
-    CMPL    = 0x020,
+    CMPL    = 0x020,    // Compare Logical
     LVEHX   = 0x027,    // Load Vector Element Halfword Indexed
     SUBF    = 0x028,
     LDUX    = 0x035,    // Load Doubleword with Update Indexed

@@ -14,5 +14,6 @@ public:
     SysPrxForUser(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
+    Result sysLwMutexCreate();
     Result sysThreadInitializeTLS();
 };
