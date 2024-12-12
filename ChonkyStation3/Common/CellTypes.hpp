@@ -14,7 +14,7 @@
 
 namespace CellTypes {
 
-enum class Result : u32 {
+enum Result : u32 {
     CELL_OK     = 0x00000000,
     CELL_CANCEL = 0x00000001,
     CELL_EAGAIN = 0x80010001,

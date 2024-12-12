@@ -27,8 +27,10 @@ bool PPU::branchCondition(u8 bo, u8 bi) {
     const auto bit4 = (bo >> 4) & 1;
 
     if (bit2 && bit4) return true;
+    if (!bit2) state.ctr--;
     const bool crCheck = bit4 || (((state.cr.raw >> (31 - bi)) & 1) == bit3);
     const bool ctrCheck = bit2 || (bit1 ? (state.ctr == 0) : (state.ctr != 0));
+
     return crCheck && ctrCheck;
 }
 

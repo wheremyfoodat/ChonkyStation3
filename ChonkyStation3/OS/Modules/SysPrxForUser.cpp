@@ -2,7 +2,14 @@
 #include "PlayStation3.hpp"
 
 
-Result SysPrxForUser::sysLwMutexCreate() {
+u64 SysPrxForUser::sysProcessAtExitSpawn() {
+    printf("sysProcessAtExitSpawn()\n");
+
+    // TODO
+    return Result::CELL_OK;
+}
+
+u64 SysPrxForUser::sysLwMutexCreate() {
     const u64 ptr = ARG0;
     const u64 attrib_ptr = ARG1;
     SysLwMutexAttrib* attrib = (SysLwMutexAttrib*)ps3->mem.getPtr(attrib_ptr);
@@ -14,7 +21,7 @@ Result SysPrxForUser::sysLwMutexCreate() {
 }
 
 // Allocate TLS memory, copy TLS image to the newly allocated area. Returns TLS address in R13
-Result SysPrxForUser::sysThreadInitializeTLS() {
+u64 SysPrxForUser::sysThreadInitializeTLS() {
     const u64 thread_id = ARG0;
     const u32 tls_seg_addr = ARG1;
     const u32 tls_seg_size = ARG2;
@@ -29,5 +36,19 @@ Result SysPrxForUser::sysThreadInitializeTLS() {
     std::memcpy(tls_area_ptr, tls_image_ptr, tls_seg_size);
 
     ps3->ppu->state.gprs[13] = tls_addr;
+    return Result::CELL_OK;
+}
+
+u64 SysPrxForUser::sysGetSystemTime() {
+    printf("sysGetSystemTime()\n");
+
+    // TODO
+    return 0;
+}
+
+u64 SysPrxForUser::sysProcess_At_ExitSpawn() {
+    printf("sysProcess_At_ExitSpawn()\n");
+
+    // TODO
     return Result::CELL_OK;
 }

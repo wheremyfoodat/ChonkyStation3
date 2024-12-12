@@ -21,6 +21,9 @@ public:
         u8 name[8];
     };
 
-    Result sysLwMutexCreate();
-    Result sysThreadInitializeTLS();
+    u64 sysProcessAtExitSpawn();
+    u64 sysLwMutexCreate();
+    u64 sysThreadInitializeTLS();
+    u64 sysGetSystemTime();
+    u64 sysProcess_At_ExitSpawn();
 };

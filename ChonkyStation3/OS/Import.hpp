@@ -10,7 +10,7 @@ using namespace CellTypes;
 class Import {
 public:
     Import() {}
-    Import(std::string name, std::function<Result(void)> const& handler) : name(name), handler(handler) {}
+    Import(std::string name, std::function<u64(void)> const& handler) : name(name), handler(handler) {}
     std::string name;
-    std::function<Result(void)> handler;
+    std::function<u64(void)> handler;
 };

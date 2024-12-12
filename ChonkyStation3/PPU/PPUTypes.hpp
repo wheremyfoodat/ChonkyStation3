@@ -55,6 +55,7 @@ union Instruction {
     BitField<2,  24, u32> li;
     BitField<5,  6,  u32> mb_6;
     BitField<6,  5,  u32> mb_5;
+    BitField<10, 1,  u32> oe;
     BitField<11, 3,  u32> bh;
     BitField<11, 5,  u32> rb;
     BitField<11, 5,  u32> sh_lo;        // rb == sh_lo
@@ -242,7 +243,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     SRADI1  = 0x33a, 
     SRADI2  = 0x33b, 
     EIEIO   = 0x356,
-    EXTSH   = 0x39a,
+    EXTSH   = 0x39a,    // Extend Sign Halfword
     EXTSB   = 0x3ba,
     STFIWX  = 0x3d7,
     EXTSW   = 0x3da,

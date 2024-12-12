@@ -15,6 +15,7 @@ public:
     // Main
     void cmpi   (const Instruction& instr);
     void addi   (const Instruction& instr);
+    void addis  (const Instruction& instr);
     void bc     (const Instruction& instr);
     void sc     (const Instruction& instr);
     void b      (const Instruction& instr);
@@ -27,15 +28,21 @@ public:
     void andis  (const Instruction& instr);
     void lwz    (const Instruction& instr);
     void stw    (const Instruction& instr);
+    void lhz    (const Instruction& instr);
     // G_13
+    void bclr   (const Instruction& instr);
     void bcctr  (const Instruction& instr);
     // G_1E
     void rldicl (const Instruction& instr);
     // G_1F
+    void cmp    (const Instruction& instr);
     void cmpl   (const Instruction& instr);
+    void add    (const Instruction& instr);
     void mfspr  (const Instruction& instr);
     void or_    (const Instruction& instr);
     void mtspr  (const Instruction& instr);
+    void extsh  (const Instruction& instr);
+    void extsw  (const Instruction& instr);
     // G_3A
     void ld(const Instruction& instr);
     void ldu(const Instruction& instr);
