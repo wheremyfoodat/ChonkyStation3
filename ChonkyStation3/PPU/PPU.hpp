@@ -20,4 +20,5 @@ public:
 
     void printState();
     bool branchCondition(u8 bo, u8 bi);
+    static u32 rotationMask(u32 mb, u32 me);
 };

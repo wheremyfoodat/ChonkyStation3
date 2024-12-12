@@ -25,12 +25,13 @@ void PPUInterpreter::step() {
         }
         break;
     }
-    case ORI:   ori(instr);     break;
-    case ORIS:  oris(instr);    break;
-    case XORI:  xori(instr);    break;
-    case XORIS: xoris(instr);   break;
-    case ANDI:  andi(instr);    break;
-    case ANDIS: andis(instr);   break;
+    case RLWINM:    rlwinm(instr);   break;
+    case ORI:       ori(instr);     break;
+    case ORIS:      oris(instr);    break;
+    case XORI:      xori(instr);    break;
+    case XORIS:     xoris(instr);   break;
+    case ANDI:      andi(instr);    break;
+    case ANDIS:     andis(instr);   break;
     case G_1E: {
         switch (instr.g_1e_field) {
 
@@ -104,12 +105,12 @@ void PPUInterpreter::bc(const Instruction& instr) {
 
     if (branchCondition(instr.bo, instr.bi)) {
         state.pc = (instr.aa == 1) ? sbd : state.pc + sbd;
+        state.pc -= 4;
     }
 }
 
 void PPUInterpreter::sc(const Instruction& instr) {
-    ps3->syscall.doSyscall();
-    state.pc -= 4;
+    ps3->syscall.doSyscall(true);
 }
 
 void PPUInterpreter::b(const Instruction& instr) {
@@ -120,6 +121,12 @@ void PPUInterpreter::b(const Instruction& instr) {
 
     state.pc = (instr.aa == 1) ? sli : state.pc + sli;
     state.pc -= 4;
+}
+
+void PPUInterpreter::rlwinm(const Instruction& instr) {
+    const auto mask = rotationMask(instr.mb_5, instr.me_5);
+    Helpers::debugAssert(instr.mb_5 < instr.me_5, "rlwinm: mb > me");
+    state.gprs[instr.ra] = state.gprs[instr.rs] & mask;
 }
 
 void PPUInterpreter::ori(const Instruction& instr) {
@@ -173,7 +180,7 @@ void PPUInterpreter::bcctr(const Instruction& instr) {
 
 void PPUInterpreter::rldicl(const Instruction& instr) {
     const auto sh = instr.sh_lo | (instr.sh_hi << 5);
-    const auto mb = ((instr.mb & 1) << 5) | (instr.mb >> 1);
+    const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
     const auto mask = 0xffffffffffffffffull >> mb;
     state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
 

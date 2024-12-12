@@ -31,3 +31,14 @@ bool PPU::branchCondition(u8 bo, u8 bi) {
     const bool ctrCheck = bit2 || (bit1 ? (state.ctr == 0) : (state.ctr != 0));
     return crCheck && ctrCheck;
 }
+
+u32 PPU::rotationMask(u32 mb, u32 me) {
+    const u32 begin = 0xFFFFFFFF >> mb;
+    const u32 end = 0x7FFFFFFF >> me;
+    const u32 mask = begin ^ end;
+
+    if (me < mb)
+        return ~mask;
+
+    return mask;
+}

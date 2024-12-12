@@ -62,6 +62,11 @@ u8* Memory::getPtrPhys(u64 paddr) {
     return &ram[paddr & (256_MB) - 1];
 }
 
+// Returns amount of available memory
+u64 Memory::getAvailableMem() {
+    return RAM_END - next_alloc_addr;
+}
+
 template<typename T>
 T Memory::read(u64 vaddr) {
     u64 paddr = translateAddr(vaddr);

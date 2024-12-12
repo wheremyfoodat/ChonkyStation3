@@ -18,6 +18,7 @@ public:
     void bc     (const Instruction& instr);
     void sc     (const Instruction& instr);
     void b      (const Instruction& instr);
+    void rlwinm (const Instruction& instr);
     void ori    (const Instruction& instr);
     void oris   (const Instruction& instr);
     void xori   (const Instruction& instr);

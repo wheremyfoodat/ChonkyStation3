@@ -90,7 +90,10 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
             u64 size = seg->get_memory_size();
             u64 paddr = mem.alloc(size);
             mem.mmap(seg->get_virtual_address(), paddr, size);
-            memcpy(&mem.ram[mem.translateAddr(seg->get_virtual_address()) & (256_MB - 1)], seg->get_data(), seg->get_file_size());
+
+            std::memcpy(mem.getPtr(seg->get_virtual_address()), seg->get_data(), seg->get_file_size());
+            // Set the remaining memory to 0
+            std::memset(mem.getPtr(seg->get_virtual_address()) + seg->get_file_size(), 0, seg->get_memory_size() - seg->get_file_size());
         }
     }
 

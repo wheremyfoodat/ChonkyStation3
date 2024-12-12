@@ -46,13 +46,15 @@ union Instruction {
     BitField<0,  16, u32> si;           // ui == si
     BitField<1,  1,  u32> aa;
     BitField<1,  1,  u32> sh_hi;        // aa == sh_hi
+    BitField<1,  5,  u32> me_5;
     BitField<1,  10, u32> g_13_field;
     BitField<1,  10, u32> g_1f_field;   // g_13_field == g_1f_field
     BitField<2,  3,  u32> g_1e_field;
     BitField<2,  14, u32> ds;
     BitField<2,  14, u32> bd;           // ds == bd
     BitField<2,  24, u32> li;
-    BitField<5,  6,  u32> mb;
+    BitField<5,  6,  u32> mb_6;
+    BitField<6,  5,  u32> mb_5;
     BitField<11, 3,  u32> bh;
     BitField<11, 5,  u32> rb;
     BitField<11, 5,  u32> sh_lo;        // rb == sh_lo

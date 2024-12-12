@@ -3,10 +3,17 @@
 
 
 Result SysPrxForUser::sysLwMutexCreate() {
+    const u64 ptr = ARG0;
+    const u64 attrib_ptr = ARG1;
+    SysLwMutexAttrib* attrib = (SysLwMutexAttrib*)ps3->mem.getPtr(attrib_ptr);
+    auto name = Helpers::readString(attrib->name);
+    printf("sysLwMutexCreate(ptr: 0x%08llx, attrib_ptr: 0x%08llx (protocol: 0x%08x, recursive: 0x%08x, name: \"%s\")\n", ptr, attrib_ptr, (u32)attrib->protocol, (u32)attrib->recursive, name.c_str());
+
+    // TODO
     return Result::CELL_OK;
 }
 
-// Allocate TLS memory, copy TLS image to the newly allocated area. Return TLS address in R13
+// Allocate TLS memory, copy TLS image to the newly allocated area. Returns TLS address in R13
 Result SysPrxForUser::sysThreadInitializeTLS() {
     const u64 thread_id = ARG0;
     const u32 tls_seg_addr = ARG1;

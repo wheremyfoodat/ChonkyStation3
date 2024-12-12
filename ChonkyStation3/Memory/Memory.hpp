@@ -8,7 +8,7 @@ class Memory {
 public:
     Memory() {}
 
-    u8* ram = new u8[256_MB];
+    u8* ram = new u8[RAM_SIZE];
 
     struct Block {
         u64 start;
@@ -30,6 +30,8 @@ public:
     u64 translateAddr(u64 vaddr);
     u8* getPtr(u64 vaddr);
     u8* getPtrPhys(u64 paddr);
+
+    u64 getAvailableMem();
 
     template<typename T> T read(u64 vaddr);
     template<typename T> void write(u64 vaddr, T data);
