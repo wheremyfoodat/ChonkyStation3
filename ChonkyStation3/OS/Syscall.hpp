@@ -16,6 +16,9 @@ public:
 
     void doSyscall(bool decrement_pc_if_module_call = false);
 
+    // sysMMapper
+    u64 sysMMapperAllocateAddress();
+
     // sysMemory
-    Result sysMemoryGetUserMemorySize();
+    u64 sysMemoryGetUserMemorySize();
 };

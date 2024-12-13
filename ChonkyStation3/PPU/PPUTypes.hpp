@@ -6,7 +6,7 @@
 namespace PPUTypes {
 
 struct ConditionRegister {
-    u32 raw;
+    u32 raw = 0;
     enum {
         Negative = 0b1000,
         Positive = 0b0100,
@@ -19,6 +19,11 @@ struct ConditionRegister {
         raw |= (v | so) << bit;
     }
 
+    u8 getCRField(u8 n) {
+        const auto bit = 28 - (n * 4);  // CR Fields are reversed (CR0 is bits 28-31)
+        return (raw >> bit) & 0b1111;
+    }
+
     template <typename T>
     void compareAndUpdateCRField(u8 n, T a, T b, u8 so = 0) {
         if (a < b) setCRField(n, Negative, so);
@@ -27,12 +32,32 @@ struct ConditionRegister {
     }
 };
 
+// Doesn't work
+/*union XER {
+    u64 raw;
+    BitField<0, 7,  u64> n_bytes;
+    BitField<29, 1, u64> ca;
+    BitField<30, 1, u64> ov;
+    BitField<31, 1, u64> so;
+};*/
+
+struct XER {
+    u8 n_bytes = 0;
+    bool ca = false;
+    bool ov = false;
+    bool so = false;
+    u64 get() {
+        return (so << 31) | (ov << 30) | (ca << 29) | (n_bytes & 0x7f);
+    }
+};
+
 struct State {
     u64 gprs[32] = { 0 };
     u64 pc = 0;
-    u64 lr;
+    u64 lr = 0;
     ConditionRegister cr;
-    u64 ctr;
+    XER xer;
+    u64 ctr = 0;
 };
 
 union Instruction {
@@ -54,14 +79,18 @@ union Instruction {
     BitField<2,  14, u32> bd;           // ds == bd
     BitField<2,  24, u32> li;
     BitField<5,  6,  u32> mb_6;
+    BitField<5,  6,  u32> me_6;
     BitField<6,  5,  u32> mb_5;
     BitField<10, 1,  u32> oe;
     BitField<11, 3,  u32> bh;
     BitField<11, 5,  u32> rb;
     BitField<11, 5,  u32> sh_lo;        // rb == sh_lo
+    BitField<11, 5,  u32> sh;           // rb == sh
     BitField<11, 10, u32> spr;
+    BitField<12, 8,  u32> fxm;
     BitField<16, 5,  u32> ra;
     BitField<16, 5,  u32> bi;           // ra == bi
+    BitField<20, 1,  u32> one;
     BitField<21, 1,  u32> l;
     BitField<21, 5,  u32> rt;
     BitField<21, 5,  u32> rs;           // rt == rs
@@ -98,7 +127,7 @@ enum Instructions {
     ANDIS   = 0x1d,     // AND Immediate Shifted
     G_1E    = 0x1e,
     G_1F    = 0x1f,
-    LWZ     = 0x20,     // Load Word and Zero Indexed
+    LWZ     = 0x20,     // Load Word and Zero
     LWZU    = 0x21,     // Load Word and Zero with Update Indexed
     LBZ     = 0x22,     // Load Byte and Zero
     LBZU    = 0x23,     // Load Byte and Zero with Update
@@ -164,7 +193,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     MULHDU  = 0x009,
     ADDC    = 0x00a,
     MULHWU  = 0x00b,
-    MFOCRF  = 0x013,
+    MFCR    = 0x013,
     LWARX   = 0x014,
     LDX     = 0x015,
     LWZX    = 0x017,
@@ -174,7 +203,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     AND     = 0x01c,
     CMPL    = 0x020,    // Compare Logical
     LVEHX   = 0x027,    // Load Vector Element Halfword Indexed
-    SUBF    = 0x028,
+    SUBF    = 0x028,    // Subtract from
     LDUX    = 0x035,    // Load Doubleword with Update Indexed
     DCBST   = 0x036,
     CNTLZD  = 0x03a,
@@ -191,7 +220,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     NOR     = 0x07c,
     SUBFE   = 0x088,    // Subtract from Extended
     ADDE    = 0x08a,
-    MTOCRF  = 0x090,
+    MTCRF   = 0x090,
     STDX    = 0x095,
     STWCX_  = 0x096,
     STWX    = 0x097,

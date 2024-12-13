@@ -21,10 +21,23 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
 
-    case 0x160: ps3->ppu->state.gprs[3] = (u64)sysMemoryGetUserMemorySize(); break;
+    case 0x14a: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();  break;
+    case 0x160: ps3->ppu->state.gprs[3] = sysMemoryGetUserMemorySize(); break;
+    case 0x193: {   // puts
+        printf("0x%08llx %lld @ 0x%016llx\n", ARG1, ARG2, ps3->ppu->state.pc);
+        std::string str;
+        u8* ptr = ps3->mem.getPtr(ARG1);
+        for (int i = 0; i < ARG2; i++)
+            str += *ptr++;
+        std::printf("%s", str.c_str());
+        //std::puts(Helpers::readString(ps3->mem.getPtr(ARG1)).c_str());
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        break;
+    }
+    case 0x3dc: ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
 
     default:
-        Helpers::panic("Unimplemented syscall number 0x%02x\n", syscall_num);
+        Helpers::panic("Unimplemented syscall number 0x%02x @ 0x%016llx\n", syscall_num, ps3->ppu->state.pc);
     }
 
 }

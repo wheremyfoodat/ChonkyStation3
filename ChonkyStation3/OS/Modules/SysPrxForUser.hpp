@@ -22,8 +22,14 @@ public:
     };
 
     u64 sysProcessAtExitSpawn();
-    u64 sysLwMutexCreate();
     u64 sysThreadInitializeTLS();
     u64 sysGetSystemTime();
     u64 sysProcess_At_ExitSpawn();
+    u64 sysSpinlockInitialize();
+    u64 sysSpinlockLock();
+    u64 sysSpinlockUnlock();
+
+    u64 sysLwMutexCreate();
+    u64 sysLwMutexLock();
+    u64 sysLwMutexUnlock();
 };

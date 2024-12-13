@@ -2,7 +2,7 @@
 #include "PlayStation3.hpp"
 
 
-Result Syscall::sysMemoryGetUserMemorySize() {
+u64 Syscall::sysMemoryGetUserMemorySize() {
     const u64 mem_info_ptr = ARG0;
     const auto available_mem = ps3->mem.getAvailableMem();
     ps3->mem.write<u32>(mem_info_ptr, RAM_SIZE);

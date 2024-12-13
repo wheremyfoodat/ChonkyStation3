@@ -29,6 +29,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
         switch (instr.g_1e_field) {
 
         case PPUTypes::G_1EOpcodes::RLDICL: printf("0x%016llx | rldicl%c    r%d, r%d, %d, %d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs, instr.sh_lo | (instr.sh_hi << 5), ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1));    break;
+        case PPUTypes::G_1EOpcodes::RLDICR: printf("0x%016llx | rldicr%c    r%d, r%d, %d, %d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs, instr.sh_lo | (instr.sh_hi << 5), ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1));    break;
 
         default: printf("0x%016llx | unknown 0x%02x\n", state.pc, (u8)instr.opc); break;
         }

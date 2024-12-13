@@ -3,7 +3,7 @@
 #include "PlayStation3.hpp"
 
 
-Thread::Thread(u64 entry, u64 stack_size, u64 arg, u8* name, int id, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, ThreadManager* mgr) : mgr(mgr) {
+Thread::Thread(u64 entry, u64 stack_size, u64 arg, u8* name, u32 id, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, ThreadManager* mgr) : mgr(mgr) {
     const u32 real_entry = mgr->ps3->mem.read<u32>(entry);
     this->id = id;
     this->name = Helpers::readString(name);
