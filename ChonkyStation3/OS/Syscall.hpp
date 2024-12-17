@@ -18,6 +18,7 @@ public:
 
     // sysMMapper
     u64 sysMMapperAllocateAddress();
+    u64 sysMMapperSearchAndMapMemory();
 
     // sysMemory
     u64 sysMemoryGetUserMemorySize();

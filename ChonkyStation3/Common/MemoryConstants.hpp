@@ -1,7 +1,7 @@
 #pragma once
 
 
-constexpr u64 PAGE_SIZE = 0x1000;
+constexpr u64 PAGE_SIZE = 0x10000;
 constexpr u64 PAGE_MASK = PAGE_SIZE - 1;
 constexpr u64 RAM_SIZE = 256_MB;
 constexpr u64 RAM_START = 0x00010000;

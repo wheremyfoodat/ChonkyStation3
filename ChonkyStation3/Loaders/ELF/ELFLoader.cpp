@@ -105,7 +105,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
         // Load segment only if it's of type PT_LOAD
         if (seg->get_type() == PT_LOAD) {
             u64 size = seg->get_memory_size();
-            u64 paddr = mem.alloc(size);
+            u64 paddr = mem.allocPhys(size);
             mem.mmap(seg->get_virtual_address(), paddr, size);
 
             std::memcpy(mem.getPtr(seg->get_virtual_address()), seg->get_data(), seg->get_file_size());
