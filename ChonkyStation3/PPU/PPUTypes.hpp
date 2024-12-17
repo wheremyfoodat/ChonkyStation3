@@ -24,6 +24,8 @@ struct ConditionRegister {
         return (raw >> bit) & 0b1111;
     }
 
+    // TODO: Rename to less than, greater than, equal
+    // No idea why I called them negative, positive and zero
     template <typename T>
     void compareAndUpdateCRField(u8 n, T a, T b, u8 so = 0) {
         if (a < b) setCRField(n, Negative, so);
@@ -199,7 +201,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     LWZX    = 0x017,
     SLW     = 0x018,
     CNTLZW  = 0x01a,
-    SLD     = 0x01b,
+    SLD     = 0x01b,    // Shift Left Doubleword
     AND     = 0x01c,
     CMPL    = 0x020,    // Compare Logical
     LVEHX   = 0x027,    // Load Vector Element Halfword Indexed

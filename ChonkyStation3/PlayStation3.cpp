@@ -10,10 +10,9 @@ PlayStation3::PlayStation3(const fs::path& executable) : mem(), interpreter(mem,
     // Register ELF module imports in module manager
     for (auto& i : imports)
         module_manager.registerImport(i.first, i.second);
-    // Create start thread
+    // Create main thread
     u8 thread_name[] = "main";
     Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, thread_name, elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true);
-    
 }
 
 void PlayStation3::step() {

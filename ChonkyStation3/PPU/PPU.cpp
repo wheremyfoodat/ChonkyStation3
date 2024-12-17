@@ -20,6 +20,7 @@ bool PPU::branchCondition(u8 bo, u8 bi) {
     // BO bit 1: if bit 2 is unset (meaning the condition will test for CTR), and this bit is set, check if CTR == 0. If this bit is unset, condition is CTR != 0
     // So if bits 4 and 2 are set nothing is tested (condition is always true)
     // The manual does a poor job at explaining what the individual bits do in my opinion
+    // Or I might just be dumb
 
     const auto bit1 = (bo >> 1) & 1;
     const auto bit2 = (bo >> 2) & 1;

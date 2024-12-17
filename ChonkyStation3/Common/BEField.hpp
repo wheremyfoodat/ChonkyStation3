@@ -11,4 +11,9 @@ public:
     operator T() {
         return Helpers::bswap<T>(val);
     }
+
+    T& operator=(const T& other) {
+        val = Helpers::bswap<T>(other);
+        return val;
+    }
 };

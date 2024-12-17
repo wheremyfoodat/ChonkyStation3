@@ -13,7 +13,8 @@ public:
     void step() override;
 
     // Main
-    void cmpli (const Instruction& instr);
+    void subfic (const Instruction& instr);
+    void cmpli  (const Instruction& instr);
     void cmpi   (const Instruction& instr);
     void addi   (const Instruction& instr);
     void addis  (const Instruction& instr);
@@ -41,17 +42,23 @@ public:
     void rldicr(const Instruction& instr);
     // G_1F
     void cmp    (const Instruction& instr);
-    void mfcr   (const Instruction& instr); // TODO: is this actually mfocrf?
+    void mfcr   (const Instruction& instr);
+    void sld    (const Instruction& instr);
     void and_   (const Instruction& instr);
     void cmpl   (const Instruction& instr);
     void subf   (const Instruction& instr);
+    void andc   (const Instruction& instr);
     void neg    (const Instruction& instr);
     void mtcrf  (const Instruction& instr);
+    void stdx   (const Instruction& instr);
     void addze  (const Instruction& instr);
+    void mulld  (const Instruction& instr);
     void add    (const Instruction& instr);
     void mfspr  (const Instruction& instr);
     void or_    (const Instruction& instr);
+    void divdu  (const Instruction& instr);
     void mtspr  (const Instruction& instr);
+    void srawi  (const Instruction& instr);
     void sradi  (const Instruction& instr);
     void extsh  (const Instruction& instr);
     void extsw  (const Instruction& instr);

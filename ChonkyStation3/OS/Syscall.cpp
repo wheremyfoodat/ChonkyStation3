@@ -12,12 +12,16 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     switch (syscall_num) {
     
     // Module call
-    case 0x10: {
+    case 0x10:
+    case 0x11: {
+        bool should_return = ps3->ppu->state.gprs[11] == 0x10;
+        // Normally the stub does this to jump to the function (mtctr + bctr), I don't think it matters but to be sure I added this here
+        ps3->ppu->state.ctr = ps3->ppu->state.gprs[0];
         // import addr is stored in r12
         ps3->module_manager.call(ps3->module_manager.imports[ps3->ppu->state.gprs[12]]);
         // return
-        ps3->ppu->state.pc = ps3->ppu->state.lr;
-        if (decrement_pc_if_module_call) ps3->ppu->state.pc -= 4;
+        if (should_return) ps3->ppu->state.pc = ps3->ppu->state.lr;
+        if (decrement_pc_if_module_call && should_return) ps3->ppu->state.pc -= 4;
         break;
     }
 
@@ -30,7 +34,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         for (int i = 0; i < ARG2; i++)
             str += *ptr++;
         std::printf("%s", str.c_str());
-        //std::puts(Helpers::readString(ps3->mem.getPtr(ARG1)).c_str());
+        std::puts(Helpers::readString(ps3->mem.getPtr(ARG1)).c_str());
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
@@ -39,5 +43,4 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     default:
         Helpers::panic("Unimplemented syscall number 0x%02x @ 0x%016llx\n", syscall_num, ps3->ppu->state.pc);
     }
-
 }

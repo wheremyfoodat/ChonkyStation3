@@ -78,8 +78,25 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
                         printf("* unk_0x%08x			@ 0x%08x\n", nid, addr);
 
                     // Patch import stub
-                    mem.write<u32>(addr + 4 * 6, 0x39600010);   // li r11, 0x10
-                    mem.write<u32>(addr + 4 * 7, 0x44000000);   // sc
+                    // Find BCCTR or BCCTRL instructions
+                    // There are 2 different kinds of stubs
+                    bool stubbed = false;
+                    for (int i = 0; i < 128; i += 4) {
+                        const auto instr = mem.read<u32>(addr + i);
+                        if (instr == 0x4e800420) {
+                            mem.write<u32>(addr + i - 4, 0x39600010);   // li r11, 0x10
+                            mem.write<u32>(addr + i - 0, 0x44000000);   // sc
+                            stubbed = true;
+                            break;
+                        }
+                        else if (instr == 0x4e800421) {
+                            mem.write<u32>(addr + i - 4, 0x39600011);   // li r11, 0x11
+                            mem.write<u32>(addr + i - 0, 0x44000000);   // sc
+                            stubbed = true;
+                            break;
+                        }
+                    }
+                    if (!stubbed) Helpers::panic("Couldn't patch stub\n");
                 }
             }
             putc('\n', stdout);

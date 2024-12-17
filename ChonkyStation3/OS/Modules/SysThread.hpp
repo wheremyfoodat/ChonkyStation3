@@ -3,6 +3,7 @@
 #include <common.hpp>
 #include <CellTypes.hpp>
 #include <BEField.hpp>
+#include <PPUTypes.hpp>
 
 
 // Circular dependency
@@ -16,4 +17,7 @@ public:
     PlayStation3* ps3;
 
     u64 sysThreadGetID();
+    u64 sysThreadInitializeTLS();
+
+    void initializeTLS(u64 thread_id, u32 tls_seg_addr, u32 tls_seg_size, u32 tls_mem_size, PPUTypes::State& state);
 };
