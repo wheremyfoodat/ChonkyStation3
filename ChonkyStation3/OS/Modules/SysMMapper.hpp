@@ -17,4 +17,6 @@ public:
     PlayStation3* ps3;
     
     u64 sysMMapperAllocateMemory();
+    u64 sysMMapperFreeMemory();
+    u64 sysMMapperUnmapMemory();
 };

@@ -30,6 +30,8 @@ public:
 
     u64 allocPhys(size_t size);
     MapEntry* alloc(size_t size);
+    void free(MapEntry* entry);
+    std::pair<bool, Block*> findBlockFromAddr(u64 paddr);
     std::pair<bool, Block*> findNextBlock(u64 start_addr);
     std::pair<bool, MapEntry*> findNextMappedArea(u64 start_addr);
     std::pair<bool, MapEntry*> findMapEntryWithHandle(u32 handle);

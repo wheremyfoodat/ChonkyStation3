@@ -118,14 +118,14 @@ static inline u32 bswap32(u32 val) {
 }
 
 static inline u64 bswap64(u64 val) {
-    u32 byte0 = val         & 0xff;
-    u32 byte1 = (val >> 8)  & 0xff;
-    u32 byte2 = (val >> 16) & 0xff;
-    u32 byte3 = (val >> 24) & 0xff;
-    u32 byte4 = (val >> 32) & 0xff;
-    u32 byte5 = (val >> 40) & 0xff;
-    u32 byte6 = (val >> 48) & 0xff;
-    u32 byte7 = (val >> 56) & 0xff;
+    u64 byte0 = val         & 0xff;
+    u64 byte1 = (val >> 8)  & 0xff;
+    u64 byte2 = (val >> 16) & 0xff;
+    u64 byte3 = (val >> 24) & 0xff;
+    u64 byte4 = (val >> 32) & 0xff;
+    u64 byte5 = (val >> 40) & 0xff;
+    u64 byte6 = (val >> 48) & 0xff;
+    u64 byte7 = (val >> 56) & 0xff;
     return (byte0 << 56) | (byte1 << 48) | (byte2 << 40) | (byte3 << 32) | (byte4 << 24) | (byte5 << 16) | (byte6 << 8) | byte7;
 }
 
@@ -142,14 +142,14 @@ static inline T bswap(T val) {
         return (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3;
     }
     else if constexpr (sizeof(T) == sizeof(u64)) {
-        u32 byte0 = val & 0xff;
-        u32 byte1 = (val >> 8) & 0xff;
-        u32 byte2 = (val >> 16) & 0xff;
-        u32 byte3 = (val >> 24) & 0xff;
-        u32 byte4 = (val >> 32) & 0xff;
-        u32 byte5 = (val >> 40) & 0xff;
-        u32 byte6 = (val >> 48) & 0xff;
-        u32 byte7 = (val >> 56) & 0xff;
+        u64 byte0 = val & 0xff;
+        u64 byte1 = (val >> 8) & 0xff;
+        u64 byte2 = (val >> 16) & 0xff;
+        u64 byte3 = (val >> 24) & 0xff;
+        u64 byte4 = (val >> 32) & 0xff;
+        u64 byte5 = (val >> 40) & 0xff;
+        u64 byte6 = (val >> 48) & 0xff;
+        u64 byte7 = (val >> 56) & 0xff;
         return (byte0 << 56) | (byte1 << 48) | (byte2 << 40) | (byte3 << 32) | (byte4 << 24) | (byte5 << 16) | (byte6 << 8) | byte7;
     }
     else return 0;

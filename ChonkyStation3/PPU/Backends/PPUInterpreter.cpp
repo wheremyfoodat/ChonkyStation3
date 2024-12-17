@@ -10,8 +10,8 @@ void PPUInterpreter::step() {
 
     //if (state.pc == 0x127f8)
     //if (state.pc == 0x1281c)
-    if (state.pc == 0x1064c)
-        printState();
+    //if (state.pc == 0x1064c)
+    //    printState();
 
     switch (instr.opc) {
     
@@ -57,6 +57,7 @@ void PPUInterpreter::step() {
 
         case CMP:       cmp(instr);     break;
         case MFCR:      mfcr(instr);    break;
+        case CNTLZW:    cntlzw(instr);  break;
         case SLD:       sld(instr);     break;
         case AND:       and_(instr);    break;
         case CMPL:      cmpl(instr);    break;
@@ -68,6 +69,7 @@ void PPUInterpreter::step() {
         case ADDZE:     addze(instr);   break;
         case MULLD:     mulld(instr);   break;
         case ADD:       add(instr);     break;
+        case XOR:       xor_(instr);    break;
         case MFSPR:     mfspr(instr);   break;
         case OR:        or_(instr);     break;
         case DIVDU:     divdu(instr);   break;
@@ -85,8 +87,10 @@ void PPUInterpreter::step() {
     }
     case LWZ:   lwz(instr);     break;
     case LBZ:   lbz(instr);     break;
+    case LBZU:  lbzu(instr);    break;
     case STW:   stw(instr);     break;
     case STB:   stb(instr);     break;
+    case STBU:  stbu(instr);     break;
     case LHZ:   lhz(instr);     break;
     case STH:   sth(instr);     break;
     case G_3A: {
@@ -139,6 +143,7 @@ void PPUInterpreter::cmpli(const Instruction& instr) {
 }
 
 void PPUInterpreter::cmpi(const Instruction& instr) {
+    if (state.pc == 0x347d8) printState();
     const s64 a = (s64)state.gprs[instr.ra];
     const s64 b = (s64)(s16)instr.si;
     if (instr.l)
@@ -224,6 +229,13 @@ void PPUInterpreter::lbz(const Instruction& instr) {
     state.gprs[instr.rt] = mem.read<u8>(addr);
 }
 
+void PPUInterpreter::lbzu(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    state.gprs[instr.rt] = mem.read<u8>(addr);
+    state.gprs[instr.ra] = addr;    // Update
+}
+
 void PPUInterpreter::stw(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
     const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
@@ -234,6 +246,13 @@ void PPUInterpreter::stb(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
     const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
     mem.write<u8>(addr, state.gprs[instr.rs]);
+}
+
+void PPUInterpreter::stbu(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    mem.write<u8>(addr, state.gprs[instr.rs]);
+    state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::lhz(const Instruction& instr) {
@@ -316,6 +335,18 @@ void PPUInterpreter::mfcr(const Instruction& instr) {
     else {  // mfcrf
         state.gprs[instr.rt] = state.cr.raw;
     }
+}
+
+void PPUInterpreter::cntlzw(const Instruction& instr) {
+    u8 n = 0;
+    for (int i = 31; i >= 0; i++) {
+        if ((state.gprs[instr.rs] >> i) & 1)
+            break;
+        else
+            n++;
+    }
+    state.gprs[instr.ra] = n;
+    // TODO: what does rc do?
 }
 
 void PPUInterpreter::sld(const Instruction& instr) {
@@ -409,6 +440,12 @@ void PPUInterpreter::add(const Instruction& instr) {
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
 }
 
+void PPUInterpreter::xor_(const Instruction& instr) {
+    state.gprs[instr.ra] = state.gprs[instr.rs] ^ state.gprs[instr.rb];
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
+}
+
 void PPUInterpreter::mfspr(const Instruction& instr) {
     auto reversed_spr = ((instr.spr & 0x1f) << 5) | (instr.spr >> 5);
     switch (reversed_spr) {
@@ -484,6 +521,7 @@ void PPUInterpreter::ldu(const Instruction& instr) {
     const u32 addr = (s32)state.gprs[instr.ra] + sds;
     state.gprs[instr.rt] = mem.read<u64>(addr);
     state.gprs[instr.ra] = addr;    // Update
+    if (state.pc == 0x347D4) printState();
 }
 
 // G_3E

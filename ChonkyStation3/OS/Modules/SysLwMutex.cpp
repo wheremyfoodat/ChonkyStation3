@@ -27,11 +27,11 @@ u64 SysLwMutex::sysLwMutexUnlock() {
         Helpers::panic("Tried to unlock already unlocked mutex\n");
 
     mtx->owner = -1;  // free
-    printf("owner: 0x%08x\n", (u32)mtx->owner);
-    printf("waiter: 0x%08x\n", (u32)mtx->waiter);
-    printf("attrib: 0x%08x\n", (u32)mtx->attribute);
-    printf("recursive_count: 0x%08x\n", (u32)mtx->recursive_count);
-    printf("sleep_queue: 0x%08x\n", (u32)mtx->sleep_queue);
+    //printf("owner: 0x%08x\n", (u32)mtx->owner);
+    //printf("waiter: 0x%08x\n", (u32)mtx->waiter);
+    //printf("attrib: 0x%08x\n", (u32)mtx->attribute);
+    //printf("recursive_count: 0x%08x\n", (u32)mtx->recursive_count);
+    //printf("sleep_queue: 0x%08x\n", (u32)mtx->sleep_queue);
     return Result::CELL_OK;
 }
 

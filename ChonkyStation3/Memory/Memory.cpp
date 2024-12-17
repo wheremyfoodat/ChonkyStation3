@@ -45,10 +45,10 @@ Memory::MapEntry* Memory::alloc(size_t size) {
     u64 paddr = allocPhys(aligned_size);
     u64 vaddr = RAM_START;
     // Find the next free area in the address map
-    printf("Searching allocateable area...\n");
+    //printf("Searching allocateable area...\n");
     while (true) {
         auto next_area = findNextMappedArea(vaddr);
-        printf("0x%016llx (next area at 0x%016llx, spacing: 0x%016llx)...", vaddr, next_area.second->vaddr, next_area.second->vaddr - vaddr);
+        //printf("0x%016llx (next area at 0x%016llx, spacing: 0x%016llx)...", vaddr, next_area.second->vaddr, next_area.second->vaddr - vaddr);
         if (next_area.first) {
             if (next_area.second->vaddr - vaddr >= aligned_size) {
                 // addr OK
@@ -65,13 +65,41 @@ Memory::MapEntry* Memory::alloc(size_t size) {
             break;
         }
     }
-    printf(" ok\n");
+    //printf(" ok\n");
 
     // Map area
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
 
     printf("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
     return entry;
+}
+
+void Memory::free(Memory::MapEntry* entry) {
+    // Get the block this entry is mapped to
+    auto block = findBlockFromAddr(entry->paddr);
+    // Remove block
+    for (int i = 0; i < blocks.size(); i++) {
+        if (blocks[i].start == block.second->start) {
+            blocks.erase(blocks.begin() + i);
+            break;
+        }
+    }
+    // Remove map entry
+    for (int i = 0; i < map.size(); i++) {
+        if (map[i].vaddr == entry->vaddr) {
+            map.erase(map.begin() + i);
+            break;
+        }
+    }
+}
+
+// Returns whether the given physical address is part of an allocated memory block and, in case it is, returns the block info.
+std::pair<bool, Memory::Block*> Memory::findBlockFromAddr(u64 paddr) {
+    for (auto& i : blocks) {
+        if (Helpers::inRange<u32>(paddr, i.start, i.start + i.size - 1)) return { true, &i };
+    }
+
+    return { false, nullptr };
 }
 
 // Returns whether there is an allocated memory block after the given physical address and, in case there is, returns the block info.

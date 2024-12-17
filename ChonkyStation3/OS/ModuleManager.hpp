@@ -38,6 +38,8 @@ public:
         { 0x350d454e, { "sysThreadGetID",           std::bind(&SysThread::sysThreadGetID, &sysThread) }},
         { 0x744680a2, { "sysThreadInitializeTLS",   std::bind(&SysThread::sysThreadInitializeTLS, &sysThread) }},
 
+        { 0x409ad939, { "sysMMapperFreeMemory",     std::bind(&SysMMapper::sysMMapperFreeMemory, &sysMMapper) }},
+        { 0x4643ba6e, { "sysMMapperUnmapMemory",    std::bind(&SysMMapper::sysMMapperUnmapMemory, &sysMMapper) }},
         { 0xb257540b, { "sysMMapperAllocateMemory", std::bind(&SysMMapper::sysMMapperAllocateMemory, &sysMMapper) }},
     };
 

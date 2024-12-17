@@ -30,8 +30,10 @@ public:
     void andis  (const Instruction& instr);
     void lwz    (const Instruction& instr);
     void lbz    (const Instruction& instr);
+    void lbzu   (const Instruction& instr);
     void stw    (const Instruction& instr);
     void stb    (const Instruction& instr);
+    void stbu   (const Instruction& instr);
     void lhz    (const Instruction& instr);
     void sth    (const Instruction& instr);
     // G_13
@@ -43,6 +45,7 @@ public:
     // G_1F
     void cmp    (const Instruction& instr);
     void mfcr   (const Instruction& instr);
+    void cntlzw (const Instruction& instr);
     void sld    (const Instruction& instr);
     void and_   (const Instruction& instr);
     void cmpl   (const Instruction& instr);
@@ -54,6 +57,7 @@ public:
     void addze  (const Instruction& instr);
     void mulld  (const Instruction& instr);
     void add    (const Instruction& instr);
+    void xor_   (const Instruction& instr);
     void mfspr  (const Instruction& instr);
     void or_    (const Instruction& instr);
     void divdu  (const Instruction& instr);
