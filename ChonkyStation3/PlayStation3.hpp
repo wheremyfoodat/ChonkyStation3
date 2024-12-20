@@ -3,6 +3,7 @@
 #include <common.hpp>
 #include <Memory.hpp>
 #include <ELF/ELFloader.hpp>
+#include <ElfSymbolParser.hpp>
 #include <PPU.hpp>
 #include <ModuleManager.hpp>
 #include <ThreadManager.hpp>
@@ -22,6 +23,7 @@ public:
     ThreadManager thread_manager;
     HandleManager handle_manager;
     Syscall syscall;
+    ElfSymbolParser elf_parser;
 
     void step();
 };

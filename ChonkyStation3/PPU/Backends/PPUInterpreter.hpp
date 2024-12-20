@@ -12,6 +12,9 @@ public:
     PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {}
     void step() override;
 
+    // Debug symbols
+    void printFunctionCall();
+
     // Main
     void subfic (const Instruction& instr);
     void cmpli  (const Instruction& instr);
@@ -32,6 +35,7 @@ public:
     void lbz    (const Instruction& instr);
     void lbzu   (const Instruction& instr);
     void stw    (const Instruction& instr);
+    void stwu   (const Instruction& instr);
     void stb    (const Instruction& instr);
     void stbu   (const Instruction& instr);
     void lhz    (const Instruction& instr);

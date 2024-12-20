@@ -131,7 +131,8 @@ static inline u64 bswap64(u64 val) {
 
 template<typename T>
 static inline T bswap(T val) {
-    if constexpr (sizeof(T) == sizeof(u16)) {
+    if constexpr (sizeof(T) == sizeof(u8)) return val;
+    else if constexpr (sizeof(T) == sizeof(u16)) {
         return (val >> 8) | (val << 8);
     }
     else if constexpr (sizeof(T) == sizeof(u32)) {

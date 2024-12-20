@@ -13,7 +13,7 @@ u64 SysLwMutex::sysLwMutexLock() {
         Helpers::panic("Tried to lock already locked mutex\n");
 
     mtx->owner = ps3->thread_manager.current_thread->id;   // owner
-    printf("new owner: 0x%08x\n", (u32)mtx->owner);
+    //printf("new owner: 0x%08x\n", (u32)mtx->owner);
     return Result::CELL_OK;
 }
 

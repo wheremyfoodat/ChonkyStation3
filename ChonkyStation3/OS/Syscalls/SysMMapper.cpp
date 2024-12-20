@@ -3,15 +3,24 @@
 
 
 u64 Syscall::sysMMapperAllocateAddress() {
-    printf("sysMMapperAllocateAddress() UNIMPLEMENTED\n");
-    // TODO: I don't know what this does
+    const u64 size = ARG0;
+    const u64 flags = ARG1;
+    const u64 alignment = ARG2;
+    const u32 addr_ptr = ARG3;
+    printf("sysMMapperAllocateAddress(size: 0x%016llx, flags: 0x%016llx, alignment: 0x%016llx, addr_ptr: 0x%08x) UNIMPLEMENTED\n", size, flags, alignment, addr_ptr);
+    // I think what this does is, it looks for a memory region big enough to fit size, and returns the address in addr_ptr?
+    // I should be able to just emulate this as a simple alloc?
+    // TODO: I think I'm wrong
+    //auto block = ps3->mem.alloc(size);
+    //ps3->mem.write<u32>(addr_ptr, block->vaddr);
+
     return Result::CELL_OK;
 }
 
 u64 Syscall::sysMMapperSearchAndMapMemory() {
     // We map the memory when we allocate it, so we just do the "search" part here
     // Shouldn't be a problem
-    // TODO: what is start_addr?
+    // TODO: what is start_addr? Well, I guess it's the address I'm supposed to begin searching from. Just assert for now
     const u32 start_addr = ARG0;
     const u32 handle = ARG1;
     const u64 flags = ARG2;

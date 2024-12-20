@@ -30,19 +30,36 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 0x151: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;
     case 0x160: ps3->ppu->state.gprs[3] = sysMemoryGetUserMemorySize();     break;
     case 0x193: {   // puts
-        printf("0x%08llx %lld @ 0x%016llx\n", ARG1, ARG2, ps3->ppu->state.pc);
         std::string str;
         u8* ptr = ps3->mem.getPtr(ARG1);
         for (int i = 0; i < ARG2; i++)
             str += *ptr++;
-        std::printf("%s", str.c_str());
-        std::puts(Helpers::readString(ps3->mem.getPtr(ARG1)).c_str());
+        printf("%s", str.c_str());
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
     case 0x329: {
-        printf("cellFsFStat() UNIMPLEMENTED\n");
-        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        const u32 fd = ARG0;
+        const u32 stat_ptr = ARG1;
+        printf("cellFsFStat(fd: 0x%08x, stat_ptr: 0x%08x) STUBBED\n", fd, stat_ptr);
+
+        CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
+
+        if (fd == 1) {  // stdout?
+            stat->mode = CELL_FS_S_IRUSR | CELL_FS_S_IWUSR | CELL_FS_S_IXUSR |
+                         CELL_FS_S_IRGRP | CELL_FS_S_IWGRP | CELL_FS_S_IXGRP |
+                         CELL_FS_S_IROTH | CELL_FS_S_IWOTH | CELL_FS_S_IXOTH |
+                         CELL_FS_S_IFREG;
+            stat->uid = 0;
+            stat->gid = 0;
+            stat->atime = 0;
+            stat->mtime = 0;
+            stat->ctime = 0;
+            stat->size = 0;
+            stat->blksize = 4096;
+        }
+        ps3->ppu->state.gprs[3] = Result::CELL_BADF;
+        break;
     }
     case 0x3dc: ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
 

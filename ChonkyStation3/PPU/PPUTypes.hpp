@@ -55,6 +55,7 @@ struct XER {
 
 struct State {
     u64 gprs[32] = { 0 };
+    double fprs[32] = { 0.0 };
     u64 pc = 0;
     u64 lr = 0;
     ConditionRegister cr;
@@ -96,6 +97,7 @@ union Instruction {
     BitField<21, 1,  u32> l;
     BitField<21, 5,  u32> rt;
     BitField<21, 5,  u32> rs;           // rt == rs
+    BitField<21, 5,  u32> frs;          // rt == frs
     BitField<21, 5,  u32> bo;           // rt == bo
     BitField<23, 3,  u32> bf;
     BitField<26, 6,  u32> opc;

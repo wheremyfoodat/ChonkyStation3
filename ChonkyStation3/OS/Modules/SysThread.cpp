@@ -32,12 +32,14 @@ u64 SysThread::sysThreadInitializeTLS() {
 void SysThread::initializeTLS(u64 thread_id, u32 tls_seg_addr, u32 tls_seg_size, u32 tls_mem_size, State& state) {
     // Allocate TLS memory
     const u32 tls_addr = ps3->thread_manager.allocTLS(tls_mem_size);
-    // Copy TLS image to allocated memory
     const u8* tls_image_ptr = ps3->mem.getPtr(tls_seg_addr);
     u8* tls_area_ptr = ps3->mem.getPtr(tls_addr);
+    // Clear system area
+    std::memset(tls_area_ptr, 0, 0x30);
+    // Copy TLS image to allocated memory
     std::memcpy(tls_area_ptr + 0x30, tls_image_ptr, tls_seg_size);
     // Set the remaining memory to 0
-    std::memset(tls_area_ptr + tls_seg_size, 0, tls_mem_size - tls_seg_size);
+    std::memset(tls_area_ptr + 0x30 + tls_seg_size, 0, tls_mem_size - tls_seg_size);
 
     state.gprs[13] = tls_addr + 0x7000 + 0x30; // TODO: figure out why you have to add 0x7000... but stuff breaks without it. I know that 0x30 is because the first 0x30 are some sort of reserved system area.
 }

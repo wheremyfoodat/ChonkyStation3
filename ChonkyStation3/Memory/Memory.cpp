@@ -57,7 +57,7 @@ Memory::MapEntry* Memory::alloc(size_t size) {
             else {
                 // Keep searching
                 vaddr = next_area.second->vaddr + next_area.second->size;
-                printf(" not ok\n");
+                //printf(" not ok\n");
             }
         }
         else {

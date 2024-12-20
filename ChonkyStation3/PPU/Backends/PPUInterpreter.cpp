@@ -2,20 +2,21 @@
 #include <PlayStation3.hpp>
 
 
+void PPUInterpreter::printFunctionCall() {
+    auto symbol = ps3->elf_parser.getSymbol(state.pc);
+    if (symbol.has_value())
+        printf("[DEBUG] %s @ 0x%08llx\n", symbol.value().name.c_str(), state.pc);
+}
+
 void PPUInterpreter::step() {
     const u32 instrRaw = mem.read<u32>(state.pc);
     const Instruction instr { .raw = instrRaw };
     
     //PPUDisassembler::disasm(state, instr, &mem);
 
-    //if (state.pc == 0x127f8)
-    //if (state.pc == 0x1281c)
-    //if (state.pc == 0x1064c)
-    //    printState();
-
     switch (instr.opc) {
     
-    case SUBFIC: subfic(instr); break;
+    case SUBFIC: subfic(instr);  break;
     case CMPLI:  cmpli(instr);   break;
     case CMPI:   cmpi(instr);    break;
     case ADDI:   addi(instr);    break;
@@ -89,8 +90,9 @@ void PPUInterpreter::step() {
     case LBZ:   lbz(instr);     break;
     case LBZU:  lbzu(instr);    break;
     case STW:   stw(instr);     break;
+    case STWU:  stwu(instr);    break;
     case STB:   stb(instr);     break;
-    case STBU:  stbu(instr);     break;
+    case STBU:  stbu(instr);    break;
     case LHZ:   lhz(instr);     break;
     case STH:   sth(instr);     break;
     case G_3A: {
@@ -143,7 +145,6 @@ void PPUInterpreter::cmpli(const Instruction& instr) {
 }
 
 void PPUInterpreter::cmpi(const Instruction& instr) {
-    if (state.pc == 0x347d8) printState();
     const s64 a = (s64)state.gprs[instr.ra];
     const s64 b = (s64)(s16)instr.si;
     if (instr.l)
@@ -167,6 +168,7 @@ void PPUInterpreter::bc(const Instruction& instr) {
 
     if (branchCondition(instr.bo, instr.bi)) {
         state.pc = (instr.aa == 1) ? sbd : (state.pc + sbd);
+        printFunctionCall();
         state.pc -= 4;
     }
 }
@@ -182,6 +184,7 @@ void PPUInterpreter::b(const Instruction& instr) {
         state.lr = state.pc + 4;
 
     state.pc = (instr.aa == 1) ? sli : (state.pc + sli);
+    printFunctionCall();
     state.pc -= 4;
 }
 
@@ -219,62 +222,71 @@ void PPUInterpreter::andis(const Instruction& instr) {
 
 void PPUInterpreter::lwz(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     state.gprs[instr.rt] = mem.read<u32>(addr);
 }
 
 void PPUInterpreter::lbz(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     state.gprs[instr.rt] = mem.read<u8>(addr);
 }
 
 void PPUInterpreter::lbzu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = state.gprs[instr.ra] + sd;
     state.gprs[instr.rt] = mem.read<u8>(addr);
     state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::stw(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    mem.write<u32>(addr, state.gprs[instr.rs]);
+}
+
+void PPUInterpreter::stwu(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     mem.write<u32>(addr, state.gprs[instr.rs]);
 }
 
 void PPUInterpreter::stb(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     mem.write<u8>(addr, state.gprs[instr.rs]);
 }
 
 void PPUInterpreter::stbu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = (s32)state.gprs[instr.ra] + sd;
     mem.write<u8>(addr, state.gprs[instr.rs]);
     state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::lhz(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     state.gprs[instr.rt] = mem.read<u16>(addr);
 }
 
 void PPUInterpreter::sth(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : (s32)state.gprs[instr.ra] + sd;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     mem.write<u16>(addr, state.gprs[instr.rs]);
 }
 
 // G_13
 
 void PPUInterpreter::bclr(const Instruction& instr) {
+    auto lr = state.lr;
     if (instr.lk)  // Link
         state.lr = state.pc + 4;
 
     if (branchCondition(instr.bo, instr.bi)) {
-        state.pc = state.lr - 4;
+        state.pc = lr;
+        printFunctionCall();
+        state.pc -= 4;
     }
 }
 
@@ -283,7 +295,9 @@ void PPUInterpreter::bcctr(const Instruction& instr) {
         state.lr = state.pc + 4;
 
     if (branchCondition(instr.bo, instr.bi)) {
-        state.pc = state.ctr - 4;
+        state.pc = state.ctr;
+        printFunctionCall();
+        state.pc -= 4;
     }
 }
 
@@ -304,7 +318,6 @@ void PPUInterpreter::rldicr(const Instruction& instr) {
     const auto me = ((instr.me_6 & 1) << 5) | (instr.me_6 >> 1);
     const auto mask = 0xffffffffffffffffull << (63 - me);
     state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
-
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
@@ -339,7 +352,7 @@ void PPUInterpreter::mfcr(const Instruction& instr) {
 
 void PPUInterpreter::cntlzw(const Instruction& instr) {
     u8 n = 0;
-    for (int i = 31; i >= 0; i++) {
+    for (int i = 31; i >= 0; i--) {
         if ((state.gprs[instr.rs] >> i) & 1)
             break;
         else
@@ -347,6 +360,7 @@ void PPUInterpreter::cntlzw(const Instruction& instr) {
     }
     state.gprs[instr.ra] = n;
     // TODO: what does rc do?
+    
 }
 
 void PPUInterpreter::sld(const Instruction& instr) {
@@ -481,9 +495,9 @@ void PPUInterpreter::mtspr(const Instruction& instr) {
 }
 
 void PPUInterpreter::srawi(const Instruction& instr) {
-    const auto sh = instr.sh_lo | (instr.sh_hi << 5);
+    const auto sh = instr.sh_lo;
     state.gprs[instr.ra] = (s32)state.gprs[instr.rs] >> sh;
-    state.xer.ca = (state.gprs[instr.rs] < 0) && (((u32)state.gprs[instr.ra] << sh) != (u32)state.gprs[instr.rs]);
+    state.xer.ca = ((s32)state.gprs[instr.rs] < 0) && (((u32)state.gprs[instr.ra] << sh) != (u32)state.gprs[instr.rs]);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
@@ -491,7 +505,7 @@ void PPUInterpreter::srawi(const Instruction& instr) {
 void PPUInterpreter::sradi(const Instruction& instr) {
     const auto sh = instr.sh_lo | (instr.sh_hi << 5);
     state.gprs[instr.ra] = (s64)state.gprs[instr.rs] >> sh;
-    state.xer.ca = (state.gprs[instr.rs] < 0) && ((state.gprs[instr.ra] << sh) != state.gprs[instr.rs]);
+    state.xer.ca = ((s64)state.gprs[instr.rs] < 0) && ((state.gprs[instr.ra] << sh) != state.gprs[instr.rs]);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
@@ -512,16 +526,15 @@ void PPUInterpreter::extsw(const Instruction& instr) {
 
 void PPUInterpreter::ld(const Instruction& instr) {
     const s32 sds = (s32)(s16)(instr.ds << 2);
-    const u32 addr = (instr.ra == 0) ? sds : (s32)state.gprs[instr.ra] + sds;
+    const u32 addr = (instr.ra == 0) ? sds : state.gprs[instr.ra] + sds;
     state.gprs[instr.rt] = mem.read<u64>(addr);
 }
 
 void PPUInterpreter::ldu(const Instruction& instr) {
     const s32 sds = (s32)(s16)(instr.ds << 2);
-    const u32 addr = (s32)state.gprs[instr.ra] + sds;
+    const u32 addr = state.gprs[instr.ra] + sds;
     state.gprs[instr.rt] = mem.read<u64>(addr);
     state.gprs[instr.ra] = addr;    // Update
-    if (state.pc == 0x347D4) printState();
 }
 
 // G_3E
@@ -534,7 +547,7 @@ void PPUInterpreter::std(const Instruction& instr) {
 
 void PPUInterpreter::stdu(const Instruction& instr) {
     const s32 sds = (s32)(s16)(instr.ds << 2);
-    const u32 addr = (s32)state.gprs[instr.ra] + sds;
+    const u32 addr = state.gprs[instr.ra] + sds;
     mem.write<u64>(addr, state.gprs[instr.rs]);
     state.gprs[instr.ra] = addr;    // Update
 }
