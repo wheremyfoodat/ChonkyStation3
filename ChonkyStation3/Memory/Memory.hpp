@@ -12,9 +12,10 @@ public:
         map.clear();
         this->virtual_base = virtual_base;
         this->size = size;
+        mem = new u8[size];
     }
 
-    u8* mem = new u8[RAM_SIZE];
+    u8* mem;
     u64 virtual_base;   // Base address of this region in the virtual address space
     u64 size;
 
