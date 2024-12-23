@@ -25,6 +25,13 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
 
+    case 0x91: {
+        printf("sysTimeGetCurrentTime() STUBBED\n");
+        ps3->mem.write<u64>(ARG0, 0);
+        ps3->mem.write<u64>(ARG1, 0);
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        break;
+    }
     case 0x14a: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
     case 0x14b: ps3->ppu->state.gprs[3] = Result::CELL_OK;  printf("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
     case 0x151: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;
@@ -64,6 +71,6 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 0x3dc: ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
 
     default:
-        Helpers::panic("Unimplemented syscall number 0x%02x @ 0x%016llx\n", syscall_num, ps3->ppu->state.pc);
+        Helpers::panic("Unimplemented syscall number 0x%02x (%d) @ 0x%016llx\n", syscall_num, syscall_num, ps3->ppu->state.pc);
     }
 }

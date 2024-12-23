@@ -2,7 +2,7 @@
 
 
 // Allocates size bytes of physical memory. Returns physical address of the allocated memory.
-u64 Memory::allocPhys(size_t size) {
+u64 MemoryRegion::allocPhys(size_t size) {
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Find the next free block of memory big enough for the given size
@@ -38,12 +38,12 @@ u64 Memory::allocPhys(size_t size) {
 }
 
 // Allocates and maps size bytes of memory. Returns virtual address of allocated memory.
-Memory::MapEntry* Memory::alloc(size_t size) {
+MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Allocate block of memory
     u64 paddr = allocPhys(aligned_size);
-    u64 vaddr = RAM_START;
+    u64 vaddr = virtual_base;
     // Find the next free area in the address map
     //printf("Searching allocateable area...\n");
     while (true) {
@@ -74,7 +74,7 @@ Memory::MapEntry* Memory::alloc(size_t size) {
     return entry;
 }
 
-void Memory::free(Memory::MapEntry* entry) {
+void MemoryRegion::free(MemoryRegion::MapEntry* entry) {
     // Get the block this entry is mapped to
     auto block = findBlockFromAddr(entry->paddr);
     // Remove block
@@ -94,7 +94,7 @@ void Memory::free(Memory::MapEntry* entry) {
 }
 
 // Returns whether the given physical address is part of an allocated memory block and, in case it is, returns the block info.
-std::pair<bool, Memory::Block*> Memory::findBlockFromAddr(u64 paddr) {
+std::pair<bool, MemoryRegion::Block*> MemoryRegion::findBlockFromAddr(u64 paddr) {
     for (auto& i : blocks) {
         if (Helpers::inRange<u32>(paddr, i.start, i.start + i.size - 1)) return { true, &i };
     }
@@ -103,7 +103,7 @@ std::pair<bool, Memory::Block*> Memory::findBlockFromAddr(u64 paddr) {
 }
 
 // Returns whether there is an allocated memory block after the given physical address and, in case there is, returns the block info.
-std::pair<bool, Memory::Block*> Memory::findNextBlock(u64 start_addr) {
+std::pair<bool, MemoryRegion::Block*> MemoryRegion::findNextBlock(u64 start_addr) {
     Block* block = nullptr;
     for (auto& i : blocks) {
         if (i.start >= start_addr) {
@@ -118,7 +118,7 @@ std::pair<bool, Memory::Block*> Memory::findNextBlock(u64 start_addr) {
 }
 
 // Returns whether there is a mapped area in the virtual address space after the given virtual address and, in case there is, returns the map info.
-std::pair<bool, Memory::MapEntry*> Memory::findNextMappedArea(u64 start_addr) {
+std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findNextMappedArea(u64 start_addr) {
     MapEntry* map_entry = nullptr;
     for (auto& i : map) {
         if (i.vaddr >= start_addr) {
@@ -133,7 +133,7 @@ std::pair<bool, Memory::MapEntry*> Memory::findNextMappedArea(u64 start_addr) {
 }
 
 // Returns whether there is a mapped area in the virtual address space with the given handle and, in case there is, returns the map info.
-std::pair<bool, Memory::MapEntry*> Memory::findMapEntryWithHandle(u32 handle) {
+std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findMapEntryWithHandle(u32 handle) {
     for (auto& i : map) {
         if (i.handle == handle)
             return { true, &i };
@@ -143,7 +143,7 @@ std::pair<bool, Memory::MapEntry*> Memory::findMapEntryWithHandle(u32 handle) {
 
 // Checks if the given virtual address is mapped to a physical address.
 // If it is, also return the map entry.
-std::pair<bool, Memory::MapEntry*> Memory::isMapped(u64 vaddr) {
+std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::isMapped(u64 vaddr) {
     for (auto& i : map) {
         if (Helpers::inRange<u32>(vaddr, i.vaddr, i.vaddr + i.size - 1)) return { true, &i };
     }
@@ -152,7 +152,7 @@ std::pair<bool, Memory::MapEntry*> Memory::isMapped(u64 vaddr) {
 }
 
 // Maps a virtual address to a physical one.
-Memory::MapEntry* Memory::mmap(u64 vaddr, u64 paddr, size_t size) {
+MemoryRegion::MapEntry* MemoryRegion::mmap(u64 vaddr, u64 paddr, size_t size) {
     if (isMapped(vaddr).first) {
         printAddressMap();
         Helpers::panic("Tried to map an already mapped virtual address at 0x%016llx\n", vaddr);
@@ -166,7 +166,7 @@ Memory::MapEntry* Memory::mmap(u64 vaddr, u64 paddr, size_t size) {
 }
 
 // Unmaps the region starting at the given virtual address
-void Memory::unmap(u64 vaddr) {
+void MemoryRegion::unmap(u64 vaddr) {
     for (int i = 0; i < map.size(); i++) {
         if (map[i].vaddr == vaddr) {
             map.erase(map.begin() + i);
@@ -175,35 +175,48 @@ void Memory::unmap(u64 vaddr) {
 }
 
 // Translates a virtual address
-u64 Memory::translateAddr(u64 vaddr) {
+u64 MemoryRegion::translateAddr(u64 vaddr) {
     auto [mapped, map] = isMapped(vaddr);
     if (!mapped) Helpers::panic("Tried to access unmapped vaddr 0x%016x\n", vaddr);
 
     return map->paddr + (vaddr - map->vaddr);
 }
 
-// Returns a pointer to the data at the specified virtual address
-u8* Memory::getPtr(u64 vaddr) {
-    u64 paddr = translateAddr(vaddr);
-    return &ram[paddr & (256_MB) - 1];
+// Returns a pointer to the memory region the address is part of (or nullptr if the address is unmapped), and an offset into the aforementioned memory (or 0 if the address is unmapped).
+std::pair<u64, u8*> Memory::addrToOffsetInMemory(u64 vaddr) {
+    for (auto& i : regions) {
+        if (i->isMapped(vaddr).first) {
+            return { i->translateAddr(vaddr), i->mem };
+        }
+    }
+
+    return { 0, nullptr };
 }
 
 // Returns a pointer to the data at the specified physical address
-u8* Memory::getPtrPhys(u64 paddr) {
-    return &ram[paddr & (256_MB) - 1];
+u8* MemoryRegion::getPtrPhys(u64 paddr) {
+    return &mem[paddr];
 }
 
+// Returns a pointer to the data at the specified virtual address
+u8* Memory::getPtr(u64 vaddr) {
+    auto [offset, mem] = addrToOffsetInMemory(vaddr);
+    return &mem[offset];
+}
+
+
 // Returns amount of available memory
-u64 Memory::getAvailableMem() {
+u64 MemoryRegion::getAvailableMem() {
     return RAM_END - next_alloc_addr;
 }
 
 template<typename T>
 T Memory::read(u64 vaddr) {
-    u64 paddr = translateAddr(vaddr);
+    auto [offset, mem] = addrToOffsetInMemory(vaddr);
+    Helpers::debugAssert(mem != nullptr, "Tried to read unmapped vaddr 0x%016llx\n", vaddr);
     T data;
 
-    std::memcpy(&data, &ram[paddr & (256_MB - 1)], sizeof(T));
+    std::memcpy(&data, &mem[offset], sizeof(T));
 
     return Helpers::bswap<T>(data);
 }
@@ -214,10 +227,11 @@ template u64 Memory::read(u64 vaddr);
 
 template<typename T>
 void Memory::write(u64 vaddr, T data) {
-    u64 paddr = translateAddr(vaddr);
+    auto [offset, mem] = addrToOffsetInMemory(vaddr);
+    Helpers::debugAssert(mem != nullptr, "Tried to write unmapped vaddr 0x%016llx\n", vaddr);
     data = Helpers::bswap<T>(data);
 
-    std::memcpy(&ram[paddr & (256_MB - 1)], &data, sizeof(T));
+    std::memcpy(&mem[offset], &data, sizeof(T));
 }
 template void Memory::write(u64 vaddr, u8  data);
 template void Memory::write(u64 vaddr, u16 data);

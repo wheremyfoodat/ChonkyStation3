@@ -26,12 +26,12 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, u8* name, u32 id, u32 tls_vad
     state.gprs[4] = sp - 4;  // argv
     // Fake 1 argument
     u32 empty = 0;
-    std::memcpy(mgr->ps3->mem.getPtrPhys(stack - 4), &empty, 4);
+    std::memcpy(mgr->ps3->mem.ram.getPtrPhys(stack - 4), &empty, 4);
 
     // Environment (environment variables...? That's what I gather from PSL1GHT)
     state.gprs[5] = sp - 8;  // env pointer
     state.gprs[6] = 1;  // env count
-    std::memcpy(mgr->ps3->mem.getPtrPhys(stack - 8), &empty, 4);
+    std::memcpy(mgr->ps3->mem.ram.getPtrPhys(stack - 8), &empty, 4);
 
     state.gprs[7] = id;
     state.gprs[8] = tls_vaddr;

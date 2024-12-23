@@ -8,6 +8,7 @@
 #include <Modules/SysThread.hpp>
 #include <Modules/SysLwMutex.hpp>
 #include <Modules/SysMMapper.hpp>
+#include <Modules/CellGcmSys.hpp>
 
 
 // Circular dependency
@@ -15,7 +16,7 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3) {}
+    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -41,12 +42,15 @@ public:
         { 0x409ad939, { "sysMMapperFreeMemory",     std::bind(&SysMMapper::sysMMapperFreeMemory, &sysMMapper) }},
         { 0x4643ba6e, { "sysMMapperUnmapMemory",    std::bind(&SysMMapper::sysMMapperUnmapMemory, &sysMMapper) }},
         { 0xb257540b, { "sysMMapperAllocateMemory", std::bind(&SysMMapper::sysMMapperAllocateMemory, &sysMMapper) }},
+
+        { 0x15bae46b, { "cellGcmInitBody",          std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
     };
 
     SysPrxForUser sysPrxForUser;
     SysThread sysThread;
     SysLwMutex sysLwMutex;
     SysMMapper sysMMapper;
+    CellGcmSys cellGcmSys;
 
     static Result stub(void* a) { Helpers::panic("Unimplemented function\n"); }
 };

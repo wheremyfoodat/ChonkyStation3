@@ -52,8 +52,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
 
             // Stubs
             for (int i = prx_param->libstubstart; i < prx_param->libstubend; i += sizeof(PrxStubHeader)) {
-                u64 ptr = mem.translateAddr(i);
-                PrxStubHeader* stub = (PrxStubHeader*)&mem.ram[ptr];
+                PrxStubHeader* stub = (PrxStubHeader*)mem.getPtr(i);
 
                 /*printf("Found stub\n");
                 printf("s_modulename : 0x%016x\n", (u32)stub->s_modulename);
@@ -105,8 +104,8 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
         // Load segment only if it's of type PT_LOAD
         if (seg->get_type() == PT_LOAD) {
             u64 size = seg->get_memory_size();
-            u64 paddr = mem.allocPhys(size);
-            mem.mmap(seg->get_virtual_address(), paddr, size);
+            u64 paddr = mem.ram.allocPhys(size);
+            mem.ram.mmap(seg->get_virtual_address(), paddr, size);
 
             std::memcpy(mem.getPtr(seg->get_virtual_address()), seg->get_data(), seg->get_file_size());
             // Set the remaining memory to 0

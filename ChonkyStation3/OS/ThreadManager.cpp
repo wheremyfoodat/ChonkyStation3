@@ -30,15 +30,15 @@ void ThreadManager::contextSwitch(Thread& thread) {
 }
 
 u64 ThreadManager::allocateStack(u64 stack_size) {
-    return ps3->mem.allocPhys(stack_size);
+    return ps3->mem.ram.allocPhys(stack_size);
 }
 
 void ThreadManager::mapStack(Thread& thread) {
     // Unmap current stack region
-    ps3->mem.unmap(STACK_REGION_START);
-    ps3->mem.mmap(STACK_REGION_START, thread.stack, thread.stack_size);
+    ps3->mem.ram.unmap(STACK_REGION_START);
+    ps3->mem.ram.mmap(STACK_REGION_START, thread.stack, thread.stack_size);
 }
 
 u32 ThreadManager::allocTLS(u32 tls_size) {
-    return ps3->mem.alloc(tls_size)->vaddr;
+    return ps3->mem.ram.alloc(tls_size)->vaddr;
 }

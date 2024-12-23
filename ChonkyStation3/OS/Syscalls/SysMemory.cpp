@@ -4,7 +4,7 @@
 
 u64 Syscall::sysMemoryGetUserMemorySize() {
     const u64 mem_info_ptr = ARG0;
-    const auto available_mem = ps3->mem.getAvailableMem();
+    const auto available_mem = ps3->mem.ram.getAvailableMem();
     ps3->mem.write<u32>(mem_info_ptr, RAM_SIZE);
     ps3->mem.write<u32>(mem_info_ptr + 4, available_mem);
 
