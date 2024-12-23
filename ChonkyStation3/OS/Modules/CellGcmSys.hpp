@@ -26,4 +26,5 @@ public:
     CellGcmConfig gcm_config;
 
     u64 cellGcmInitBody();
+    u64 cellGcmGetConfiguration();
 };

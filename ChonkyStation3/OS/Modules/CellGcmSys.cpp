@@ -18,3 +18,18 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     return Result::CELL_OK;
 }
+
+u64 CellGcmSys::cellGcmGetConfiguration() {
+    const u32 config_ptr = ARG0;
+    printf("cellGcmGetConfiguration(config_ptr: 0x%08x)\n", config_ptr);
+    
+    CellGcmConfig* config = (CellGcmConfig*)ps3->mem.getPtr(config_ptr);
+    config->local_addr = gcm_config.local_addr;
+    config->io_addr = gcm_config.io_addr;
+    config->local_size = gcm_config.local_size;
+    config->io_size = gcm_config.io_size;
+    config->memFreq = gcm_config.memFreq;
+    config->coreFreq = gcm_config.coreFreq;
+
+    return Result::CELL_OK;
+}

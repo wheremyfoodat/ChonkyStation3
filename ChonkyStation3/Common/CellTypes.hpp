@@ -31,6 +31,7 @@ enum Result : u32 {
     CELL_EIO    = 0x8001002B,
 };
 
+// TODO: probably move this to the proper FS module when I implement it
 enum CELL_FS_S : u32 {
     CELL_FS_S_IFDIR = 0040000,	// Directory
     CELL_FS_S_IFREG = 0100000,	// Regular
