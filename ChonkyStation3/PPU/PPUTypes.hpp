@@ -96,6 +96,7 @@ union Instruction {
     BitField<20, 1,  u32> one;
     BitField<21, 1,  u32> l;
     BitField<21, 5,  u32> rt;
+    BitField<21, 5,  u32> frt;          // rt == frt
     BitField<21, 5,  u32> rs;           // rt == rs
     BitField<21, 5,  u32> frs;          // rt == frs
     BitField<21, 5,  u32> bo;           // rt == bo

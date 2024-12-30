@@ -25,6 +25,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
 
+    case 0x8d: ps3->ppu->state.gprs[3] = Result::CELL_OK;  printf("sysTimerUsleep() UNIMPLEMENTED\n");  break;
     case 0x91: {
         printf("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 0);

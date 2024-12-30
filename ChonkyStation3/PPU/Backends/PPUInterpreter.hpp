@@ -40,12 +40,16 @@ public:
     void stbu   (const Instruction& instr);
     void lhz    (const Instruction& instr);
     void sth    (const Instruction& instr);
+    void lfs    (const Instruction& instr);
+    void lfd    (const Instruction& instr);
+    void stfs   (const Instruction& instr);
+    void stfd   (const Instruction& instr);
     // G_13
     void bclr   (const Instruction& instr);
     void bcctr  (const Instruction& instr);
     // G_1E
     void rldicl (const Instruction& instr);
-    void rldicr(const Instruction& instr);
+    void rldicr (const Instruction& instr);
     // G_1F
     void cmp    (const Instruction& instr);
     void mfcr   (const Instruction& instr);
@@ -77,8 +81,8 @@ public:
     void extsb  (const Instruction& instr);
     void extsw  (const Instruction& instr);
     // G_3A
-    void ld(const Instruction& instr);
-    void ldu(const Instruction& instr);
+    void ld     (const Instruction& instr);
+    void ldu    (const Instruction& instr);
     // G_3E
     void std    (const Instruction& instr);
     void stdu   (const Instruction& instr);

@@ -80,6 +80,7 @@ void PPUInterpreter::step() {
         case DIVWU:     divwu(instr);   break;
         case MTSPR:     mtspr(instr);   break;
         case SRW:       srw(instr);     break;
+        case SYNC:      break;
         case SRAWI:     srawi(instr);   break;
         case SRADI1:
         case SRADI2:    sradi(instr);   break;
@@ -101,6 +102,10 @@ void PPUInterpreter::step() {
     case STBU:  stbu(instr);    break;
     case LHZ:   lhz(instr);     break;
     case STH:   sth(instr);     break;
+    case LFS:   lfs(instr);     break;
+    case LFD:   lfd(instr);     break;
+    case STFS:  stfs(instr);    break;
+    case STFD:  stfd(instr);    break;
     case G_3A: {
         switch (instr.g_3a_field) {
 
@@ -280,6 +285,32 @@ void PPUInterpreter::sth(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
     const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     mem.write<u16>(addr, state.gprs[instr.rs]);
+}
+
+void PPUInterpreter::lfs(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    state.fprs[instr.frt] = (float)mem.read<u32>(addr); // TODO: double check this when I actually begin working on the FPU
+}
+
+void PPUInterpreter::lfd(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    u64 v = mem.read<u64>(addr);
+    state.fprs[instr.frt] = *(double*)&v; // TODO: double check this when I actually begin working on the FPU
+}
+
+void PPUInterpreter::stfs(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    float v = (float)state.fprs[instr.frs];
+    mem.write<u32>(addr, *(u32*)&v);
+}
+
+void PPUInterpreter::stfd(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    mem.write<u64>(addr, *(u64*)&state.fprs[instr.frs]);
 }
 
 // G_13

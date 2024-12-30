@@ -45,7 +45,10 @@ public:
         { 0xb257540b, { "sysMMapperAllocateMemory",                 std::bind(&SysMMapper::sysMMapperAllocateMemory, &sysMMapper) }},
 
         { 0x15bae46b, { "cellGcmInitBody",                          std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
+        { 0x21ac3697, { "cellGcmAddressToOffset",                   std::bind(&CellGcmSys::cellGcmAddressToOffset, &cellGcmSys) }},
+        { 0xa547adde, { "cellGcmGetControlRegister",                std::bind(&CellGcmSys::cellGcmGetControlRegister, &cellGcmSys) }},
         { 0xe315a0b2, { "cellGcmGetConfiguration",                  std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
+        { 0xf80196c1, { "cellGcmGetLabelAddress",                   std::bind(&CellGcmSys::cellGcmGetLabelAddress, &cellGcmSys) }},
 
         { 0x0bae8772, { "cellVideoOutConfigure",                    std::bind(&CellVideoOut::cellVideoOutConfigure, &cellVideoOut) }},
         { 0x887572d5, { "cellVideoOutGetState",                     std::bind(&CellVideoOut::cellVideoOutGetState, &cellVideoOut) }},
