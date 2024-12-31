@@ -5,16 +5,19 @@
 #include <queue>
 
 
+class Memory;
+
 class MemoryRegion {
 public:
-    MemoryRegion(u64 virtual_base, u64 size) {
+    MemoryRegion(u64 virtual_base, u64 size, Memory& mem_manager) : mem_manager(mem_manager) {
         blocks.clear();
         map.clear();
         this->virtual_base = virtual_base;
         this->size = size;
         mem = new u8[size];
     }
-
+    
+    Memory& mem_manager;
     u8* mem;
     u64 virtual_base;   // Base address of this region in the virtual address space
     u64 size;
@@ -40,7 +43,6 @@ public:
     std::pair<bool, Block*> findNextBlock(u64 start_addr);
     std::pair<bool, MapEntry*> findNextMappedArea(u64 start_addr);
     std::pair<bool, MapEntry*> findMapEntryWithHandle(u32 handle);
-    u64 next_alloc_addr = RAM_START;
     std::pair<bool, MapEntry*> isMapped(u64 vaddr);
     MapEntry* mmap(u64 vaddr, u64 paddr, size_t size);
     void unmap(u64 vaddr);
@@ -59,12 +61,24 @@ public:
 
 class Memory {
 public:
-    MemoryRegion ram = MemoryRegion(RAM_START, RAM_SIZE);
-    MemoryRegion rsx = MemoryRegion(RSX_VIDEO_MEM_START, RSX_VIDEO_MEM_SIZE);
+    Memory() {
+        read_table.resize(PAGE_COUNT, 0);
+        write_table.resize(PAGE_COUNT, 0);
+    }
+
+    // I don't explicitly check anywhere, but it is assumed that memory regions don't overlap.
+    // Just be careful when creating them
+    MemoryRegion ram = MemoryRegion(RAM_START, RAM_SIZE, *this);
+    MemoryRegion rsx = MemoryRegion(RSX_VIDEO_MEM_START, RSX_VIDEO_MEM_SIZE, *this);
     std::vector<MemoryRegion*> regions = { &ram, &rsx };
 
     std::pair<u64, u8*> addrToOffsetInMemory(u64 vaddr);
     u8* getPtr(u64 vaddr);
+
+    std::vector<u8*> read_table;
+    std::vector<u8*> write_table;
+    void markAsFastMem(u64 page, u8* ptr, bool r, bool w);
+    void markAsSlowMem(u64 page, bool r, bool w);
 
     u64 allocPhys(size_t size) { return ram.allocPhys(size); }
     MemoryRegion::MapEntry* alloc(size_t size) { return ram.alloc(size); }

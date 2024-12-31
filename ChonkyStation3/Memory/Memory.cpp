@@ -37,7 +37,7 @@ u64 MemoryRegion::allocPhys(size_t size) {
     return addr;
 }
 
-// Allocates and maps size bytes of memory. Returns virtual address of allocated memory.
+// Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem.
 MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
     // Page alignment
     size_t aligned_size = pageAlign(size);
@@ -69,6 +69,11 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
 
     // Map area
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
+    
+    // Fastmem
+    const u64 page = entry->vaddr >> PAGE_SHIFT;
+    u8* ptr = getPtrPhys(paddr);
+    mem_manager.markAsFastMem(page, ptr, true, true);
 
     printf("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
     return entry;
@@ -182,6 +187,20 @@ u64 MemoryRegion::translateAddr(u64 vaddr) {
     return map->paddr + (vaddr - map->vaddr);
 }
 
+// Returns a pointer to the data at the specified physical address
+u8* MemoryRegion::getPtrPhys(u64 paddr) {
+    return &mem[paddr];
+}
+
+// Returns amount of available memory
+u64 MemoryRegion::getAvailableMem() {
+    u64 size = 0;
+    for (auto& i : blocks)
+        size += i.size;
+    return RAM_SIZE - size;
+}
+
+
 // Returns a pointer to the memory region the address is part of (or nullptr if the address is unmapped), and an offset into the aforementioned memory (or 0 if the address is unmapped).
 std::pair<u64, u8*> Memory::addrToOffsetInMemory(u64 vaddr) {
     for (auto& i : regions) {
@@ -193,9 +212,16 @@ std::pair<u64, u8*> Memory::addrToOffsetInMemory(u64 vaddr) {
     return { 0, nullptr };
 }
 
-// Returns a pointer to the data at the specified physical address
-u8* MemoryRegion::getPtrPhys(u64 paddr) {
-    return &mem[paddr];
+// Marks a page of memory as fastmem
+void Memory::markAsFastMem(u64 page, u8* ptr, bool r, bool w) {
+    if (r) read_table [page] = ptr;
+    if (w) write_table[page] = ptr;
+}
+
+// Marks a page of memory as slowmem (removes it from the fastmem page table)
+void Memory::markAsSlowMem(u64 page, bool r, bool w) {
+    if (r) read_table [page] = 0;
+    if (w) write_table[page] = 0;
 }
 
 // Returns a pointer to the data at the specified virtual address
@@ -204,21 +230,25 @@ u8* Memory::getPtr(u64 vaddr) {
     return &mem[offset];
 }
 
-
-// Returns amount of available memory
-u64 MemoryRegion::getAvailableMem() {
-    return RAM_END - next_alloc_addr;
-}
-
 template<typename T>
 T Memory::read(u64 vaddr) {
-    auto [offset, mem] = addrToOffsetInMemory(vaddr);
-    Helpers::debugAssert(mem != nullptr, "Tried to read unmapped vaddr 0x%016llx\n", vaddr);
-    T data;
+    const u64 page = vaddr >> PAGE_SHIFT;
+    const u64 offs = vaddr & PAGE_MASK;
 
-    std::memcpy(&data, &mem[offset], sizeof(T));
+    u8* ptr = read_table[page];
+    // Fastmem
+    if (ptr)
+        return Helpers::bswap<T>(*(T*)(&ptr[offs]));
+    // Slowmem
+    else {
+        auto [offset, mem] = addrToOffsetInMemory(vaddr);
+        Helpers::debugAssert(mem != nullptr, "Tried to read unmapped vaddr 0x%016llx\n", vaddr);
+        T data;
 
-    return Helpers::bswap<T>(data);
+        std::memcpy(&data, &mem[offset], sizeof(T));
+
+        return Helpers::bswap<T>(data);
+    }
 }
 template u8  Memory::read(u64 vaddr);
 template u16 Memory::read(u64 vaddr);
@@ -227,11 +257,22 @@ template u64 Memory::read(u64 vaddr);
 
 template<typename T>
 void Memory::write(u64 vaddr, T data) {
-    auto [offset, mem] = addrToOffsetInMemory(vaddr);
-    Helpers::debugAssert(mem != nullptr, "Tried to write unmapped vaddr 0x%016llx\n", vaddr);
     data = Helpers::bswap<T>(data);
+    
+    const u64 page = vaddr >> PAGE_SHIFT;
+    const u64 offs = vaddr & PAGE_MASK;
 
-    std::memcpy(&mem[offset], &data, sizeof(T));
+    u8* ptr = write_table[page];
+    // Fastmem
+    if (ptr)
+        *(T*)(&ptr[offs]) = data;
+    // Slowmem
+    else {
+        auto [offset, mem] = addrToOffsetInMemory(vaddr);
+        Helpers::debugAssert(mem != nullptr, "Tried to write unmapped vaddr 0x%016llx\n", vaddr);
+
+        std::memcpy(&mem[offset], &data, sizeof(T));
+    }
 }
 template void Memory::write(u64 vaddr, u8  data);
 template void Memory::write(u64 vaddr, u16 data);

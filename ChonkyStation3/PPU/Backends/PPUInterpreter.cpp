@@ -73,6 +73,7 @@ void PPUInterpreter::step() {
         case MULLD:     mulld(instr);   break;
         case MULLW:     mullw(instr);   break;
         case ADD:       add(instr);     break;
+        case DCBT:      break;
         case XOR:       xor_(instr);    break;
         case MFSPR:     mfspr(instr);   break;
         case OR:        or_(instr);     break;

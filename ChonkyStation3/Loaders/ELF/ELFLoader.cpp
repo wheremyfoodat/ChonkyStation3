@@ -105,7 +105,8 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
         if (seg->get_type() == PT_LOAD) {
             u64 size = seg->get_memory_size();
             u64 paddr = mem.ram.allocPhys(size);
-            mem.ram.mmap(seg->get_virtual_address(), paddr, size);
+            auto entry = mem.ram.mmap(seg->get_virtual_address(), paddr, size);
+            mem.markAsFastMem(entry->vaddr >> PAGE_SHIFT, mem.ram.getPtrPhys(paddr), true, true);
 
             std::memcpy(mem.getPtr(seg->get_virtual_address()), seg->get_data(), seg->get_file_size());
             // Set the remaining memory to 0
