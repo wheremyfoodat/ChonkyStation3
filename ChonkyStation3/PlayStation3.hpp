@@ -5,6 +5,7 @@
 #include <ELF/ELFloader.hpp>
 #include <ElfSymbolParser.hpp>
 #include <PPU.hpp>
+#include <RSX.hpp>
 #include <ModuleManager.hpp>
 #include <ThreadManager.hpp>
 #include <HandleManager.hpp>
@@ -18,6 +19,7 @@ public:
     PlayStation3(const fs::path& executable);
     Memory mem = Memory();
     PPU* ppu;
+    RSX rsx;
     PPUInterpreter interpreter;
     ModuleManager module_manager;
     ThreadManager thread_manager;

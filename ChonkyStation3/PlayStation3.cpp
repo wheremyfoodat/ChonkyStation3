@@ -1,7 +1,7 @@
 #include "PlayStation3.hpp"
 
 
-PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable), interpreter(mem, this), syscall(this), module_manager(this), thread_manager(this) {
+PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable), interpreter(mem, this), rsx(this), syscall(this), module_manager(this), thread_manager(this) {
     ppu = &interpreter;
     ELFLoader elf = ELFLoader(mem);
     std::unordered_map<u32, u32> imports = {};

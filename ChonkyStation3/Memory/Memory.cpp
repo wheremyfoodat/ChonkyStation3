@@ -247,6 +247,9 @@ T Memory::read(u64 vaddr) {
 
         std::memcpy(&data, &mem[offset], sizeof(T));
 
+        if (watchpoints_r.contains(vaddr))
+            watchpoints_r[vaddr]();
+
         return Helpers::bswap<T>(data);
     }
 }
@@ -272,6 +275,9 @@ void Memory::write(u64 vaddr, T data) {
         Helpers::debugAssert(mem != nullptr, "Tried to write unmapped vaddr 0x%016llx\n", vaddr);
 
         std::memcpy(&mem[offset], &data, sizeof(T));
+
+        if (watchpoints_w.contains(vaddr))
+            watchpoints_w[vaddr]();
     }
 }
 template void Memory::write(u64 vaddr, u8  data);

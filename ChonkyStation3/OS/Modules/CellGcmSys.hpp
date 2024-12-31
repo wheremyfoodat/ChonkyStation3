@@ -3,6 +3,7 @@
 #include <common.hpp>
 #include <CellTypes.hpp>
 #include <BEField.hpp>
+#include <functional>
 
 
 // Circular dependency

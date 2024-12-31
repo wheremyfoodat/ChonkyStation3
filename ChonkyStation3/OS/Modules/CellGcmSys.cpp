@@ -32,14 +32,18 @@ u64 CellGcmSys::cellGcmInitBody() {
     ctx->current = io_addr;
     ctx->callback = callback_addr;
 
-
     dma_ctrl_addr = ps3->mem.rsx.alloc(3_MB)->vaddr;
+    std::memset(ps3->mem.getPtr(dma_ctrl_addr), 0, 3_MB);
     ctrl_addr = dma_ctrl_addr + 0x40;
     ctrl = (CellGcmControl*)ps3->mem.getPtr(ctrl_addr);
     ctrl->put = 0;
     ctrl->get = 0;
     ctrl->ref = -1;
     
+    // Memory watchpoint to tell the RSX to check if there are commands to run when put is written
+    ps3->mem.watchpoints_w[ctrl_addr] = std::bind(&RSX::runCommandList, &ps3->rsx);
+    ps3->mem.markAsSlowMem(ctrl_addr >> PAGE_SHIFT, false, true);   // Only need to make writes take the slow path
+
     label_addr = dma_ctrl_addr + 2_MB;
 
     return Result::CELL_OK;
@@ -48,20 +52,21 @@ u64 CellGcmSys::cellGcmInitBody() {
 u64 CellGcmSys::cellGcmAddressToOffset() {
     const u32 addr = ARG0;
     const u32 offs_ptr = ARG1;
-    printf("cellGcmAddressToOffset(addr: 0x%08x, offs_ptr: 0x%08x)\n", addr, offs_ptr);
+    printf("cellGcmAddressToOffset(addr: 0x%08x, offs_ptr: 0x%08x)", addr, offs_ptr);
 
     u32 offs = 0;
     // Check if the address is in RSX memory
     if (Helpers::inRange<u32>(addr, gcm_config.local_addr, gcm_config.local_addr + gcm_config.local_size - 1)) {
         offs = addr - gcm_config.local_addr;
     }
-    // Check if it's in IO region
+    // Check if it's in the IO region
     else if (Helpers::inRange<u32>(addr, gcm_config.io_addr, gcm_config.io_addr + gcm_config.io_size - 1)) {
         offs = addr - gcm_config.io_addr;
     }
     else
         Helpers::panic("cellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
 
+    printf(" [offs: 0x%08x]\n", offs);
     ps3->mem.write<u32>(offs_ptr, offs);
     
     return Result::CELL_OK;

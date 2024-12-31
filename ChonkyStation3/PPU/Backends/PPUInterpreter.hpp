@@ -16,6 +16,7 @@ public:
     void printFunctionCall();
 
     // Main
+    void mulli  (const Instruction& instr);
     void subfic (const Instruction& instr);
     void cmpli  (const Instruction& instr);
     void cmpi   (const Instruction& instr);
@@ -50,9 +51,11 @@ public:
     // G_1E
     void rldicl (const Instruction& instr);
     void rldicr (const Instruction& instr);
+    void rldic  (const Instruction& instr);
     // G_1F
     void cmp    (const Instruction& instr);
     void mfcr   (const Instruction& instr);
+    void ldx    (const Instruction& instr);
     void lwzx   (const Instruction& instr);
     void cntlzw (const Instruction& instr);
     void sld    (const Instruction& instr);
@@ -60,6 +63,7 @@ public:
     void cmpl   (const Instruction& instr);
     void subf   (const Instruction& instr);
     void andc   (const Instruction& instr);
+    void lbzx   (const Instruction& instr);
     void neg    (const Instruction& instr);
     void nor    (const Instruction& instr);
     void mtcrf  (const Instruction& instr);

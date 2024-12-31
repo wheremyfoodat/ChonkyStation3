@@ -10,7 +10,8 @@ u64 SysLwMutex::sysLwMutexLock() {
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     if (mtx->owner != -1)
         // TODO: recursion
-        Helpers::panic("Tried to lock already locked mutex\n");
+        //Helpers::panic("Tried to lock already locked mutex\n");
+        printf("Tried to lock already locked mutex\n");
 
     mtx->owner = ps3->thread_manager.current_thread->id;   // owner
     //printf("new owner: 0x%08x\n", (u32)mtx->owner);
@@ -24,7 +25,8 @@ u64 SysLwMutex::sysLwMutexUnlock() {
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     // TODO: should I actually check for this?
     if (mtx->owner == -1)
-        Helpers::panic("Tried to unlock already unlocked mutex\n");
+        //Helpers::panic("Tried to unlock already unlocked mutex\n");
+        printf("Tried to unlock already unlocked mutex\n");
 
     mtx->owner = -1;  // free
     //printf("owner: 0x%08x\n", (u32)mtx->owner);

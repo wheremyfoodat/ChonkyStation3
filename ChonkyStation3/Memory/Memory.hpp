@@ -3,6 +3,8 @@
 #include <common.hpp>
 #include <MemoryConstants.hpp>
 #include <queue>
+#include <unordered_map>
+#include <functional>
 
 
 class Memory;
@@ -94,4 +96,11 @@ public:
 
     template<typename T> T read(u64 vaddr);
     template<typename T> void write(u64 vaddr, T data);
+
+    // Memory watchpoints
+    // Call a function when an address is read or written.
+    // In case of writes, the function is called after the write.
+    // In order for the function to be called, the memory page the address is part of must not be in fastmem.
+    std::unordered_map<u64, std::function<void(void)>> watchpoints_r;
+    std::unordered_map<u64, std::function<void(void)>> watchpoints_w;
 };

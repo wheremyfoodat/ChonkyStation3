@@ -16,6 +16,7 @@ void PPUInterpreter::step() {
 
     switch (instr.opc) {
     
+    case MULLI:  mulli(instr);   break;
     case SUBFIC: subfic(instr);  break;
     case CMPLI:  cmpli(instr);   break;
     case CMPI:   cmpi(instr);    break;
@@ -47,6 +48,7 @@ void PPUInterpreter::step() {
 
         case RLDICL: rldicl(instr); break;
         case RLDICR: rldicr(instr); break;
+        case RLDIC:  rldic(instr);  break;
 
         default:
             Helpers::panic("Unimplemented G_1E instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_1e_field, (u32)instr.g_1e_field, instr.raw);
@@ -58,6 +60,7 @@ void PPUInterpreter::step() {
 
         case CMP:       cmp(instr);     break;
         case MFCR:      mfcr(instr);    break;
+        case LDX:       ldx(instr);     break;
         case LWZX:      lwzx(instr);    break;
         case CNTLZW:    cntlzw(instr);  break;
         case SLD:       sld(instr);     break;
@@ -65,6 +68,7 @@ void PPUInterpreter::step() {
         case CMPL:      cmpl(instr);    break;
         case SUBF:      subf(instr);    break;
         case ANDC:      andc(instr);    break;
+        case LBZX:      lbzx(instr);    break;
         case NEG:       neg(instr);     break;
         case NOR:       nor(instr);     break;
         case MTCRF:     mtcrf(instr);   break;
@@ -138,6 +142,11 @@ void PPUInterpreter::step() {
 }
 
 // Main
+
+void PPUInterpreter::mulli(const Instruction& instr) {
+    const s64 si = (s64)(s16)instr.si;
+    state.gprs[instr.rt] = (s64)state.gprs[instr.ra] * si;
+}
 
 void PPUInterpreter::subfic(const Instruction& instr) {
     const auto a = state.gprs[instr.ra];
@@ -261,6 +270,7 @@ void PPUInterpreter::stwu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
     const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     mem.write<u32>(addr, state.gprs[instr.rs]);
+    state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::stb(const Instruction& instr) {
@@ -360,6 +370,16 @@ void PPUInterpreter::rldicr(const Instruction& instr) {
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
+void PPUInterpreter::rldic(const Instruction& instr) {
+    const auto sh = instr.sh_lo | (instr.sh_hi << 5);
+    const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
+    const auto mask = (0xffffffffffffffffull >> mb) & (0xffffffffffffffffull << sh);
+    Helpers::debugAssert((63 - sh) > mb, "rldic: 63 - sh <= mb (invert mask?)\n");
+    state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
+}
+
 // G_1F
 
 void PPUInterpreter::cmp(const Instruction& instr) {
@@ -388,8 +408,12 @@ void PPUInterpreter::mfcr(const Instruction& instr) {
     }
 }
 
-void PPUInterpreter::lwzx(const Instruction& instr) {
+void PPUInterpreter::ldx(const Instruction& instr) {
     state.gprs[instr.rt] = mem.read<u64>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
+}
+
+void PPUInterpreter::lwzx(const Instruction& instr) {
+    state.gprs[instr.rt] = mem.read<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
 }
 
 void PPUInterpreter::cntlzw(const Instruction& instr) {
@@ -436,6 +460,10 @@ void PPUInterpreter::andc(const Instruction& instr) {
     state.gprs[instr.ra] = state.gprs[instr.rs] & ~state.gprs[instr.rb];
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
+}
+
+void PPUInterpreter::lbzx(const Instruction& instr) {
+    state.gprs[instr.rt] = mem.read<u8>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
 }
 
 void PPUInterpreter::neg(const Instruction& instr) {
