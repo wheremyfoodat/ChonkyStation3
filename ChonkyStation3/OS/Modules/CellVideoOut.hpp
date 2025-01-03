@@ -89,6 +89,11 @@ public:
         BEField<u16> height;
     };
 
+    struct CellVideoOutResolutionLE {   // No byte swapping
+        u16 width;
+        u16 height;
+    };
+
     struct CellVideoOutConfiguration {
         u8 res_id;
         u8 format;
@@ -114,7 +119,7 @@ public:
         CellVideoOutDisplayMode display_mode;
     };
 
-    std::unordered_map<u32, CellVideoOutResolution> resolutions {
+    std::unordered_map<u32, CellVideoOutResolutionLE> resolutions {
         { CELL_VIDEO_OUT_RESOLUTION_1080,                            { 0x780, 0x438 } },
         { CELL_VIDEO_OUT_RESOLUTION_720,                             { 0x500, 0x2d0 } },
         { CELL_VIDEO_OUT_RESOLUTION_480,                             { 0x2d0, 0x1e0 } },

@@ -18,6 +18,8 @@ public:
     u32 fetch32();
     u32 curr_cmd = 0;
 
+    u32 semaphore_offset = 0;
+
     enum Commands : u32 {
         // NV406E
         NV406E_SET_REFERENCE                                    = 0x00000050,

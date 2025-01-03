@@ -2,6 +2,13 @@
 #include "PlayStation3.hpp"
 
 
+u64 SysPrxForUser::sysProcessExit() {
+    const s32 code = ARG0;
+    printf("\n---------------------------\n");
+    printf(  "PROCESS EXITED WITH CODE %d\n", code);
+    exit(0);
+}
+
 u64 SysPrxForUser::sysProcessAtExitSpawn() {
     printf("sysProcessAtExitSpawn()\n");
 

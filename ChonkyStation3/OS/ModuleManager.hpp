@@ -26,6 +26,7 @@ public:
     void registerImport(u32 addr, u32 nid);
     std::unordered_map<u32, u32> imports = {};
     std::unordered_map<u32, Import> import_map {
+        { 0xe6f2c1e7, { "sysProcessExit",                           std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser) }},
         { 0x2c847572, { "sysProcessAtExitSpawn",                    std::bind(&SysPrxForUser::sysProcessAtExitSpawn, &sysPrxForUser) }},
         { 0x8461e528, { "sysGetSystemTime",                         std::bind(&SysPrxForUser::sysGetSystemTime, &sysPrxForUser) }},
         { 0x96328741, { "sysProcess_At_ExitSpawn",                  std::bind(&SysPrxForUser::sysProcess_At_ExitSpawn, &sysPrxForUser) }},
@@ -46,6 +47,8 @@ public:
 
         { 0x15bae46b, { "cellGcmInitBody",                          std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
         { 0x21ac3697, { "cellGcmAddressToOffset",                   std::bind(&CellGcmSys::cellGcmAddressToOffset, &cellGcmSys) }},
+        { 0x4ae8d215, { "cellGcmSetFlipMode",                       std::bind(&CellGcmSys::cellGcmSetFlipMode, &cellGcmSys) }},
+        { 0xa53d12ae, { "cellGcmSetDisplayBuffer",                  std::bind(&CellGcmSys::cellGcmSetDisplayBuffer, &cellGcmSys) }},
         { 0xa547adde, { "cellGcmGetControlRegister",                std::bind(&CellGcmSys::cellGcmGetControlRegister, &cellGcmSys) }},
         { 0xe315a0b2, { "cellGcmGetConfiguration",                  std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
         { 0xf80196c1, { "cellGcmGetLabelAddress",                   std::bind(&CellGcmSys::cellGcmGetLabelAddress, &cellGcmSys) }},

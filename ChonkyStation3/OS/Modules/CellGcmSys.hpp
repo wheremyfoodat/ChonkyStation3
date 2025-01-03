@@ -49,6 +49,8 @@ public:
 
     u64 cellGcmInitBody();
     u64 cellGcmAddressToOffset();
+    u64 cellGcmSetFlipMode();
+    u64 cellGcmSetDisplayBuffer();
     u64 cellGcmGetControlRegister();
     u64 cellGcmGetConfiguration();
     u64 cellGcmGetLabelAddress();

@@ -33,6 +33,7 @@ public:
     void andi   (const Instruction& instr);
     void andis  (const Instruction& instr);
     void lwz    (const Instruction& instr);
+    void lwzu   (const Instruction& instr);
     void lbz    (const Instruction& instr);
     void lbzu   (const Instruction& instr);
     void stw    (const Instruction& instr);
@@ -45,6 +46,8 @@ public:
     void lfd    (const Instruction& instr);
     void stfs   (const Instruction& instr);
     void stfd   (const Instruction& instr);
+    // G_04
+    void vxor   (const Instruction& instr);
     // G_13
     void bclr   (const Instruction& instr);
     void bcctr  (const Instruction& instr);
@@ -52,7 +55,9 @@ public:
     void rldicl (const Instruction& instr);
     void rldicr (const Instruction& instr);
     void rldic  (const Instruction& instr);
+    void rldimi (const Instruction& instr);
     // G_1F
+    void mulhdu (const Instruction& instr);
     void cmp    (const Instruction& instr);
     void mfcr   (const Instruction& instr);
     void ldx    (const Instruction& instr);
@@ -62,6 +67,7 @@ public:
     void and_   (const Instruction& instr);
     void cmpl   (const Instruction& instr);
     void subf   (const Instruction& instr);
+    void cntlzd (const Instruction& instr);
     void andc   (const Instruction& instr);
     void lbzx   (const Instruction& instr);
     void neg    (const Instruction& instr);
@@ -90,4 +96,6 @@ public:
     // G_3E
     void std    (const Instruction& instr);
     void stdu   (const Instruction& instr);
+    // G_3F
+    void fmr    (const Instruction& instr);
 };

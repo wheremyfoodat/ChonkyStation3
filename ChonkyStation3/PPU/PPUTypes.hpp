@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <BitField.hpp>
 
@@ -34,15 +34,6 @@ struct ConditionRegister {
     }
 };
 
-// Doesn't work
-/*union XER {
-    u64 raw;
-    BitField<0, 7,  u64> n_bytes;
-    BitField<29, 1, u64> ca;
-    BitField<30, 1, u64> ov;
-    BitField<31, 1, u64> so;
-};*/
-
 struct XER {
     u8 n_bytes = 0;
     bool ca = false;
@@ -53,9 +44,18 @@ struct XER {
     }
 };
 
+union VR {
+    u8 u8[16];
+    u16 u16[8];
+    u32 u32[4];
+    u64 u64[2];
+};
+
 struct State {
     u64 gprs[32] = { 0 };
     double fprs[32] = { 0.0 };
+    VR vrs[32] = { 0 };
+
     u64 pc = 0;
     u64 lr = 0;
     ConditionRegister cr;
@@ -69,6 +69,7 @@ union Instruction {
     BitField<0,  1,  u32> rc;           // lk == rc
     BitField<0,  2,  u32> g_3a_field;
     BitField<0,  2,  u32> g_3e_field;   // g_3a_field == g_3e_field
+    BitField<0,  11, u32> g_04_field;
     BitField<0,  16, u32> ui;
     BitField<0,  16, u32> d;            // ui == d
     BitField<0,  16, u32> si;           // ui == si
@@ -77,6 +78,7 @@ union Instruction {
     BitField<1,  5,  u32> me_5;
     BitField<1,  10, u32> g_13_field;
     BitField<1,  10, u32> g_1f_field;   // g_13_field == g_1f_field
+    BitField<1,  10, u32> g_3f_field;   // g_13_field == g_3f_field
     BitField<2,  3,  u32> g_1e_field;
     BitField<2,  14, u32> ds;
     BitField<2,  14, u32> bd;           // ds == bd
@@ -87,11 +89,14 @@ union Instruction {
     BitField<10, 1,  u32> oe;
     BitField<11, 3,  u32> bh;
     BitField<11, 5,  u32> rb;
+    BitField<11, 5,  u32> frb;          // rb == frb
+    BitField<11, 5,  u32> vb;           // rb == vb
     BitField<11, 5,  u32> sh_lo;        // rb == sh_lo
     BitField<11, 5,  u32> sh;           // rb == sh
     BitField<11, 10, u32> spr;
     BitField<12, 8,  u32> fxm;
     BitField<16, 5,  u32> ra;
+    BitField<16, 5,  u32> va;           // ra == va
     BitField<16, 5,  u32> bi;           // ra == bi
     BitField<20, 1,  u32> one;
     BitField<21, 1,  u32> l;
@@ -99,6 +104,8 @@ union Instruction {
     BitField<21, 5,  u32> frt;          // rt == frt
     BitField<21, 5,  u32> rs;           // rt == rs
     BitField<21, 5,  u32> frs;          // rt == frs
+    BitField<21, 5,  u32> vd;           // rt == vd
+    BitField<21, 5,  u32> vs;           // rt == vs
     BitField<21, 5,  u32> bo;           // rt == bo
     BitField<23, 3,  u32> bf;
     BitField<26, 6,  u32> opc;
@@ -133,7 +140,7 @@ enum Instructions {
     G_1E    = 0x1e,
     G_1F    = 0x1f,
     LWZ     = 0x20,     // Load Word and Zero
-    LWZU    = 0x21,     // Load Word and Zero with Update Indexed
+    LWZU    = 0x21,     // Load Word and Zero with Update
     LBZ     = 0x22,     // Load Byte and Zero
     LBZU    = 0x23,     // Load Byte and Zero with Update
     STW     = 0x24,     // Store Word
@@ -165,7 +172,163 @@ enum Instructions {
 };
 
 enum G_04Opcodes {
-    VXOR = 0x262,
+    VADDUBM         = 0x0, 
+    VMAXUB          = 0x2, 
+    VRLB            = 0x4, 
+    VCMPEQUB        = 0x006,
+    VCMPEQUB_       = 0x406,
+    VMULOUB         = 0x8, 
+    VADDFP          = 0xa, 
+    VMRGHB          = 0xc, 
+    VPKUHUM         = 0xe, 
+    VMHADDSHS       = 0x20,
+    VMHRADDSHS      = 0x21,
+    VMLADDUHM       = 0x22,
+    VMSUMUBM        = 0x24,
+    VMSUMMBM        = 0x25,
+    VMSUMUHM        = 0x26,
+    VMSUMUHS        = 0x27,
+    VMSUMSHM        = 0x28,
+    VMSUMSHS        = 0x29,
+    VSEL            = 0x2a,
+    VPERM           = 0x2b,
+    VSLDOI          = 0x2c,
+    VMADDFP         = 0x2e,
+    VNMSUBFP        = 0x2f,
+    VADDUHM         = 0x40,
+    VMAXUH          = 0x42,
+    VRLH            = 0x44,
+    VCMPEQUH        = 0x046,
+    VCMPEQUH_       = 0x446,
+    VMULOUH         = 0x48,
+    VSUBFP          = 0x4a,
+    VMRGHH          = 0x4c,
+    VPKUWUM         = 0x4e,
+    VADDUWM         = 0x80,
+    VMAXUW          = 0x82,
+    VRLW            = 0x84,
+    VCMPEQUW        = 0x086,
+    VCMPEQUW_       = 0x486,
+    VMRGHW          = 0x8c,
+    VPKUHUS         = 0x8e,
+    VCMPEQFP        = 0x0c6,
+    VCMPEQFP_       = 0x4c6,
+    VPKUWUS         = 0xce,
+    VMAXSB          = 0x102,
+    VSLB            = 0x104,
+    VMULOSB         = 0x108,
+    VREFP           = 0x10a,
+    VMRGLB          = 0x10c,
+    VPKSHUS         = 0x10e,
+    VMAXSH          = 0x142,
+    VSLH            = 0x144,              
+    VMULOSH         = 0x148,
+    VRSQRTEFP       = 0x14a,
+    VMRGLH          = 0x14c,
+    VPKSWUS         = 0x14e,
+    VADDCUW         = 0x180,
+    VMAXSW          = 0x182,
+    VSLW            = 0x184,
+    VEXPTEFP        = 0x18a,
+    VMRGLW          = 0x18c,
+    VPKSHSS         = 0x18e,
+    VSL             = 0x1c4,
+    VCMPGEFP        = 0x1c6,
+    VCMPGEFP_       = 0x5c6,
+    VLOGEFP         = 0x1ca,
+    VPKSWSS         = 0x1ce,
+    VADDUBS         = 0x200,
+    VMINUB          = 0x202,
+    VSRB            = 0x204,
+    VCMPGTUB        = 0x206,
+    VCMPGTUB_       = 0x606,
+    VMULEUB         = 0x208,
+    VRFIN           = 0x20a,
+    VSPLTB          = 0x20c,
+    VUPKHSB         = 0x20e,
+    VADDUHS         = 0x240,
+    VMINUH          = 0x242,
+    VSRH            = 0x244,
+    VCMPGTUH        = 0x246,
+    VCMPGTUH_       = 0x646,
+    VMULEUH         = 0x248,
+    VRFIZ           = 0x24a,
+    VSPLTH          = 0x24c,
+    VUPKHSH         = 0x24e,
+    VADDUWS         = 0x280,
+    VMINUW          = 0x282,
+    VSRW            = 0x284,
+    VCMPGTUW        = 0x286,
+    VCMPGTUW_       = 0x686,
+    VRFIP           = 0x28a,
+    VSPLTW          = 0x28c,
+    VUPKLSB         = 0x28e,
+    VSR             = 0x2c4,
+    VCMPGTFP        = 0x2c6,
+    VCMPGTFP_       = 0x6c6,
+    VRFIM           = 0x2ca,
+    VUPKLSH         = 0x2ce,
+    VADDSBS         = 0x300,
+    VMINSB          = 0x302,
+    VSRAB           = 0x304,
+    VCMPGTSB        = 0x306,
+    VCMPGTSB_       = 0x706,
+    VMULESB         = 0x308,
+    VCFUX           = 0x30a,
+    VSPLTISB        = 0x30c,
+    VPKPX           = 0x30e,
+    VADDSHS         = 0x340,
+    VMINSH          = 0x342,
+    VSRAH           = 0x344,
+    VCMPGTSH        = 0x346,
+    VCMPGTSH_       = 0x746,
+    VMULESH         = 0x348,
+    VCFSX           = 0x34a,
+    VSPLTISH        = 0x34c,
+    VUPKHPX         = 0x34e,
+    VADDSWS         = 0x380,
+    VMINSW          = 0x382,
+    VSRAW           = 0x384,
+    VCMPGTSW        = 0x386,
+    VCMPGTSW_       = 0x786,
+    VCTUXS          = 0x38a,
+    VSPLTISW        = 0x38c,
+    VCMPBFP         = 0x3c6,
+    VCMPBFP_        = 0x7c6,
+    VCTSXS          = 0x3ca,
+    VUPKLPX         = 0x3ce,
+    VSUBUBM         = 0x400,
+    VAVGUB          = 0x402,
+    VAND            = 0x404,
+    VMAXFP          = 0x40a,
+    VSLO            = 0x40c,
+    VSUBUHM         = 0x440,
+    VAVGUH          = 0x442,
+    VANDC           = 0x444,
+    VMINFP          = 0x44a,
+    VSRO            = 0x44c,
+    VSUBUWM         = 0x480,
+    VAVGUW          = 0x482,
+    VOR             = 0x484,
+    VXOR            = 0x4c4,    // Vector XOR
+    VAVGSB          = 0x502,
+    VNOR            = 0x504,
+    VAVGSH          = 0x542,
+    VSUBCUW         = 0x580,
+    VAVGSW          = 0x582,
+    VSUBUBS         = 0x600,
+    MFVSCR          = 0x604,
+    VSUM4UBS        = 0x608,
+    VSUBUHS         = 0x640,
+    MTVSCR          = 0x644,
+    VSUM4SHS        = 0x648,
+    VSUBUWS         = 0x680,
+    VSUM2SWS        = 0x688,
+    VSUBSBS         = 0x700,
+    VSUM4SBS        = 0x708,
+    VSUBSHS         = 0x740,
+    VSUBSWS         = 0x780,
+    VSUMSWS         = 0x788,
 };
 
 enum G_13Opcodes {      // Field 21 - 30 

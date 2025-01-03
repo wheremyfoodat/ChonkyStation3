@@ -64,11 +64,29 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
         offs = addr - gcm_config.io_addr;
     }
     else
-        Helpers::panic("cellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
+        Helpers::panic("\ncellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
 
     printf(" [offs: 0x%08x]\n", offs);
     ps3->mem.write<u32>(offs_ptr, offs);
     
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetFlipMode() {
+    const u32 mode = ARG0;
+    printf("cellGcmSetFlipMode(mode: 0x%08x) UNIMPLEMENTED\n", mode);
+
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetDisplayBuffer() {
+    const u8 buf_id = ARG0;
+    const u32 offs = ARG1;
+    const u32 pitch = ARG2;
+    const u32 width = ARG3;
+    const u32 height = ARG4;
+    printf("cellGcmSetDisplayBuffer(buf_id: %d, offs: 0x%08x, pitch: %d, width: %d, height: %d)\n", buf_id, offs, pitch, width, height);
+
     return Result::CELL_OK;
 }
 

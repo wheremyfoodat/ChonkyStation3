@@ -33,6 +33,10 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
+    case 0x93: {
+        printf("sysTimeGetTimebaseFrequency() UNIMPLEMENTED\n");
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+    }
     case 0x14a: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
     case 0x14b: ps3->ppu->state.gprs[3] = Result::CELL_OK;  printf("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
     case 0x151: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;

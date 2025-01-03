@@ -54,12 +54,14 @@ u64 CellVideoOut::cellVideoOutGetResolutionAvailability() {
 u64 CellVideoOut::cellVideoOutGetResolution() {
     const u32 res_id = ARG0;
     const u32 res_ptr = ARG1;
-    printf("cellVideoOutGetResolution(res_id: 0x%08x, res_ptr: 0x%08x)\n", res_id, res_ptr);
+    printf("cellVideoOutGetResolution(res_id: 0x%08x, res_ptr: 0x%08x)", res_id, res_ptr);
 
     if (resolutions.find(res_id) == resolutions.end())
         Helpers::panic("Unknown resolution ID\n");
 
     const auto res_ = resolutions[res_id];
+    printf(" [resolution: %dx%d]\n", res_.width, res_.height);
+
     CellVideoOutResolution* res = (CellVideoOutResolution*)ps3->mem.getPtr(res_ptr);
     res->width = res_.width;
     res->height = res_.height;

@@ -15,6 +15,7 @@ public:
     SysPrxForUser(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
+    u64 sysProcessExit();
     u64 sysProcessAtExitSpawn();
     u64 sysGetSystemTime();
     u64 sysProcess_At_ExitSpawn();
