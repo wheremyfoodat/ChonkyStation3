@@ -11,6 +11,8 @@ void PPU::printState() {
     printf("cr:  0x%08x\n", state.cr.raw);
     for (int i = 0; i < 32; i++)
         printf("r%02d:  0x%016llx\n", i, state.gprs[i]);
+    for (int i = 0; i < 32; i++)
+        printf("f%02d:  %f\n", i, state.fprs[i]);
 }
 
 bool PPU::branchCondition(u8 bo, u8 bi) {

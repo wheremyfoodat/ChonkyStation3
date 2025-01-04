@@ -102,9 +102,15 @@ public:
     // G_3A
     void ld         (const Instruction& instr);
     void ldu        (const Instruction& instr);
+    // G_3B
+    void fsubs      (const Instruction& instr);
+    void fmuls      (const Instruction& instr);
     // G_3E
     void std        (const Instruction& instr);
     void stdu       (const Instruction& instr);
     // G_3F
+    void fcmpu      (const Instruction& instr);
+    void fadd       (const Instruction& instr);
     void fmr        (const Instruction& instr);
+    void fneg       (const Instruction& instr);
 };

@@ -78,6 +78,7 @@ union Instruction {
     BitField<1,  1,  u32> aa;
     BitField<1,  1,  u32> sh_hi;        // aa == sh_hi
     BitField<1,  5,  u32> me_5;
+    BitField<1,  5,  u32> g_3b_field;   // me_5 == g_3b_field
     BitField<1,  10, u32> g_13_field;
     BitField<1,  10, u32> g_1f_field;   // g_13_field == g_1f_field
     BitField<1,  10, u32> g_3f_field;   // g_13_field == g_3f_field
@@ -89,6 +90,7 @@ union Instruction {
     BitField<5,  6,  u32> mb_6;
     BitField<5,  6,  u32> me_6;
     BitField<6,  5,  u32> mb_5;
+    BitField<6,  5,  u32> frc;          // mb_5 == frc
     BitField<10, 1,  u32> oe;
     BitField<10, 1,  u32> rc_v;         // oe == rc_v   (rc bit in altivec instructions is bit 21 instead of 31)
     BitField<11, 3,  u32> bh;
@@ -100,6 +102,7 @@ union Instruction {
     BitField<11, 10, u32> spr;
     BitField<12, 8,  u32> fxm;
     BitField<16, 5,  u32> ra;
+    BitField<16, 5,  u32> fra;          // ra == fra
     BitField<16, 5,  u32> va;           // ra == va
     BitField<16, 5,  u32> uimm;         // ra == uimm
     BitField<16, 5,  u32> bi;           // ra == bi
