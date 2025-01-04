@@ -49,6 +49,8 @@ union VR {
     u16 u16[8];
     u32 u32[4];
     u64 u64[2];
+    float f[4];
+    double d[2];
 };
 
 struct State {
@@ -83,10 +85,12 @@ union Instruction {
     BitField<2,  14, u32> ds;
     BitField<2,  14, u32> bd;           // ds == bd
     BitField<2,  24, u32> li;
+    BitField<5,  5,  u32> vc;
     BitField<5,  6,  u32> mb_6;
     BitField<5,  6,  u32> me_6;
     BitField<6,  5,  u32> mb_5;
     BitField<10, 1,  u32> oe;
+    BitField<10, 1,  u32> rc_v;         // oe == rc_v   (rc bit in altivec instructions is bit 21 instead of 31)
     BitField<11, 3,  u32> bh;
     BitField<11, 5,  u32> rb;
     BitField<11, 5,  u32> frb;          // rb == frb
@@ -97,6 +101,7 @@ union Instruction {
     BitField<12, 8,  u32> fxm;
     BitField<16, 5,  u32> ra;
     BitField<16, 5,  u32> va;           // ra == va
+    BitField<16, 5,  u32> uimm;         // ra == uimm
     BitField<16, 5,  u32> bi;           // ra == bi
     BitField<20, 1,  u32> one;
     BitField<21, 1,  u32> l;
@@ -109,6 +114,25 @@ union Instruction {
     BitField<21, 5,  u32> bo;           // rt == bo
     BitField<23, 3,  u32> bf;
     BitField<26, 6,  u32> opc;
+};
+
+static const u64 lvsl_shifts[0x10][2] = {
+    { 0x08090A0B0C0D0E0F, 0x0001020304050607 },
+    { 0x090A0B0C0D0E0F10, 0x0102030405060708 },
+    { 0x0A0B0C0D0E0F1011, 0x0203040506070809 },
+    { 0x0B0C0D0E0F101112, 0x030405060708090A },
+    { 0x0C0D0E0F10111213, 0x0405060708090A0B },
+    { 0x0D0E0F1011121314, 0x05060708090A0B0C },
+    { 0x0E0F101112131415, 0x060708090A0B0C0D },
+    { 0x0F10111213141516, 0x0708090A0B0C0D0E },
+    { 0x1011121314151617, 0x08090A0B0C0D0E0F },
+    { 0x1112131415161718, 0x090A0B0C0D0E0F10 },
+    { 0x1213141516171819, 0x0A0B0C0D0E0F1011 },
+    { 0x131415161718191A, 0x0B0C0D0E0F101112 },
+    { 0x1415161718191A1B, 0x0C0D0E0F10111213 },
+    { 0x15161718191A1B1C, 0x0D0E0F1011121314 },
+    { 0x161718191A1B1C1D, 0x0E0F101112131415 },
+    { 0x1718191A1B1C1D1E, 0x0F10111213141516 }
 };
 
 enum Instructions {
@@ -175,7 +199,7 @@ enum G_04Opcodes {
     VADDUBM         = 0x0, 
     VMAXUB          = 0x2, 
     VRLB            = 0x4, 
-    VCMPEQUB        = 0x006,
+    VCMPEQUB        = 0x006,    // Vector Compare Equal Unsigned Byte
     VCMPEQUB_       = 0x406,
     VMULOUB         = 0x8, 
     VADDFP          = 0xa, 
@@ -191,9 +215,9 @@ enum G_04Opcodes {
     VMSUMSHM        = 0x28,
     VMSUMSHS        = 0x29,
     VSEL            = 0x2a,
-    VPERM           = 0x2b,
+    VPERM           = 0x2b,     // Vector Permute
     VSLDOI          = 0x2c,
-    VMADDFP         = 0x2e,
+    VMADDFP         = 0x2e,     // Vector Multiply Add Floating-Point
     VNMSUBFP        = 0x2f,
     VADDUHM         = 0x40,
     VMAXUH          = 0x42,
@@ -201,7 +225,7 @@ enum G_04Opcodes {
     VCMPEQUH        = 0x046,
     VCMPEQUH_       = 0x446,
     VMULOUH         = 0x48,
-    VSUBFP          = 0x4a,
+    VSUBFP          = 0x4a,     // Vector Subtract Floating-Point
     VMRGHH          = 0x4c,
     VPKUWUM         = 0x4e,
     VADDUWM         = 0x80,
@@ -261,7 +285,7 @@ enum G_04Opcodes {
     VCMPGTUW        = 0x286,
     VCMPGTUW_       = 0x686,
     VRFIP           = 0x28a,
-    VSPLTW          = 0x28c,
+    VSPLTW          = 0x28c,    // Vector Splat Word
     VUPKLSB         = 0x28e,
     VSR             = 0x2c4,
     VCMPGTFP        = 0x2c6,
@@ -309,7 +333,7 @@ enum G_04Opcodes {
     VSRO            = 0x44c,
     VSUBUWM         = 0x480,
     VAVGUW          = 0x482,
-    VOR             = 0x484,
+    VOR             = 0x484,    // Vector OR
     VXOR            = 0x4c4,    // Vector XOR
     VAVGSB          = 0x502,
     VNOR            = 0x504,
@@ -356,6 +380,7 @@ enum G_1EOpcodes {      // Field 27 - 29
 enum G_1FOpcodes {      // Field 21 - 30
     CMP     = 0x000,
     TW      = 0x004,
+    LVSL    = 0x006,
     LVEBX   = 0x007,    // Load Vector Element Byte Indexed
     SUBFC   = 0x008,    // Subtract from Carrying
     MULHDU  = 0x009,
