@@ -55,7 +55,10 @@ public:
     void vmaddfp    (const Instruction& instr);
     void vnmsubfp   (const Instruction& instr);
     void vsubfp     (const Instruction& instr);
+    void vadduwm    (const Instruction& instr);
+    void vcmpequw   (const Instruction& instr);
     void vmrghw     (const Instruction& instr);
+    void vrefp      (const Instruction& instr);
     void vrsqrtefp  (const Instruction& instr);
     void vslw       (const Instruction& instr);
     void vmrglw     (const Instruction& instr);

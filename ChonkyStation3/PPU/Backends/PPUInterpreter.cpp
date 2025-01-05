@@ -22,7 +22,10 @@ void PPUInterpreter::step() {
         case VCMPEQUB:  vcmpequb(instr);    break;
         case VADDFP:    vaddfp(instr);      break;
         case VSUBFP:    vsubfp(instr);      break;
+        case VADDUWM:   vadduwm(instr);     break;
+        case VCMPEQUW:  vcmpequw(instr);    break;
         case VMRGHW:    vmrghw(instr);      break;
+        case VREFP:     vrefp(instr);       break;
         case VRSQRTEFP: vrsqrtefp(instr);   break;
         case VSLW:      vslw(instr);        break;
         case VMRGLW:    vmrglw(instr);      break;
@@ -65,7 +68,7 @@ void PPUInterpreter::step() {
         case BCCTR: bcctr(instr); break;
 
         default:
-            Helpers::panic("Unimplemented G_13 instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_13_field, (u32)instr.g_13_field, instr.raw);
+            Helpers::panic("Unimplemented G_13 instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_13_field, (u32)instr.g_13_field, instr.raw, state.pc);
         }
         break;
     }
@@ -414,7 +417,7 @@ void PPUInterpreter::stfd(const Instruction& instr) {
 
 void PPUInterpreter::vcmpequb(const Instruction& instr) {
     u8 all_equal = 0x8;
-    u8 none_equal = 0x0;
+    u8 none_equal = 0x2;
 
     for (int i = 0; i < 16; i++) {
         if (state.vrs[instr.va].u8[i] == state.vrs[instr.vb].u8[i]) {
@@ -485,11 +488,44 @@ void PPUInterpreter::vsubfp(const Instruction& instr) {
     state.vrs[instr.vd].f[3] = state.vrs[instr.va].f[3] - state.vrs[instr.vb].f[3];
 }
 
+void PPUInterpreter::vadduwm(const Instruction& instr) {
+    state.vrs[instr.vd].u32[0] = state.vrs[instr.va].u32[0] + state.vrs[instr.vb].u32[0];
+    state.vrs[instr.vd].u32[1] = state.vrs[instr.va].u32[1] + state.vrs[instr.vb].u32[1];
+    state.vrs[instr.vd].u32[2] = state.vrs[instr.va].u32[2] + state.vrs[instr.vb].u32[2];
+    state.vrs[instr.vd].u32[3] = state.vrs[instr.va].u32[3] + state.vrs[instr.vb].u32[3];
+}
+
+void PPUInterpreter::vcmpequw(const Instruction& instr) {
+    u8 all_equal = 0x8;
+    u8 none_equal = 0x2;
+
+    for (int i = 0; i < 4; i++) {
+        if (state.vrs[instr.va].u32[i] == state.vrs[instr.vb].u32[i]) {
+            state.vrs[instr.vd].u32[i] = 0xffffffff;
+            none_equal = 0;
+        }
+        else {
+            state.vrs[instr.vd].u32[i] = 0;
+            all_equal = 0;
+        }
+    }
+
+    if (instr.rc_v)
+        state.cr.setCRField(6, all_equal | none_equal);
+}
+
 void PPUInterpreter::vmrghw(const Instruction& instr) {
     state.vrs[instr.vd].u32[0] = state.vrs[instr.va].u32[0];
     state.vrs[instr.vd].u32[1] = state.vrs[instr.vb].u32[0];
     state.vrs[instr.vd].u32[2] = state.vrs[instr.va].u32[1];
     state.vrs[instr.vd].u32[3] = state.vrs[instr.vb].u32[1];
+}
+
+void PPUInterpreter::vrefp(const Instruction& instr) {
+    state.vrs[instr.vd].f[0] = 1.0f / state.vrs[instr.vb].f[0];
+    state.vrs[instr.vd].f[1] = 1.0f / state.vrs[instr.vb].f[1];
+    state.vrs[instr.vd].f[2] = 1.0f / state.vrs[instr.vb].f[2];
+    state.vrs[instr.vd].f[3] = 1.0f / state.vrs[instr.vb].f[3];
 }
 
 void PPUInterpreter::vrsqrtefp(const Instruction& instr) {

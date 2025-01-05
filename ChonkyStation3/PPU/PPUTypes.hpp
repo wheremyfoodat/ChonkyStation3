@@ -252,10 +252,10 @@ enum G_04Opcodes {
     VSUBFP          = 0x4a,     // Vector Subtract Floating-Point
     VMRGHH          = 0x4c,
     VPKUWUM         = 0x4e,
-    VADDUWM         = 0x80,
+    VADDUWM         = 0x80,     // Vector Add Unsigned Word Modulo
     VMAXUW          = 0x82,
     VRLW            = 0x84,
-    VCMPEQUW        = 0x086,
+    VCMPEQUW        = 0x086,    // Vector Compare Equal Unsigned Word
     VCMPEQUW_       = 0x486,
     VMRGHW          = 0x8c,     // Vector Merge High Word
     VPKUHUS         = 0x8e,
@@ -265,7 +265,7 @@ enum G_04Opcodes {
     VMAXSB          = 0x102,
     VSLB            = 0x104,
     VMULOSB         = 0x108,
-    VREFP           = 0x10a,
+    VREFP           = 0x10a,    // Vector Reciprocal Estimate Floating-Point
     VMRGLB          = 0x10c,
     VPKSHUS         = 0x10e,
     VMAXSH          = 0x142,
