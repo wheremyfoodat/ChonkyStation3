@@ -100,6 +100,7 @@ union Instruction {
     BitField<11, 5,  u32> vb;           // rb == vb
     BitField<11, 5,  u32> sh_lo;        // rb == sh_lo
     BitField<11, 5,  u32> sh;           // rb == sh
+    BitField<11, 5,  u32> bb;           // rb == bb
     BitField<11, 10, u32> spr;
     BitField<12, 8,  u32> fxm;
     BitField<16, 5,  u32> ra;
@@ -108,6 +109,7 @@ union Instruction {
     BitField<16, 5,  u32> uimm;         // ra == uimm
     BitField<16, 5,  u32> simm;         // ra == simm
     BitField<16, 5,  u32> bi;           // ra == bi
+    BitField<16, 5,  u32> ba;           // rt == ba
     BitField<20, 1,  u32> one;
     BitField<21, 1,  u32> l;
     BitField<21, 5,  u32> rt;
@@ -117,6 +119,7 @@ union Instruction {
     BitField<21, 5,  u32> vd;           // rt == vd
     BitField<21, 5,  u32> vs;           // rt == vs
     BitField<21, 5,  u32> bo;           // rt == bo
+    BitField<21, 5,  u32> bt;           // rt == bt
     BitField<23, 3,  u32> bf;
     BitField<26, 6,  u32> opc;
 };

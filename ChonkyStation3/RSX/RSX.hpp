@@ -18,6 +18,8 @@ public:
     u32 fetch32();
     u32 curr_cmd = 0;
 
+    bool flipped = false;
+
     u32 semaphore_offset = 0;
 
     enum Commands : u32 {

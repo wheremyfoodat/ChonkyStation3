@@ -79,6 +79,19 @@ u64 CellGcmSys::cellGcmSetFlipMode() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmGetFlipStatus() {
+    printf("cellGcmGetFlipStatus() STUBBED\n");
+
+    return 0;   // Means flipped?
+}
+
+u64 CellGcmSys::cellGcmSetWaitFlip() {
+    const u32 mode = ARG0;
+    printf("cellGcmSetWaitFlip(mode: 0x%08x) UNIMPLEMENTED\n", mode);
+
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmSetDisplayBuffer() {
     const u8 buf_id = ARG0;
     const u32 offs = ARG1;
@@ -93,6 +106,16 @@ u64 CellGcmSys::cellGcmSetDisplayBuffer() {
 u64 CellGcmSys::cellGcmGetControlRegister() {
     printf("cellGcmGetControlRegister()\n");
     return ctrl_addr;
+}
+
+u64 CellGcmSys::cellGcmResetFlipStatus() {
+    printf("cellGcmResetFlipStatus() UNIMPLEMENTED\n");
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetFlip() {
+    printf("cellGcmSetFlip() UNIMPLEMENTED\n");
+    return Result::CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetConfiguration() {

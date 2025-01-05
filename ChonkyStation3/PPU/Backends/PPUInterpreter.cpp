@@ -64,8 +64,9 @@ void PPUInterpreter::step() {
     case G_13: {
         switch (instr.g_13_field) {
 
-        case BCLR:  bclr(instr);  break;
-        case BCCTR: bcctr(instr); break;
+        case BCLR:  bclr(instr);    break;
+        case CROR:  cror(instr);    break;
+        case BCCTR: bcctr(instr);   break;
 
         default:
             Helpers::panic("Unimplemented G_13 instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_13_field, (u32)instr.g_13_field, instr.raw, state.pc);
@@ -610,6 +611,13 @@ void PPUInterpreter::bclr(const Instruction& instr) {
         printFunctionCall();
         state.pc -= 4;
     }
+}
+
+void PPUInterpreter::cror(const Instruction& instr) {
+    const auto a = (state.cr.raw >> instr.ba) & 1;
+    const auto b = (state.cr.raw >> instr.bb) & 1;
+    state.cr.raw &= ~(1 << instr.bt);
+    state.cr.raw |= (a | b) << instr.bt;
 }
 
 void PPUInterpreter::bcctr(const Instruction& instr) {

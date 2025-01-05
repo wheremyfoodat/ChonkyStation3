@@ -71,6 +71,7 @@ public:
     void vxor       (const Instruction& instr);
     // G_13
     void bclr       (const Instruction& instr);
+    void cror       (const Instruction& instr);
     void bcctr      (const Instruction& instr);
     // G_1E
     void rldicl     (const Instruction& instr);

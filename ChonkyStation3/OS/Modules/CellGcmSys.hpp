@@ -50,8 +50,12 @@ public:
     u64 cellGcmInitBody();
     u64 cellGcmAddressToOffset();
     u64 cellGcmSetFlipMode();
+    u64 cellGcmGetFlipStatus();
+    u64 cellGcmSetWaitFlip();
     u64 cellGcmSetDisplayBuffer();
     u64 cellGcmGetControlRegister();
+    u64 cellGcmResetFlipStatus();
+    u64 cellGcmSetFlip();
     u64 cellGcmGetConfiguration();
     u64 cellGcmGetLabelAddress();
 };
