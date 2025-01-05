@@ -89,6 +89,7 @@ union Instruction {
     BitField<5,  5,  u32> vc;
     BitField<5,  6,  u32> mb_6;
     BitField<5,  6,  u32> me_6;
+    BitField<6,  4,  u32> shb;
     BitField<6,  5,  u32> mb_5;
     BitField<6,  5,  u32> frc;          // mb_5 == frc
     BitField<10, 1,  u32> oe;
@@ -105,6 +106,7 @@ union Instruction {
     BitField<16, 5,  u32> fra;          // ra == fra
     BitField<16, 5,  u32> va;           // ra == va
     BitField<16, 5,  u32> uimm;         // ra == uimm
+    BitField<16, 5,  u32> simm;         // ra == simm
     BitField<16, 5,  u32> bi;           // ra == bi
     BitField<20, 1,  u32> one;
     BitField<21, 1,  u32> l;
@@ -136,6 +138,25 @@ static const u64 lvsl_shifts[0x10][2] = {
     { 0x15161718191A1B1C, 0x0D0E0F1011121314 },
     { 0x161718191A1B1C1D, 0x0E0F101112131415 },
     { 0x1718191A1B1C1D1E, 0x0F10111213141516 }
+};
+
+static const u64 lvsr_shifts[0x10][2] = {
+    {0x18191A1B1C1D1E1F, 0x1011121314151617},
+    {0x1718191A1B1C1D1E, 0x0F10111213141516},
+    {0x161718191A1B1C1D, 0x0E0F101112131415},
+    {0x15161718191A1B1C, 0x0D0E0F1011121314},
+    {0x1415161718191A1B, 0x0C0D0E0F10111213},
+    {0x131415161718191A, 0x0B0C0D0E0F101112},
+    {0x1213141516171819, 0x0A0B0C0D0E0F1011},
+    {0x1112131415161718, 0x090A0B0C0D0E0F10},
+    {0x1011121314151617, 0x08090A0B0C0D0E0F},
+    {0x0F10111213141516, 0x0708090A0B0C0D0E},
+    {0x0E0F101112131415, 0x060708090A0B0C0D},
+    {0x0D0E0F1011121314, 0x05060708090A0B0C},
+    {0x0C0D0E0F10111213, 0x0405060708090A0B},
+    {0x0B0C0D0E0F101112, 0x030405060708090A},
+    {0x0A0B0C0D0E0F1011, 0x0203040506070809},
+    {0x090A0B0C0D0E0F10, 0x0102030405060708},
 };
 
 enum Instructions {
@@ -205,7 +226,7 @@ enum G_04Opcodes {
     VCMPEQUB        = 0x006,    // Vector Compare Equal Unsigned Byte
     VCMPEQUB_       = 0x406,
     VMULOUB         = 0x8, 
-    VADDFP          = 0xa, 
+    VADDFP          = 0xa,      // Vector Add Floating-Point
     VMRGHB          = 0xc, 
     VPKUHUM         = 0xe, 
     VMHADDSHS       = 0x20,
@@ -217,11 +238,11 @@ enum G_04Opcodes {
     VMSUMUHS        = 0x27,
     VMSUMSHM        = 0x28,
     VMSUMSHS        = 0x29,
-    VSEL            = 0x2a,
+    VSEL            = 0x2a,     // Vector Conditional Select
     VPERM           = 0x2b,     // Vector Permute
     VSLDOI          = 0x2c,
     VMADDFP         = 0x2e,     // Vector Multiply Add Floating-Point
-    VNMSUBFP        = 0x2f,
+    VNMSUBFP        = 0x2f,     // Vector Negative Multiply-Subtract Floating-Point
     VADDUHM         = 0x40,
     VMAXUH          = 0x42,
     VRLH            = 0x44,
@@ -236,7 +257,7 @@ enum G_04Opcodes {
     VRLW            = 0x84,
     VCMPEQUW        = 0x086,
     VCMPEQUW_       = 0x486,
-    VMRGHW          = 0x8c,
+    VMRGHW          = 0x8c,     // Vector Merge High Word
     VPKUHUS         = 0x8e,
     VCMPEQFP        = 0x0c6,
     VCMPEQFP_       = 0x4c6,
@@ -250,14 +271,14 @@ enum G_04Opcodes {
     VMAXSH          = 0x142,
     VSLH            = 0x144,              
     VMULOSH         = 0x148,
-    VRSQRTEFP       = 0x14a,
+    VRSQRTEFP       = 0x14a,    // Vector Reciprocal Square Root Estimate Floating-Point
     VMRGLH          = 0x14c,
     VPKSWUS         = 0x14e,
     VADDCUW         = 0x180,
     VMAXSW          = 0x182,
-    VSLW            = 0x184,
+    VSLW            = 0x184,    // Vector Shift Left Integer Word
     VEXPTEFP        = 0x18a,
-    VMRGLW          = 0x18c,
+    VMRGLW          = 0x18c,    // Vector Merge Low Word
     VPKSHSS         = 0x18e,
     VSL             = 0x1c4,
     VCMPGEFP        = 0x1c6,
@@ -310,7 +331,7 @@ enum G_04Opcodes {
     VCMPGTSH        = 0x346,
     VCMPGTSH_       = 0x746,
     VMULESH         = 0x348,
-    VCFSX           = 0x34a,
+    VCFSX           = 0x34a,    // Vector Convert from Signed Fixed-Point Word
     VSPLTISH        = 0x34c,
     VUPKHPX         = 0x34e,
     VADDSWS         = 0x380,
@@ -319,14 +340,14 @@ enum G_04Opcodes {
     VCMPGTSW        = 0x386,
     VCMPGTSW_       = 0x786,
     VCTUXS          = 0x38a,
-    VSPLTISW        = 0x38c,
+    VSPLTISW        = 0x38c,    // Vector Splat Immediate Signed Word
     VCMPBFP         = 0x3c6,
     VCMPBFP_        = 0x7c6,
-    VCTSXS          = 0x3ca,
+    VCTSXS          = 0x3ca,    // Vector Convert to Signed Fixed-Point Word Saturate
     VUPKLPX         = 0x3ce,
     VSUBUBM         = 0x400,
     VAVGUB          = 0x402,
-    VAND            = 0x404,
+    VAND            = 0x404,    // Vector AND
     VMAXFP          = 0x40a,
     VSLO            = 0x40c,
     VSUBUHM         = 0x440,
@@ -398,6 +419,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     SLD     = 0x01b,    // Shift Left Doubleword
     AND     = 0x01c,
     CMPL    = 0x020,    // Compare Logical
+    LVSR    = 0x026,
     LVEHX   = 0x027,    // Load Vector Element Halfword Indexed
     SUBF    = 0x028,    // Subtract from
     LDUX    = 0x035,    // Load Doubleword with Update Indexed
@@ -506,10 +528,10 @@ enum G_3FOpcodes {      // Field 21 - 30
     MTFSFI  = 0x086,
     MFFS    = 0x247,
     MTFSF   = 0x2c7,
-    FCMPU   = 0x000,
-    FRSP    = 0x00c,
+    FCMPU   = 0x000,    // Floating Compare Unordered
+    FRSP    = 0x00c,    // Floating Round to Single-Precision
     FCTIW   = 0x00e,
-    FCTIWZ  = 0x00f,
+    FCTIWZ  = 0x00f,    // Floating Convert To Integer Word with round toward Zero
     FDIV    = 0x012,
     FSUB    = 0x014,
     FADD    = 0x015,
@@ -528,7 +550,7 @@ enum G_3FOpcodes {      // Field 21 - 30
     FABS    = 0x108,
     FCTID   = 0x32e,
     FCTIDZ  = 0x32f,
-    FCFID   = 0x34e,
+    FCFID   = 0x34e,    // Floating Convert From Integer Doubleword
 };
 
 } // End namespace PPUTypes

@@ -48,10 +48,22 @@ public:
     void stfd       (const Instruction& instr);
     // G_04
     void vcmpequb   (const Instruction& instr);
+    void vaddfp     (const Instruction& instr);
+    void vsel       (const Instruction& instr);
     void vperm      (const Instruction& instr);
+    void vsldoi     (const Instruction& instr);
     void vmaddfp    (const Instruction& instr);
+    void vnmsubfp   (const Instruction& instr);
     void vsubfp     (const Instruction& instr);
+    void vmrghw     (const Instruction& instr);
+    void vrsqrtefp  (const Instruction& instr);
+    void vslw       (const Instruction& instr);
+    void vmrglw     (const Instruction& instr);
     void vspltw     (const Instruction& instr);
+    void vcfsx      (const Instruction& instr);
+    void vspltisw   (const Instruction& instr);
+    void vctsxs     (const Instruction& instr);
+    void vand       (const Instruction& instr);
     void vor        (const Instruction& instr);
     void vxor       (const Instruction& instr);
     // G_13
@@ -73,6 +85,7 @@ public:
     void sld        (const Instruction& instr);
     void and_       (const Instruction& instr);
     void cmpl       (const Instruction& instr);
+    void lvsr       (const Instruction& instr);
     void subf       (const Instruction& instr);
     void cntlzd     (const Instruction& instr);
     void andc       (const Instruction& instr);
@@ -99,18 +112,26 @@ public:
     void extsh      (const Instruction& instr);
     void extsb      (const Instruction& instr);
     void extsw      (const Instruction& instr);
+    void stfiwx     (const Instruction& instr);
     // G_3A
     void ld         (const Instruction& instr);
     void ldu        (const Instruction& instr);
     // G_3B
+    void fdivs      (const Instruction& instr);
     void fsubs      (const Instruction& instr);
+    void fadds      (const Instruction& instr);
     void fmuls      (const Instruction& instr);
+    void fmadds     (const Instruction& instr);
     // G_3E
     void std        (const Instruction& instr);
     void stdu       (const Instruction& instr);
     // G_3F
     void fcmpu      (const Instruction& instr);
+    void frsp       (const Instruction& instr);
+    void fctiwz     (const Instruction& instr);
     void fadd       (const Instruction& instr);
     void fmr        (const Instruction& instr);
+    void fmadd      (const Instruction& instr);
     void fneg       (const Instruction& instr);
+    void fcfid      (const Instruction& instr);
 };
