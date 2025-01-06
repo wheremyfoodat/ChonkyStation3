@@ -160,8 +160,9 @@ void PPUInterpreter::step() {
     case G_3A: {
         switch (instr.g_3a_field) {
 
-        case LD:   ld(instr);     break;
-        case LDU:  ldu(instr);    break;
+        case LD:    ld(instr);      break;
+        case LDU:   ldu(instr);     break;
+        case LWA:   lwa(instr);     break;
 
         default:
             Helpers::panic("Unimplemented G_3A instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3a_field, (u32)instr.g_3a_field, instr.raw);
@@ -446,10 +447,10 @@ void PPUInterpreter::vperm(const Instruction& instr) {
     for (int i = 0; i < 16; i++) src[i +  0] = state.vrs[instr.vb].u8[i];
     for (int i = 0; i < 16; i++) src[i + 16] = state.vrs[instr.va].u8[i];
     
-    // The index is in the usual PPC reversed byte order, so we need to flip it with 15 - 
+    // The index is in the usual PPC reversed byte order, so we need to flip it with 31 - 
     for (int i = 0; i < 16; i++) {
-        const auto idx = 15 - state.vrs[instr.vc].u8[i] & 0x1f;
-        state.vrs[instr.vd].u8[i] = idx < 16 ? src[idx] : src[idx - 16];
+        const auto idx = state.vrs[instr.vc].u8[i] & 0x1f;
+        state.vrs[instr.vd].u8[i] = src[31 - idx];
     }
 }
 
@@ -986,6 +987,12 @@ void PPUInterpreter::ldu(const Instruction& instr) {
     const u32 addr = state.gprs[instr.ra] + sds;
     state.gprs[instr.rt] = mem.read<u64>(addr);
     state.gprs[instr.ra] = addr;    // Update
+}
+
+void PPUInterpreter::lwa(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    state.gprs[instr.rt] = (s64)(s32)mem.read<u32>(addr);
 }
 
 // G_3B

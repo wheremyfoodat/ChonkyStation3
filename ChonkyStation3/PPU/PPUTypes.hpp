@@ -504,6 +504,7 @@ enum G_1FOpcodes {      // Field 21 - 30
 enum G_3AOpcodes {      // Field 30 - 31
     LD  = 0x00,
     LDU = 0x01,
+    LWA = 0x02,
 };
 
 enum G_3BOpcodes {      // Field 26 - 30

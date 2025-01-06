@@ -120,6 +120,7 @@ public:
     // G_3A
     void ld         (const Instruction& instr);
     void ldu        (const Instruction& instr);
+    void lwa        (const Instruction& isntr);
     // G_3B
     void fdivs      (const Instruction& instr);
     void fsubs      (const Instruction& instr);

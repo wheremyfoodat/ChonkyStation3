@@ -11,6 +11,8 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
 
     switch (syscall_num) {
     
+    // cellGcmCallback
+    case 0x06: ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
     // Module call
     case 0x10:
     case 0x11: {

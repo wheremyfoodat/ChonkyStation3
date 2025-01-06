@@ -139,3 +139,26 @@ u64 CellGcmSys::cellGcmGetLabelAddress() {
 
     return label_addr + 0x10 * idx;
 }
+
+
+// Resets the command buffer
+// If there are any remaining commands to be executed, copy them back at the start
+// Update context and fifo control accordingly
+u64 CellGcmSys::cellGcmCallback() {
+    printf("cellGcmCallback()\n");
+    printf("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
+    printf("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
+
+    const int bytes_executed = ctx->current - ctx->begin;
+    const int bytes_remaining = bytes_executed - ctrl->put;
+
+    if (bytes_remaining > 0)
+        std::memcpy(ps3->mem.getPtr(ctx->begin), ps3->mem.getPtr(ctx->current) - bytes_remaining, bytes_remaining);
+
+    ctx->current = ctx->begin + bytes_remaining;
+
+    ctrl->put = bytes_remaining;
+    ctrl->get = 0;
+
+    return Result::CELL_OK;
+}

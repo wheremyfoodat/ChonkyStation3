@@ -58,4 +58,6 @@ public:
     u64 cellGcmSetFlip();
     u64 cellGcmGetConfiguration();
     u64 cellGcmGetLabelAddress();
+
+    u64 cellGcmCallback();
 };

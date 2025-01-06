@@ -14,7 +14,7 @@ u32 RSX::fetch32() {
 }
 
 void RSX::runCommandList() {
-    auto cmd_count = gcm.ctrl->put - gcm.ctrl->get;
+    int cmd_count = gcm.ctrl->put - gcm.ctrl->get;
     if (cmd_count <= 0) return;
 
     printf("Executing commands (%d bytes)\n", cmd_count);
@@ -26,6 +26,11 @@ void RSX::runCommandList() {
         u32 cmd = fetch32();
         const auto cmd_num = cmd & 0x3ffff;
         const auto argc = (cmd >> 18) & 0x7ff;
+
+        if (cmd & 0x20000000) { // jump
+            curr_cmd = cmd & ~0x20000000;
+            continue;
+        }
 
         std::vector<u32> args;
         for (int i = 0; i < argc; i++)
@@ -54,9 +59,9 @@ void RSX::runCommandList() {
 
         default:
             if (command_names.contains(cmd & 0x3ffff))
-                printf("Unknown RSX command %s\n", command_names[cmd_num].c_str());
+                printf("Unimplemented RSX command %s\n", command_names[cmd_num].c_str());
             else
-                printf("Unknown RSX command 0x%08x\n", cmd_num);
+                printf("Unimplemented RSX command 0x%08x (0x%08x)\n", cmd_num, cmd);
         }
     }
 }
