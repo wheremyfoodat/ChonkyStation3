@@ -3,7 +3,9 @@
 
 
 RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys) {
-
+    OpenGL::setViewport(1280, 720);
+    OpenGL::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    OpenGL::clearColor();
 }
 
 u32 RSX::fetch32() {
@@ -54,6 +56,20 @@ void RSX::runCommandList() {
         }
 
         case NV406E_SEMAPHORE_ACQUIRE: {
+            break;
+        }
+
+        case NV4097_SET_COLOR_CLEAR_VALUE: {
+            clear_color.r() = ((args[0] >>  0) & 0xff) / 255.0f;
+            clear_color.g() = ((args[0] >>  8) & 0xff) / 255.0f;
+            clear_color.b() = ((args[0] >> 16) & 0xff) / 255.0f;
+            clear_color.a() = ((args[0] >> 24) & 0xff) / 255.0f;
+            break;
+        }
+
+        case NV4097_CLEAR_SURFACE: {
+            OpenGL::setClearColor(clear_color.r(), clear_color.g(), clear_color.b(), clear_color.a());
+            OpenGL::clearColor();
             break;
         }
 

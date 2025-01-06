@@ -3,6 +3,7 @@
 #include <common.hpp>
 #include <Modules/CellGcmSys.hpp>
 #include <unordered_map>
+#include <opengl.hpp>
 
 
 class PlayStation3;
@@ -20,6 +21,7 @@ public:
 
     bool flipped = false;
 
+    OpenGL::Vector<float, 4> clear_color;
     u32 semaphore_offset = 0;
 
     enum Commands : u32 {
