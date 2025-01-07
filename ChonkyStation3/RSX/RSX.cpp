@@ -3,7 +3,7 @@
 
 
 RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys) {
-    OpenGL::setViewport(1280, 720);
+    OpenGL::setViewport(1280, 720);     // TODO: Get resolution from cellVideoOut
     OpenGL::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     OpenGL::clearColor();
 }
@@ -59,6 +59,29 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_SET_TRANSFORM_PROGRAM: {
+            for (auto& i : args) vertex_shader_data.push_back(i);
+            printf("Uploading %d words (%d instructions)\n", args.size(), args.size() / 4);
+            break;
+        }
+
+        case NV4097_DRAW_INDEX_ARRAY: {
+            auto vertex_shader = shader_decompiler.decompileVertex(vertex_shader_data);
+            auto fragment_shader = shader_decompiler.decompileFragment(fragment_shader_data);
+            printf("Compiled vertex shader:\n");
+            puts(vertex_shader.c_str());
+            printf("Compiled fragment shader:\n");
+            puts(fragment_shader.c_str());
+
+            OpenGL::Shader vertex, fragment;
+            OpenGL::Program program;
+            vertex.create(vertex_shader, OpenGL::ShaderType::Vertex);
+            fragment.create(fragment_shader, OpenGL::ShaderType::Fragment);
+            program.create({ vertex, fragment });
+            program.use();
+            break;
+        }
+
         case NV4097_SET_COLOR_CLEAR_VALUE: {
             clear_color.r() = ((args[0] >>  0) & 0xff) / 255.0f;
             clear_color.g() = ((args[0] >>  8) & 0xff) / 255.0f;
@@ -70,6 +93,13 @@ void RSX::runCommandList() {
         case NV4097_CLEAR_SURFACE: {
             OpenGL::setClearColor(clear_color.r(), clear_color.g(), clear_color.b(), clear_color.a());
             OpenGL::clearColor();
+            OpenGL::clearDepthAndStencil();
+            break;
+        }
+
+        case NV4097_SET_TRANSFORM_PROGRAM_LOAD: {
+            Helpers::debugAssert(args[0] == 0, "Set transform program load address: addr != 0\n");
+            vertex_shader_data.clear();
             break;
         }
 

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <common.hpp>
-#include <Modules/CellGcmSys.hpp>
 #include <unordered_map>
 #include <opengl.hpp>
+
+#include <Modules/CellGcmSys.hpp>
+#include <ShaderDecompiler.hpp>
 
 
 class PlayStation3;
@@ -12,6 +14,7 @@ class RSX {
 public:
     RSX(PlayStation3* ps3);
     CellGcmSys& gcm;
+    ShaderDecompiler shader_decompiler;
 
     PlayStation3* ps3;
 
@@ -22,14 +25,17 @@ public:
     bool flipped = false;
 
     OpenGL::Vector<float, 4> clear_color;
+    std::vector<u32> vertex_shader_data;
+    std::vector<u32> fragment_shader_data;
     u32 semaphore_offset = 0;
 
+    // I == command is implemented or at least handled in some way
     enum Commands : u32 {
         // NV406E
         NV406E_SET_REFERENCE                                    = 0x00000050,
         NV406E_SET_CONTEXT_DMA_SEMAPHORE                        = 0x00000060,
-        NV406E_SEMAPHORE_OFFSET                                 = 0x00000064,
-        NV406E_SEMAPHORE_ACQUIRE                                = 0x00000068,
+        NV406E_SEMAPHORE_OFFSET                                 = 0x00000064,   // I
+        NV406E_SEMAPHORE_ACQUIRE                                = 0x00000068,   // I
         NV406E_SEMAPHORE_RELEASE                                = 0x0000006c,
 
         // NV4097
@@ -145,7 +151,7 @@ public:
         NV4097_SET_VERTEX_DATA_SCALED4S_M                       = 0x00000a80,
         NV4097_SET_TEXTURE_CONTROL2                             = 0x00000b00,
         NV4097_SET_TEX_COORD_CONTROL                            = 0x00000b40,
-        NV4097_SET_TRANSFORM_PROGRAM                            = 0x00000b80,
+        NV4097_SET_TRANSFORM_PROGRAM                            = 0x00000b80,   // I
         NV4097_SET_SPECULAR_ENABLE                              = 0x00001428,
         NV4097_SET_TWO_SIDE_LIGHT_EN                            = 0x0000142c,
         NV4097_CLEAR_ZCULL_SURFACE                              = 0x00001438,
@@ -174,7 +180,7 @@ public:
         NV4097_INLINE_ARRAY                                     = 0x00001818,
         NV4097_SET_INDEX_ARRAY_ADDRESS                          = 0x0000181c,
         NV4097_SET_INDEX_ARRAY_DMA                              = 0x00001820,
-        NV4097_DRAW_INDEX_ARRAY                                 = 0x00001824,
+        NV4097_DRAW_INDEX_ARRAY                                 = 0x00001824,   // I
         NV4097_SET_FRONT_POLYGON_MODE                           = 0x00001828,
         NV4097_SET_BACK_POLYGON_MODE                            = 0x0000182c,
         NV4097_SET_CULL_FACE                                    = 0x00001830,
@@ -198,8 +204,8 @@ public:
         NV4097_SET_COLOR_KEY_COLOR                              = 0x00001d00,
         NV4097_SET_SHADER_CONTROL                               = 0x00001d60,
         NV4097_SET_INDEXED_CONSTANT_READ_LIMITS                 = 0x00001d64,
-        NV4097_SET_SEMAPHORE_OFFSET                             = 0x00001d6c,
-        NV4097_BACK_END_WRITE_SEMAPHORE_RELEASE                 = 0x00001d70,
+        NV4097_SET_SEMAPHORE_OFFSET                             = 0x00001d6c,   // I
+        NV4097_BACK_END_WRITE_SEMAPHORE_RELEASE                 = 0x00001d70,   // I
         NV4097_TEXTURE_READ_SEMAPHORE_RELEASE                   = 0x00001d74,
         NV4097_SET_ZMIN_MAX_CONTROL                             = 0x00001d78,
         NV4097_SET_ANTI_ALIASING_CONTROL                        = 0x00001d7c,
@@ -207,8 +213,8 @@ public:
         NV4097_SET_ZCULL_EN                                     = 0x00001d84,
         NV4097_SET_SHADER_WINDOW                                = 0x00001d88,
         NV4097_SET_ZSTENCIL_CLEAR_VALUE                         = 0x00001d8c,
-        NV4097_SET_COLOR_CLEAR_VALUE                            = 0x00001d90,
-        NV4097_CLEAR_SURFACE                                    = 0x00001d94,
+        NV4097_SET_COLOR_CLEAR_VALUE                            = 0x00001d90,   // I
+        NV4097_CLEAR_SURFACE                                    = 0x00001d94,   // I
         NV4097_SET_CLEAR_RECT_HORIZONTAL                        = 0x00001d98,
         NV4097_SET_CLEAR_RECT_VERTICAL                          = 0x00001d9c,
         NV4097_SET_CLIP_ID_TEST_ENABLE                          = 0x00001da4,
@@ -219,7 +225,7 @@ public:
         NV4097_SET_VERTEX_DATA1F_M                              = 0x00001e40,
         NV4097_SET_TRANSFORM_EXECUTION_MODE                     = 0x00001e94,
         NV4097_SET_RENDER_ENABLE                                = 0x00001e98,
-        NV4097_SET_TRANSFORM_PROGRAM_LOAD                       = 0x00001e9c,
+        NV4097_SET_TRANSFORM_PROGRAM_LOAD                       = 0x00001e9c,   // I
         NV4097_SET_TRANSFORM_PROGRAM_START                      = 0x00001ea0,
         NV4097_SET_ZCULL_CONTROL0                               = 0x00001ea4,
         NV4097_SET_ZCULL_CONTROL1                               = 0x00001ea8,
