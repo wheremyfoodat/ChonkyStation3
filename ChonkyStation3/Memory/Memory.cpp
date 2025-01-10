@@ -227,6 +227,7 @@ void Memory::markAsSlowMem(u64 page, bool r, bool w) {
 // Returns a pointer to the data at the specified virtual address
 u8* Memory::getPtr(u64 vaddr) {
     auto [offset, mem] = addrToOffsetInMemory(vaddr);
+    if (!mem) Helpers::panic("Tried to access unmapped vaddr 0x%016llx\n", vaddr);
     return &mem[offset];
 }
 

@@ -59,6 +59,7 @@ public:
     void declareFunction(std::string name, std::string code, std::string& shader);
     void markInputAsUsed(std::string name, int location);
     void markOutputAsUsed(std::string name, int location);
+    //void markConstAsUsed(std::string name, int location);
 
     std::string source(VertexSource& src, VertexInstruction* instr);
     std::string dest(VertexInstruction* instr);

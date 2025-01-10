@@ -8,7 +8,7 @@ R"(
 
 
 vec4 r[16];
-vec4 c[512]; // ???
+uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
 
 
 )";
@@ -57,12 +57,27 @@ vec4 c[512]; // ???
             //Helpers::panic("Unknown vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
         }
     }
+    main += "\ngl_Position = out_pos;\n";
 
     declareFunction("void main", main, shader);
 
     shader_base += inputs + "\n";
     shader_base += outputs;
     return shader_base + "\n\n" + shader;
+
+    return
+        R"(
+#version 410 core
+
+layout (location = 0) in vec4 in_pos;
+
+
+uniform vec4 c[512];
+
+void main() {
+    gl_Position = vec4(in_pos.xyz / 5f, 1.0f);
+}
+)";
 }
 
 std::string ShaderDecompiler::decompileFragment(std::vector<u32> shader_data) {
@@ -77,7 +92,7 @@ layout (location = 0) out vec4 out_col;
 
 
 void main() {
-    out_col = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    out_col = vec4(0.55f, 0.55f, 0.55f, 1.0f);
 }
 )";
 }
@@ -117,6 +132,7 @@ std::string ShaderDecompiler::source(VertexSource& src, VertexInstruction* instr
         break;
     }
     case VERTEX_SOURCE_TYPE::CONST: {
+        //const std::string name = "const_" + std::to_string(instr->w1.const_src_idx);
         source = "c[" + std::to_string(instr->w1.const_src_idx) + "]";
         break;
     }

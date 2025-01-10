@@ -16,6 +16,8 @@ u64 CellGcmSys::cellGcmInitBody() {
     gcm_config.memFreq = 650000000;
     gcm_config.coreFreq = 500000000;
 
+    std::memset(ps3->mem.getPtr(gcm_config.local_addr), 0, gcm_config.local_size);
+
     ctx_addr = ps3->mem.alloc(sizeof(CellGcmContextData))->vaddr;
     ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
     ps3->mem.write<u32>(ctx_ptr, ctx_addr);

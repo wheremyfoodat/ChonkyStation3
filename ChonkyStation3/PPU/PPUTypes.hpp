@@ -86,7 +86,7 @@ union Instruction {
     BitField<2,  14, u32> ds;
     BitField<2,  14, u32> bd;           // ds == bd
     BitField<2,  24, u32> li;
-    BitField<5,  5,  u32> vc;
+    BitField<6,  5,  u32> vc;
     BitField<5,  6,  u32> mb_6;
     BitField<5,  6,  u32> me_6;
     BitField<6,  4,  u32> shb;
@@ -110,6 +110,7 @@ union Instruction {
     BitField<16, 5,  u32> simm;         // ra == simm
     BitField<16, 5,  u32> bi;           // ra == bi
     BitField<16, 5,  u32> ba;           // rt == ba
+    BitField<18, 3,  u32> bfa;
     BitField<20, 1,  u32> one;
     BitField<21, 1,  u32> l;
     BitField<21, 5,  u32> rt;

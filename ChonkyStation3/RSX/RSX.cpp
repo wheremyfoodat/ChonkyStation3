@@ -6,6 +6,19 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys) {
     OpenGL::setViewport(1280, 720);     // TODO: Get resolution from cellVideoOut
     OpenGL::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     OpenGL::clearColor();
+    OpenGL::clearDepth();
+    vao.create();
+    vbo.create();
+    vao.bind();
+    vbo.bind();
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    OpenGL::enableDepth();
+    OpenGL::setDepthFunc(OpenGL::DepthFunc::Less);
+    OpenGL::disableScissor();
+    OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
+
+    std::memset(constants, 0, 512 * 4);
 }
 
 u32 RSX::fetch32() {
@@ -13,6 +26,10 @@ u32 RSX::fetch32() {
     curr_cmd += 4;
     gcm.ctrl->get = gcm.ctrl->get + 4;  // Didn't overload += in BEField
     return data;
+}
+
+u32 RSX::offsetAndLocationToAddress(u32 offset, u8 location) {
+    return offset + ((location == 0) ? ps3->module_manager.cellGcmSys.gcm_config.local_addr : ps3->module_manager.cellGcmSys.gcm_config.io_addr);
 }
 
 void RSX::runCommandList() {
@@ -41,7 +58,7 @@ void RSX::runCommandList() {
         if (command_names.contains(cmd_num))
             printf("%s\n", command_names[cmd_num].c_str());
 
-        switch (cmd & 0x3ffff) {
+        switch (cmd_num) {
 
         case NV406E_SEMAPHORE_OFFSET:
         case NV4097_SET_SEMAPHORE_OFFSET: {
@@ -65,6 +82,35 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET: {
+            const u32 offset = args[0] & 0x7fffffff;
+            const u8 location = args[0] >> 31;
+            binding.offset = offsetAndLocationToAddress(offset, location);
+            printf("Vertex attribute %d: offset: 0x%08x\n", binding.index, binding.offset);
+            vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)0, false);
+            vao.enableAttribute(binding.index);
+            break;
+        }
+
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT: {
+            binding.index = (cmd_num - NV4097_SET_VERTEX_DATA_ARRAY_FORMAT) >> 2;
+            binding.type = args[0] & 0xf;
+            binding.size = (args[0] >> 4) & 0xf;
+            binding.stride = (args[0] >> 8) & 0xff;
+            printf("Vertex attribute %d: size: %d, stride: 0x%02x, type: %d\n", binding.index, binding.size, binding.stride, binding.type);
+            break;
+        }
+
+        case NV4097_SET_INDEX_ARRAY_ADDRESS: {
+            const u32 location = args[1] & 0xf;   // Local or RSX
+            const u32 addr = offsetAndLocationToAddress(args[0], location);
+            const u8 type = (args[1] >> 4) & 0xf;
+            index_array.addr = addr;
+            index_array.type = type;
+            printf("Index array: addr: 0x%08x, type: %d, location: %s\n", addr, type, location == 0 ? "RSX" : "MAIN");
+            break;
+        }
+
         case NV4097_DRAW_INDEX_ARRAY: {
             auto vertex_shader = shader_decompiler.decompileVertex(vertex_shader_data);
             auto fragment_shader = shader_decompiler.decompileFragment(fragment_shader_data);
@@ -73,12 +119,73 @@ void RSX::runCommandList() {
             printf("Compiled fragment shader:\n");
             puts(fragment_shader.c_str());
 
-            OpenGL::Shader vertex, fragment;
-            OpenGL::Program program;
+            vertex.free();
+            fragment.free();
+            program.free();
+
             vertex.create(vertex_shader, OpenGL::ShaderType::Vertex);
             fragment.create(fragment_shader, OpenGL::ShaderType::Fragment);
             program.create({ vertex, fragment });
             program.use();
+
+            for (auto& j : args) {
+                const u32 first = j & 0xffffff;
+                const u32 count = (j >> 24) + 1;
+                printf("Draw Index Array: first: %d count: %d\n", first, count);
+                u32 highest_index = 0;
+                std::vector<u32> indices;
+                for (int i = 0; i < count; i++) {
+                    u32 index;
+                    if (index_array.type == 1) {
+                        index = ps3->mem.read<u16>(index_array.addr + i * 2);
+                    }
+                    else {
+                        Helpers::panic("Index buffer type 0\n");
+                    }
+                    if (index > highest_index) highest_index = index;
+                    printf("%d ", index);
+                    indices.push_back(index);
+                }
+                printf("\nVertex buffer: %d vertices\n", highest_index);
+
+                // Draw
+                // TODO: I'll rewrite most of this soon. Code is ugly and has some hacks right now.
+                u8* ptr = ps3->mem.getPtr(binding.offset);
+                std::vector<u8> vtx_buf;
+                vtx_buf.resize(binding.stride * (highest_index + 1));
+
+                u32 offs = binding.offset;
+                for (int i = 0; i < highest_index; i++) {
+                    u32 x = ps3->mem.read<u32>(offs + 0);
+                    u32 y = ps3->mem.read<u32>(offs + 4);
+                    u32 z = ps3->mem.read<u32>(offs + 8);
+                    *(float*)&vtx_buf[binding.stride * i + 0] = reinterpret_cast<float&>(x);
+                    *(float*)&vtx_buf[binding.stride * i + 4] = reinterpret_cast<float&>(y);
+                    *(float*)&vtx_buf[binding.stride * i + 8] = reinterpret_cast<float&>(z);
+                    printf("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
+                    offs += binding.stride;
+                }
+
+                checkGLError();
+
+                // Constants
+                //printf("glUniform4fv\n");
+                glUniform4fv(glGetUniformLocation(program.handle(), "c"), 512, (GLfloat*)constants);
+                checkGLError();
+
+                //printf("glBufferData 1\n");
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
+                checkGLError();
+
+                //printf("glBufferData 2\n");
+                glBufferData(GL_ARRAY_BUFFER, binding.stride * highest_index, (void*)vtx_buf.data(), GL_STATIC_DRAW);
+                checkGLError();
+
+                //printf("glDrawElements\n");
+                glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+                checkGLError();
+
+            }
             break;
         }
 
@@ -102,6 +209,16 @@ void RSX::runCommandList() {
             vertex_shader_data.clear();
             break;
         }
+        case NV4097_SET_TRANSFORM_CONSTANT_LOAD: {
+            const u32 start = args[0];
+            for (int i = 1; i < args.size(); i++) constants[start * 4 + i - 1] = args[i];                
+
+            printf("Upload %d transform constants starting at %d\n", args.size() - 1, args[0]);
+            for (int i = 1; i < args.size(); i++) {
+                printf("0x%08x (%f)\n", constants[start * 4 + i - 1], reinterpret_cast<float&>(constants[start * 4 + i - 1]));
+            }
+            break;
+        }
 
         default:
             if (command_names.contains(cmd & 0x3ffff))
@@ -109,5 +226,13 @@ void RSX::runCommandList() {
             else
                 printf("Unimplemented RSX command 0x%08x (0x%08x)\n", cmd_num, cmd);
         }
+    }
+}
+
+void RSX::checkGLError() {
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        printf("GL error 0x%x\n", err);
+        exit(0);
     }
 }

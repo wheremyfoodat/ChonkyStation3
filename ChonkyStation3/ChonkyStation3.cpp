@@ -18,8 +18,11 @@ int main(int argc, char** argv) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     
-    SDL_Window* window = SDL_CreateWindow("ChonkyStation3", 100, 100, 1280, 720, SDL_WINDOW_OPENGL);
+    SDL_Window* window = SDL_CreateWindow("ChonkyStation3", 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_GLContext context = SDL_GL_CreateContext(window);
+    SDL_GL_MakeCurrent(window, context);
+    SDL_GL_SetSwapInterval(0);
+
     if (context == nullptr)
         Helpers::panic("Failed to create OpenGL context\n");
 

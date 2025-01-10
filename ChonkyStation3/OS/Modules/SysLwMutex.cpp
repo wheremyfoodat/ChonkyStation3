@@ -5,35 +5,33 @@
 u64 SysLwMutex::sysLwMutexLock() {
     const u64 ptr = ARG0;
     const u64 timeout = ARG1;
-    printf("sysLwMutexLock(ptr: 0x%08llx, timeout: %lld)\n", ptr, timeout);
+    //printf("sysLwMutexLock(ptr: 0x%08llx, timeout: %lld)\n", ptr, timeout);
 
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
-    if (mtx->owner != -1)
+    if (mtx->owner != -1) {
         // TODO: recursion
         //Helpers::panic("Tried to lock already locked mutex\n");
-        printf("Tried to lock already locked mutex\n");
+        //printf("Tried to lock already locked mutex\n");
+    }
 
     mtx->owner = ps3->thread_manager.current_thread->id;   // owner
-    //printf("new owner: 0x%08x\n", (u32)mtx->owner);
+
     return Result::CELL_OK;
 }
 
 u64 SysLwMutex::sysLwMutexUnlock() {
     const u64 ptr = ARG0;
-    printf("sysLwMutexUnlock(ptr: 0x%08llx)\n", ptr);
+    //printf("sysLwMutexUnlock(ptr: 0x%08llx)\n", ptr);
 
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     // TODO: should I actually check for this?
-    if (mtx->owner == -1)
+    if (mtx->owner == -1) {
         //Helpers::panic("Tried to unlock already unlocked mutex\n");
-        printf("Tried to unlock already unlocked mutex\n");
+        //printf("Tried to unlock already unlocked mutex\n");
+    }
 
     mtx->owner = -1;  // free
-    //printf("owner: 0x%08x\n", (u32)mtx->owner);
-    //printf("waiter: 0x%08x\n", (u32)mtx->waiter);
-    //printf("attrib: 0x%08x\n", (u32)mtx->attribute);
-    //printf("recursive_count: 0x%08x\n", (u32)mtx->recursive_count);
-    //printf("sleep_queue: 0x%08x\n", (u32)mtx->sleep_queue);
+
     return Result::CELL_OK;
 }
 

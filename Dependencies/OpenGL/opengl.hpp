@@ -59,7 +59,7 @@
 #endif
 
 // Uncomment the following define if you want GL objects to automatically free themselves when their lifetime ends
-// #define OPENGL_DESTRUCTORS
+//#define OPENGL_DESTRUCTORS
 
 namespace OpenGL {
 

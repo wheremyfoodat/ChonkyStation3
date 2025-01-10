@@ -18,8 +18,10 @@ public:
 
     PlayStation3* ps3;
 
+
     void runCommandList();
     u32 fetch32();
+    u32 offsetAndLocationToAddress(u32 offset, u8 location);
     u32 curr_cmd = 0;
 
     bool flipped = false;
@@ -27,7 +29,31 @@ public:
     OpenGL::Vector<float, 4> clear_color;
     std::vector<u32> vertex_shader_data;
     std::vector<u32> fragment_shader_data;
+    u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
     u32 semaphore_offset = 0;
+
+    OpenGL::VertexArray vao;
+    OpenGL::VertexBuffer vbo;
+    OpenGL::Shader vertex, fragment;
+    OpenGL::Program program;
+
+    GLuint ibo;
+    void checkGLError();
+
+    struct AttributeBinding {
+        u8 index;
+        u8 stride;
+        u8 size;
+        u32 offset;
+        u8 type;
+    };
+    AttributeBinding binding;
+
+    struct IndexArray {
+        u32 addr;
+        u8 type;
+    };
+    IndexArray index_array;
 
     // I == command is implemented or at least handled in some way
     enum Commands : u32 {
@@ -162,13 +188,13 @@ public:
         NV4097_SET_POLYGON_STIPPLE                              = 0x0000147c,
         NV4097_SET_POLYGON_STIPPLE_PATTERN                      = 0x00001480,
         NV4097_SET_VERTEX_DATA3F_M                              = 0x00001500,
-        NV4097_SET_VERTEX_DATA_ARRAY_OFFSET                     = 0x00001680,
+        NV4097_SET_VERTEX_DATA_ARRAY_OFFSET                     = 0x00001680,   // I
         NV4097_INVALIDATE_VERTEX_CACHE_FILE                     = 0x00001710,
         NV4097_INVALIDATE_VERTEX_FILE                           = 0x00001714,
         NV4097_PIPE_NOP                                         = 0x00001718,
         NV4097_SET_VERTEX_DATA_BASE_OFFSET                      = 0x00001738,
         NV4097_SET_VERTEX_DATA_BASE_INDEX                       = 0x0000173c,
-        NV4097_SET_VERTEX_DATA_ARRAY_FORMAT                     = 0x00001740,
+        NV4097_SET_VERTEX_DATA_ARRAY_FORMAT                     = 0x00001740,   // I
         NV4097_CLEAR_REPORT_VALUE                               = 0x000017c8,
         NV4097_SET_ZPASS_PIXEL_COUNT_ENABLE                     = 0x000017cc,
         NV4097_GET_REPORT                                       = 0x00001800,
@@ -178,7 +204,7 @@ public:
         NV4097_ARRAY_ELEMENT32                                  = 0x00001810,
         NV4097_DRAW_ARRAYS                                      = 0x00001814,
         NV4097_INLINE_ARRAY                                     = 0x00001818,
-        NV4097_SET_INDEX_ARRAY_ADDRESS                          = 0x0000181c,
+        NV4097_SET_INDEX_ARRAY_ADDRESS                          = 0x0000181c,   // I
         NV4097_SET_INDEX_ARRAY_DMA                              = 0x00001820,
         NV4097_DRAW_INDEX_ARRAY                                 = 0x00001824,   // I
         NV4097_SET_FRONT_POLYGON_MODE                           = 0x00001828,
@@ -234,7 +260,7 @@ public:
         NV4097_SET_POINT_PARAMS_ENABLE                          = 0x00001ee4,
         NV4097_SET_POINT_SPRITE_CONTROL                         = 0x00001ee8,
         NV4097_SET_TRANSFORM_TIMEOUT                            = 0x00001ef8,
-        NV4097_SET_TRANSFORM_CONSTANT_LOAD                      = 0x00001efc,
+        NV4097_SET_TRANSFORM_CONSTANT_LOAD                      = 0x00001efc,   // I
         NV4097_SET_TRANSFORM_CONSTANT                           = 0x00001f00,
         NV4097_SET_FREQUENCY_DIVIDER_OPERATION                  = 0x00001fc0,
         NV4097_SET_ATTRIB_COLOR                                 = 0x00001fc4,

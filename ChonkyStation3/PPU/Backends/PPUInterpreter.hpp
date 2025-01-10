@@ -20,6 +20,7 @@ public:
     void subfic     (const Instruction& instr);
     void cmpli      (const Instruction& instr);
     void cmpi       (const Instruction& instr);
+    void addic      (const Instruction& instr);
     void addi       (const Instruction& instr);
     void addis      (const Instruction& instr);
     void bc         (const Instruction& instr);
@@ -70,6 +71,7 @@ public:
     void vor        (const Instruction& instr);
     void vxor       (const Instruction& instr);
     // G_13
+    void mcrf       (const Instruction& instr);
     void bclr       (const Instruction& instr);
     void cror       (const Instruction& instr);
     void bcctr      (const Instruction& instr);
@@ -86,6 +88,7 @@ public:
     void ldx        (const Instruction& instr);
     void lwzx       (const Instruction& instr);
     void cntlzw     (const Instruction& instr);
+    void slw        (const Instruction& instr);
     void sld        (const Instruction& instr);
     void and_       (const Instruction& instr);
     void cmpl       (const Instruction& instr);
@@ -97,6 +100,7 @@ public:
     void lvx        (const Instruction& instr);
     void neg        (const Instruction& instr);
     void nor        (const Instruction& instr);
+    void subfe      (const Instruction& instr);
     void mtcrf      (const Instruction& instr);
     void stdx       (const Instruction& instr);
     void addze      (const Instruction& instr);
@@ -111,6 +115,7 @@ public:
     void divwu      (const Instruction& instr);
     void mtspr      (const Instruction& instr);
     void srw        (const Instruction& instr);
+    void lfdx       (const Instruction& instr);
     void srawi      (const Instruction& instr);
     void sradi      (const Instruction& instr);
     void extsh      (const Instruction& instr);
@@ -134,7 +139,9 @@ public:
     void fcmpu      (const Instruction& instr);
     void frsp       (const Instruction& instr);
     void fctiwz     (const Instruction& instr);
+    void fsub       (const Instruction& instr);
     void fadd       (const Instruction& instr);
+    void fmul       (const Instruction& instr);
     void fmr        (const Instruction& instr);
     void fmadd      (const Instruction& instr);
     void fneg       (const Instruction& instr);

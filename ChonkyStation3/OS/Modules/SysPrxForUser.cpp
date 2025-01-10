@@ -4,6 +4,7 @@
 
 u64 SysPrxForUser::sysProcessExit() {
     const s32 code = ARG0;
+    ps3->ppu->printState();
     printf("\n---------------------------\n");
     printf(  "PROCESS EXITED WITH CODE %d\n", code);
     exit(0);
