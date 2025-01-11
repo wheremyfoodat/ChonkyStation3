@@ -142,15 +142,16 @@ void RSX::runCommandList() {
                 }
             }
 
-            log("\nVertex buffer: %d vertices\n", highest_index);
+            const auto n_vertices = highest_index + 1;
+            log("\nVertex buffer: %d vertices\n", n_vertices);
 
             // Draw
             // TODO: This doesn't work with multiple attributes for now
             std::vector<u8> vtx_buf;
-            vtx_buf.resize(binding.stride * (highest_index + 1));
+            vtx_buf.resize(binding.stride * n_vertices);
 
             u32 offs = binding.offset;
-            for (int i = 0; i < highest_index; i++) {
+            for (int i = 0; i < n_vertices; i++) {
                 u32 x = ps3->mem.read<u32>(offs + 0);
                 u32 y = ps3->mem.read<u32>(offs + 4);
                 u32 z = ps3->mem.read<u32>(offs + 8);
@@ -166,7 +167,7 @@ void RSX::runCommandList() {
             glUniform4fv(glGetUniformLocation(program.handle(), "c"), 512, (GLfloat*)constants);
 
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
-            glBufferData(GL_ARRAY_BUFFER, binding.stride * (highest_index + 1), (void*)vtx_buf.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, binding.stride * n_vertices, (void*)vtx_buf.data(), GL_STATIC_DRAW);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
             break;
         }

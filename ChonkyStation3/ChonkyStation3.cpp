@@ -5,6 +5,8 @@
 #include "PlayStation3.hpp"
 
 
+static constexpr double MS_PER_FRAME = 1000.0 / 60.0;
+
 int main(int argc, char** argv) {
     if (argc < 2)
         Helpers::panic("Usage: ChonkyStation3.exe [executable path]");
@@ -40,7 +42,7 @@ int main(int argc, char** argv) {
 
     bool quit = false;
     int frame_count = 0;
-    double last_time = SDL_GetTicks() / 1000.0;
+    double last_time = SDL_GetTicks64() / 1000.0;
     double curr_time = 0;
 
     while (!quit) {
@@ -49,7 +51,9 @@ int main(int argc, char** argv) {
 
         frame_count++;
 
-        curr_time = SDL_GetTicks() / 1000.0;
+        const u64 curr_ticks = SDL_GetTicks64();
+        curr_time = curr_ticks / 1000.0;
+
         if (curr_time - last_time > 1.0) {
             title = std::format("ChonkyStation3 | {} | {} FPS", file.filename().string(), frame_count);
             SDL_SetWindowTitle(window, title.c_str());
