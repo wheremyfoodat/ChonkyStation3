@@ -14,6 +14,7 @@ public:
 
     Thread* createThread(u64 entry, u64 stack_size, u64 arg, u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread);
     void contextSwitch(Thread& thread);
+    void reschedule();
     std::vector<Thread> threads;
     Thread* current_thread;
 

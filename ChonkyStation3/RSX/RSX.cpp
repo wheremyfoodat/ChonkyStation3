@@ -130,17 +130,15 @@ void RSX::runCommandList() {
                 const u32 first = j & 0xffffff;
                 const u32 count = (j >> 24) + 1;
                 log("Draw Index Array: first: %d count: %d\n", first, count);
-                for (int i = first; i < first + count; i++) {
-                    u32 index;
-                    if (index_array.type == 1) {
-                        index = ps3->mem.read<u16>(index_array.addr + i * 2);
+                if (index_array.type == 1) {
+                    for (int i = first; i < first + count; i++) {
+                        const u16 index = ps3->mem.read<u16>(index_array.addr + i * 2);
+                        indices.push_back(index);
+                        if (index > highest_index) highest_index = index;
                     }
-                    else {
-                        Helpers::panic("Index buffer type 0\n");
-                    }
-                    if (index > highest_index) highest_index = index;
-                    //log("%d ", index);
-                    indices.push_back(index);
+                }
+                else {
+                    Helpers::panic("Index buffer type 0\n");
                 }
             }
 

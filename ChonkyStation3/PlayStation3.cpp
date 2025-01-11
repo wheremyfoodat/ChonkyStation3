@@ -19,6 +19,19 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     //    printf("%s @ 0x%08x\n", i.second.name.c_str(), i.first);
 }
 
+void PlayStation3::run() {
+    while (cycle_count++ < CPU_FREQ) {
+        step();
+    }
+    cycle_count = 0;
+}
+
 void PlayStation3::step() {
     ppu->step();
+    scheduler.tick(1);
+}
+
+void PlayStation3::skipToNextEvent() {
+    const u64 ticks = scheduler.tickToNextEvent();
+    cycle_count += ticks;
 }

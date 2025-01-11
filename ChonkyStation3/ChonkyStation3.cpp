@@ -39,18 +39,14 @@ int main(int argc, char** argv) {
     printf(  "---------\n\n");
 
     bool quit = false;
-    int cycle_count = 0;
     int frame_count = 0;
     double last_time = SDL_GetTicks() / 1000.0;
     double curr_time = 0;
 
     while (!quit) {
-        while (cycle_count++ < 3200000) {
-            ps3.step();
-        }
+        ps3.run();
         ps3.module_manager.cellGcmSys.flip = 0;
 
-        cycle_count = 0;
         frame_count++;
 
         curr_time = SDL_GetTicks() / 1000.0;

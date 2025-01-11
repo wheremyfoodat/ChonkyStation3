@@ -28,9 +28,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
 
     case 0x8d:
-        ps3->ppu->state.gprs[3] = Result::CELL_OK;
-        //log("sysTimerUsleep() UNIMPLEMENTED\n");
-        break;
+        ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;
     case 0x91: {
         log("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 0);

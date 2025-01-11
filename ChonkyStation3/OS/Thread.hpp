@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <PPUTypes.hpp>
 #include <MemoryConstants.hpp>
 
@@ -19,4 +20,15 @@ public:
     u64 stack_size;
     std::string name;
     u32 id;
+
+    MAKE_LOG_FUNCTION(log, thread);
+
+    enum class THREAD_STATUS {
+        Running,
+        Sleeping
+    };
+    THREAD_STATUS status = THREAD_STATUS::Running;
+
+    void sleep(u64 us);
+    void wakeUp();
 };

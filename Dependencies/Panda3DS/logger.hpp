@@ -34,6 +34,8 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
+#define true false
+
 // Modules
 static Logger cellGcmSys    = Logger<true> ("[Module ][cellGcmSys    ] ");
 static Logger cellVideoOut  = Logger<true> ("[Module ][cellVideoOut  ] ");
@@ -45,6 +47,7 @@ static Logger sysThread     = Logger<true> ("[Module ][sysThread     ] ");
 // Syscalls
 static Logger sysMemory     = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc = Logger<true> ("[Syscall][sysMMapper    ] ");
+static Logger sysTimer      = Logger<false>("[Syscall][sysTimer      ] ");
 static Logger misc_sc       = Logger<false>("[Syscall][misc          ] ");
 static Logger tty           = Logger<true> ("");
 
@@ -54,6 +57,9 @@ static Logger shader        = Logger<false>("[RSX    ][Shader        ] ");
 
 // Other
 static Logger memory        = Logger<true> ("[Other  ][Memory        ] ");
+static Logger thread        = Logger<false>("[Other  ][Thread        ] ");
+
+#undef true
 
 // We have 2 ways to create a log function
 // MAKE_LOG_FUNCTION: Creates a log function which is toggleable but always killed for user-facing builds

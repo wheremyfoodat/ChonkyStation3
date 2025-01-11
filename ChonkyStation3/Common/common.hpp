@@ -33,6 +33,8 @@ constexpr size_t operator""_GB(unsigned long long int x) { return 1024_MB * x; }
 
 namespace fs = std::filesystem;
 
+static constexpr u64 CPU_FREQ = 3200000000;
+
 namespace Helpers {
 [[noreturn]] static void panic(const char* fmt, ...) {
     va_list args;

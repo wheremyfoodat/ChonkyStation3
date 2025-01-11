@@ -25,4 +25,7 @@ public:
 
     // sysMemory
     u64 sysMemoryGetUserMemorySize();
+
+    // sysTimer
+    u64 sysTimerUsleep();
 };

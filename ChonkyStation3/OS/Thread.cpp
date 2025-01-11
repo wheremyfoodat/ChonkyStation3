@@ -42,3 +42,17 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, u8* name, u32 id, u32 tls_vad
     state.gprs[29] = state.gprs[3];
     state.gprs[31] = state.gprs[5];
 }
+
+void Thread::sleep(u64 us) {
+    const u64 cycles = Scheduler::uSecondsToCycles(us);
+    mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), cycles, "thread wakeup");
+    status = THREAD_STATUS::Sleeping;
+    mgr->reschedule();
+    log("Sleeping thread %d for %d us\n", id, us);
+}
+
+void Thread::wakeUp() {
+    status = THREAD_STATUS::Running;
+    mgr->reschedule();
+    log("Woke up thread %d\n", id);
+}

@@ -10,6 +10,7 @@
 #include <ThreadManager.hpp>
 #include <HandleManager.hpp>
 #include <Syscall.hpp>
+#include <Scheduler.hpp>
 #include <Backends/PPUInterpreter.hpp>
 #include <unordered_map>
 
@@ -26,6 +27,10 @@ public:
     HandleManager handle_manager;
     Syscall syscall;
     ElfSymbolParser elf_parser;
+    Scheduler scheduler;
 
+    u64 cycle_count = 0;
+    void run();
     void step();
+    void skipToNextEvent();
 };

@@ -29,6 +29,20 @@ void ThreadManager::contextSwitch(Thread& thread) {
     // TODO: tls
 }
 
+void ThreadManager::reschedule() {
+    bool found_thread = false;
+    for (auto& i : threads) {
+        if (i.status == Thread::THREAD_STATUS::Running) {
+            found_thread = true;
+            contextSwitch(i);
+            break;
+        }
+    }
+
+    if (!found_thread)
+        ps3->skipToNextEvent();
+}
+
 u64 ThreadManager::allocateStack(u64 stack_size) {
     return ps3->mem.ram.allocPhys(stack_size);
 }
