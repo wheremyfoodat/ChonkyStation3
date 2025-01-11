@@ -14,6 +14,7 @@ uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
 )";
     std::string shader;
     std::string main = "";
+    main.reserve(256_KB);
     for (int i = 0; i < 16; i++) used_inputs[i] = false;
     for (int i = 0; i < 16; i++) used_outputs[i] = false;
     inputs = "";
@@ -140,11 +141,12 @@ std::string ShaderDecompiler::source(VertexSource& src, VertexInstruction* instr
     // Swizzle
     // Each field in the src contains a value ranging from 0 to 3, each corrisponding to a lane
     const std::string all = "xyzw";
-    std::string swizzle = "";
-    swizzle += all[src.x];
-    swizzle += all[src.y];
-    swizzle += all[src.z];
-    swizzle += all[src.w];
+    std::string swizzle = "    ";
+    swizzle[0] = all[src.x];
+    swizzle[1] = all[src.y];
+    swizzle[2] = all[src.z];
+    swizzle[3] = all[src.w];
+
     // We can omit ".xyzw"
     if (swizzle != all)
         source += "." + swizzle;

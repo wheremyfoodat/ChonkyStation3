@@ -1,7 +1,7 @@
 ﻿#include <iostream>
-
+#include <string>
+#include <format>
 #include <SDL.h>
-
 #include "PlayStation3.hpp"
 
 
@@ -18,7 +18,10 @@ int main(int argc, char** argv) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
     
-    SDL_Window* window = SDL_CreateWindow("ChonkyStation3", 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    fs::path file = argv[1];
+    std::string title = std::format("ChonkyStation3 | {}", file.filename().string());
+
+    SDL_Window* window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
@@ -30,21 +33,33 @@ int main(int argc, char** argv) {
         Helpers::panic("OpenGL init failed");
     }
 
-    PlayStation3 ps3 = PlayStation3(argv[1]);
+    PlayStation3 ps3 = PlayStation3(file);
 
     printf("\nEXECUTING\n");
     printf(  "---------\n\n");
 
     bool quit = false;
     int cycle_count = 0;
+    int frame_count = 0;
+    double last_time = SDL_GetTicks() / 1000.0;
+    double curr_time = 0;
 
     while (!quit) {
-        while (cycle_count++ < 500000) {
+        while (cycle_count++ < 3200000) {
             ps3.step();
         }
         ps3.module_manager.cellGcmSys.flip = 0;
 
         cycle_count = 0;
+        frame_count++;
+
+        curr_time = SDL_GetTicks() / 1000.0;
+        if (curr_time - last_time > 1.0) {
+            title = std::format("ChonkyStation3 | {} | {} FPS", file.filename().string(), frame_count);
+            SDL_SetWindowTitle(window, title.c_str());
+            last_time = curr_time;
+            frame_count = 0;
+        }
 
         SDL_Event e;
 

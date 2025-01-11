@@ -40,7 +40,6 @@ void RSX::runCommandList() {
 
     // Execute while get < put
     // We increment get as we fetch data from the FIFO
-    curr_cmd = 0;
     while (gcm.ctrl->get < gcm.ctrl->put) {
         u32 cmd = fetch32();
         const auto cmd_num = cmd & 0x3ffff;

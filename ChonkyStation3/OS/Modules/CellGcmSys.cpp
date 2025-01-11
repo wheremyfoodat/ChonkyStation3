@@ -164,6 +164,7 @@ u64 CellGcmSys::cellGcmCallback() {
 
     ctrl->put = bytes_remaining;
     ctrl->get = 0;
+    ps3->rsx.curr_cmd = 0;
 
     return Result::CELL_OK;
 }
