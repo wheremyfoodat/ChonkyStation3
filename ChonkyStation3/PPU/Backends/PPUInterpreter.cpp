@@ -210,6 +210,7 @@ void PPUInterpreter::step() {
             case FCMPU:     fcmpu(instr);   break;
             case FRSP:      frsp(instr);    break;
             case FCTIWZ:    fctiwz(instr);  break;
+            case FDIV:      fdiv(instr);    break;
             case FSUB:      fsub(instr);    break;
             case FADD:      fadd(instr);    break;
             case FMR:       fmr(instr);     break;
@@ -1110,6 +1111,12 @@ void PPUInterpreter::fctiwz(const Instruction& instr) {
     if (v > INT32_MAX) v = 0x7fffffff;
     else if (v < INT32_MIN) v = 0x80000000;
     reinterpret_cast<u64&>(state.fprs[instr.frt]) = 0xfff8000000000000ull | v;
+}
+
+void PPUInterpreter::fdiv(const Instruction& instr) {
+    // TODO: division by 0? NaNs? inf?
+    Helpers::debugAssert(!instr.rc, "fdiv: rc\n");
+    state.fprs[instr.frt] = state.fprs[instr.fra] / state.fprs[instr.frb];
 }
 
 void PPUInterpreter::fsub(const Instruction& instr) {

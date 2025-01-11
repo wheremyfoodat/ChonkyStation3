@@ -12,13 +12,13 @@ u64 SysMMapper::sysMMapperAllocateMemory() {
     block->handle = handle;
     ps3->mem.write<u32>(addr_ptr, handle);
 
-    printf("sysMMapperAllocateMemory(size: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x) [allocated memory addr: 0x%08llx]\n", size, flags, addr_ptr, block->vaddr);
+    log("sysMMapperAllocateMemory(size: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x) [allocated memory addr: 0x%08llx]\n", size, flags, addr_ptr, block->vaddr);
     return Result::CELL_OK;
 }
 
 u64 SysMMapper::sysMMapperFreeMemory() {
     const u32 handle = ARG0;
-    printf("sysMMapperFreeMemory(handle: 0x%08x)\n", handle);
+    log("sysMMapperFreeMemory(handle: 0x%08x)\n", handle);
 
     auto block = ps3->mem.findMapEntryWithHandle(handle);
     //Helpers::debugAssert(block.first, "sysMMapperFreeMemory: tried to free unmapped memory\n");
@@ -33,7 +33,7 @@ u64 SysMMapper::sysMMapperUnmapMemory() {
     // TODO: Right now I just free (and unmap) the memory when the free memory function is called
     const u32 addr = ARG0;
     const u32 handle_ptr = ARG1;
-    printf("sysMMapperUnmapMemory(addr: 0x%08x, handle_ptr: 0%08x)\n", addr, handle_ptr);
+    log("sysMMapperUnmapMemory(addr: 0x%08x, handle_ptr: 0%08x)\n", addr, handle_ptr);
 
     auto info = ps3->mem.isMapped(addr);
     //Helpers::debugAssert(info.first, "sysMMapperUnmapMemory: tried to unmap unmapped memory\n");

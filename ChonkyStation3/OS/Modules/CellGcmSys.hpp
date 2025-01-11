@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <CellTypes.hpp>
 #include <BEField.hpp>
 #include <functional>
@@ -15,6 +16,7 @@ class CellGcmSys {
 public:
     CellGcmSys(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
+    MAKE_LOG_FUNCTION(log, cellGcmSys);
 
     struct CellGcmConfig {
         BEField<u32> local_addr;    // Pointer to RSX local memory
@@ -46,6 +48,7 @@ public:
     CellGcmConfig gcm_config;
     u32 dma_ctrl_addr = 0;
     u32 label_addr = 0;
+    u32 flip = 0;
 
     u64 cellGcmInitBody();
     u64 cellGcmAddressToOffset();

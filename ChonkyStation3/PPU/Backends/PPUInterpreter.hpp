@@ -139,6 +139,7 @@ public:
     void fcmpu      (const Instruction& instr);
     void frsp       (const Instruction& instr);
     void fctiwz     (const Instruction& instr);
+    void fdiv       (const Instruction& instr);
     void fsub       (const Instruction& instr);
     void fadd       (const Instruction& instr);
     void fmul       (const Instruction& instr);

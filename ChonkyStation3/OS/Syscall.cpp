@@ -27,20 +27,23 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
 
-    case 0x8d: ps3->ppu->state.gprs[3] = Result::CELL_OK;  printf("sysTimerUsleep() UNIMPLEMENTED\n");  break;
+    case 0x8d:
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        //log("sysTimerUsleep() UNIMPLEMENTED\n");
+        break;
     case 0x91: {
-        printf("sysTimeGetCurrentTime() STUBBED\n");
+        log("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 0);
         ps3->mem.write<u64>(ARG1, 0);
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
     case 0x93: {
-        printf("sysTimeGetTimebaseFrequency() UNIMPLEMENTED\n");
+        log("sysTimeGetTimebaseFrequency() UNIMPLEMENTED\n");
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
     }
     case 0x14a: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
-    case 0x14b: ps3->ppu->state.gprs[3] = Result::CELL_OK;  printf("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
+    case 0x14b: ps3->ppu->state.gprs[3] = Result::CELL_OK;  log("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
     case 0x151: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;
     case 0x160: ps3->ppu->state.gprs[3] = sysMemoryGetUserMemorySize();     break;
     case 0x193: {   // puts
@@ -48,14 +51,14 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         u8* ptr = ps3->mem.getPtr(ARG1);
         for (int i = 0; i < ARG2; i++)
             str += *ptr++;
-        printf("%s", str.c_str());
+        tty("%s", str.c_str());
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
     case 0x329: {
         const u32 fd = ARG0;
         const u32 stat_ptr = ARG1;
-        printf("cellFsFStat(fd: 0x%08x, stat_ptr: 0x%08x) STUBBED\n", fd, stat_ptr);
+        log("cellFsFStat(fd: 0x%08x, stat_ptr: 0x%08x) STUBBED\n", fd, stat_ptr);
 
         CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
 

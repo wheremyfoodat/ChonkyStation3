@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <CellTypes.hpp>
 #include <BEField.hpp>
 #include <PPUTypes.hpp>
@@ -15,6 +16,7 @@ class SysThread {
 public:
     SysThread(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
+    MAKE_LOG_FUNCTION(log, sysThread);
 
     u64 sysThreadGetID();
     u64 sysThreadInitializeTLS();

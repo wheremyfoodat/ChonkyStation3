@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <unordered_map>
 #include <CellTypes.hpp>
 #include <BEField.hpp>
@@ -15,6 +16,7 @@ class CellVideoOut {
 public:
     CellVideoOut(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
+    MAKE_LOG_FUNCTION(log, cellVideoOut);
 
     enum CellVideoOutResolutionId : u32 {
         CELL_VIDEO_OUT_RESOLUTION_UNDEFINED = 0,

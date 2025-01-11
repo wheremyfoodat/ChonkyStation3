@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <MemoryConstants.hpp>
 #include <queue>
 #include <unordered_map>
@@ -18,6 +19,8 @@ public:
         this->size = size;
         mem = new u8[size];
     }
+
+    MAKE_LOG_FUNCTION(log, memory);
     
     Memory& mem_manager;
     u8* mem;

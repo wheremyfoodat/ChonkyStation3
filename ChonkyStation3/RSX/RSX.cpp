@@ -36,7 +36,7 @@ void RSX::runCommandList() {
     int cmd_count = gcm.ctrl->put - gcm.ctrl->get;
     if (cmd_count <= 0) return;
 
-    printf("Executing commands (%d bytes)\n", cmd_count);
+    log("Executing commands (%d bytes)\n", cmd_count);
 
     // Execute while get < put
     // We increment get as we fetch data from the FIFO
@@ -56,7 +56,7 @@ void RSX::runCommandList() {
             args.push_back(fetch32());
 
         if (command_names.contains(cmd_num))
-            printf("%s\n", command_names[cmd_num].c_str());
+            log("%s\n", command_names[cmd_num].c_str());
 
         switch (cmd_num) {
 
@@ -78,7 +78,7 @@ void RSX::runCommandList() {
 
         case NV4097_SET_TRANSFORM_PROGRAM: {
             for (auto& i : args) vertex_shader_data.push_back(i);
-            printf("Uploading %d words (%d instructions)\n", args.size(), args.size() / 4);
+            log("Uploading %d words (%d instructions)\n", args.size(), args.size() / 4);
             break;
         }
 
@@ -86,7 +86,7 @@ void RSX::runCommandList() {
             const u32 offset = args[0] & 0x7fffffff;
             const u8 location = args[0] >> 31;
             binding.offset = offsetAndLocationToAddress(offset, location);
-            printf("Vertex attribute %d: offset: 0x%08x\n", binding.index, binding.offset);
+            log("Vertex attribute %d: offset: 0x%08x\n", binding.index, binding.offset);
             vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)0, false);
             vao.enableAttribute(binding.index);
             break;
@@ -97,7 +97,7 @@ void RSX::runCommandList() {
             binding.type = args[0] & 0xf;
             binding.size = (args[0] >> 4) & 0xf;
             binding.stride = (args[0] >> 8) & 0xff;
-            printf("Vertex attribute %d: size: %d, stride: 0x%02x, type: %d\n", binding.index, binding.size, binding.stride, binding.type);
+            log("Vertex attribute %d: size: %d, stride: 0x%02x, type: %d\n", binding.index, binding.size, binding.stride, binding.type);
             break;
         }
 
@@ -107,17 +107,13 @@ void RSX::runCommandList() {
             const u8 type = (args[1] >> 4) & 0xf;
             index_array.addr = addr;
             index_array.type = type;
-            printf("Index array: addr: 0x%08x, type: %d, location: %s\n", addr, type, location == 0 ? "RSX" : "MAIN");
+            log("Index array: addr: 0x%08x, type: %d, location: %s\n", addr, type, location == 0 ? "RSX" : "MAIN");
             break;
         }
 
         case NV4097_DRAW_INDEX_ARRAY: {
             auto vertex_shader = shader_decompiler.decompileVertex(vertex_shader_data);
             auto fragment_shader = shader_decompiler.decompileFragment(fragment_shader_data);
-            printf("Compiled vertex shader:\n");
-            puts(vertex_shader.c_str());
-            printf("Compiled fragment shader:\n");
-            puts(fragment_shader.c_str());
 
             vertex.free();
             fragment.free();
@@ -128,13 +124,14 @@ void RSX::runCommandList() {
             program.create({ vertex, fragment });
             program.use();
 
+            std::vector<u32> indices;
+            u32 highest_index = 0;
+
             for (auto& j : args) {
                 const u32 first = j & 0xffffff;
                 const u32 count = (j >> 24) + 1;
-                printf("Draw Index Array: first: %d count: %d\n", first, count);
-                u32 highest_index = 0;
-                std::vector<u32> indices;
-                for (int i = 0; i < count; i++) {
+                log("Draw Index Array: first: %d count: %d\n", first, count);
+                for (int i = first; i < first + count; i++) {
                     u32 index;
                     if (index_array.type == 1) {
                         index = ps3->mem.read<u16>(index_array.addr + i * 2);
@@ -143,49 +140,37 @@ void RSX::runCommandList() {
                         Helpers::panic("Index buffer type 0\n");
                     }
                     if (index > highest_index) highest_index = index;
-                    printf("%d ", index);
+                    //log("%d ", index);
                     indices.push_back(index);
                 }
-                printf("\nVertex buffer: %d vertices\n", highest_index);
-
-                // Draw
-                // TODO: I'll rewrite most of this soon. Code is ugly and has some hacks right now.
-                u8* ptr = ps3->mem.getPtr(binding.offset);
-                std::vector<u8> vtx_buf;
-                vtx_buf.resize(binding.stride * (highest_index + 1));
-
-                u32 offs = binding.offset;
-                for (int i = 0; i < highest_index; i++) {
-                    u32 x = ps3->mem.read<u32>(offs + 0);
-                    u32 y = ps3->mem.read<u32>(offs + 4);
-                    u32 z = ps3->mem.read<u32>(offs + 8);
-                    *(float*)&vtx_buf[binding.stride * i + 0] = reinterpret_cast<float&>(x);
-                    *(float*)&vtx_buf[binding.stride * i + 4] = reinterpret_cast<float&>(y);
-                    *(float*)&vtx_buf[binding.stride * i + 8] = reinterpret_cast<float&>(z);
-                    printf("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
-                    offs += binding.stride;
-                }
-
-                checkGLError();
-
-                // Constants
-                //printf("glUniform4fv\n");
-                glUniform4fv(glGetUniformLocation(program.handle(), "c"), 512, (GLfloat*)constants);
-                checkGLError();
-
-                //printf("glBufferData 1\n");
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
-                checkGLError();
-
-                //printf("glBufferData 2\n");
-                glBufferData(GL_ARRAY_BUFFER, binding.stride * highest_index, (void*)vtx_buf.data(), GL_STATIC_DRAW);
-                checkGLError();
-
-                //printf("glDrawElements\n");
-                glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-                checkGLError();
-
             }
+
+            log("\nVertex buffer: %d vertices\n", highest_index);
+
+            // Draw
+            // TODO: This doesn't work with multiple attributes for now
+            std::vector<u8> vtx_buf;
+            vtx_buf.resize(binding.stride * (highest_index + 1));
+
+            u32 offs = binding.offset;
+            for (int i = 0; i < highest_index; i++) {
+                u32 x = ps3->mem.read<u32>(offs + 0);
+                u32 y = ps3->mem.read<u32>(offs + 4);
+                u32 z = ps3->mem.read<u32>(offs + 8);
+                *(float*)&vtx_buf[binding.stride * i + 0] = reinterpret_cast<float&>(x);
+                *(float*)&vtx_buf[binding.stride * i + 4] = reinterpret_cast<float&>(y);
+                *(float*)&vtx_buf[binding.stride * i + 8] = reinterpret_cast<float&>(z);
+                //log("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
+                offs += binding.stride;
+            }
+
+            // Constants
+            // TODO: don't upload constants if they weren't changed
+            glUniform4fv(glGetUniformLocation(program.handle(), "c"), 512, (GLfloat*)constants);
+
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, binding.stride * (highest_index + 1), (void*)vtx_buf.data(), GL_STATIC_DRAW);
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
             break;
         }
 
@@ -213,18 +198,18 @@ void RSX::runCommandList() {
             const u32 start = args[0];
             for (int i = 1; i < args.size(); i++) constants[start * 4 + i - 1] = args[i];                
 
-            printf("Upload %d transform constants starting at %d\n", args.size() - 1, args[0]);
+            log("Upload %d transform constants starting at %d\n", args.size() - 1, args[0]);
             for (int i = 1; i < args.size(); i++) {
-                printf("0x%08x (%f)\n", constants[start * 4 + i - 1], reinterpret_cast<float&>(constants[start * 4 + i - 1]));
+                log("0x%08x (%f)\n", constants[start * 4 + i - 1], reinterpret_cast<float&>(constants[start * 4 + i - 1]));
             }
             break;
         }
 
         default:
             if (command_names.contains(cmd & 0x3ffff))
-                printf("Unimplemented RSX command %s\n", command_names[cmd_num].c_str());
+                log("Unimplemented RSX command %s\n", command_names[cmd_num].c_str());
             else
-                printf("Unimplemented RSX command 0x%08x (0x%08x)\n", cmd_num, cmd);
+                log("Unimplemented RSX command 0x%08x (0x%08x)\n", cmd_num, cmd);
         }
     }
 }
@@ -232,7 +217,7 @@ void RSX::runCommandList() {
 void RSX::checkGLError() {
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
-        printf("GL error 0x%x\n", err);
+        log("GL error 0x%x\n", err);
         exit(0);
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <string>
 #include <sstream>
 #include <BitField.hpp>
@@ -52,6 +53,7 @@ public:
         BitField<15, 1, u32> neg;
     };
 
+    MAKE_LOG_FUNCTION(log, shader);
 
     std::string decompileVertex(std::vector<u32> shader_data);
     std::string decompileFragment(std::vector<u32> shader_data);

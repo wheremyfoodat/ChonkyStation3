@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
         while (cycle_count++ < 500000) {
             ps3.step();
         }
+        ps3.module_manager.cellGcmSys.flip = 0;
 
         cycle_count = 0;
 

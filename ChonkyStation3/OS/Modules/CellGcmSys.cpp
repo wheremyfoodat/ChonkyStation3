@@ -7,7 +7,7 @@ u64 CellGcmSys::cellGcmInitBody() {
     const u32 cmd_size = ARG1;
     const u32 io_size = ARG2;
     const u32 io_addr = ARG3;
-    printf("cellGcmInitBody(ctx_ptr: 0x%08x, cmd_size: 0x%08x, io_size: 0x%08x, io_addr: 0x%08x)\n", ctx_ptr, cmd_size, io_size, io_addr);
+    log("cellGcmInitBody(ctx_ptr: 0x%08x, cmd_size: 0x%08x, io_size: 0x%08x, io_addr: 0x%08x)\n", ctx_ptr, cmd_size, io_size, io_addr);
 
     gcm_config.local_size = 249_MB;
     gcm_config.local_addr = ps3->mem.rsx.alloc(gcm_config.local_size)->vaddr;
@@ -54,7 +54,7 @@ u64 CellGcmSys::cellGcmInitBody() {
 u64 CellGcmSys::cellGcmAddressToOffset() {
     const u32 addr = ARG0;
     const u32 offs_ptr = ARG1;
-    printf("cellGcmAddressToOffset(addr: 0x%08x, offs_ptr: 0x%08x)", addr, offs_ptr);
+    log("cellGcmAddressToOffset(addr: 0x%08x, offs_ptr: 0x%08x)", addr, offs_ptr);
 
     u32 offs = 0;
     // Check if the address is in RSX memory
@@ -68,7 +68,7 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     else
         Helpers::panic("\ncellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
 
-    printf(" [offs: 0x%08x]\n", offs);
+    logNoPrefix(" [offs: 0x%08x]\n", offs);
     ps3->mem.write<u32>(offs_ptr, offs);
     
     return Result::CELL_OK;
@@ -76,20 +76,20 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
 
 u64 CellGcmSys::cellGcmSetFlipMode() {
     const u32 mode = ARG0;
-    printf("cellGcmSetFlipMode(mode: 0x%08x) UNIMPLEMENTED\n", mode);
+    log("cellGcmSetFlipMode(mode: 0x%08x) UNIMPLEMENTED\n", mode);
 
     return Result::CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetFlipStatus() {
-    printf("cellGcmGetFlipStatus() STUBBED\n");
+    //log("cellGcmGetFlipStatus() STUBBED\n");
 
-    return 0;   // Means flipped?
+    return flip;   // Means flipped?
 }
 
 u64 CellGcmSys::cellGcmSetWaitFlip() {
     const u32 mode = ARG0;
-    printf("cellGcmSetWaitFlip(mode: 0x%08x) UNIMPLEMENTED\n", mode);
+    log("cellGcmSetWaitFlip(mode: 0x%08x) UNIMPLEMENTED\n", mode);
 
     return Result::CELL_OK;
 }
@@ -100,29 +100,32 @@ u64 CellGcmSys::cellGcmSetDisplayBuffer() {
     const u32 pitch = ARG2;
     const u32 width = ARG3;
     const u32 height = ARG4;
-    printf("cellGcmSetDisplayBuffer(buf_id: %d, offs: 0x%08x, pitch: %d, width: %d, height: %d)\n", buf_id, offs, pitch, width, height);
+    log("cellGcmSetDisplayBuffer(buf_id: %d, offs: 0x%08x, pitch: %d, width: %d, height: %d)\n", buf_id, offs, pitch, width, height);
 
     return Result::CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetControlRegister() {
-    printf("cellGcmGetControlRegister()\n");
+    log("cellGcmGetControlRegister()\n");
     return ctrl_addr;
 }
 
 u64 CellGcmSys::cellGcmResetFlipStatus() {
-    printf("cellGcmResetFlipStatus() UNIMPLEMENTED\n");
+    log("cellGcmResetFlipStatus() UNIMPLEMENTED\n");
+
+    flip = 1;
+
     return Result::CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetFlip() {
-    printf("cellGcmSetFlip() UNIMPLEMENTED\n");
+    log("cellGcmSetFlip() UNIMPLEMENTED\n");
     return Result::CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetConfiguration() {
     const u32 config_ptr = ARG0;
-    printf("cellGcmGetConfiguration(config_ptr: 0x%08x)\n", config_ptr);
+    log("cellGcmGetConfiguration(config_ptr: 0x%08x)\n", config_ptr);
     
     CellGcmConfig* config = (CellGcmConfig*)ps3->mem.getPtr(config_ptr);
     config->local_addr = gcm_config.local_addr;
@@ -137,7 +140,7 @@ u64 CellGcmSys::cellGcmGetConfiguration() {
 
 u64 CellGcmSys::cellGcmGetLabelAddress() {
     const u8 idx = ARG0;
-    printf("cellGcmGetLabelAddress(idx: 0x%02x)\n", idx);
+    log("cellGcmGetLabelAddress(idx: 0x%02x)\n", idx);
 
     return label_addr + 0x10 * idx;
 }
@@ -147,9 +150,9 @@ u64 CellGcmSys::cellGcmGetLabelAddress() {
 // If there are any remaining commands to be executed, copy them back at the start
 // Update context and fifo control accordingly
 u64 CellGcmSys::cellGcmCallback() {
-    printf("cellGcmCallback()\n");
-    printf("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
-    printf("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
+    log("cellGcmCallback()\n");
+    log("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
+    log("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
 
     const int bytes_executed = ctx->current - ctx->begin;
     const int bytes_remaining = bytes_executed - ctrl->put;

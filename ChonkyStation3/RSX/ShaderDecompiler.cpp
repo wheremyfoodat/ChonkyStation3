@@ -22,7 +22,7 @@ uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
 
     for (int i = 0; i < shader_data.size(); i += 4) {
         VertexInstruction* instr = (VertexInstruction*)&shader_data[i];
-        printf("VEC: %s\n", vertex_vector_opcodes[instr->w1.vector_opc].c_str());
+        log("VEC: %s\n", vertex_vector_opcodes[instr->w1.vector_opc].c_str());
         if (instr->w1.scalar_opc) printf("SCA: %s\n", vertex_scalar_opcodes[instr->w1.scalar_opc].c_str());
     }
 
@@ -63,27 +63,18 @@ uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
 
     shader_base += inputs + "\n";
     shader_base += outputs;
-    return shader_base + "\n\n" + shader;
+    std::string full_shader = shader_base + "\n\n" + shader;
 
-    return
-        R"(
-#version 410 core
+    log("Decompiled vertex shader:\n");
+    log("%s\n", full_shader.c_str());
 
-layout (location = 0) in vec4 in_pos;
-
-
-uniform vec4 c[512];
-
-void main() {
-    gl_Position = vec4(in_pos.xyz / 5f, 1.0f);
-}
-)";
+    return full_shader;
 }
 
 std::string ShaderDecompiler::decompileFragment(std::vector<u32> shader_data) {
     // TODO
 
-    return
+    std::string full_shader =
 R"(
 #version 410 core
 
@@ -95,6 +86,12 @@ void main() {
     out_col = vec4(0.55f, 0.55f, 0.55f, 1.0f);
 }
 )";
+
+    log("Decompiled fragment shader:\n");
+    log("%s\n", full_shader.c_str());
+
+    return full_shader;
+
 }
 
 void ShaderDecompiler::declareFunction(std::string name, std::string code, std::string& shader) {

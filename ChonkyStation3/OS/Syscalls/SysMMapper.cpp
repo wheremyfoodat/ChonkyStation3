@@ -2,12 +2,14 @@
 #include "PlayStation3.hpp"
 
 
+MAKE_LOG_FUNCTION(log, sysMMapper_sc);
+
 u64 Syscall::sysMMapperAllocateAddress() {
     const u64 size = ARG0;
     const u64 flags = ARG1;
     const u64 alignment = ARG2;
     const u32 addr_ptr = ARG3;
-    printf("sysMMapperAllocateAddress(size: 0x%016llx, flags: 0x%016llx, alignment: 0x%016llx, addr_ptr: 0x%08x) UNIMPLEMENTED\n", size, flags, alignment, addr_ptr);
+    log("sysMMapperAllocateAddress(size: 0x%016llx, flags: 0x%016llx, alignment: 0x%016llx, addr_ptr: 0x%08x) UNIMPLEMENTED\n", size, flags, alignment, addr_ptr);
     // I think what this does is, it looks for a memory region big enough to fit size, and returns the address in addr_ptr?
     // I should be able to just emulate this as a simple alloc?
     // TODO: I think I'm wrong
@@ -25,7 +27,7 @@ u64 Syscall::sysMMapperSearchAndMapMemory() {
     const u32 handle = ARG1;
     const u64 flags = ARG2;
     const u32 addr_ptr = ARG3;
-    printf("sysMMapperSearchAndMapMemory(start_addr: 0x%08x, handle: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x)\n", start_addr, handle, flags, addr_ptr);
+    log("sysMMapperSearchAndMapMemory(start_addr: 0x%08x, handle: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x)\n", start_addr, handle, flags, addr_ptr);
     Helpers::debugAssert(start_addr == 0, "sysMMapperSearchAndMapMemory: start_addr != 0\n");
     auto entry = ps3->mem.ram.findMapEntryWithHandle(handle);
     Helpers::debugAssert(entry.first, "sysMMapperSearchAndMapMemory: unknown handle\n");

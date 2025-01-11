@@ -45,10 +45,10 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
     u64 paddr = allocPhys(aligned_size);
     u64 vaddr = virtual_base;
     // Find the next free area in the address map
-    //printf("Searching allocateable area...\n");
+    //log("Searching allocateable area...\n");
     while (true) {
         auto next_area = findNextMappedArea(vaddr);
-        //printf("0x%016llx (next area at 0x%016llx, spacing: 0x%016llx)...", vaddr, next_area.second->vaddr, next_area.second->vaddr - vaddr);
+        //log("0x%016llx (next area at 0x%016llx, spacing: 0x%016llx)...", vaddr, next_area.second->vaddr, next_area.second->vaddr - vaddr);
         if (next_area.first) {
             if (next_area.second->vaddr - vaddr >= aligned_size) {
                 // addr OK
@@ -57,7 +57,7 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
             else {
                 // Keep searching
                 vaddr = next_area.second->vaddr + next_area.second->size;
-                //printf(" not ok\n");
+                //log(" not ok\n");
             }
         }
         else {
@@ -65,7 +65,7 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
             break;
         }
     }
-    //printf(" ok\n");
+    //log(" ok\n");
 
     // Map area
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
@@ -75,7 +75,7 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
     u8* ptr = getPtrPhys(paddr);
     mem_manager.markAsFastMem(page, ptr, true, true);
 
-    printf("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
+    log("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
     return entry;
 }
 

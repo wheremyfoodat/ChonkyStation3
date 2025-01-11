@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <unordered_map>
 #include <opengl.hpp>
 
@@ -17,6 +18,7 @@ public:
     ShaderDecompiler shader_decompiler;
 
     PlayStation3* ps3;
+    MAKE_LOG_FUNCTION(log, rsx);
 
 
     void runCommandList();

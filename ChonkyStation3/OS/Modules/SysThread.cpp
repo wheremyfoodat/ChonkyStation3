@@ -4,7 +4,7 @@
 
 u64 SysThread::sysThreadGetID() {
     u32 ptr = ARG0;
-    printf("sysThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, ps3->thread_manager.current_thread->id);
+    log("sysThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, ps3->thread_manager.current_thread->id);
 
     ps3->mem.write<u64>(ptr, ps3->thread_manager.current_thread->id);
     return Result::CELL_OK;
@@ -16,11 +16,11 @@ u64 SysThread::sysThreadInitializeTLS() {
     const u32 tls_seg_addr = ARG1;
     const u32 tls_seg_size = ARG2;
     const u32 tls_mem_size = ARG3;
-    printf("sysThreadInitializeTLS(thread_id: %lld, tls_seg_addr: 0x%08x, tls_seg_size: 0x%08x, tls_mem_size: 0x%08x)", thread_id, tls_seg_addr, tls_seg_size, tls_mem_size);
+    log("sysThreadInitializeTLS(thread_id: %lld, tls_seg_addr: 0x%08x, tls_seg_size: 0x%08x, tls_mem_size: 0x%08x)", thread_id, tls_seg_addr, tls_seg_size, tls_mem_size);
 
     // Was TLS already initialized?
     if (ps3->ppu->state.gprs[13] != 0) {
-        printf(" [TLS was already initialized]\n");
+        log(" [TLS was already initialized]\n");
         return Result::CELL_OK;
     }
     putc('\n', stdout);

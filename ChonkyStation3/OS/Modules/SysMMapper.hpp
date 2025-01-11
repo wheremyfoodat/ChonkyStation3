@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <logger.hpp>
 #include <CellTypes.hpp>
 #include <BEField.hpp>
 #include <PPUTypes.hpp>
@@ -15,6 +16,7 @@ class SysMMapper {
 public:
     SysMMapper(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
+    MAKE_LOG_FUNCTION(log, sysMMapper);
     
     u64 sysMMapperAllocateMemory();
     u64 sysMMapperFreeMemory();
