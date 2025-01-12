@@ -89,7 +89,7 @@ void VertexShaderDecompiler::markInputAsUsed(std::string name, int location) {
 void VertexShaderDecompiler::markOutputAsUsed(std::string name, int location) {
     if (used_outputs[location]) return;
     used_outputs[location] = true;
-    outputs += "layout (location = " + std::to_string(location) + ") out vec4 " + name + ";\n";
+    outputs += "layout (location = " + std::to_string(output_locations_map[location]) + ") out vec4 " + name + ";\n";
 }
 
 std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction* instr) {

@@ -34,36 +34,39 @@ public:
         union {
             u32 raw;
             BitField<0,  2, u32> type;
-            BitField<2,  6, u32> temp_src_idx;
+            BitField<2,  6, u32> src_idx;
             BitField<8,  1, u32> half;
             BitField<9,  2, u32> x;
             BitField<11, 2, u32> y;
             BitField<13, 2, u32> z;
             BitField<15, 2, u32> w;
             BitField<17, 1, u32> neg;
+            BitField<30, 1, u32> abs;
         } src0;
         union {
             u32 raw;
             BitField<0,  2, u32> type;
-            BitField<2,  6, u32> temp_src_idx;
+            BitField<2,  6, u32> src_idx;
             BitField<8,  1, u32> half;
             BitField<9,  2, u32> x;
             BitField<11, 2, u32> y;
             BitField<13, 2, u32> z;
             BitField<15, 2, u32> w;
             BitField<17, 1, u32> neg;
+            BitField<18, 1, u32> abs;
             BitField<31, 1, u32> branch;
         } src1;
         union {
             u32 raw;
             BitField<0,  2,  u32> type;
-            BitField<2,  6,  u32> temp_src_idx;
+            BitField<2,  6,  u32> src_idx;
             BitField<8,  1,  u32> half;
             BitField<9,  2,  u32> x;
             BitField<11, 2,  u32> y;
             BitField<13, 2,  u32> z;
             BitField<15, 2,  u32> w;
             BitField<17, 1,  u32> neg;
+            BitField<18, 1,  u32> abs;
             BitField<19, 11, u32> addr_reg;
             BitField<30, 1,  u32> use_index_reg;
         } src2;
@@ -74,10 +77,15 @@ public:
     std::string decompile(FragmentShader& shader_program);
     FragmentInstruction fetchInstr(u32 addr);
     u32 fetch32(u32 addr);
+    static u32 swap(u32 v) { return (v >> 16) | (v << 16); }
 
     std::string addConstant(float x, float y, float z, float w);
+    std::string addUniform(u32 addr);
+    bool isUniform(std::string name);
     void declareFunction(std::string name, std::string code, std::string& shader);
+    void markInputAsUsed(std::string name, int location);
     void markRegAsUsed(std::string name, int location);
+    void enableInput(u32 idx);
 
     std::string source(FragmentInstruction& instr, int s);
     std::string dest(FragmentInstruction& instr);
@@ -87,15 +95,37 @@ public:
     u32 curr_offs = 0;
     int next_constant = 0;
     std::string constants;
+    std::string uniforms;
+    std::vector<std::string> uniform_names;
     bool used_inputs[16];
-    bool used_regs[16];
+    bool used_regs[256];    // TODO: how many are there????
+    bool is_input[22];
     std::string inputs;
     std::string regs;
+    std::string inizialization;
 
     enum FRAGMENT_SOURCE_TYPE {
         TEMP = 0,
         INPUT = 1,
         CONST = 2
+    };
+
+    const std::string input_names[15] = {
+        "in_wpos",
+        "in_diff_color",
+        "in_spec_color",
+        "in_fog",
+        "in_tex0",
+        "in_tex1",
+        "in_tex2",
+        "in_tex3",
+        "in_tex4",
+        "in_tex5",
+        "in_tex6",
+        "in_tex7",
+        "in_tex8",
+        "in_tex9",
+        "in_ssa"
     };
 
     std::unordered_map<u8, std::string> fragment_opcodes {

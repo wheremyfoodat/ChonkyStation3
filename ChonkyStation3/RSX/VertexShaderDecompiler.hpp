@@ -117,6 +117,26 @@ public:
         "out_unk15"
     };
 
+    // Above 20 means I still have to figure out what the fuck it is
+    const u32 output_locations_map[16] = {
+        0,
+        1,
+        2,
+        20,
+        21,
+        3,
+        22,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        23
+    };
+
     std::unordered_map<u8, std::string> vertex_vector_opcodes {
         { RSXVertex::VECTOR::NOP, "NOP" },
         { RSXVertex::VECTOR::MOV, "MOV" },

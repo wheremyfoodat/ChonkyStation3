@@ -36,7 +36,18 @@ public:
     FragmentShader fragment_shader_program;
 
     u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
+    struct FragmentUniform {
+        std::string name;
+        float x;
+        float y;
+        float z;
+        float w;
+    };
+    std::vector<FragmentUniform> fragment_uniforms;
     u32 semaphore_offset = 0;
+    u32 dest_offset = 0;
+    u16 point_x = 0;
+    u16 point_y = 0;
 
     OpenGL::VertexArray vao;
     OpenGL::VertexBuffer vbo;
@@ -46,14 +57,41 @@ public:
     GLuint ibo;
     void checkGLError();
 
-    struct AttributeBinding {
-        u8 index;
-        u8 stride;
-        u8 size;
-        u32 offset;
-        u8 type;
+    class VertexArray {
+    public:
+        struct AttributeBinding {
+            u8 index;
+            u8 stride;
+            u8 size;
+            u32 offset;
+            u8 type;
+        };
+        std::vector<AttributeBinding> bindings;
+        
+        u32 getBase() {
+            u32 lowest = -1;
+            for (auto& binding : bindings) {
+                if (binding.offset < lowest)
+                    lowest = binding.offset;
+            }
+            return lowest;
+        }
+
+        u32 size() {
+            u32 highest = 0;
+            AttributeBinding* highest_binding;
+            for (auto& binding : bindings) {
+                if (binding.offset > highest) {
+                    highest = binding.offset;
+                    highest_binding = &binding;
+                }
+            }
+
+            return highest_binding->offset - getBase() + highest_binding->stride;
+        }
     };
-    AttributeBinding binding;
+    VertexArray vertex_array;
+    VertexArray::AttributeBinding curr_binding;
 
     struct IndexArray {
         u32 addr;
@@ -279,7 +317,7 @@ public:
         NV4097_SET_NO_PARANOID_TEXTURE_FETCHES                  = 0x00001fe8,
         NV4097_SET_SHADER_PACKER                                = 0x00001fec,
         NV4097_SET_VERTEX_ATTRIB_INPUT_MASK                     = 0x00001ff0,
-        NV4097_SET_VERTEX_ATTRIB_OUTPUT_MASK                    = 0x00001ff4,
+        NV4097_SET_VERTEX_ATTRIB_OUTPUT_MASK                    = 0x00001ff4,   // I
         NV4097_SET_TRANSFORM_BRANCH_BITS                        = 0x00001ff8,
 
         // NV0039
@@ -304,7 +342,7 @@ public:
         NV3062_SET_COLOR_FORMAT                                 = 0x00006300,
         NV3062_SET_PITCH                                        = 0x00006304,
         NV3062_SET_OFFSET_SOURCE                                = 0x00006308,
-        NV3062_SET_OFFSET_DESTIN                                = 0x0000630C,
+        NV3062_SET_OFFSET_DESTIN                                = 0x0000630C,   // I
 
         // NV309E
         NV309E_SET_OBJECT                                       = 0x00008000,
@@ -326,10 +364,10 @@ public:
         NV308A_SET_COLOR_CONVERSION                             = 0x0000A2F8,
         NV308A_SET_OPERATION                                    = 0x0000A2FC,
         NV308A_SET_COLOR_FORMAT                                 = 0x0000A300,
-        NV308A_POINT                                            = 0x0000A304,
+        NV308A_POINT                                            = 0x0000A304,   // I
         NV308A_SIZE_OUT                                         = 0x0000A308,
         NV308A_SIZE_IN                                          = 0x0000A30C,
-        NV308A_COLOR                                            = 0x0000A400,
+        NV308A_COLOR                                            = 0x0000A400,   // I
 
         // NV3089
         NV3089_SET_OBJECT                                       = 0x0000C000,

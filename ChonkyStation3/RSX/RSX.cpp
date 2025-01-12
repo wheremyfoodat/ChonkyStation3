@@ -87,22 +87,51 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 4:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 8:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 12:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 16:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 20:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 24:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 28:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 32:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 36:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 40:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 44:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 48:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 52:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 56:
+        case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 60:
         case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET: {
             const u32 offset = args[0] & 0x7fffffff;
             const u8 location = args[0] >> 31;
-            binding.offset = offsetAndLocationToAddress(offset, location);
-            log("Vertex attribute %d: offset: 0x%08x\n", binding.index, binding.offset);
-            vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)0, false);
-            vao.enableAttribute(binding.index);
+            curr_binding.offset = offsetAndLocationToAddress(offset, location);
+            log("Vertex attribute %d: offset: 0x%08x\n", curr_binding.index, curr_binding.offset);
+            vertex_array.bindings.push_back(curr_binding);
             break;
         }
 
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 4:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 8:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 12:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 16:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 20:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 24:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 28:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 32:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 36:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 40:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 44:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 48:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 52:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 56:
+        case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT + 60:
         case NV4097_SET_VERTEX_DATA_ARRAY_FORMAT: {
-            binding.index = (cmd_num - NV4097_SET_VERTEX_DATA_ARRAY_FORMAT) >> 2;
-            binding.type = args[0] & 0xf;
-            binding.size = (args[0] >> 4) & 0xf;
-            binding.stride = (args[0] >> 8) & 0xff;
-            log("Vertex attribute %d: size: %d, stride: 0x%02x, type: %d\n", binding.index, binding.size, binding.stride, binding.type);
+            curr_binding.index = (cmd_num - NV4097_SET_VERTEX_DATA_ARRAY_FORMAT) >> 2;
+            curr_binding.type = args[0] & 0xf;
+            curr_binding.size = (args[0] >> 4) & 0xf;
+            curr_binding.stride = (args[0] >> 8) & 0xff;
+            log("Vertex attribute %d: size: %d, stride: 0x%02x, type: %d\n", curr_binding.index, curr_binding.size, curr_binding.stride, curr_binding.type);
             break;
         }
 
@@ -154,27 +183,39 @@ void RSX::runCommandList() {
             // Draw
             // TODO: This doesn't work with multiple attributes for now
             std::vector<u8> vtx_buf;
-            vtx_buf.resize(binding.stride * n_vertices);
+            vtx_buf.resize(vertex_array.size() * n_vertices);
 
-            u32 offs = binding.offset;
-            for (int i = 0; i < n_vertices; i++) {
-                u32 x = ps3->mem.read<u32>(offs + 0);
-                u32 y = ps3->mem.read<u32>(offs + 4);
-                u32 z = ps3->mem.read<u32>(offs + 8);
-                *(float*)&vtx_buf[binding.stride * i + 0] = reinterpret_cast<float&>(x);
-                *(float*)&vtx_buf[binding.stride * i + 4] = reinterpret_cast<float&>(y);
-                *(float*)&vtx_buf[binding.stride * i + 8] = reinterpret_cast<float&>(z);
-                //log("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
-                offs += binding.stride;
+            for (auto& binding : vertex_array.bindings) {
+                u32 offs = binding.offset;
+                u32 offs_in_buf = binding.offset - vertex_array.getBase();
+                for (int i = 0; i < n_vertices; i++) {
+                    u32 x = ps3->mem.read<u32>(offs + 0);
+                    u32 y = ps3->mem.read<u32>(offs + 4);
+                    u32 z = ps3->mem.read<u32>(offs + 8);
+                    *(float*)&vtx_buf[offs_in_buf + binding.stride * i + 0] = reinterpret_cast<float&>(x);
+                    *(float*)&vtx_buf[offs_in_buf + binding.stride * i + 4] = reinterpret_cast<float&>(y);
+                    *(float*)&vtx_buf[offs_in_buf + binding.stride * i + 8] = reinterpret_cast<float&>(z);
+                    //log("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
+                    offs += binding.stride;
+                }
+                vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
+                vao.enableAttribute(binding.index);
             }
 
             // Constants
             // TODO: don't upload constants if they weren't changed
             glUniform4fv(glGetUniformLocation(program.handle(), "c"), 512, (GLfloat*)constants);
+            // Fragment uniforms
+            for (auto& i : fragment_uniforms) {
+                glUniform4f(glGetUniformLocation(program.handle(), i.name.c_str()), i.x, i.y, i.z, i.w);
+            }
+            fragment_uniforms.clear();
 
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
-            glBufferData(GL_ARRAY_BUFFER, binding.stride * n_vertices, (void*)vtx_buf.data(), GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+            vertex_array.bindings.clear();
             break;
         }
 
@@ -204,6 +245,7 @@ void RSX::runCommandList() {
             vertex_shader_data.clear();
             break;
         }
+
         case NV4097_SET_TRANSFORM_CONSTANT_LOAD: {
             const u32 start = args[0];
             for (int i = 1; i < args.size(); i++) constants[start * 4 + i - 1] = args[i];                
@@ -212,6 +254,43 @@ void RSX::runCommandList() {
             for (int i = 1; i < args.size(); i++) {
                 log("0x%08x (%f)\n", constants[start * 4 + i - 1], reinterpret_cast<float&>(constants[start * 4 + i - 1]));
             }
+            break;
+        }
+
+        case NV4097_SET_VERTEX_ATTRIB_OUTPUT_MASK: {
+            for (int i = 0; i < 22; i++) {
+                if (args[0] & (1 << i)) {
+                    fragment_shader_decompiler.enableInput(i);
+                }
+            }
+            break;
+        }
+
+        case NV3062_SET_OFFSET_DESTIN: {
+            dest_offset = args[0];
+            log("Dest offset: 0x%08x\n", dest_offset);
+            break;
+        }
+
+        case NV308A_POINT: {
+            point_x = args[0] & 0xffff;
+            point_y = args[0] >> 16;
+            log("Point: { x: 0x%04x, y: 0x%04x }\n", point_x, point_y);
+            break;
+        }
+
+        case NV308A_COLOR: {
+            u32 addr = offsetAndLocationToAddress(dest_offset + (point_x << 2), 0);
+            Helpers::debugAssert(args.size() <= 4, "NV308A_COLOR: args size > 4\n");
+            float v[4] = { 0 };
+            log("Color: addr: 0x%08x\n", addr);
+            for (int i = 0; i < args.size(); i++) {
+                u32 swapped = (args[i] >> 16) | (args[i] << 16);
+                v[i] = reinterpret_cast<float&>(swapped);
+                log("Uploaded float 0x%08x\n", args[i]);
+            }
+            const auto name = fragment_shader_decompiler.addUniform(addr);
+            fragment_uniforms.push_back({ name, v[0], v[1], v[2], v[3] });
             break;
         }
 
