@@ -8,6 +8,8 @@ std::string FragmentShaderDecompiler::decompile(FragmentShader& shader_program) 
 #version 410 core
 
 
+vec4 unimpl;
+
 )";
     std::string shader;
     std::string main = "";
@@ -151,8 +153,8 @@ void FragmentShaderDecompiler::markRegAsUsed(std::string name, int location) {
     used_regs[location] = true;
     std::string layout = "";
     if (location == 0)
-        layout = "layout (location = 0) ";
-    regs += layout + "out vec4 " + name + ";\n";
+        layout = "layout (location = 0) out ";
+    regs += layout + "vec4 " + name + ";\n";
     inizialization += name + " = vec4(0.0f);\n";
 }
 
@@ -267,8 +269,14 @@ std::string FragmentShaderDecompiler::source(FragmentInstruction& instr, int s) 
 
 std::string FragmentShaderDecompiler::dest(FragmentInstruction& instr) {
     // TODO: there is a lot more than this
-    std::string dest = "r" + std::to_string(instr.dst.dest_idx);
-    markRegAsUsed(dest, instr.dst.dest_idx);
+    std::string dest; 
+    if (!instr.dst.no_dest) {
+        dest = "r" + std::to_string(instr.dst.dest_idx);
+        markRegAsUsed(dest, instr.dst.dest_idx);
+    }
+    else {
+        dest = "unimpl";
+    }
     return dest;
 }
 

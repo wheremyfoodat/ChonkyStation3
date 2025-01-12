@@ -8,7 +8,6 @@ R"(
 
 
 vec4 r[16];
-uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
 
 
 )";
@@ -19,6 +18,8 @@ uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
     for (int i = 0; i < 16; i++) used_outputs[i] = false;
     inputs = "";
     outputs = "";
+    constants = "";
+    required_constants.clear();
 
 
     for (int i = 0; i < shader_data.size(); i += 4) {
@@ -63,7 +64,8 @@ uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
     declareFunction("void main", main, shader);
 
     shader_base += inputs + "\n";
-    shader_base += outputs;
+    shader_base += outputs + "\n";
+    shader_base += constants;
     std::string full_shader = shader_base + "\n\n" + shader;
 
     log("Decompiled vertex shader:\n");
@@ -89,7 +91,14 @@ void VertexShaderDecompiler::markInputAsUsed(std::string name, int location) {
 void VertexShaderDecompiler::markOutputAsUsed(std::string name, int location) {
     if (used_outputs[location]) return;
     used_outputs[location] = true;
-    outputs += "layout (location = " + std::to_string(output_locations_map[location]) + ") out vec4 " + name + ";\n";
+    if (location != 0)
+        outputs += "layout (location = " + std::to_string(output_locations_map[location]) + ") out vec4 " + name + ";\n";
+    else
+        outputs += "vec4 " + name + ";\n";
+}
+
+void VertexShaderDecompiler::markConstantAsUsed(std::string name) {
+    constants += "uniform vec4 " + name + ";\n";
 }
 
 std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction* instr) {
@@ -107,8 +116,12 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
         break;
     }
     case VERTEX_SOURCE_TYPE::CONST: {
-        //const std::string name = "const_" + std::to_string(instr->w1.const_src_idx);
-        source = "c[" + std::to_string(instr->w1.const_src_idx) + "]";
+        source = "const_" + std::to_string(instr->w1.const_src_idx);
+        //source = "c[" + std::to_string(instr->w1.const_src_idx) + "]";
+        if (std::find(required_constants.begin(), required_constants.end(), instr->w1.const_src_idx) == required_constants.end()) {
+            required_constants.push_back(instr->w1.const_src_idx);
+            markConstantAsUsed(source);
+        }
         break;
     }
     default:

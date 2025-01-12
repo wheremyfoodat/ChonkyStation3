@@ -77,6 +77,7 @@ public:
             return lowest;
         }
 
+        // Returns size of 1 vertex
         u32 size() {
             u32 highest = 0;
             AttributeBinding* highest_binding;

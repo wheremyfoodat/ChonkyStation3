@@ -61,6 +61,7 @@ public:
     void declareFunction(std::string name, std::string code, std::string& shader);
     void markInputAsUsed(std::string name, int location);
     void markOutputAsUsed(std::string name, int location);
+    void markConstantAsUsed(std::string name);
     //void markConstAsUsed(std::string name, int location);
 
     std::string source(VertexSource& src, VertexInstruction* instr);
@@ -70,8 +71,10 @@ public:
 
     bool used_inputs[16];
     bool used_outputs[16];
+    std::vector<u32> required_constants;
     std::string inputs;
     std::string outputs;
+    std::string constants;
 
     enum VERTEX_SOURCE_TYPE {
         TEMP = 1,

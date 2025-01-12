@@ -30,6 +30,8 @@ public:
             BitField<12, 1, u32> w;
             BitField<13, 4, u32> src_idx;
             BitField<24, 6, u32> opc;
+            BitField<30, 1, u32> no_dest;
+            BitField<31, 1, u32> saturate;
         } dst;
         union {
             u32 raw;

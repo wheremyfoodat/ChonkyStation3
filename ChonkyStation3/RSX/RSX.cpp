@@ -149,6 +149,8 @@ void RSX::runCommandList() {
             auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data);
             auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
 
+            checkGLError();
+
             vertex.free();
             fragment.free();
             program.free();
@@ -204,7 +206,14 @@ void RSX::runCommandList() {
 
             // Constants
             // TODO: don't upload constants if they weren't changed
-            glUniform4fv(glGetUniformLocation(program.handle(), "c"), 512, (GLfloat*)constants);
+            for (auto& i : vertex_shader_decompiler.required_constants) {
+                u32 x = constants[i * 4 + 0];
+                u32 y = constants[i * 4 + 1];
+                u32 z = constants[i * 4 + 2];
+                u32 w = constants[i * 4 + 3];
+                glUniform4f(glGetUniformLocation(program.handle(), std::format("const_{}", i).c_str()), reinterpret_cast<float&>(x), reinterpret_cast<float&>(y), reinterpret_cast<float&>(z), reinterpret_cast<float&>(w));
+            }
+
             // Fragment uniforms
             for (auto& i : fragment_uniforms) {
                 glUniform4f(glGetUniformLocation(program.handle(), i.name.c_str()), i.x, i.y, i.z, i.w);
