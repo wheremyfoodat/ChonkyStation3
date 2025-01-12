@@ -2,6 +2,10 @@
 #include "PlayStation3.hpp"
 
 
+CellVideoOut::CellVideoOutResolutionLE CellVideoOut::getResolution() {
+    return resolutions[video_config.res_id];
+}
+
 u64 CellVideoOut::cellVideoOutConfigure() {
     const u32 video_out = ARG0;
     const u32 config_ptr = ARG1;

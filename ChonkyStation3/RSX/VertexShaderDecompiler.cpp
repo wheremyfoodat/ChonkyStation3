@@ -1,7 +1,7 @@
-#include "ShaderDecompiler.hpp"
+#include "VertexShaderDecompiler.hpp"
 
 
-std::string ShaderDecompiler::decompileVertex(std::vector<u32> shader_data) {
+std::string VertexShaderDecompiler::decompile(std::vector<u32> shader_data) {
     std::string shader_base =
 R"(
 #version 410 core
@@ -37,16 +37,16 @@ uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
         VertexSource src1 = { .raw = instr->w2.src1 };
         VertexSource src2 = { .raw = (instr->w2.src2_hi << 11) | instr->w3.src2_lo };
 
-        switch ((VERTEX_VECTOR_OPCODE)(u32)instr->w1.vector_opc) {
-        case VERTEX_VECTOR_OPCODE::NOP:    break;
-        case VERTEX_VECTOR_OPCODE::MOV: {
+        switch (instr->w1.vector_opc) {
+        case RSXVertex::VECTOR::NOP:    break;
+        case RSXVertex::VECTOR::MOV: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
             const auto type = getType(num_lanes);
             main += std::format("{}{} = {}({});\n", dest(instr), mask_str, type, source(src0, instr));
             break;
         }
-        case VERTEX_VECTOR_OPCODE::DP4: {
+        case RSXVertex::VECTOR::DP4: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
             const auto type = getType(num_lanes);
@@ -72,30 +72,7 @@ uniform vec4 c[512]; // TODO: I'm unsure that this is the actual number
     return full_shader;
 }
 
-std::string ShaderDecompiler::decompileFragment(std::vector<u32> shader_data) {
-    // TODO
-
-    std::string full_shader =
-R"(
-#version 410 core
-
-
-layout (location = 0) out vec4 out_col;
-
-
-void main() {
-    out_col = vec4(0.55f, 0.55f, 0.55f, 1.0f);
-}
-)";
-
-    log("Decompiled fragment shader:\n");
-    log("%s\n", full_shader.c_str());
-
-    return full_shader;
-
-}
-
-void ShaderDecompiler::declareFunction(std::string name, std::string code, std::string& shader) {
+void VertexShaderDecompiler::declareFunction(std::string name, std::string code, std::string& shader) {
     shader += name + "() {\n";
     std::istringstream stream(code);
     for (std::string line; std::getline(stream, line); )
@@ -103,19 +80,19 @@ void ShaderDecompiler::declareFunction(std::string name, std::string code, std::
     shader += "}\n";
 }
 
-void ShaderDecompiler::markInputAsUsed(std::string name, int location) {
+void VertexShaderDecompiler::markInputAsUsed(std::string name, int location) {
     if (used_inputs[location]) return;
     used_inputs[location] = true;
     inputs += "layout (location = " + std::to_string(location) + ") in vec4 " + name + ";\n";
 }
 
-void ShaderDecompiler::markOutputAsUsed(std::string name, int location) {
+void VertexShaderDecompiler::markOutputAsUsed(std::string name, int location) {
     if (used_outputs[location]) return;
     used_outputs[location] = true;
     outputs += "layout (location = " + std::to_string(location) + ") out vec4 " + name + ";\n";
 }
 
-std::string ShaderDecompiler::source(VertexSource& src, VertexInstruction* instr) {
+std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction* instr) {
     std::string source = "";
 
     switch (src.type) {
@@ -154,7 +131,7 @@ std::string ShaderDecompiler::source(VertexSource& src, VertexInstruction* instr
     return source;
 }
 
-std::string ShaderDecompiler::dest(VertexInstruction* instr) {
+std::string VertexShaderDecompiler::dest(VertexInstruction* instr) {
     std::string dest = "";
 
     if (instr->w0.is_output) {
@@ -167,7 +144,7 @@ std::string ShaderDecompiler::dest(VertexInstruction* instr) {
     return dest;
 }
 
-std::string ShaderDecompiler::mask(VertexInstruction* instr, int& num_lanes) {
+std::string VertexShaderDecompiler::mask(VertexInstruction* instr, int& num_lanes) {
     std::string mask = ".";
     const std::string full = ".xyzw";
     num_lanes = 0;
@@ -193,7 +170,7 @@ std::string ShaderDecompiler::mask(VertexInstruction* instr, int& num_lanes) {
     return mask;
 }
 
-std::string ShaderDecompiler::getType(const int num_lanes) {
+std::string VertexShaderDecompiler::getType(const int num_lanes) {
     switch (num_lanes) {
     case 1: return "float";
     case 2: return "vec2";

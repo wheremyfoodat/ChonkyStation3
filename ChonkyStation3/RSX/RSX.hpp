@@ -6,7 +6,9 @@
 #include <opengl.hpp>
 
 #include <Modules/CellGcmSys.hpp>
-#include <ShaderDecompiler.hpp>
+#include <VertexShaderDecompiler.hpp>
+#include <FragmentShaderDecompiler.hpp>
+#include <FragmentShader.hpp>
 
 
 class PlayStation3;
@@ -15,7 +17,8 @@ class RSX {
 public:
     RSX(PlayStation3* ps3);
     CellGcmSys& gcm;
-    ShaderDecompiler shader_decompiler;
+    VertexShaderDecompiler vertex_shader_decompiler;
+    FragmentShaderDecompiler fragment_shader_decompiler;
 
     PlayStation3* ps3;
     MAKE_LOG_FUNCTION(log, rsx);
@@ -30,7 +33,8 @@ public:
 
     OpenGL::Vector<float, 4> clear_color;
     std::vector<u32> vertex_shader_data;
-    std::vector<u32> fragment_shader_data;
+    FragmentShader fragment_shader_program;
+
     u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
     u32 semaphore_offset = 0;
 
@@ -153,7 +157,7 @@ public:
         NV4097_SET_SCISSOR_VERTICAL                             = 0x000008c4,
         NV4097_SET_FOG_MODE                                     = 0x000008cc,
         NV4097_SET_FOG_PARAMS                                   = 0x000008d0,
-        NV4097_SET_SHADER_PROGRAM                               = 0x000008e4,
+        NV4097_SET_SHADER_PROGRAM                               = 0x000008e4,   // I
         NV4097_SET_VERTEX_TEXTURE_OFFSET                        = 0x00000900,
         NV4097_SET_VERTEX_TEXTURE_FORMAT                        = 0x00000904,
         NV4097_SET_VERTEX_TEXTURE_ADDRESS                       = 0x00000908,
@@ -230,7 +234,7 @@ public:
         NV4097_SET_TEXTURE_BORDER_COLOR                         = 0x00001a1c,
         NV4097_SET_VERTEX_DATA4F_M                              = 0x00001c00,
         NV4097_SET_COLOR_KEY_COLOR                              = 0x00001d00,
-        NV4097_SET_SHADER_CONTROL                               = 0x00001d60,
+        NV4097_SET_SHADER_CONTROL                               = 0x00001d60,   // I
         NV4097_SET_INDEXED_CONSTANT_READ_LIMITS                 = 0x00001d64,
         NV4097_SET_SEMAPHORE_OFFSET                             = 0x00001d6c,   // I
         NV4097_BACK_END_WRITE_SEMAPHORE_RELEASE                 = 0x00001d70,   // I

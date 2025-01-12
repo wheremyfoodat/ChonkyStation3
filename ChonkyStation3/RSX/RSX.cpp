@@ -2,7 +2,7 @@
 #include "PlayStation3.hpp"
 
 
-RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys) {
+RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fragment_shader_decompiler(ps3) {
     OpenGL::setViewport(1280, 720);     // TODO: Get resolution from cellVideoOut
     OpenGL::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     OpenGL::clearColor();
@@ -75,9 +75,15 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_SET_SHADER_PROGRAM: {
+            fragment_shader_program.addr = offsetAndLocationToAddress(args[0] & ~3, (args[0] & 3) - 1);
+            log("Fragment shader: address: 0x%08x\n", fragment_shader_program.addr);
+            break;
+        }
+
         case NV4097_SET_TRANSFORM_PROGRAM: {
             for (auto& i : args) vertex_shader_data.push_back(i);
-            log("Uploading %d words (%d instructions)\n", args.size(), args.size() / 4);
+            log("Vertex shader: uploading %d words (%d instructions)\n", args.size(), args.size() / 4);
             break;
         }
 
@@ -111,8 +117,8 @@ void RSX::runCommandList() {
         }
 
         case NV4097_DRAW_INDEX_ARRAY: {
-            auto vertex_shader = shader_decompiler.decompileVertex(vertex_shader_data);
-            auto fragment_shader = shader_decompiler.decompileFragment(fragment_shader_data);
+            auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data);
+            auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
 
             vertex.free();
             fragment.free();
@@ -169,6 +175,12 @@ void RSX::runCommandList() {
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
             glBufferData(GL_ARRAY_BUFFER, binding.stride * n_vertices, (void*)vtx_buf.data(), GL_STATIC_DRAW);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+            break;
+        }
+
+        case NV4097_SET_SHADER_CONTROL: {
+            fragment_shader_program.ctrl = args[0];
+            log("Fragment shader: control: 0x%08x\n", fragment_shader_program.ctrl);
             break;
         }
 

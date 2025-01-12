@@ -37,27 +37,28 @@ public:
 #define true false
 
 // Modules
-static Logger cellGcmSys    = Logger<true> ("[Module ][cellGcmSys    ] ");
-static Logger cellVideoOut  = Logger<true> ("[Module ][cellVideoOut  ] ");
-static Logger sysLwMutex    = Logger<false>("[Module ][sysLwMutex    ] ");
-static Logger sysMMapper    = Logger<true> ("[Module ][sysMMapper    ] ");
-static Logger sysPrxForUser = Logger<false>("[Module ][sysPrxForUser ] ");
-static Logger sysThread     = Logger<true> ("[Module ][sysThread     ] ");
+static Logger cellGcmSys        = Logger<true> ("[Module ][cellGcmSys    ] ");
+static Logger cellVideoOut      = Logger<true> ("[Module ][cellVideoOut  ] ");
+static Logger sysLwMutex        = Logger<false>("[Module ][sysLwMutex    ] ");
+static Logger sysMMapper        = Logger<true> ("[Module ][sysMMapper    ] ");
+static Logger sysPrxForUser     = Logger<false>("[Module ][sysPrxForUser ] ");
+static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
 
 // Syscalls
-static Logger sysMemory     = Logger<true> ("[Syscall][sysMemory     ] ");
-static Logger sysMMapper_sc = Logger<true> ("[Syscall][sysMMapper    ] ");
-static Logger sysTimer      = Logger<false>("[Syscall][sysTimer      ] ");
-static Logger misc_sc       = Logger<false>("[Syscall][misc          ] ");
-static Logger tty           = Logger<true> ();
+static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
+static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
+static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
+static Logger misc_sc           = Logger<false>("[Syscall][misc          ] ");
+static Logger tty               = Logger<true> ();
 
 // RSX
-static Logger rsx           = Logger<false>("[RSX    ][Command       ] ");
-static Logger shader        = Logger<false>("[RSX    ][Shader        ] ");
+static Logger rsx               = Logger<false>("[RSX    ][Command       ] ");
+static Logger vertex_shader     = Logger<false>("[Shader ][Vertex        ] ");
+static Logger fragment_shader   = Logger<false>("[Shader ][Fragment      ] ");
 
 // Other
-static Logger memory        = Logger<true> ("[Other  ][Memory        ] ");
-static Logger thread        = Logger<false>("[Other  ][Thread        ] ");
+static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
+static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
 
 #undef true
 

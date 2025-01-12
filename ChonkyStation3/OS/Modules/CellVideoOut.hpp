@@ -147,6 +147,8 @@ public:
         { 0xa1,                                                      { 0x780, 0x438 } },
     };
 
+    CellVideoOutResolutionLE getResolution();
+
     u64 cellVideoOutConfigure();
     u64 cellVideoOutGetState();
     u64 cellVideoOutGetResolutionAvailability();
