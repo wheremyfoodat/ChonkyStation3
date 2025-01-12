@@ -49,7 +49,7 @@ static Logger sysMemory     = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc = Logger<true> ("[Syscall][sysMMapper    ] ");
 static Logger sysTimer      = Logger<false>("[Syscall][sysTimer      ] ");
 static Logger misc_sc       = Logger<false>("[Syscall][misc          ] ");
-static Logger tty           = Logger<true> ("");
+static Logger tty           = Logger<true> ();
 
 // RSX
 static Logger rsx           = Logger<false>("[RSX    ][Command       ] ");

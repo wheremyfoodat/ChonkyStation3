@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     fs::path file = argv[1];
     std::string title = std::format("ChonkyStation3 | {}", file.filename().string());
 
-    SDL_Window* window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow(title.c_str(), 100, 100, 1920, 1080, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
@@ -41,6 +41,8 @@ int main(int argc, char** argv) {
     printf(  "---------\n\n");
 
     bool quit = false;
+    bool fullscreen = false;
+
     int frame_count = 0;
     double last_time = SDL_GetTicks64() / 1000.0;
     double curr_time = 0;
@@ -65,11 +67,18 @@ int main(int argc, char** argv) {
 
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
+                case SDL_QUIT: {
+                    quit = true;
+                    break;
+                }
 
-            case SDL_QUIT:
-                quit = true;
-                break;
-            
+                case SDL_MOUSEBUTTONDOWN: {
+                    if (e.button.clicks == 2) {
+                        fullscreen = !fullscreen;
+                        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+                    }
+                    break;
+                }
             }
         }
 
