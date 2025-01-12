@@ -19,6 +19,7 @@ vec4 r[16];
     inputs = "";
     outputs = "";
     constants = "";
+    initialization = "";
     required_constants.clear();
 
 
@@ -61,7 +62,7 @@ vec4 r[16];
     }
     main += "\ngl_Position = out_pos;\n";
 
-    declareFunction("void main", main, shader);
+    declareFunction("void main", initialization + "\n" + main, shader);
 
     shader_base += inputs + "\n";
     shader_base += outputs + "\n";
@@ -95,6 +96,7 @@ void VertexShaderDecompiler::markOutputAsUsed(std::string name, int location) {
         outputs += "layout (location = " + std::to_string(output_locations_map[location]) + ") out vec4 " + name + ";\n";
     else
         outputs += "vec4 " + name + ";\n";
+    initialization += name + " = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n";
 }
 
 void VertexShaderDecompiler::markConstantAsUsed(std::string name) {

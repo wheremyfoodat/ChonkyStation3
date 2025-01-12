@@ -104,7 +104,7 @@ public:
     bool is_input[22];
     std::string inputs;
     std::string regs;
-    std::string inizialization;
+    std::string initialization;
 
     enum FRAGMENT_SOURCE_TYPE {
         TEMP = 0,

@@ -75,6 +75,7 @@ public:
     std::string inputs;
     std::string outputs;
     std::string constants;
+    std::string initialization;
 
     enum VERTEX_SOURCE_TYPE {
         TEMP = 1,

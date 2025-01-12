@@ -4,7 +4,7 @@
 
 std::string FragmentShaderDecompiler::decompile(FragmentShader& shader_program) {
     std::string shader_base =
-        R"(
+R"(
 #version 410 core
 
 
@@ -19,7 +19,7 @@ vec4 unimpl;
     inputs = "";
     regs = "";
     constants = "";
-    inizialization = "";
+    initialization = "";
     next_constant = 0;
 
     curr_offs = shader_program.addr;
@@ -72,7 +72,7 @@ vec4 unimpl;
             break;
         }
         case RSXFragment::NRM: {
-            main += std::format("{}{} = {}(normalize({}));\n", dest(instr), mask_str, type, source(instr, 0));
+            main += std::format("{}{} = {}(normalize(vec3({})));\n", dest(instr), mask_str, type, source(instr, 0));
             break;
         }
 
@@ -85,7 +85,7 @@ vec4 unimpl;
         if (instr.dst.end) break;
     }
 
-    declareFunction("void main", inizialization + "\n" + main, shader);
+    declareFunction("void main", initialization + "\n" + main, shader);
 
     shader_base += inputs + "\n";
     shader_base += regs + "\n";
@@ -155,7 +155,7 @@ void FragmentShaderDecompiler::markRegAsUsed(std::string name, int location) {
     if (location == 0)
         layout = "layout (location = 0) out ";
     regs += layout + "vec4 " + name + ";\n";
-    inizialization += name + " = vec4(0.0f);\n";
+    initialization += name + " = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n";
 }
 
 void FragmentShaderDecompiler::enableInput(u32 idx) {
