@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstdint>
 #include <cstdarg>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -11,8 +11,6 @@
 #include <filesystem>
 #include <iterator>
 #include <cstring>
-
-
 
 // Types
 using u8 = std::uint8_t;
@@ -36,21 +34,17 @@ namespace fs = std::filesystem;
 static constexpr u64 CPU_FREQ = 3200000000;
 
 namespace Helpers {
-[[noreturn]] static void panic(const char* fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-    exit(0);
+template <class... Args>
+[[noreturn]] static void panic(const char* fmt, Args&&... args) {
+    std::printf(fmt, args...);
+    std::exit(0);
 }
 
-static void debugAssert(bool cond, const char* fmt, ...) {
+template <class... Args>
+static void debugAssert(bool cond, const char* fmt, Args&&... args {
     if (!cond) [[unlikely]] {
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-        va_end(args);
-        exit(0);
+        std::printf(fmt, args...);
+        std::exit(0);
     }
 }
 
