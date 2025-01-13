@@ -14,7 +14,7 @@ void PPU::printState() {
     for (int i = 0; i < 32; i++)
         printf("f%02d:  %f\n", i, state.fprs[i]);
     for (int i = 0; i < 32; i++)
-        printf("v%02d:  { 0x%08x, 0x%08x, 0x%08x, 0x%08x } (%f, %f, %f, %f)\n", i, state.vrs[i].u32[3], state.vrs[i].u32[2], state.vrs[i].u32[1], state.vrs[i].u32[0], *(float*)&state.vrs[i].u32[3], *(float*)&state.vrs[i].u32[2], *(float*)&state.vrs[i].u32[1], *(float*)&state.vrs[i].u32[0]);
+        printf("v%02d:  { 0x%08x, 0x%08x, 0x%08x, 0x%08x } (%f, %f, %f, %f)\n", i, state.vrs[i].w[3], state.vrs[i].w[2], state.vrs[i].w[1], state.vrs[i].w[0], *(float*)&state.vrs[i].w[3], *(float*)&state.vrs[i].w[2], *(float*)&state.vrs[i].w[1], *(float*)&state.vrs[i].w[0]);
 }
 
 bool PPU::branchCondition(u8 bo, u8 bi) {

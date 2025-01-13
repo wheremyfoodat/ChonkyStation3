@@ -437,12 +437,12 @@ void PPUInterpreter::vcmpequb(const Instruction& instr) {
     u8 none_equal = 0x2;
 
     for (int i = 0; i < 16; i++) {
-        if (state.vrs[instr.va].u8[i] == state.vrs[instr.vb].u8[i]) {
-            state.vrs[instr.vd].u8[i] = 0xff;
+        if (state.vrs[instr.va].b[i] == state.vrs[instr.vb].b[i]) {
+            state.vrs[instr.vd].b[i] = 0xff;
             none_equal = 0;
         }
         else {
-            state.vrs[instr.vd].u8[i] = 0;
+            state.vrs[instr.vd].b[i] = 0;
             all_equal = 0;
         }
     }
@@ -453,28 +453,28 @@ void PPUInterpreter::vcmpequb(const Instruction& instr) {
 
 void PPUInterpreter::vsel(const Instruction& instr) {
     // Where vc is 0, we take va, so we invert the mask and do va & ~vc
-    state.vrs[instr.vd].u64[0] = (state.vrs[instr.va].u64[0] & ~state.vrs[instr.vc].u64[0]) | (state.vrs[instr.vb].u64[0] & state.vrs[instr.vc].u64[0]);
-    state.vrs[instr.vd].u64[1] = (state.vrs[instr.va].u64[1] & ~state.vrs[instr.vc].u64[1]) | (state.vrs[instr.vb].u64[1] & state.vrs[instr.vc].u64[1]);
+    state.vrs[instr.vd].dw[0] = (state.vrs[instr.va].dw[0] & ~state.vrs[instr.vc].dw[0]) | (state.vrs[instr.vb].dw[0] & state.vrs[instr.vc].dw[0]);
+    state.vrs[instr.vd].dw[1] = (state.vrs[instr.va].dw[1] & ~state.vrs[instr.vc].dw[1]) | (state.vrs[instr.vb].dw[1] & state.vrs[instr.vc].dw[1]);
 }
 
 void PPUInterpreter::vperm(const Instruction& instr) {
     u8 src[32];
-    for (int i = 0; i < 16; i++) src[i +  0] = state.vrs[instr.vb].u8[i];
-    for (int i = 0; i < 16; i++) src[i + 16] = state.vrs[instr.va].u8[i];
+    for (int i = 0; i < 16; i++) src[i +  0] = state.vrs[instr.vb].b[i];
+    for (int i = 0; i < 16; i++) src[i + 16] = state.vrs[instr.va].b[i];
     
     // The index is in the usual PPC reversed byte order, so we need to flip it with 31 - 
     for (int i = 0; i < 16; i++) {
-        const auto idx = state.vrs[instr.vc].u8[i] & 0x1f;
-        state.vrs[instr.vd].u8[i] = src[31 - idx];
+        const auto idx = state.vrs[instr.vc].b[i] & 0x1f;
+        state.vrs[instr.vd].b[i] = src[31 - idx];
     }
 }
 
 void PPUInterpreter::vsldoi(const Instruction& instr) {
     u8 src[32];
-    for (int i = 0; i < 16; i++) src[i + 0] = state.vrs[instr.vb].u8[i];
-    for (int i = 0; i < 16; i++) src[i + 16] = state.vrs[instr.va].u8[i];
+    for (int i = 0; i < 16; i++) src[i + 0] = state.vrs[instr.vb].b[i];
+    for (int i = 0; i < 16; i++) src[i + 16] = state.vrs[instr.va].b[i];
 
-    for (int i = 0; i < 16; i++) state.vrs[instr.vd].u8[15 - i] = src[31 - (instr.shb + i)];
+    for (int i = 0; i < 16; i++) state.vrs[instr.vd].b[15 - i] = src[31 - (instr.shb + i)];
 }
 
 void PPUInterpreter::vmaddfp(const Instruction& instr) {
@@ -506,10 +506,10 @@ void PPUInterpreter::vsubfp(const Instruction& instr) {
 }
 
 void PPUInterpreter::vadduwm(const Instruction& instr) {
-    state.vrs[instr.vd].u32[0] = state.vrs[instr.va].u32[0] + state.vrs[instr.vb].u32[0];
-    state.vrs[instr.vd].u32[1] = state.vrs[instr.va].u32[1] + state.vrs[instr.vb].u32[1];
-    state.vrs[instr.vd].u32[2] = state.vrs[instr.va].u32[2] + state.vrs[instr.vb].u32[2];
-    state.vrs[instr.vd].u32[3] = state.vrs[instr.va].u32[3] + state.vrs[instr.vb].u32[3];
+    state.vrs[instr.vd].w[0] = state.vrs[instr.va].w[0] + state.vrs[instr.vb].w[0];
+    state.vrs[instr.vd].w[1] = state.vrs[instr.va].w[1] + state.vrs[instr.vb].w[1];
+    state.vrs[instr.vd].w[2] = state.vrs[instr.va].w[2] + state.vrs[instr.vb].w[2];
+    state.vrs[instr.vd].w[3] = state.vrs[instr.va].w[3] + state.vrs[instr.vb].w[3];
 }
 
 void PPUInterpreter::vcmpequw(const Instruction& instr) {
@@ -517,12 +517,12 @@ void PPUInterpreter::vcmpequw(const Instruction& instr) {
     u8 none_equal = 0x2;
 
     for (int i = 0; i < 4; i++) {
-        if (state.vrs[instr.va].u32[i] == state.vrs[instr.vb].u32[i]) {
-            state.vrs[instr.vd].u32[i] = 0xffffffff;
+        if (state.vrs[instr.va].w[i] == state.vrs[instr.vb].w[i]) {
+            state.vrs[instr.vd].w[i] = 0xffffffff;
             none_equal = 0;
         }
         else {
-            state.vrs[instr.vd].u32[i] = 0;
+            state.vrs[instr.vd].w[i] = 0;
             all_equal = 0;
         }
     }
@@ -535,10 +535,10 @@ void PPUInterpreter::vmrghw(const Instruction& instr) {
     const VR a = state.vrs[instr.va];
     const VR b = state.vrs[instr.vb];
 
-    state.vrs[instr.vd].u32[0] = b.u32[2];
-    state.vrs[instr.vd].u32[1] = a.u32[2];
-    state.vrs[instr.vd].u32[2] = b.u32[3];
-    state.vrs[instr.vd].u32[3] = a.u32[3];
+    state.vrs[instr.vd].w[0] = b.w[2];
+    state.vrs[instr.vd].w[1] = a.w[2];
+    state.vrs[instr.vd].w[2] = b.w[3];
+    state.vrs[instr.vd].w[3] = a.w[3];
 }
 
 void PPUInterpreter::vrefp(const Instruction& instr) {
@@ -556,48 +556,48 @@ void PPUInterpreter::vrsqrtefp(const Instruction& instr) {
 }
 
 void PPUInterpreter::vslw(const Instruction& instr) {
-    state.vrs[instr.vd].u32[0] = state.vrs[instr.va].u32[0] << (state.vrs[instr.vb].u32[0] & 0x1f);
-    state.vrs[instr.vd].u32[1] = state.vrs[instr.va].u32[1] << (state.vrs[instr.vb].u32[1] & 0x1f);
-    state.vrs[instr.vd].u32[2] = state.vrs[instr.va].u32[2] << (state.vrs[instr.vb].u32[2] & 0x1f);
-    state.vrs[instr.vd].u32[3] = state.vrs[instr.va].u32[3] << (state.vrs[instr.vb].u32[3] & 0x1f);
+    state.vrs[instr.vd].w[0] = state.vrs[instr.va].w[0] << (state.vrs[instr.vb].w[0] & 0x1f);
+    state.vrs[instr.vd].w[1] = state.vrs[instr.va].w[1] << (state.vrs[instr.vb].w[1] & 0x1f);
+    state.vrs[instr.vd].w[2] = state.vrs[instr.va].w[2] << (state.vrs[instr.vb].w[2] & 0x1f);
+    state.vrs[instr.vd].w[3] = state.vrs[instr.va].w[3] << (state.vrs[instr.vb].w[3] & 0x1f);
 }
 
 void PPUInterpreter::vmrglw(const Instruction& instr) {
     const VR a = state.vrs[instr.va];
     const VR b = state.vrs[instr.vb];
 
-    state.vrs[instr.vd].u32[0] = b.u32[0];
-    state.vrs[instr.vd].u32[1] = a.u32[0];
-    state.vrs[instr.vd].u32[2] = b.u32[1];
-    state.vrs[instr.vd].u32[3] = a.u32[1];
+    state.vrs[instr.vd].w[0] = b.w[0];
+    state.vrs[instr.vd].w[1] = a.w[0];
+    state.vrs[instr.vd].w[2] = b.w[1];
+    state.vrs[instr.vd].w[3] = a.w[1];
 }
 
 void PPUInterpreter::vspltw(const Instruction& instr) {
     Helpers::debugAssert(instr.uimm < 4, "spltw: uimm >= 4\n");
 
-    const u32 v = state.vrs[instr.vb].u32[3 - instr.uimm];
+    const u32 v = state.vrs[instr.vb].w[3 - instr.uimm];
 
-    state.vrs[instr.vd].u32[0] = v;
-    state.vrs[instr.vd].u32[1] = v;
-    state.vrs[instr.vd].u32[2] = v;
-    state.vrs[instr.vd].u32[3] = v;
+    state.vrs[instr.vd].w[0] = v;
+    state.vrs[instr.vd].w[1] = v;
+    state.vrs[instr.vd].w[2] = v;
+    state.vrs[instr.vd].w[3] = v;
 }
 
 void PPUInterpreter::vcfsx(const Instruction& instr) {
     const auto factor = 1 << instr.uimm;
-    state.vrs[instr.vd].f[0] = (float)(s32)state.vrs[instr.vb].u32[0] / factor;
-    state.vrs[instr.vd].f[1] = (float)(s32)state.vrs[instr.vb].u32[1] / factor;
-    state.vrs[instr.vd].f[2] = (float)(s32)state.vrs[instr.vb].u32[2] / factor;
-    state.vrs[instr.vd].f[3] = (float)(s32)state.vrs[instr.vb].u32[3] / factor;
+    state.vrs[instr.vd].f[0] = (float)(s32)state.vrs[instr.vb].w[0] / factor;
+    state.vrs[instr.vd].f[1] = (float)(s32)state.vrs[instr.vb].w[1] / factor;
+    state.vrs[instr.vd].f[2] = (float)(s32)state.vrs[instr.vb].w[2] / factor;
+    state.vrs[instr.vd].f[3] = (float)(s32)state.vrs[instr.vb].w[3] / factor;
 }
 
 void PPUInterpreter::vspltisw(const Instruction& instr) {
     s32 si = (s32)((s8)(instr.simm << 3)) >> 3; // Sign extend 5 bit field
 
-    state.vrs[instr.vd].u32[0] = si;
-    state.vrs[instr.vd].u32[1] = si;
-    state.vrs[instr.vd].u32[2] = si;
-    state.vrs[instr.vd].u32[3] = si;
+    state.vrs[instr.vd].w[0] = si;
+    state.vrs[instr.vd].w[1] = si;
+    state.vrs[instr.vd].w[2] = si;
+    state.vrs[instr.vd].w[3] = si;
 }
 
 void PPUInterpreter::vctsxs(const Instruction& instr) {
@@ -606,23 +606,23 @@ void PPUInterpreter::vctsxs(const Instruction& instr) {
         s64 v = (s64)(state.vrs[instr.vb].f[i] * factor);
         if (v > INT32_MAX) v = INT32_MAX;
         else if (v < INT32_MIN) v = INT32_MIN;
-        state.vrs[instr.vd].u32[i] = (s32)v;
+        state.vrs[instr.vd].w[i] = (s32)v;
     }
 }
 
 void PPUInterpreter::vand(const Instruction& instr) {
-    state.vrs[instr.vd].u64[0] = state.vrs[instr.va].u64[0] & state.vrs[instr.vb].u64[0];
-    state.vrs[instr.vd].u64[1] = state.vrs[instr.va].u64[1] & state.vrs[instr.vb].u64[1];
+    state.vrs[instr.vd].dw[0] = state.vrs[instr.va].dw[0] & state.vrs[instr.vb].dw[0];
+    state.vrs[instr.vd].dw[1] = state.vrs[instr.va].dw[1] & state.vrs[instr.vb].dw[1];
 }
 
 void PPUInterpreter::vor(const Instruction& instr) {
-    state.vrs[instr.vd].u64[0] = state.vrs[instr.va].u64[0] | state.vrs[instr.vb].u64[0];
-    state.vrs[instr.vd].u64[1] = state.vrs[instr.va].u64[1] | state.vrs[instr.vb].u64[1];
+    state.vrs[instr.vd].dw[0] = state.vrs[instr.va].dw[0] | state.vrs[instr.vb].dw[0];
+    state.vrs[instr.vd].dw[1] = state.vrs[instr.va].dw[1] | state.vrs[instr.vb].dw[1];
 }
 
 void PPUInterpreter::vxor(const Instruction& instr) {
-    state.vrs[instr.vd].u64[0] = state.vrs[instr.va].u64[0] ^ state.vrs[instr.vb].u64[0];
-    state.vrs[instr.vd].u64[1] = state.vrs[instr.va].u64[1] ^ state.vrs[instr.vb].u64[1];
+    state.vrs[instr.vd].dw[0] = state.vrs[instr.va].dw[0] ^ state.vrs[instr.vb].dw[0];
+    state.vrs[instr.vd].dw[1] = state.vrs[instr.va].dw[1] ^ state.vrs[instr.vb].dw[1];
 }
 
 // G_13
@@ -713,8 +713,8 @@ void PPUInterpreter::cmp(const Instruction& instr) {
 
 void PPUInterpreter::lvsl(const Instruction& instr) {
     const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
-    state.vrs[instr.vd].u64[0] = lvsl_shifts[addr & 0xf][0];
-    state.vrs[instr.vd].u64[1] = lvsl_shifts[addr & 0xf][1];
+    state.vrs[instr.vd].dw[0] = lvsl_shifts[addr & 0xf][0];
+    state.vrs[instr.vd].dw[1] = lvsl_shifts[addr & 0xf][1];
 }
 
 void PPUInterpreter::mulhdu(const Instruction& instr) {
@@ -797,8 +797,8 @@ void PPUInterpreter::cmpl(const Instruction& instr) {
 
 void PPUInterpreter::lvsr(const Instruction& instr) {
     const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
-    state.vrs[instr.vd].u64[0] = lvsr_shifts[addr & 0xf][0];
-    state.vrs[instr.vd].u64[1] = lvsr_shifts[addr & 0xf][1];
+    state.vrs[instr.vd].dw[0] = lvsr_shifts[addr & 0xf][0];
+    state.vrs[instr.vd].dw[1] = lvsr_shifts[addr & 0xf][1];
 }
 
 void PPUInterpreter::subf(const Instruction& instr) {
@@ -835,11 +835,11 @@ void PPUInterpreter::lbzx(const Instruction& instr) {
 void PPUInterpreter::lvx(const Instruction& instr) {
     const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
     //for (int i = 0; i < 16; i++)
-    //  state.vrs[instr.vd].u8[15 - i] = mem.read<u8>(addr + i);
+    //  state.vrs[instr.vd].b[15 - i] = mem.read<u8>(addr + i);
     //for (int i = 0; i < 4; i++)
-    //  state.vrs[instr.vd].u32[i] = mem.read<u32>(addr + i * 4);
-    state.vrs[instr.vd].u64[1] = mem.read<u64>(addr);
-    state.vrs[instr.vd].u64[0] = mem.read<u64>(addr + 8);
+    //  state.vrs[instr.vd].w[i] = mem.read<u32>(addr + i * 4);
+    state.vrs[instr.vd].dw[1] = mem.read<u64>(addr);
+    state.vrs[instr.vd].dw[0] = mem.read<u64>(addr + 8);
 }
 
 void PPUInterpreter::neg(const Instruction& instr) {
@@ -904,8 +904,8 @@ void PPUInterpreter::addze(const Instruction& instr) {
 
 void PPUInterpreter::stvx(const Instruction& instr) {
     const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
-    mem.write<u64>(addr, state.vrs[instr.vs].u64[1]);
-    mem.write<u64>(addr + 8, state.vrs[instr.vs].u64[0]);
+    mem.write<u64>(addr, state.vrs[instr.vs].dw[1]);
+    mem.write<u64>(addr + 8, state.vrs[instr.vs].dw[0]);
 }
 
 void PPUInterpreter::mulld(const Instruction& instr) {

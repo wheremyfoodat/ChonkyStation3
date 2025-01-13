@@ -45,10 +45,10 @@ struct XER {
 };
 
 union VR {
-    u8 u8[16];
-    u16 u16[8];
-    u32 u32[4];
-    u64 u64[2];
+    u8 b[16];
+    u16 h[8];
+    u32 w[4];
+    u64 dw[2];
     float f[4];
     double d[2];
 };
