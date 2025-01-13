@@ -7,6 +7,7 @@
 #include <BitField.hpp>
 #include <unordered_map>
 #include <format>
+#include <algorithm>
 #include <RSXShaderOpcodes.hpp>
 
 

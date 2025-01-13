@@ -8,6 +8,7 @@
 #include <RSXShaderOpcodes.hpp>
 #include <unordered_map>
 #include <format>
+#include <algorithm>
 
 
 // Circular dependency
