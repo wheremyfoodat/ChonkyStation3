@@ -1,6 +1,8 @@
 #pragma once
 
 #include <PPU.hpp>
+#include <cmath>
+
 
 // Circular dependency
 class PlayStation3;
