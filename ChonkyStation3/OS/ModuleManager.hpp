@@ -11,6 +11,7 @@
 #include <Modules/CellGcmSys.hpp>
 #include <Modules/CellVideoOut.hpp>
 #include <Modules/CellSysutil.hpp>
+#include <Modules/CellSysmodule.hpp>
 
 
 // Circular dependency
@@ -18,7 +19,7 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3) {}
+    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -64,6 +65,8 @@ public:
         { 0xe558748d, { "cellVideoOutGetResolution",                std::bind(&CellVideoOut::cellVideoOutGetResolution, &cellVideoOut) }},
 
         { 0x9d98afa0, { "cellSysutilRegisterCallback",              std::bind(&CellSysutil::cellSysutilRegisterCallback, &cellSysutil) }},
+
+        { 0x32267a31, { "cellSysmoduleLoadModule",                  std::bind(&CellSysmodule::cellSysmoduleLoadModule, &cellSysmodule) }},
     };
 
     SysPrxForUser sysPrxForUser;
@@ -73,6 +76,7 @@ public:
     CellGcmSys cellGcmSys;
     CellVideoOut cellVideoOut;
     CellSysutil cellSysutil;
+    CellSysmodule cellSysmodule;
 
     static Result stub(void* a) { Helpers::panic("Unimplemented function\n"); }
 };
