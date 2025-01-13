@@ -48,14 +48,17 @@ public:
         { 0x4643ba6e, { "sysMMapperUnmapMemory",                        std::bind(&SysMMapper::sysMMapperUnmapMemory, &sysMMapper) }},
         { 0xb257540b, { "sysMMapperAllocateMemory",                     std::bind(&SysMMapper::sysMMapperAllocateMemory, &sysMMapper) }},
 
+        { 0x055bd74d, { "cellGcmGetTiledPitchSize",                     std::bind(&CellGcmSys::cellGcmGetTiledPitchSize, &cellGcmSys) }},
         { 0x15bae46b, { "cellGcmInitBody",                              std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
         { 0x21ac3697, { "cellGcmAddressToOffset",                       std::bind(&CellGcmSys::cellGcmAddressToOffset, &cellGcmSys) }},
+        { 0x4524cccd, { "cellGcmBindTile",                              std::bind(&CellGcmSys::cellGcmBindTile, &cellGcmSys) }},
         { 0x4ae8d215, { "cellGcmSetFlipMode",                           std::bind(&CellGcmSys::cellGcmSetFlipMode, &cellGcmSys) }},
         { 0x72a577ce, { "cellGcmGetFlipStatus",                         std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
         { 0x983fb9aa, { "cellGcmSetWaitFlip",                           std::bind(&CellGcmSys::cellGcmSetWaitFlip, &cellGcmSys) }},
         { 0xa53d12ae, { "cellGcmSetDisplayBuffer",                      std::bind(&CellGcmSys::cellGcmSetDisplayBuffer, &cellGcmSys) }},
         { 0xa547adde, { "cellGcmGetControlRegister",                    std::bind(&CellGcmSys::cellGcmGetControlRegister, &cellGcmSys) }},
         { 0xb2e761d4, { "cellGcmResetFlipStatus",                       std::bind(&CellGcmSys::cellGcmResetFlipStatus, &cellGcmSys) }},
+        { 0xbd100dbc, { "cellGcmSetTileInfo",                           std::bind(&CellGcmSys::cellGcmSetTileInfo, &cellGcmSys) }},
         { 0xdc09357e, { "cellGcmSetFlip",                               std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
         { 0xe315a0b2, { "cellGcmGetConfiguration",                      std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
         { 0xf80196c1, { "cellGcmGetLabelAddress",                       std::bind(&CellGcmSys::cellGcmGetLabelAddress, &cellGcmSys) }},
@@ -69,7 +72,11 @@ public:
 
         { 0x32267a31, { "cellSysmoduleLoadModule",                      std::bind(&CellSysmodule::cellSysmoduleLoadModule, &cellSysmodule) }},
 
+        { 0x10db5b1a, { "cellRescSetDsts",                              std::bind(&CellResc::cellRescSetDsts, &cellResc) }},
+        { 0x23134710, { "cellRescSetDisplayMode",                       std::bind(&CellResc::cellRescSetDisplayMode, &cellResc) }},
         { 0x516ee89e, { "cellRescInit",                                 std::bind(&CellResc::cellRescInit, &cellResc) }},
+        { 0x5a338cdb, { "cellRescGetBufferSize",                        std::bind(&CellResc::cellRescGetBufferSize, &cellResc) }},
+        { 0x8107277c, { "cellRescSetBufferAddress",                     std::bind(&CellResc::cellRescSetBufferAddress, &cellResc) }},
         { 0xd1ca0503, { "cellRescVideoOutResolutionId2RescBufferMode",  std::bind(&CellResc::cellRescVideoOutResolutionId2RescBufferMode, &cellResc) }},
     };
 

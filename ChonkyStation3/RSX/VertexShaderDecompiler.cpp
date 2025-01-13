@@ -56,8 +56,8 @@ vec4 r[16];
             break;
         }
 
-        //default:
-            //Helpers::panic("Unknown vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
+        default:
+            Helpers::panic("Unknown vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
         }
     }
     main += "\ngl_Position = fs_pos;\n";

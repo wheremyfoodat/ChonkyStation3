@@ -17,6 +17,10 @@ public:
     PlayStation3* ps3;
     MAKE_LOG_FUNCTION(log, cellResc);
 
+    u64 cellRescSetDsts();
+    u64 cellRescSetDisplayMode();
     u64 cellRescInit();
+    u64 cellRescGetBufferSize();
+    u64 cellRescSetBufferAddress();
     u64 cellRescVideoOutResolutionId2RescBufferMode();
 };

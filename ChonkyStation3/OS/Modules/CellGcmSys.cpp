@@ -2,6 +2,13 @@
 #include "PlayStation3.hpp"
 
 
+u64 CellGcmSys::cellGcmGetTiledPitchSize() {
+    const u32 size = ARG0;
+    log("cellGcmGetTiledPitchSize(size: %d) UNIMPLEMENTED\n", size);
+
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmInitBody() {
     const u32 ctx_ptr = ARG0;
     const u32 cmd_size = ARG1;
@@ -74,6 +81,14 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmBindTile() {
+    const u8 idx = ARG0;
+    log("cellGcmBindTile(idx: %d) UNIMPLEMENTED\n", idx);
+
+    return Result::CELL_OK;
+}
+
+
 u64 CellGcmSys::cellGcmSetFlipMode() {
     const u32 mode = ARG0;
     log("cellGcmSetFlipMode(mode: 0x%08x) UNIMPLEMENTED\n", mode);
@@ -82,7 +97,7 @@ u64 CellGcmSys::cellGcmSetFlipMode() {
 }
 
 u64 CellGcmSys::cellGcmGetFlipStatus() {
-    //log("cellGcmGetFlipStatus() STUBBED\n");
+    log("cellGcmGetFlipStatus()\n");
 
     return flip;   // Means flipped?
 }
@@ -111,9 +126,23 @@ u64 CellGcmSys::cellGcmGetControlRegister() {
 }
 
 u64 CellGcmSys::cellGcmResetFlipStatus() {
-    log("cellGcmResetFlipStatus() UNIMPLEMENTED\n");
+    log("cellGcmResetFlipStatus()\n");
 
     flip = 1;
+
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetTileInfo() {
+    const u8 idx = ARG0;
+    const u8 location = ARG1;
+    const u32 offs = ARG2;
+    const u32 size = ARG3;
+    const u32 pitch = ARG4;
+    const u8 compression = ARG5;
+    const u16 base = ARG6;
+    const u8 bank = ARG7;
+    log("cellGcmSetTileInfo(idx: %d, location: %d, offs: 0x%08x, size: 0x%08x, pitch: 0x%08x, compression: %d, base: 0x%04x, bank: %d) UNIMPLEMENTED\n", idx, location, offs, size, pitch, compression, base, bank);
 
     return Result::CELL_OK;
 }

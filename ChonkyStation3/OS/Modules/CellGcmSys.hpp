@@ -50,14 +50,17 @@ public:
     u32 label_addr = 0;
     u32 flip = 0;
 
+    u64 cellGcmGetTiledPitchSize();
     u64 cellGcmInitBody();
     u64 cellGcmAddressToOffset();
+    u64 cellGcmBindTile();
     u64 cellGcmSetFlipMode();
     u64 cellGcmGetFlipStatus();
     u64 cellGcmSetWaitFlip();
     u64 cellGcmSetDisplayBuffer();
     u64 cellGcmGetControlRegister();
     u64 cellGcmResetFlipStatus();
+    u64 cellGcmSetTileInfo();
     u64 cellGcmSetFlip();
     u64 cellGcmGetConfiguration();
     u64 cellGcmGetLabelAddress();
