@@ -55,6 +55,7 @@ static Logger tty               = Logger<true> ();
 static Logger rsx               = Logger<false>("[RSX    ][Command       ] ");
 static Logger vertex_shader     = Logger<false>("[Shader ][Vertex        ] ");
 static Logger fragment_shader   = Logger<false>("[Shader ][Fragment      ] ");
+static Logger shader_cache      = Logger<1>    ("[Shader ][Cache         ] ");
 
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");

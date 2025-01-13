@@ -9,6 +9,7 @@
 #include <VertexShaderDecompiler.hpp>
 #include <FragmentShaderDecompiler.hpp>
 #include <FragmentShader.hpp>
+#include <ShaderCache.hpp>
 
 
 class PlayStation3;
@@ -19,10 +20,10 @@ public:
     CellGcmSys& gcm;
     VertexShaderDecompiler vertex_shader_decompiler;
     FragmentShaderDecompiler fragment_shader_decompiler;
+    ShaderCache shader_cache;
 
     PlayStation3* ps3;
     MAKE_LOG_FUNCTION(log, rsx);
-
 
     void runCommandList();
     u32 fetch32();
@@ -55,6 +56,7 @@ public:
     OpenGL::Program program;
 
     GLuint ibo;
+
     void checkGLError();
 
     class VertexArray {

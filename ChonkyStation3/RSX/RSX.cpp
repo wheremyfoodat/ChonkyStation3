@@ -146,16 +146,24 @@ void RSX::runCommandList() {
         }
 
         case NV4097_DRAW_INDEX_ARRAY: {
-            auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data);
+            // Check if our shaders were cached
+            const u64 hash = shader_cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
+            if (!shader_cache.getShader(hash, vertex)) {
+                // Shader wasn't cached, compile it and add to the cache
+                auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data);
+                OpenGL::Shader new_shader;
+                new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex);
+                shader_cache.cacheShader(hash, new_shader);
+                vertex = new_shader;
+            }
+
             auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
 
             checkGLError();
 
-            vertex.free();
             fragment.free();
             program.free();
 
-            vertex.create(vertex_shader, OpenGL::ShaderType::Vertex);
             fragment.create(fragment_shader, OpenGL::ShaderType::Fragment);
             program.create({ vertex, fragment });
             program.use();
