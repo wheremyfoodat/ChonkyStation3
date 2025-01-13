@@ -4,6 +4,18 @@
 
 MAKE_LOG_FUNCTION(log, sysMemory);
 
+u64 Syscall::sysMemoryAllocate() {
+    const u32 size = ARG0;
+    const u32 flags = ARG1;
+    const u32 alloc_ptr = ARG2;
+    log("sysMemoryAllocate(size: 0x%08x, flags: 0x%08x, alloc_ptr: 0x%08x)\n", size, flags, alloc_ptr);
+
+    auto block = ps3->mem.alloc(size);
+    ps3->mem.write<u32>(alloc_ptr, block->vaddr);
+
+    return Result::CELL_OK;
+}
+
 u64 Syscall::sysMemoryGetUserMemorySize() {
     const u64 mem_info_ptr = ARG0;
     const auto available_mem = ps3->mem.ram.getAvailableMem();

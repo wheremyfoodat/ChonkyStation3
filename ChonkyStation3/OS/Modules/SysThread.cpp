@@ -20,7 +20,7 @@ u64 SysThread::sysThreadInitializeTLS() {
 
     // Was TLS already initialized?
     if (ps3->ppu->state.gprs[13] != 0) {
-        log(" [TLS was already initialized]\n");
+        logNoPrefix(" [TLS was already initialized]\n");
         return Result::CELL_OK;
     }
     putc('\n', stdout);

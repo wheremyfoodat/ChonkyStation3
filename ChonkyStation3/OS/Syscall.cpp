@@ -43,6 +43,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 0x14a: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
     case 0x14b: ps3->ppu->state.gprs[3] = Result::CELL_OK;  log("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
     case 0x151: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;
+    case 0x15c: ps3->ppu->state.gprs[3] = sysMemoryAllocate();     break;
     case 0x160: ps3->ppu->state.gprs[3] = sysMemoryGetUserMemorySize();     break;
     case 0x193: {   // puts
         std::string str;

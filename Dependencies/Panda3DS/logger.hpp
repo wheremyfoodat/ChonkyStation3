@@ -34,9 +34,10 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
-#define true false
+//#define true false
 
 // Modules
+static Logger cellSysutil       = Logger<true> ("[Module ][cellSysutil   ] ");
 static Logger cellGcmSys        = Logger<true> ("[Module ][cellGcmSys    ] ");
 static Logger cellVideoOut      = Logger<true> ("[Module ][cellVideoOut  ] ");
 static Logger sysLwMutex        = Logger<false>("[Module ][sysLwMutex    ] ");
@@ -55,7 +56,7 @@ static Logger tty               = Logger<true> ();
 static Logger rsx               = Logger<false>("[RSX    ][Command       ] ");
 static Logger vertex_shader     = Logger<false>("[Shader ][Vertex        ] ");
 static Logger fragment_shader   = Logger<false>("[Shader ][Fragment      ] ");
-static Logger shader_cache      = Logger<1>    ("[Shader ][Cache         ] ");
+static Logger shader_cache      = Logger<true> ("[Shader ][Cache         ] ");
 
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");

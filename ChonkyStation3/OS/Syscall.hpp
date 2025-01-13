@@ -24,6 +24,7 @@ public:
     u64 sysMMapperSearchAndMapMemory();
 
     // sysMemory
+    u64 sysMemoryAllocate();
     u64 sysMemoryGetUserMemorySize();
 
     // sysTimer
