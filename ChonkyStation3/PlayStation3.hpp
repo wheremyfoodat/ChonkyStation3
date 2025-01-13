@@ -2,7 +2,7 @@
 
 #include <common.hpp>
 #include <Memory.hpp>
-#include <ELF/ELFloader.hpp>
+#include <ELF/ELFLoader.hpp>
 #include <ElfSymbolParser.hpp>
 #include <PPU.hpp>
 #include <RSX.hpp>

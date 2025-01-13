@@ -723,6 +723,8 @@ void PPUInterpreter::mulhdu(const Instruction& instr) {
 #ifdef _MSC_VER
     _umul128(a, b, &state.gprs[instr.rt]);
 #else
+    using uint128_t = unsigned __int128;
+
     uint128_t res = (uint128_t)a * b;
     state.gprs[instr.rt] = res >> 64;
 #endif

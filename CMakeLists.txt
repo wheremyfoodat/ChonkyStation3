@@ -27,3 +27,7 @@ target_include_directories(ChonkyStation3 PUBLIC Dependencies/OpenGL)
 target_include_directories(ChonkyStation3 PUBLIC Dependencies/Panda3DS)
 target_include_directories(ChonkyStation3 PUBLIC ${SDL2_INCLUDE_DIR})
 target_link_libraries(ChonkyStation3 PUBLIC glad SDL2-static)
+
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral -Wno-format-security -Wno-invalid-offsetof")
+endif()
