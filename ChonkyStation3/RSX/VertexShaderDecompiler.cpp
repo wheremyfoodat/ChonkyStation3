@@ -120,7 +120,7 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
     case VERTEX_SOURCE_TYPE::CONST: {
         source = "const_" + std::to_string(instr->w1.const_src_idx);
         //source = "c[" + std::to_string(instr->w1.const_src_idx) + "]";
-        if (std::find(required_constants.begin(), required_constants.end(), instr->w1.const_src_idx) == required_constants.end()) {
+        if (std::find(required_constants.begin(), required_constants.end(), (u32)instr->w1.const_src_idx) == required_constants.end()) {
             required_constants.push_back(instr->w1.const_src_idx);
             markConstantAsUsed(source);
         }
