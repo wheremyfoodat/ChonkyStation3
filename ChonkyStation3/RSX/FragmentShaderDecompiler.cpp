@@ -102,7 +102,7 @@ vec4 unimpl;
     return full_shader;
 }
 
-FragmentShaderDecompiler::FragmentInstruction FragmentShaderDecompiler::fetchInstr(u32 addr) {
+FragmentInstruction FragmentShaderDecompiler::fetchInstr(u32 addr) {
     FragmentInstruction instr;
     instr.dst.raw   = fetch32(addr +  0);
     instr.src0.raw  = fetch32(addr +  4);
