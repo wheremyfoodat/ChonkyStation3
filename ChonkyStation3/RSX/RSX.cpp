@@ -149,7 +149,7 @@ void RSX::runCommandList() {
             // Check if our shaders were cached
             const u64 hash_vertex = shader_cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
             if (!shader_cache.getShader(hash_vertex, vertex)) {
-                // Shader wasn't cached, compile it and add to the cache
+                // Shader wasn't cached, compile it and add it to the cache
                 auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data);
                 OpenGL::Shader new_shader;
                 new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex);
@@ -159,7 +159,7 @@ void RSX::runCommandList() {
 
             const u64 hash_fragment = shader_cache.computeHash(fragment_shader_program.getData(ps3->mem), fragment_shader_program.getSize(ps3->mem));
             if (!shader_cache.getShader(hash_fragment, fragment)) {
-                // Shader wasn't cached, compile it and add to the cache
+                // Shader wasn't cached, compile it and add it to the cache
                 auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
                 OpenGL::Shader new_shader;
                 new_shader.create(fragment_shader, OpenGL::ShaderType::Fragment);
@@ -167,10 +167,16 @@ void RSX::runCommandList() {
                 fragment = new_shader;
             }
 
-            checkGLError();
+            // Check if our shader program was cached
+            const u64 hash_program = shader_cache.computeProgramHash(hash_vertex, hash_fragment);
+            if (!shader_cache.getProgram(hash_program, program)) {
+                // Program wasn't cached, link it and add it to the cache
+                OpenGL::Program new_program;
+                new_program.create({ vertex, fragment });
+                shader_cache.cacheProgram(hash_program, new_program);
+                program = new_program;
+            }
 
-            program.free();
-            program.create({ vertex, fragment });
             program.use();
 
             std::vector<u32> indices;
@@ -196,7 +202,6 @@ void RSX::runCommandList() {
             log("\nVertex buffer: %d vertices\n", n_vertices);
 
             // Draw
-            // TODO: This doesn't work with multiple attributes for now
             std::vector<u8> vtx_buf;
             vtx_buf.resize(vertex_array.size() * n_vertices);
 
