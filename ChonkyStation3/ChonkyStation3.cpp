@@ -52,6 +52,7 @@ int main(int argc, char** argv) {
 
     bool quit = false;
     bool fullscreen = false;
+    bool vsync_enabled = false;
 
     int frame_count = 0;
     double last_time = SDL_GetTicks64() / 1000.0;
@@ -83,10 +84,13 @@ int main(int argc, char** argv) {
                 }
 
                 case SDL_MOUSEBUTTONDOWN: {
-                    if (e.button.clicks == 2) {
+                    if (e.button.button == SDL_BUTTON_LEFT && e.button.clicks == 2) {
                         fullscreen = !fullscreen;
                         SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
                         SDL_ShowCursor(fullscreen ? SDL_DISABLE : SDL_ENABLE);
+                    } else if (e.button.button == SDL_BUTTON_RIGHT) {
+                        vsync_enabled = !vsync_enabled;
+                        SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
                     }
                     break;
                 }
