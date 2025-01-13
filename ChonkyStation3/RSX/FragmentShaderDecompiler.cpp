@@ -64,11 +64,11 @@ vec4 unimpl;
             break;
         }
         case RSXFragment::EX2: {
-            main += std::format("{}{} = {}(exp2({}));\n", dest(instr), mask_str, type, source(instr, 0));
+            main += std::format("{}{} = {}(vec4(exp2({}.x)));\n", dest(instr), mask_str, type, source(instr, 0));
             break;
         }
         case RSXFragment::LG2: {
-            main += std::format("{}{} = {}(log2({}));\n", dest(instr), mask_str, type, source(instr, 0));
+            main += std::format("{}{} = {}(vec4(log2({}.x)));\n", dest(instr), mask_str, type, source(instr, 0));
             break;
         }
         case RSXFragment::NRM: {
