@@ -8,7 +8,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
 
     auto str = path.generic_string();
     if (!elf.load(str.c_str())) {
-        Helpers::panic("Couldn't load ELF {}", path);
+        Helpers::panic("Couldn't load ELF %s", str.c_str());
     }
 
     printf("Loading ELF %s\n", str.c_str());
