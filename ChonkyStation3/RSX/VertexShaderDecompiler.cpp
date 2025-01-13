@@ -60,7 +60,7 @@ vec4 r[16];
             //Helpers::panic("Unknown vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
         }
     }
-    main += "\ngl_Position = out_pos;\n";
+    main += "\ngl_Position = fs_pos;\n";
 
     declareFunction("void main", initialization + "\n" + main, shader);
 

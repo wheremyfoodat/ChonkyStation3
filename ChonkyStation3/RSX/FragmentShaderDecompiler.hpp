@@ -113,21 +113,21 @@ public:
     };
 
     const std::string input_names[15] = {
-        "in_wpos",
-        "in_diff_color",
-        "in_spec_color",
-        "in_fog",
-        "in_tex0",
-        "in_tex1",
-        "in_tex2",
-        "in_tex3",
-        "in_tex4",
-        "in_tex5",
-        "in_tex6",
-        "in_tex7",
-        "in_tex8",
-        "in_tex9",
-        "in_ssa"
+        "fs_wpos",
+        "fs_diff_color",
+        "fs_spec_color",
+        "fs_fog",
+        "fs_tex0",
+        "fs_tex1",
+        "fs_tex2",
+        "fs_tex3",
+        "fs_tex4",
+        "fs_tex5",
+        "fs_tex6",
+        "fs_tex7",
+        "fs_tex8",
+        "fs_tex9",
+        "fs_ssa"
     };
 
     std::unordered_map<u8, std::string> fragment_opcodes {

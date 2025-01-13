@@ -84,41 +84,41 @@ public:
     };
 
     const std::string input_names[16] = {
-        "in_pos",
-        "in_weight",
-        "in_normal",
-        "in_diff_color",
-        "in_spec_color",
-        "in_fog",
-        "in_point_size",
-        "in_unk7",
-        "in_tex0",
-        "in_tex1",
-        "in_tex2",
-        "in_tex3",
-        "in_tex4",
-        "in_tex5",
-        "in_tex6",
-        "in_tex7"
+        "vs_pos",
+        "vs_weight",
+        "vs_normal",
+        "vs_diff_color",
+        "vs_spec_color",
+        "vs_fog",
+        "vs_point_size",
+        "vs_unk7",
+        "vs_tex0",
+        "vs_tex1",
+        "vs_tex2",
+        "vs_tex3",
+        "vs_tex4",
+        "vs_tex5",
+        "vs_tex6",
+        "vs_tex7"
     };
 
     const std::string output_names[16] = {
-        "out_pos",
-        "out_col0",
-        "out_col1",
-        "out_bfc0",
-        "out_bfc1",
-        "out_fog",
-        "out_point_size",
-        "out_tex0",
-        "out_tex1",
-        "out_tex2",
-        "out_tex3",
-        "out_tex4",
-        "out_tex5",
-        "out_tex6",
-        "out_tex7",
-        "out_unk15"
+        "fs_pos",
+        "fs_col0",
+        "fs_col1",
+        "fs_bfc0",
+        "fs_bfc1",
+        "fs_fog",
+        "fs_point_size",
+        "fs_tex0",
+        "fs_tex1",
+        "fs_tex2",
+        "fs_tex3",
+        "fs_tex4",
+        "fs_tex5",
+        "fs_tex6",
+        "fs_tex7",
+        "fs_unk15"
     };
 
     // Above 20 means I still have to figure out what the fuck it is
