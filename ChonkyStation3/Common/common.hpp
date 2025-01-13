@@ -41,7 +41,7 @@ template <class... Args>
 }
 
 template <class... Args>
-static void debugAssert(bool cond, const char* fmt, Args&&... args {
+static void debugAssert(bool cond, const char* fmt, Args&&... args) {
     if (!cond) [[unlikely]] {
         std::printf(fmt, args...);
         std::exit(0);
