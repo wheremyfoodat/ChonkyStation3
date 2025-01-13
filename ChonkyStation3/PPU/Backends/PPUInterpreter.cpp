@@ -75,6 +75,7 @@ void PPUInterpreter::step() {
         break;
     }
     case RLWINM:    rlwinm(instr);  break;
+    case RLWNM:     rlwnm(instr);   break;
     case ORI:       ori(instr);     break;
     case ORIS:      oris(instr);    break;
     case XORI:      xori(instr);    break;
@@ -100,6 +101,7 @@ void PPUInterpreter::step() {
         case CMP:       cmp(instr);     break;
         case LVSL:      lvsl(instr);    break;
         case MULHDU:    mulhdu(instr);  break;
+        case ADDC:      addc(instr);    break;
         case MFCR:      mfcr(instr);    break;
         case LDX:       ldx(instr);     break;
         case LWZX:      lwzx(instr);    break;
@@ -309,8 +311,15 @@ void PPUInterpreter::b(const Instruction& instr) {
 
 void PPUInterpreter::rlwinm(const Instruction& instr) {
     const auto mask = rotationMask(instr.mb_5, instr.me_5);
-    //Helpers::debugAssert(instr.mb_5 < instr.me_5, "rlwinm: mb > me");
     state.gprs[instr.ra] = std::rotl<u32>(state.gprs[instr.rs], instr.sh) & mask;
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
+}
+
+void PPUInterpreter::rlwnm(const Instruction& instr) {
+    const auto mask = rotationMask(instr.mb_5, instr.me_5);
+    const auto rot = state.gprs[instr.rb] & 0x1f;
+    state.gprs[instr.ra] = std::rotl<u32>(state.gprs[instr.rs], rot) & mask;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
 }
@@ -728,6 +737,17 @@ void PPUInterpreter::mulhdu(const Instruction& instr) {
     uint128_t res = (uint128_t)a * b;
     state.gprs[instr.rt] = res >> 64;
 #endif
+}
+
+void PPUInterpreter::addc(const Instruction& instr) {
+    Helpers::debugAssert(!instr.oe, "addc: oe bit set\n");
+    const auto a = state.gprs[instr.ra];
+    const auto b = state.gprs[instr.rb];
+    const auto res = a + b;
+    state.xer.ca = res < a;
+    state.gprs[instr.rt] = res;
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
 }
 
 void PPUInterpreter::mfcr(const Instruction& instr) {

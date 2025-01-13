@@ -29,6 +29,7 @@ public:
     void sc         (const Instruction& instr);
     void b          (const Instruction& instr);
     void rlwinm     (const Instruction& instr);
+    void rlwnm      (const Instruction& instr);
     void ori        (const Instruction& instr);
     void oris       (const Instruction& instr);
     void xori       (const Instruction& instr);
@@ -86,6 +87,7 @@ public:
     void cmp        (const Instruction& instr);
     void lvsl       (const Instruction& instr);
     void mulhdu     (const Instruction& instr);
+    void addc       (const Instruction& instr);
     void mfcr       (const Instruction& instr);
     void ldx        (const Instruction& instr);
     void lwzx       (const Instruction& instr);
