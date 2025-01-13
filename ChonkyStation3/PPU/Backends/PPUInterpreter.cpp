@@ -549,10 +549,10 @@ void PPUInterpreter::vrefp(const Instruction& instr) {
 }
 
 void PPUInterpreter::vrsqrtefp(const Instruction& instr) {
-    state.vrs[instr.vd].f[0] = 1.0f / std::sqrtf(state.vrs[instr.vb].f[0]);
-    state.vrs[instr.vd].f[1] = 1.0f / std::sqrtf(state.vrs[instr.vb].f[1]);
-    state.vrs[instr.vd].f[2] = 1.0f / std::sqrtf(state.vrs[instr.vb].f[2]);
-    state.vrs[instr.vd].f[3] = 1.0f / std::sqrtf(state.vrs[instr.vb].f[3]);
+    state.vrs[instr.vd].f[0] = 1.0f / sqrtf(state.vrs[instr.vb].f[0]);
+    state.vrs[instr.vd].f[1] = 1.0f / sqrtf(state.vrs[instr.vb].f[1]);
+    state.vrs[instr.vd].f[2] = 1.0f / sqrtf(state.vrs[instr.vb].f[2]);
+    state.vrs[instr.vd].f[3] = 1.0f / sqrtf(state.vrs[instr.vb].f[3]);
 }
 
 void PPUInterpreter::vslw(const Instruction& instr) {
