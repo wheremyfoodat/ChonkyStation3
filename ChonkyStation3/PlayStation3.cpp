@@ -10,6 +10,10 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     // Register ELF module imports in module manager
     for (auto& i : imports)
         module_manager.registerImport(i.first, i.second);
+    // Load and link LLE modules
+    PRXLoader prx = PRXLoader(mem);
+    prx.load("./Filesystem/dev_flash/sys/external/libresc.prx", imports);
+
     // Create main thread
     u8 thread_name[] = "main";
     Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, thread_name, elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true);

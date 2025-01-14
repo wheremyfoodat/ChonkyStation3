@@ -11,11 +11,11 @@
 //constexpr u32 PT_LOAD = 0x00000001; // Already defined in ELFIO
 //constexpr u32 PT_TLS = 0x00000007; // Already defined in ELFIO
 // PS3 specific
-constexpr u32 PROC_PARAM = 0x60000001;
-constexpr u32 PRX_PARAM  = 0x60000002;
+static constexpr u32 PROC_PARAM = 0x60000001;
+static constexpr u32 PRX_PARAM  = 0x60000002;
 
-constexpr u32 PROC_MAGIC = 0x13bcc5f6;
-constexpr u32 PRX_MAGIC  = 0x1b434cec;
+static constexpr u32 PROC_MAGIC = 0x13bcc5f6;
+static constexpr u32 PRX_MAGIC  = 0x1b434cec;
 
 class ELFLoader {
 public:
@@ -64,4 +64,7 @@ public:
     u32 tls_vaddr = 0;
     u32 tls_filesize = 0;
     u32 tls_memsize = 0;
+
+private:
+    MAKE_LOG_FUNCTION(log, loader_elf);
 };

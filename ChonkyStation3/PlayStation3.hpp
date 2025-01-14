@@ -3,6 +3,7 @@
 #include <common.hpp>
 #include <Memory.hpp>
 #include <ELF/ELFLoader.hpp>
+#include <PRX/PRXLoader.hpp>
 #include <ElfSymbolParser.hpp>
 #include <PPU.hpp>
 #include <RSX.hpp>

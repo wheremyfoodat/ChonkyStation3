@@ -60,6 +60,10 @@ static Logger vertex_shader     = Logger<false>("[Shader ][Vertex        ] ");
 static Logger fragment_shader   = Logger<false>("[Shader ][Fragment      ] ");
 static Logger shader_cache      = Logger<true> ("[Shader ][Cache         ] ");
 
+// Loader
+static Logger loader_elf        = Logger<true> ("[Loader ][ELF           ] ");
+static Logger loader_prx        = Logger<true> ("[Loader ][PRX           ] ");
+
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
 static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
