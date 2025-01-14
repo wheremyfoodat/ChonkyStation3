@@ -12,7 +12,8 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
         module_manager.registerImport(i.first, i.second);
     // Load and link LLE modules
     PRXLoader prx = PRXLoader(mem);
-    prx.load("./Filesystem/dev_flash/sys/external/libresc.prx", imports);
+    //prx.load("./Filesystem/dev_flash/sys/external/libresc.prx", imports);
+    //prx.load("./Filesystem/dev_flash/sys/external/libpngdec.prx", imports);
 
     // Create main thread
     u8 thread_name[] = "main";
