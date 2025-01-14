@@ -9,7 +9,7 @@ void PRXLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports
 
     // TODO: SPRX (encrypted)
     if (elf_binary[0] == 'S' && elf_binary[1] == 'C' && elf_binary[2] == 'E') {
-        Helpers::panic("PRXLoader: PRX is encrypted (%s)\n", path.c_str());
+        Helpers::panic("PRXLoader: PRX is encrypted (%s)\n", path.generic_string().c_str());
     }
 
     auto str = path.generic_string();
