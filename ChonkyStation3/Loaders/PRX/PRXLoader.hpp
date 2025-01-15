@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <format>
 #include <BEField.hpp>
 #include <elfio/elfio.hpp>
 #include <logger.hpp>
@@ -11,16 +12,27 @@
 
 static constexpr u32 SCE_PPURELA = 0x700000a4;
 
+// Circular dependency
+class PlayStation3;
+
 class PRXLoader {
 public:
-    PRXLoader(Memory& mem) : mem(mem) {}
+    PRXLoader(PlayStation3* ps3, Memory& mem) : ps3(ps3), mem(mem) {}
+    PlayStation3* ps3;
     Memory& mem;
-    void load(const fs::path& path, std::unordered_map<u32, u32>& imports);
+
+    void load(const fs::path& path, std::unordered_map<u32, u32>& exports);
+    std::string getSpecialFunctionName(const u32 nid);
 
     std::unordered_map<u64, std::string> segment_type_string {
         { ELFIO::PT_LOAD,   "PT_LOAD    " },
         { ELFIO::PT_TLS,    "PT_TLS     " },
         { SCE_PPURELA,      "SCE_PPURELA" },
+    };
+
+    std::unordered_map<u32, std::string> special_function_names {
+        { 0xab779874, "module_stop" },
+        { 0xbc9a0086, "module_start" },
     };
 
     struct PRXRelocation {
@@ -30,6 +42,37 @@ public:
         u8 addr_idx;    // Segment index for relocated address (to write the data to)
         BEField<u32> type;
         BEField<u64> ptr;
+    };
+
+    struct PRXLibrary {
+        BEField<u16> attrs;
+        u8 ver[2];
+        u8 name[28];
+        BEField<u32> toc;
+        BEField<u32> exports_start;
+        BEField<u32> exports_end;
+        BEField<u32> imports_start;
+        BEField<u32> imports_end;
+    };
+
+    struct PRXModule {
+        u8 size;
+        u8 unk0;
+        BEField<u16> ver;
+        BEField<u16> attrs;
+        BEField<u16> n_funcs;
+        BEField<u16> n_vars;
+        BEField<u16> n_tls;
+        u8 info_hash;
+        u8 info_tlshash;
+        u8 unk1[2];
+        BEField<u32> name_ptr;
+        BEField<u32> nids_ptr;
+        BEField<u32> addrs_ptr;
+        BEField<u32> var_nids_ptr;
+        BEField<u32> var_stubs_ptr;
+        BEField<u32> unk2;
+        BEField<u32> unk3;
     };
 
 private:

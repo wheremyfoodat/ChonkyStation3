@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 #include <unordered_map>
+#include <format>
 #include <Import.hpp>
 
 #include <Modules/SysPrxForUser.hpp>
@@ -79,6 +80,8 @@ public:
         { 0x8107277c, { "cellRescSetBufferAddress",                     std::bind(&CellResc::cellRescSetBufferAddress, &cellResc) }},
         { 0xd1ca0503, { "cellRescVideoOutResolutionId2RescBufferMode",  std::bind(&CellResc::cellRescVideoOutResolutionId2RescBufferMode, &cellResc) }},
     };
+
+    std::string getImportName(const u32 nid);
 
     SysPrxForUser sysPrxForUser;
     SysThread sysThread;

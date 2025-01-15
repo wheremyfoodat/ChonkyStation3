@@ -5,15 +5,20 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     ppu = &interpreter;
     ELFLoader elf = ELFLoader(mem);
     std::unordered_map<u32, u32> imports = {};
+    std::unordered_map<u32, u32> exports = {};
+
     // Load ELF file
     auto entry = elf.load(executable, imports, module_manager);
     // Register ELF module imports in module manager
     for (auto& i : imports)
         module_manager.registerImport(i.first, i.second);
-    // Load and link LLE modules
-    PRXLoader prx = PRXLoader(mem);
-    //prx.load("./Filesystem/dev_flash/sys/external/libresc.prx", imports);
-    //prx.load("./Filesystem/dev_flash/sys/external/libpngdec.prx", imports);
+
+    // Load and link LLE modules (PRXs)
+    // TODO: only load modules requested by the game
+    PRXLoader prx = PRXLoader(this, mem);
+    for (auto& file : fs::recursive_directory_iterator("./Filesystem/dev_flash/sys/external")) {
+        prx.load(file, exports);
+    }
 
     // Create main thread
     u8 thread_name[] = "main";

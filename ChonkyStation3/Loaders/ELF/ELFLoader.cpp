@@ -70,10 +70,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
                     u32 nid = mem.read<u32>(stub->s_nid + i * 4);
                     u32 addr = mem.read<u32>(stub->s_text + i * 4);
                     imports[addr] = nid;
-                    if (module_manager.import_map.find(nid) != module_manager.import_map.end())
-                        log("* %s			@ 0x%08x\n", module_manager.import_map[nid].name.c_str(), addr);
-                    else
-                        log("* unk_0x%08x			@ 0x%08x\n", nid, addr);
+                    log("* Imported function: 0x%08x @ 0x%08x \t[%s]\n", nid, addr, module_manager.getImportName(nid).c_str());
 
                     // Patch import stub
                     // Find BCCTR or BCCTRL instructions
