@@ -34,7 +34,7 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
-//#define true false
+#define true false
 
 // Modules
 static Logger cellResc          = Logger<true> ("[Module ][cellResc      ] ");
@@ -61,8 +61,8 @@ static Logger fragment_shader   = Logger<false>("[Shader ][Fragment      ] ");
 static Logger shader_cache      = Logger<true> ("[Shader ][Cache         ] ");
 
 // Loader
-static Logger loader_elf        = Logger<true> ("[Loader ][ELF           ] ");
-static Logger loader_prx        = Logger<true> ("[Loader ][PRX           ] ");
+static Logger loader_elf        = Logger<1>    ("[Loader ][ELF           ] ");
+static Logger loader_prx        = Logger<1>    ("[Loader ][PRX           ] ");
 
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
