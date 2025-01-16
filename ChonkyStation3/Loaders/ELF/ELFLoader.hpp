@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <PRX/PRXLoader.hpp>
 #include <PRX/PRXExport.hpp>
+#include <PRX/PRXLibraryInfo.hpp>
 
 
 //constexpr u32 PT_LOAD = 0x00000001; // Already defined in ELFIO
@@ -28,7 +29,7 @@ public:
     PlayStation3* ps3;
     Memory& mem;
 
-    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports, PRXExportTable& exports, ModuleManager& module_manager);
+    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports, PRXExportTable& exports, std::vector<PRXLibraryInfo>& libs, ModuleManager& module_manager);
 
     std::unordered_map<u64, std::string> segment_type_string {
         { ELFIO::PT_LOAD,   "PT_LOAD    " },

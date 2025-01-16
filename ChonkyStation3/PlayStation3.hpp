@@ -5,6 +5,7 @@
 #include <ELF/ELFLoader.hpp>
 #include <PRX/PRXLoader.hpp>
 #include <PRX/PRXExport.hpp>
+#include <PRX/PRXLibraryInfo.hpp>
 #include <ElfSymbolParser.hpp>
 #include <PPU.hpp>
 #include <RSX.hpp>

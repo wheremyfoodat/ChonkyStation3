@@ -4,7 +4,7 @@
 
 using namespace ELFIO;
 
-void PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
+PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
     const auto elf_binary = Helpers::readBinary(path);
     elfio elf;
 
@@ -94,6 +94,9 @@ void PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
     log("* exports start: 0x%08x\n", (u32)lib->exports_start);
     log("* exports end  : 0x%08x\n", (u32)lib->exports_end);
 
+    u32 start_func = 0;
+    u32 stop_func = 0;
+
     int module_idx = 0;
     for (u32 addr = lib->exports_start; addr < lib->exports_end; module_idx++) {
         PRXModule* module = (PRXModule*)mem.getPtr(addr);
@@ -105,7 +108,10 @@ void PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
                 const u32 nid  = mem.read<u32>(module->nids_ptr  + i * sizeof(u32));
                 const u32 addr = mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
                 log("* Exported function: %s @ 0x%08x\n", getSpecialFunctionName(nid).c_str(), addr);
-                // TODO
+                
+                switch (nid) {
+                case 0xbc9a0086: start_func = addr; break;
+                }
             }
             for (int i = module->n_funcs; i < module->n_vars; i++) {
                 const u32 nid = mem.read<u32>(module->nids_ptr + i * sizeof(u32));
@@ -120,7 +126,8 @@ void PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
             continue;
         }
 
-        log("Library %s exports module %s\n", lib->name, mem.getPtr(module->name_ptr));
+        log("Library %s exports module %s (%d functions, %d variables)\n", lib->name, mem.getPtr(module->name_ptr), (u16)module->n_funcs, (u16)module->n_vars);
+        Helpers::debugAssert(module->n_vars == 0, "PRX module: n_vars > 0\n");
 
         for (int i = 0; i < module->n_funcs; i++) {
             const u32 nid = mem.read<u32>(module->nids_ptr + i * sizeof(u32));
@@ -134,6 +141,8 @@ void PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
         else
             addr += sizeof(PRXModule);
     }
+
+    return { Helpers::readString(lib->name), lib->toc, start_func, stop_func };
 }
 
 std::string PRXLoader::getSpecialFunctionName(const u32 nid) {

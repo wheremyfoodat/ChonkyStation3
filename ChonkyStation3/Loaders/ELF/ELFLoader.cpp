@@ -4,7 +4,7 @@
 
 using namespace ELFIO;
 
-u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports, PRXExportTable& exports, ModuleManager& module_manager) {
+u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports, PRXExportTable& exports, std::vector<PRXLibraryInfo>& libs, ModuleManager& module_manager) {
     elfio elf;
 
     auto str = path.generic_string();
@@ -82,7 +82,8 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
                         Helpers::panic("%s required by %s is missing", lle_modules[name].c_str(), path.filename().generic_string().c_str());
                     }
                     // Load PRX
-                    prx_loader.load(lib_path, exports);
+                    const auto lib = prx_loader.load(lib_path, exports);
+                    libs.push_back(lib);
                 }
 
                 for (int i = 0; i < stub->s_imports; i++) {

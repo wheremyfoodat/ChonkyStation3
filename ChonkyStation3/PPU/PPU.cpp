@@ -5,6 +5,19 @@ void PPU::step() {
     Helpers::panic("Backend did not define step function\n");
 }
 
+void PPU::runFunc(u32 addr, u32 toc) {
+    const PPUTypes::State old_state = state;
+    const u64 ret_val = 0xFFFF1000FFFF1000;
+    state.lr = ret_val;  // Random value - we check that pc == this to know that the function returned
+    state.pc = addr;
+    if (toc) state.gprs[2] = toc;
+
+    while (state.pc != ret_val)
+        step();
+
+    state = old_state;
+}
+
 void PPU::printState() {
     printf("pc:  0x%016llx\n", state.pc);
     printf("ctr: 0x%016llx\n", state.ctr);

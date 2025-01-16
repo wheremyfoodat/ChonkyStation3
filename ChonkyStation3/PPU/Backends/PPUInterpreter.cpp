@@ -970,7 +970,7 @@ void PPUInterpreter::mfspr(const Instruction& instr) {
 
 void PPUInterpreter::mftb(const Instruction& instr) {
     // TODO: might be important
-    state.gprs[instr.rt] = 0x12345678;
+    state.gprs[instr.rt] = 80000000;
 }
 
 void PPUInterpreter::or_(const Instruction& instr) {

@@ -8,6 +8,7 @@
 #include <Memory.hpp>
 #include <ModuleManager.hpp>
 #include <PRX/PRXExport.hpp>
+#include <PRX/PRXLibraryInfo.hpp>
 #include <unordered_map>
 
 
@@ -22,7 +23,7 @@ public:
     PlayStation3* ps3;
     Memory& mem;
 
-    void load(const fs::path& path, PRXExportTable& exports);
+    PRXLibraryInfo load(const fs::path& path, PRXExportTable& exports);
     std::string getSpecialFunctionName(const u32 nid);
 
     std::unordered_map<u64, std::string> segment_type_string {
