@@ -6,6 +6,8 @@
 #include <Memory.hpp>
 #include <ModuleManager.hpp>
 #include <unordered_map>
+#include <PRX/PRXLoader.hpp>
+#include <PRX/PRXExport.hpp>
 
 
 //constexpr u32 PT_LOAD = 0x00000001; // Already defined in ELFIO
@@ -17,11 +19,16 @@ static constexpr u32 PRX_PARAM  = 0x60000002;
 static constexpr u32 PROC_MAGIC = 0x13bcc5f6;
 static constexpr u32 PRX_MAGIC  = 0x1b434cec;
 
+// Circular dependency
+class PlayStation3;
+
 class ELFLoader {
 public:
-    ELFLoader(Memory& mem) : mem(mem) {}
+    ELFLoader(PlayStation3* ps3, Memory& mem) : ps3(ps3), mem(mem) {}
+    PlayStation3* ps3;
     Memory& mem;
-    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports, ModuleManager& module_manager);
+
+    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports, PRXExportTable& exports, ModuleManager& module_manager);
 
     std::unordered_map<u64, std::string> segment_type_string {
         { ELFIO::PT_LOAD,   "PT_LOAD    " },
@@ -29,6 +36,17 @@ public:
         { PROC_PARAM,       "PROC_PARAM " },
         { PRX_PARAM,        "PRX_PARAM  " },
     };
+
+    // This is a list of modules that *need* to be LLEd.
+    // If the modules aren't present, the emulator will crash
+    // I'll probably move this elsewhere later
+    // The map maps the module name to the library filename
+    // TODO: Switch these to the .sprx variants once we can decrypt SELFs/SPRXs.
+    // For now you need to decrypt the libraries on your own.
+    std::unordered_map<std::string, std::string> lle_modules {
+        { "cellResc", "libresc.prx" },
+    };
+    fs::path lle_lib_dir = "./Filesystem/dev_flash/sys/external/";
 
     struct PrxParam {
         BEField<u32> size;

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <format>
 #include <Import.hpp>
+#include <PRX/PRXExport.hpp>
 
 #include <Modules/SysPrxForUser.hpp>
 #include <Modules/SysThread.hpp>
@@ -25,9 +26,12 @@ public:
     PlayStation3* ps3;
 
     void call(u32 nid);
-
+    void lle(u32 nid);
     // Map address to import nid
     void registerImport(u32 addr, u32 nid);
+    void registerExportTable(const PRXExportTable& exports);
+    PRXExportTable exports;
+
     std::unordered_map<u32, u32> imports = {};
     std::unordered_map<u32, Import> import_map {
         { 0xe6f2c1e7, { "sysProcessExit",                               std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser) }},
@@ -94,4 +98,7 @@ public:
     CellResc cellResc;
 
     static Result stub(void* a) { Helpers::panic("Unimplemented function\n"); }
+
+private:
+    MAKE_LOG_FUNCTION(log, lle_module);
 };

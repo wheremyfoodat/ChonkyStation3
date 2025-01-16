@@ -114,6 +114,7 @@ public:
     void add        (const Instruction& instr);
     void xor_       (const Instruction& instr);
     void mfspr      (const Instruction& instr);
+    void mftb       (const Instruction& instr);
     void or_        (const Instruction& instr);
     void divdu      (const Instruction& instr);
     void divwu      (const Instruction& instr);

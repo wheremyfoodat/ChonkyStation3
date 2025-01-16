@@ -12,6 +12,7 @@ void PPUInterpreter::step() {
     const u32 instrRaw = mem.read<u32>(state.pc);
     const Instruction instr { .raw = instrRaw };
     
+    //PPUDisassembler::disasm(state, instr, &mem);
 
     switch (instr.opc) {
     
@@ -129,6 +130,7 @@ void PPUInterpreter::step() {
         case DCBT:      break;
         case XOR:       xor_(instr);    break;
         case MFSPR:     mfspr(instr);   break;
+        case MFTB:      mftb(instr);    break;  
         case OR:        or_(instr);     break;
         case DIVDU:     divdu(instr);   break;
         case DIVWU:     divwu(instr);   break;
@@ -964,6 +966,11 @@ void PPUInterpreter::mfspr(const Instruction& instr) {
     case 0b01000: state.gprs[instr.rt] = state.lr; break;
     default: Helpers::panic("mfspr: unimplemented register 0x%04x\n", reversed_spr);
     }
+}
+
+void PPUInterpreter::mftb(const Instruction& instr) {
+    // TODO: might be important
+    state.gprs[instr.rt] = 0x12345678;
 }
 
 void PPUInterpreter::or_(const Instruction& instr) {

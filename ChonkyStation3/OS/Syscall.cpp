@@ -26,6 +26,11 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         if (decrement_pc_if_module_call && should_return) ps3->ppu->state.pc -= 4;
         break;
     }
+    case 0x1000: {
+        ps3->module_manager.lle(ps3->module_manager.imports[ps3->ppu->state.gprs[12]]);
+        ps3->ppu->state.pc -= 4;
+        break;
+    }
 
     case 0x8d:
         ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;

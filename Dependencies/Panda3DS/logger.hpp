@@ -67,6 +67,7 @@ static Logger loader_prx        = Logger<true> ("[Loader ][PRX           ] ");
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
 static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
+static Logger lle_module        = Logger<true> ("[LLE    ][Module        ] ");
 
 #undef true
 
