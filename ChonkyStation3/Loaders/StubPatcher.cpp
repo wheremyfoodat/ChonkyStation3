@@ -8,7 +8,7 @@ void StubPatcher::patch(u32 addr, bool lle, PlayStation3* ps3) {
     // While this isn't optimal (we could just patch the stub to directly jump to the function), it allows me to easily track LLE function calls.
     bool stubbed = false;
     for (int i = 0; i < 128; i += 4) {
-        // Find BCCTR or BCCTRL instructions, and patch the module accordingly to whether it's HLE or LLE
+        // Find BCCTR or BCCTRL instructions, and patch the stub accordingly to whether it's HLE or LLE
         const auto instr = ps3->mem.read<u32>(addr + i);
         if (instr == 0x4e800420) {
             if (!lle) {

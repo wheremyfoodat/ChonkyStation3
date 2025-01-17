@@ -147,7 +147,7 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
         PRXModule* module = (PRXModule*)ps3->mem.getPtr(addr);
         const std::string name = Helpers::readString(ps3->mem.getPtr(module->name_ptr));
 
-        log("Library %s imports module %s (%d functions, %d variables)\n", lib->name, name, (u16)module->n_funcs, (u16)module->n_vars);
+        log("Library %s imports module %s (%d functions, %d variables)\n", lib->name, name.c_str(), (u16)module->n_funcs, (u16)module->n_vars);
         
         const bool lle = ps3->prx_manager.isLLEModule(name);  // Is this a LLE module?
         if (lle)
