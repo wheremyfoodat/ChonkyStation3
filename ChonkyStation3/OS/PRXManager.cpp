@@ -22,7 +22,7 @@ void PRXManager::loadModules() {
     // Load modules
     log("Loading %d PRXs:\n", required_modules.size());
     for (auto& i : required_modules)
-        log("* %s\n", i);
+        log("* %s\n", i.c_str());
 
     for (auto& i : required_modules)
         libs.push_back(loader.load(lle_lib_dir / i, exports));
