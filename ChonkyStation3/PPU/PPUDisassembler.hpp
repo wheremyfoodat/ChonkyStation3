@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+
 #include <PPUTypes.hpp>
 #include <Memory.hpp>
 

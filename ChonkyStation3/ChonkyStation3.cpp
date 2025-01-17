@@ -6,7 +6,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-
 // Gently ask to use the discrete Nvidia/AMD GPU if possible instead of
 // integrated graphics
 extern "C" {

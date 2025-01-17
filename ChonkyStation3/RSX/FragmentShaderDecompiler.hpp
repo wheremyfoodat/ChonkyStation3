@@ -3,13 +3,15 @@
 #include <common.hpp>
 #include <logger.hpp>
 #include <BitField.hpp>
+
 #include <string>
-#include <FragmentShader.hpp>
-#include <FragmentInstruction.hpp>
-#include <RSXShaderOpcodes.hpp>
 #include <unordered_map>
 #include <format>
 #include <algorithm>
+
+#include <FragmentShader.hpp>
+#include <FragmentInstruction.hpp>
+#include <RSXShaderOpcodes.hpp>
 
 
 // Circular dependency

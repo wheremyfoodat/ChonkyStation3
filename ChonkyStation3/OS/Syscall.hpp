@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 #include <logger.hpp>
+
 #include <CellTypes.hpp>
 
 
@@ -15,6 +16,7 @@ public:
     Syscall(PlayStation3* ps3);
     PlayStation3* ps3;
     MAKE_LOG_FUNCTION(log, misc_sc);
+    MAKE_LOG_FUNCTION(unimpl, unimplemented);
     MAKE_LOG_FUNCTION(tty, tty);
 
     void doSyscall(bool decrement_pc_if_module_call = false);

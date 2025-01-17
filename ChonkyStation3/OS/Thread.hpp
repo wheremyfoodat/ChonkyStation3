@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 #include <logger.hpp>
+
 #include <PPUTypes.hpp>
 #include <MemoryConstants.hpp>
 

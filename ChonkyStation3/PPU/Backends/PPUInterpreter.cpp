@@ -123,6 +123,7 @@ void PPUInterpreter::step() {
         case MTCRF:     mtcrf(instr);   break;
         case STDX:      stdx(instr);    break;
         case ADDZE:     addze(instr);   break;
+        case STBX:      stbx(instr);    break;
         case STVX:      stvx(instr);    break;
         case MULLD:     mulld(instr);   break;
         case MULLW:     mullw(instr);   break;
@@ -922,6 +923,10 @@ void PPUInterpreter::addze(const Instruction& instr) {
 
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
+}
+
+void PPUInterpreter::stbx(const Instruction& instr) {
+    mem.write<u8>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb], state.gprs[instr.rs]);
 }
 
 void PPUInterpreter::stvx(const Instruction& instr) {

@@ -34,10 +34,10 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
 
         if (seg->get_type() == PT_LOAD) {
             // Allocate segment in memory
-            auto entry = mem.alloc(seg->get_memory_size());
+            auto entry = ps3->mem.alloc(seg->get_memory_size());
             allocations.push_back(entry->vaddr);
-            u8* ptr = mem.ram.getPtrPhys(entry->paddr);
-            mem.markAsFastMem(entry->vaddr >> PAGE_SHIFT, ptr, true, true);
+            u8* ptr = ps3->mem.ram.getPtrPhys(entry->paddr);
+            ps3->mem.markAsFastMem(entry->vaddr >> PAGE_SHIFT, ptr, true, true);
             std::memcpy(ptr, seg->get_data(), seg->get_file_size());
             // Set the remaining memory to 0
             std::memset(ptr + seg->get_file_size(), 0, seg->get_memory_size() - seg->get_file_size());
@@ -62,20 +62,20 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
                 //log("Relocated address: ");
                 switch (reloc->type) {
                 case 1: {
-                    mem.write<u32>(reloc_addr, data);
+                    ps3->mem.write<u32>(reloc_addr, data);
                     //logNoPrefix("[0x%08x] <- 0x%08x\n", reloc_addr, data);
                     break;
                 }
 
                 case 4: {
-                    mem.write<u16>(reloc_addr, data);
+                    ps3->mem.write<u16>(reloc_addr, data);
                     //logNoPrefix("[0x%08x] <- 0x%04x\n", reloc_addr, data);
                     break;
                 }
 
                 case 6: {
                     const u16 reloc_data = (u16)(data >> 16) + ((data >> 15) & 1);
-                    mem.write<u16>(reloc_addr, reloc_data);
+                    ps3->mem.write<u16>(reloc_addr, reloc_data);
                     //logNoPrefix("[0x%08x] <- 0x%04x\n", reloc_addr, reloc_data);
                     break;
                 }
@@ -88,7 +88,7 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
     }
 
     // Get exported functions
-    PRXLibrary* lib = (PRXLibrary*)mem.getPtr(allocations[0] + elf.segments[0]->get_physical_address() - elf.segments[0]->get_offset());
+    PRXLibrary* lib = (PRXLibrary*)ps3->mem.getPtr(allocations[0] + elf.segments[0]->get_physical_address() - elf.segments[0]->get_offset());
     log("PRX exports library %s\n", lib->name);
     log("* attributes: 0x%08x\n", lib->attrs);
     log("* exports start: 0x%08x\n", (u32)lib->exports_start);
@@ -99,14 +99,14 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
 
     int module_idx = 0;
     for (u32 addr = lib->exports_start; addr < lib->exports_end; module_idx++) {
-        PRXModule* module = (PRXModule*)mem.getPtr(addr);
+        PRXModule* module = (PRXModule*)ps3->mem.getPtr(addr);
         log("%d:\n", module_idx);
 
         // Special nameless module for start and stop functions
         if (module->attrs & 0x8000) {
             for (int i = 0; i < module->n_funcs; i++) {
-                const u32 nid  = mem.read<u32>(module->nids_ptr  + i * sizeof(u32));
-                const u32 addr = mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
+                const u32 nid  = ps3->mem.read<u32>(module->nids_ptr  + i * sizeof(u32));
+                const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
                 log("* Exported function: %s @ 0x%08x\n", getSpecialFunctionName(nid).c_str(), addr);
                 
                 switch (nid) {
@@ -114,8 +114,8 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
                 }
             }
             for (int i = module->n_funcs; i < module->n_vars; i++) {
-                const u32 nid = mem.read<u32>(module->nids_ptr + i * sizeof(u32));
-                const u32 addr = mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
+                const u32 nid = ps3->mem.read<u32>(module->nids_ptr + i * sizeof(u32));
+                const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
                 log("* Exported variable: 0x%08x @ 0x%08x\n", nid, addr);
                 // TODO
             }
@@ -126,14 +126,39 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
             continue;
         }
 
-        log("Library %s exports module %s (%d functions, %d variables)\n", lib->name, mem.getPtr(module->name_ptr), (u16)module->n_funcs, (u16)module->n_vars);
+        log("Library %s exports module %s (%d functions, %d variables)\n", lib->name, ps3->mem.getPtr(module->name_ptr), (u16)module->n_funcs, (u16)module->n_vars);
         Helpers::debugAssert(module->n_vars == 0, "PRX module: n_vars > 0\n");
 
         for (int i = 0; i < module->n_funcs; i++) {
-            const u32 nid = mem.read<u32>(module->nids_ptr + i * sizeof(u32));
-            const u32 addr = mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
+            const u32 nid = ps3->mem.read<u32>(module->nids_ptr + i * sizeof(u32));
+            const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
             exports.funcs[nid] = { addr, lib->toc };
             log("* Exported function: 0x%08x @ 0x%08x \t[%s]\n", nid, addr, ps3->module_manager.getImportName(nid).c_str());
+        }
+
+        if (module->size)
+            addr += module->size;
+        else
+            addr += sizeof(PRXModule);
+    }
+
+    // Imports
+    for (u32 addr = lib->imports_start; addr < lib->imports_end; ) {
+        PRXModule* module = (PRXModule*)ps3->mem.getPtr(addr);
+        const std::string name = Helpers::readString(ps3->mem.getPtr(module->name_ptr));
+
+        log("Library %s imports module %s (%d functions, %d variables)\n", lib->name, name, (u16)module->n_funcs, (u16)module->n_vars);
+        
+        const bool lle = ps3->prx_manager.isLLEModule(name);  // Is this a LLE module?
+        if (lle)
+            ps3->prx_manager.require(name);
+
+        for (int i = 0; i < module->n_funcs; i++) {
+            const u32 nid = ps3->mem.read<u32>(module->nids_ptr + i * sizeof(u32));
+            const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
+            ps3->module_manager.registerImport(addr, nid);
+            log("* Imported function: 0x%08x @ 0x%08x \t[%s]\n", nid, addr, ps3->module_manager.getImportName(nid).c_str());
+            StubPatcher::patch(addr, lle, ps3);
         }
 
         if (module->size)

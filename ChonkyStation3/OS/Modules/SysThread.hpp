@@ -2,8 +2,9 @@
 
 #include <common.hpp>
 #include <logger.hpp>
-#include <CellTypes.hpp>
 #include <BEField.hpp>
+
+#include <CellTypes.hpp>
 #include <PPUTypes.hpp>
 
 

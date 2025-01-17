@@ -1,8 +1,10 @@
 #pragma once
 
 #include <common.hpp>
+
 #include <unordered_map>
 #include <format>
+
 #include <Import.hpp>
 #include <PRX/PRXExport.hpp>
 
@@ -30,9 +32,9 @@ public:
     // Map address to import nid
     void registerImport(u32 addr, u32 nid);
     void registerExportTable(const PRXExportTable& exports);
+    std::unordered_map<u32, u32> imports = {};
     PRXExportTable exports;
 
-    std::unordered_map<u32, u32> imports = {};
     std::unordered_map<u32, Import> import_map {
         { 0xe6f2c1e7, { "sysProcessExit",                               std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser) }},
         { 0x2c847572, { "sysProcessAtExitSpawn",                        std::bind(&SysPrxForUser::sysProcessAtExitSpawn, &sysPrxForUser) }},

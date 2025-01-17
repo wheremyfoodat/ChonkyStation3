@@ -4,7 +4,7 @@
 
 using namespace ELFIO;
 
-u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports, PRXExportTable& exports, std::vector<PRXLibraryInfo>& libs, ModuleManager& module_manager) {
+u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports, ModuleManager& module_manager) {
     elfio elf;
 
     auto str = path.generic_string();
@@ -37,7 +37,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
         // PRX_PARAM
         else if (seg->get_type() == PRX_PARAM) {
             // Check prx magic
-            PrxParam* prx_param = (PrxParam*)seg->get_data();
+            PRXParam* prx_param = (PRXParam*)seg->get_data();
             if (prx_param->magic != PRX_MAGIC) {
                 Helpers::panic("PRX PARAM wrong magic (0x%08x)", prx_param->magic);
             }
@@ -51,12 +51,8 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
             log("ver          : 0x%08x\n", (u16)prx_param->ver);
 
             // Patch stubs
-
-            // In case we need to LLE
-            PRXLoader prx_loader = PRXLoader(ps3, mem);
-
-            for (int i = prx_param->libstubstart; i < prx_param->libstubend; i += sizeof(PrxStubHeader)) {
-                PrxStubHeader* stub = (PrxStubHeader*)mem.getPtr(i);
+            for (int i = prx_param->libstubstart; i < prx_param->libstubend; i += sizeof(PRXStubHeader)) {
+                PRXStubHeader* stub = (PRXStubHeader*)mem.getPtr(i);
 
                 /*log("Found stub\n");
                 log("s_modulename : 0x%016x\n", (u32)stub->s_modulename);
@@ -70,21 +66,11 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
                 std::string name;
                 u8* namePtr = mem.getPtr(stub->s_modulename);
                 name = Helpers::readString(namePtr);
-                bool lle = lle_modules.contains(name);  // Is this a LLE module?
-
+                const bool lle = ps3->prx_manager.isLLEModule(name);  // Is this a LLE module?
+                if (lle)
+                    ps3->prx_manager.require(name);
 
                 log("Found module %s %s with %d imports\n", name.c_str(), lle ? "(LLE)" : "", (u16)stub->s_imports);
-
-                if (lle) {
-                    // Check if library is present
-                    fs::path lib_path = lle_lib_dir / lle_modules[name];
-                    if (!fs::exists(lib_path)) {
-                        Helpers::panic("%s required by %s is missing", lle_modules[name].c_str(), path.filename().generic_string().c_str());
-                    }
-                    // Load PRX
-                    const auto lib = prx_loader.load(lib_path, exports);
-                    libs.push_back(lib);
-                }
 
                 for (int i = 0; i < stub->s_imports; i++) {
                     u32 nid = mem.read<u32>(stub->s_nid + i * 4);
@@ -92,44 +78,8 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
                     imports[addr] = nid;
                     log("* Imported function: 0x%08x @ 0x%08x \t[%s]\n", nid, addr, module_manager.getImportName(nid).c_str());
 
-                    // Patch import stub
-                    // There are 2 different kinds of stubs, one uses bcctr, the other bcctrl, both are patched using syscalls.
-                    // We patch LLE stubs with a syscall as well. The syscall will then redirect the PPU to the appropiate function export.
-                    // While this isn't optimal (we could just patch the stub to directly jump to the function), it allows me to easily track LLE function calls.
-                    bool stubbed = false;
-                    for (int i = 0; i < 128; i += 4) {
-                        // Find BCCTR or BCCTRL instructions, and patch the module accordingly to whether it's HLE or LLE
-                        const auto instr = mem.read<u32>(addr + i);
-                        if (instr == 0x4e800420) {
-                            if (!lle) {
-                                mem.write<u32>(addr + i - 4, 0x39600010);   // li r11, 0x10
-                                mem.write<u32>(addr + i - 0, 0x44000000);   // sc
-                                stubbed = true;
-                            }
-                            else {
-                                mem.write<u32>(addr + i - 4, 0x39601000);   // li r11, 0x1000
-                                mem.write<u32>(addr + i - 0, 0x44000000);   // sc
-                                stubbed = true;
-                            }
-                            break;
-                        }
-                        else if (instr == 0x4e800421) {
-                            if (!lle) {
-                                mem.write<u32>(addr + i - 4, 0x39600011);   // li r11, 0x11
-                                mem.write<u32>(addr + i - 0, 0x44000000);   // sc
-                                stubbed = true;
-                            }
-                            else {
-                                mem.write<u32>(addr + i - 4, 0x39601000);   // li r11, 0x1001
-                                mem.write<u32>(addr + i - 0, 0x44000000);   // sc
-                                stubbed = true;
-                            }
-                            break;
-                        }
-                    }
-                    if (!stubbed) Helpers::panic("Couldn't patch stub\n");
+                    StubPatcher::patch(addr, lle, ps3);
                 }
-                if (lle) log("Linked library\n");
                 log("\n");
             }
             log("\n");

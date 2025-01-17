@@ -1,10 +1,12 @@
 #pragma once
 
 #include <common.hpp>
-#include <opengl.hpp>
-#include <unordered_map>
-#include <xxhash.h>
 #include <logger.hpp>
+#include <opengl.hpp>
+
+#include <unordered_map>
+
+#include <xxhash.h>
 
 
 class ShaderCache {

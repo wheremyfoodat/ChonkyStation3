@@ -1,21 +1,21 @@
 #pragma once
 
 #include <common.hpp>
+
+#include <unordered_map>
+
+#include <PPU.hpp>
+#include <Backends/PPUInterpreter.hpp>
+#include <RSX.hpp>
 #include <Memory.hpp>
 #include <ELF/ELFLoader.hpp>
-#include <PRX/PRXLoader.hpp>
-#include <PRX/PRXExport.hpp>
-#include <PRX/PRXLibraryInfo.hpp>
 #include <ElfSymbolParser.hpp>
-#include <PPU.hpp>
-#include <RSX.hpp>
 #include <ModuleManager.hpp>
 #include <ThreadManager.hpp>
 #include <HandleManager.hpp>
+#include <PRXManager.hpp>
 #include <Syscall.hpp>
 #include <Scheduler.hpp>
-#include <Backends/PPUInterpreter.hpp>
-#include <unordered_map>
 
 
 class PlayStation3 {
@@ -28,6 +28,7 @@ public:
     ModuleManager module_manager;
     ThreadManager thread_manager;
     HandleManager handle_manager;
+    PRXManager prx_manager;
     Syscall syscall;
     ElfSymbolParser elf_parser;
     Scheduler scheduler;

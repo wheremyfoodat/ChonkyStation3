@@ -2,9 +2,11 @@
 
 #include <common.hpp>
 #include <logger.hpp>
-#include <unordered_map>
-#include <CellTypes.hpp>
 #include <BEField.hpp>
+
+#include <unordered_map>
+
+#include <CellTypes.hpp>
 
 
 // Circular dependency

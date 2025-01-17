@@ -1,8 +1,9 @@
 #pragma once
 
 #include <common.hpp>
-#include <Memory.hpp>
 #include <BitField.hpp>
+
+#include <Memory.hpp>
 #include <PPUTypes.hpp>
 #include <PPUDisassembler.hpp>
 

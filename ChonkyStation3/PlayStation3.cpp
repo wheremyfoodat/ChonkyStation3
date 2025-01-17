@@ -1,33 +1,27 @@
 #include "PlayStation3.hpp"
 
 
-PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable), interpreter(mem, this), rsx(this), syscall(this), module_manager(this), thread_manager(this) {
+PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable), interpreter(mem, this), rsx(this), syscall(this), module_manager(this), thread_manager(this), prx_manager(this) {
     ppu = &interpreter;
     ELFLoader elf = ELFLoader(this, mem);
     std::unordered_map<u32, u32> imports = {};
-    PRXExportTable exports;
-    std::vector<PRXLibraryInfo> libs;
 
     // Load ELF file
-    auto entry = elf.load(executable, imports, exports, libs, module_manager);
+    auto entry = elf.load(executable, imports, module_manager);
     
     // Register ELF module imports in module manager
     for (auto& i : imports)
         module_manager.registerImport(i.first, i.second);
     
-    // Register PRX exports
-    module_manager.registerExportTable(exports);
 
     // Create main thread
     u8 thread_name[] = "main";
     Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, thread_name, elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true);
 
-    // Initialize libraries
-    for (auto& i : libs) {
-        Log::library_init.log("Initializing lib %s...\n", i.name.c_str());
-        ppu->runFunc(mem.read<u32>(i.start_func), i.toc);
-        Log::library_init.log("Done\n");
-    }
+    // Load PRXs required by the ELF
+    prx_manager.loadModules();
+    // Initialize libraries (must be done after creating main thread)
+    prx_manager.initializeLibraries();
 
     //printf("Found debug symbols:\n");
     //for (auto& i : elf_parser.symbolMap)

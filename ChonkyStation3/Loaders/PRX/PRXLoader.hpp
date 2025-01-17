@@ -1,15 +1,16 @@
 #pragma once
 
 #include <common.hpp>
-#include <format>
+#include <logger.hpp>
 #include <BEField.hpp>
 #include <elfio/elfio.hpp>
-#include <logger.hpp>
-#include <Memory.hpp>
-#include <ModuleManager.hpp>
+
+#include <format>
+#include <unordered_map>
+
 #include <PRX/PRXExport.hpp>
 #include <PRX/PRXLibraryInfo.hpp>
-#include <unordered_map>
+#include <StubPatcher.hpp>
 
 
 static constexpr u32 SCE_PPURELA = 0x700000a4;
@@ -19,9 +20,8 @@ class PlayStation3;
 
 class PRXLoader {
 public:
-    PRXLoader(PlayStation3* ps3, Memory& mem) : ps3(ps3), mem(mem) {}
+    PRXLoader(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    Memory& mem;
 
     PRXLibraryInfo load(const fs::path& path, PRXExportTable& exports);
     std::string getSpecialFunctionName(const u32 nid);

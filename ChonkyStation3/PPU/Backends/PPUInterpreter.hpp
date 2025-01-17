@@ -1,6 +1,7 @@
 #pragma once
 
 #include <PPU.hpp>
+
 #include <cmath>
 
 
@@ -108,6 +109,7 @@ public:
     void mtcrf      (const Instruction& instr);
     void stdx       (const Instruction& instr);
     void addze      (const Instruction& instr);
+    void stbx       (const Instruction& instr);
     void stvx       (const Instruction& instr);
     void mulld      (const Instruction& instr);
     void mullw      (const Instruction& instr);

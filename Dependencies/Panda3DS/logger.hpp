@@ -52,7 +52,7 @@ static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
 static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
 static Logger misc_sc           = Logger<false>("[Syscall][misc          ] ");
-static Logger tty               = Logger<true> ();
+static Logger tty               = Logger<1>    ();
 
 // RSX
 static Logger rsx               = Logger<false>("[RSX    ][Command       ] ");
@@ -64,11 +64,14 @@ static Logger shader_cache      = Logger<true> ("[Shader ][Cache         ] ");
 static Logger loader_elf        = Logger<1>    ("[Loader ][ELF           ] ");
 static Logger loader_prx        = Logger<1>    ("[Loader ][PRX           ] ");
 
+// Manager
+static Logger manager_prx       = Logger<1>    ("[Manager][PRX           ] ");
+
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
 static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
 static Logger lle_module        = Logger<1>    ("[LLE    ][Module        ] ");
-static Logger library_init      = Logger<1>    ("[Library][Initialize    ] ");
+static Logger unimplemented     = Logger<1>    ("[Other  ][Unimplemented ] ");
 
 #undef true
 

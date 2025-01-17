@@ -2,12 +2,14 @@
 
 #include <common.hpp>
 #include <logger.hpp>
+#include <BitField.hpp>
+
 #include <string>
 #include <sstream>
-#include <BitField.hpp>
 #include <unordered_map>
 #include <format>
 #include <algorithm>
+
 #include <RSXShaderOpcodes.hpp>
 
 

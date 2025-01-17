@@ -2,10 +2,12 @@
 
 #include <common.hpp>
 #include <logger.hpp>
-#include <MemoryConstants.hpp>
+
 #include <queue>
 #include <unordered_map>
 #include <functional>
+
+#include <MemoryConstants.hpp>
 
 
 class Memory;

@@ -2,9 +2,11 @@
 
 #include <common.hpp>
 #include <logger.hpp>
-#include <CellTypes.hpp>
 #include <BEField.hpp>
+
 #include <functional>
+
+#include <CellTypes.hpp>
 
 
 // Circular dependency
