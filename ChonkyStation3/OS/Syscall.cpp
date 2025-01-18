@@ -42,6 +42,13 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
+    case 0x30: {
+        log("sysPpuThreadGetPriority() STUBBED\n");
+        ps3->mem.write<u32>(ARG1, 1);
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        break;
+    }
+    case 0xa9:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 0x78:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 0x8d:  ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;
     case 0x91: {
