@@ -25,4 +25,6 @@ public:
     u64 sysSpinlockInitialize();
     u64 sysSpinlockLock();
     u64 sysSpinlockUnlock();
+    u64 sysMemset();
+    u64 sysMemcpy();
 };

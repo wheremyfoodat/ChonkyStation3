@@ -32,7 +32,9 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
 
-    case 0x78:  unimpl("sysRwlockCreate()\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 0x01:  log("sysProcessGetPID()\n"); ps3->ppu->state.gprs[3] = 1;   break;
+    case 0x19:  unimpl("sysProcessGetSDKVersion() STUBBED\n"); ps3->ppu->state.gprs[3] = 1;   break;
+    case 0x78:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 0x8d:
         ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;
     case 0x91: {

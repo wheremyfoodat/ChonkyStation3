@@ -99,12 +99,29 @@ u64 CellGcmSys::cellGcmSetFlipMode() {
 u64 CellGcmSys::cellGcmGetFlipStatus() {
     log("cellGcmGetFlipStatus()\n");
 
-    return flip;   // Means flipped?
+    return flip;
 }
 
 u64 CellGcmSys::cellGcmSetWaitFlip() {
     const u32 mode = ARG0;
     log("cellGcmSetWaitFlip(mode: 0x%08x) UNIMPLEMENTED\n", mode);
+
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmBindZcull() {
+    const u8 idx = ARG0;
+    const u32 offs = ARG1;
+    const u32 width = ARG2;
+    const u32 height = ARG3;
+    const u32 cull_start = ARG4;
+    const u32 z_format = ARG5;
+    const u32 aa_format = ARG6;
+    const u32 z_cull_dir = ARG7;
+    //const u32 s_func = ARG8;
+    //const u32 s_ref = ARG9;
+    //const u32 s_mask = ARG10;
+    log("cellGcmBindZcull() UNIMPLEMENTED\n");
 
     return Result::CELL_OK;
 }

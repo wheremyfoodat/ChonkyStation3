@@ -43,6 +43,8 @@ public:
         { 0x5267cb35, { "sysSpinlockUnlock",                            std::bind(&SysPrxForUser::sysSpinlockUnlock, &sysPrxForUser) }},
         { 0x8c2bb498, { "sysSpinlockInitialize",                        std::bind(&SysPrxForUser::sysSpinlockInitialize, &sysPrxForUser) }},
         { 0xa285139d, { "sysSpinlockLock",                              std::bind(&SysPrxForUser::sysSpinlockLock, &sysPrxForUser) }},
+        { 0x68b9b011, { "_sys_memset",                                  std::bind(&SysPrxForUser::sysMemset, &sysPrxForUser) }},
+        { 0x6bf66ea7, { "_sys_memcpy",                                  std::bind(&SysPrxForUser::sysMemcpy, &sysPrxForUser) }},
 
         { 0x1573dc3f, { "sysLwMutexLock",                               std::bind(&SysLwMutex::sysLwMutexLock, &sysLwMutex) }},
         { 0x1bc200f4, { "sysLwMutexUnlock",                             std::bind(&SysLwMutex::sysLwMutexUnlock, &sysLwMutex) }},
@@ -62,6 +64,7 @@ public:
         { 0x4ae8d215, { "cellGcmSetFlipMode",                           std::bind(&CellGcmSys::cellGcmSetFlipMode, &cellGcmSys) }},
         { 0x72a577ce, { "cellGcmGetFlipStatus",                         std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
         { 0x983fb9aa, { "cellGcmSetWaitFlip",                           std::bind(&CellGcmSys::cellGcmSetWaitFlip, &cellGcmSys) }},
+        { 0x9dc04436, { "cellGcmBindZcull",                             std::bind(&CellGcmSys::cellGcmBindZcull, &cellGcmSys) }},
         { 0xa53d12ae, { "cellGcmSetDisplayBuffer",                      std::bind(&CellGcmSys::cellGcmSetDisplayBuffer, &cellGcmSys) }},
         { 0xa547adde, { "cellGcmGetControlRegister",                    std::bind(&CellGcmSys::cellGcmGetControlRegister, &cellGcmSys) }},
         { 0xb2e761d4, { "cellGcmResetFlipStatus",                       std::bind(&CellGcmSys::cellGcmResetFlipStatus, &cellGcmSys) }},

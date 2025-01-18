@@ -37,6 +37,7 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, u8* name, u32 id, u32 tls_vad
     state.gprs[8] = tls_vaddr;
     state.gprs[9] = tls_filesize;
     state.gprs[10] = tls_memsize;
+    state.gprs[12] = PAGE_SIZE;
 
     state.gprs[28] = state.gprs[4];
     state.gprs[29] = state.gprs[3];

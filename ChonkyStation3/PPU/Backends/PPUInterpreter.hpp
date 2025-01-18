@@ -87,6 +87,7 @@ public:
     // G_1F
     void cmp        (const Instruction& instr);
     void lvsl       (const Instruction& instr);
+    void subfc      (const Instruction& instr);
     void mulhdu     (const Instruction& instr);
     void addc       (const Instruction& instr);
     void mfcr       (const Instruction& instr);
@@ -101,6 +102,7 @@ public:
     void subf       (const Instruction& instr);
     void cntlzd     (const Instruction& instr);
     void andc       (const Instruction& instr);
+    void mulhw      (const Instruction& instr);
     void lbzx       (const Instruction& instr);
     void lvx        (const Instruction& instr);
     void neg        (const Instruction& instr);
@@ -121,7 +123,10 @@ public:
     void divdu      (const Instruction& instr);
     void divwu      (const Instruction& instr);
     void mtspr      (const Instruction& instr);
+    void divd       (const Instruction& instr);
+    void divw       (const Instruction& instr);
     void srw        (const Instruction& instr);
+    void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);
     void srawi      (const Instruction& instr);
     void sradi      (const Instruction& instr);
@@ -151,6 +156,7 @@ public:
     void fadd       (const Instruction& instr);
     void fmul       (const Instruction& instr);
     void fmr        (const Instruction& instr);
+    void fmsub      (const Instruction& instr);
     void fmadd      (const Instruction& instr);
     void fneg       (const Instruction& instr);
     void fcfid      (const Instruction& instr);

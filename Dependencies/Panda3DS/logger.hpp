@@ -34,7 +34,8 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
-#define true false
+//#define true false
+//#define false true
 
 // Modules
 static Logger cellResc          = Logger<true> ("[Module ][cellResc      ] ");
@@ -45,13 +46,13 @@ static Logger cellVideoOut      = Logger<true> ("[Module ][cellVideoOut  ] ");
 static Logger sysLwMutex        = Logger<false>("[Module ][sysLwMutex    ] ");
 static Logger sysMMapper        = Logger<true> ("[Module ][sysMMapper    ] ");
 static Logger sysPrxForUser     = Logger<false>("[Module ][sysPrxForUser ] ");
-static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
+static Logger sysThread         = Logger<false>("[Module ][sysThread     ] ");
 
 // Syscalls
 static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
 static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
-static Logger misc_sc           = Logger<false>("[Syscall][misc          ] ");
+static Logger misc_sc           = Logger<true> ("[Syscall][misc          ] ");
 static Logger tty               = Logger<1>    ();
 
 // RSX
@@ -74,6 +75,7 @@ static Logger lle_module        = Logger<1>    ("[LLE    ][Module        ] ");
 static Logger unimplemented     = Logger<1>    ("[Other  ][Unimplemented ] ");
 
 #undef true
+#undef false
 
 // We have 2 ways to create a log function
 // MAKE_LOG_FUNCTION: Creates a log function which is toggleable but always killed for user-facing builds
