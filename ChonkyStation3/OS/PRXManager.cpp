@@ -57,16 +57,15 @@ bool PRXManager::loadModules() {
 }
 
 void PRXManager::loadModulesRecursively() {
-    bool loaded = true;
-    while (loaded)
-        loaded = loadModules();
+    while (loadModules()) {}
 }
 
 void PRXManager::initializeLibraries() {
     // Initialize libraries
     for (auto& i : libs) {
         log("Initializing lib %s...\n", i.name.c_str());
-        ps3->ppu->runFunc(ps3->mem.read<u32>(i.start_func), i.toc);
+        if (i.start_func)
+            ps3->ppu->runFunc(ps3->mem.read<u32>(i.start_func), i.toc);
         log("Done\n");
     }
 }
