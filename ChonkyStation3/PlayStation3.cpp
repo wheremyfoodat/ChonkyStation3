@@ -19,7 +19,8 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, thread_name, elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true);
 
     // Load PRXs required by the ELF
-    prx_manager.loadModules();
+    prx_manager.loadModulesRecursively();
+    
     // Initialize libraries (must be done after creating main thread)
     prx_manager.initializeLibraries();
 

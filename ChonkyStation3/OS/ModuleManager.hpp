@@ -32,6 +32,7 @@ public:
     // Map address to import nid
     void registerImport(u32 addr, u32 nid);
     void registerExportTable(const PRXExportTable& exports);
+    PRXExportTable getExportTable() { return exports; }
     std::unordered_map<u32, u32> imports = {};
     PRXExportTable exports;
 

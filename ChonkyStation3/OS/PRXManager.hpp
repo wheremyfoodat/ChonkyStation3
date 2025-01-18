@@ -26,6 +26,7 @@ public:
         { "cellPngDec",     "libpngdec.prx" },
         { "cellFont",       "libfont.prx" },
         { "cellFontFT",     "libfontFT.prx" },
+        { "cell_FreeType2", "libfreetype.prx" },
     };
     fs::path lle_lib_dir = "./Filesystem/dev_flash/sys/external/";
 
@@ -33,8 +34,10 @@ public:
     std::vector<PRXLibraryInfo> libs;   // List of loaded libraries
 
     bool isLLEModule(const std::string name) { return lle_modules.contains(name); }
+    bool isLibLoaded(const std::string name);
     void require(const std::string name);
-    void loadModules();
+    bool loadModules(); // Returns true if at least 1 module was loaded
+    void loadModulesRecursively();
     void initializeLibraries();
 
 private:

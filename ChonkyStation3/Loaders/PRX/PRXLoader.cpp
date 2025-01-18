@@ -113,9 +113,9 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
                 case 0xbc9a0086: start_func = addr; break;
                 }
             }
-            for (int i = module->n_funcs; i < module->n_vars; i++) {
-                const u32 nid = ps3->mem.read<u32>(module->nids_ptr + i * sizeof(u32));
-                const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
+            for (int i = 0; i < module->n_vars; i++) {
+                const u32 nid = ps3->mem.read<u32>(module->nids_ptr + module->n_funcs + i * sizeof(u32));
+                const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + module->n_funcs + i * sizeof(u32));
                 log("* Exported variable: 0x%08x @ 0x%08x\n", nid, addr);
                 // TODO
             }
@@ -167,7 +167,8 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
             addr += sizeof(PRXModule);
     }
 
-    return { Helpers::readString(lib->name), lib->toc, start_func, stop_func };
+    log("\n");
+    return { Helpers::readString(lib->name), path.filename().generic_string(), lib->toc, start_func, stop_func };
 }
 
 std::string PRXLoader::getSpecialFunctionName(const u32 nid) {

@@ -15,20 +15,51 @@ void PRXManager::require(const std::string name) {
     }
 }
 
-void PRXManager::loadModules() {
-    PRXExportTable exports;
+bool PRXManager::isLibLoaded(const std::string name) {
+    bool loaded = false;
+
+    for (auto& i : libs) {
+        if (i.filename == name) {
+            loaded = true;
+            break;
+        }
+    }
+    return loaded;
+}
+
+bool PRXManager::loadModules() {
+    PRXExportTable exports = ps3->module_manager.getExportTable();
     PRXLoader loader = PRXLoader(ps3);
+    bool loaded = false;
 
     // Load modules
-    log("Loading %d PRXs:\n", required_modules.size());
-    for (auto& i : required_modules)
-        log("* %s\n", i.c_str());
+    log("Loading PRXs:\n", required_modules.size());
+    for (auto& i : required_modules) {
+        if (!isLibLoaded(i)) {
+            log("* %s\n", i.c_str());
+        }
+    }
 
-    for (auto& i : required_modules)
-        libs.push_back(loader.load(lle_lib_dir / i, exports));
+    // We do this because loading a library might update the list of required modules.
+    // Don't want that to happen while we're iterating over the same list
+    const auto to_load = required_modules;
+
+    for (auto& i : to_load) {
+        if (!isLibLoaded(i)) {
+            libs.push_back(loader.load(lle_lib_dir / i, exports));
+            loaded = true;
+        }
+    }
 
     // Update export table
     ps3->module_manager.registerExportTable(exports);
+    return loaded;
+}
+
+void PRXManager::loadModulesRecursively() {
+    bool loaded = true;
+    while (loaded)
+        loaded = loadModules();
 }
 
 void PRXManager::initializeLibraries() {
