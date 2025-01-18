@@ -65,6 +65,7 @@ public:
         { 0x72a577ce, { "cellGcmGetFlipStatus",                         std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
         { 0x983fb9aa, { "cellGcmSetWaitFlip",                           std::bind(&CellGcmSys::cellGcmSetWaitFlip, &cellGcmSys) }},
         { 0x9dc04436, { "cellGcmBindZcull",                             std::bind(&CellGcmSys::cellGcmBindZcull, &cellGcmSys) }},
+        { 0xa114ec67, { "cellGcmMapMainMemory",                         std::bind(&CellGcmSys::cellGcmMapMainMemory, &cellGcmSys) }},
         { 0xa53d12ae, { "cellGcmSetDisplayBuffer",                      std::bind(&CellGcmSys::cellGcmSetDisplayBuffer, &cellGcmSys) }},
         { 0xa547adde, { "cellGcmGetControlRegister",                    std::bind(&CellGcmSys::cellGcmGetControlRegister, &cellGcmSys) }},
         { 0xb2e761d4, { "cellGcmResetFlipStatus",                       std::bind(&CellGcmSys::cellGcmResetFlipStatus, &cellGcmSys) }},

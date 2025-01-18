@@ -22,8 +22,10 @@ public:
     // TODO: Switch these to the .sprx variants once we can decrypt SELFs/SPRXs.
     // For now you need to decrypt the libraries on your own.
     std::unordered_map<std::string, std::string> lle_modules {
-        { "cellResc", "libresc.prx" },
-        { "cellPngDec", "libpngdec.prx" },
+        { "cellResc",       "libresc.prx" },
+        { "cellPngDec",     "libpngdec.prx" },
+        { "cellFont",       "libfont.prx" },
+        { "cellFontFT",     "libfontFT.prx" },
     };
     fs::path lle_lib_dir = "./Filesystem/dev_flash/sys/external/";
 

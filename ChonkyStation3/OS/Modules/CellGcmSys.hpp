@@ -60,6 +60,7 @@ public:
     u64 cellGcmGetFlipStatus();
     u64 cellGcmSetWaitFlip();
     u64 cellGcmBindZcull();
+    u64 cellGcmMapMainMemory();
     u64 cellGcmSetDisplayBuffer();
     u64 cellGcmGetControlRegister();
     u64 cellGcmResetFlipStatus();

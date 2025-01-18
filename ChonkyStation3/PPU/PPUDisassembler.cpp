@@ -5,7 +5,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
     switch (instr.opc) {
     
     case PPUTypes::Instructions::ADDI:      printf("0x%016llx | addi       r%d, r%d, 0x%04x\n", state.pc, (u8)instr.rt, (u8)instr.ra, (u8)instr.si); break;
-    case PPUTypes::Instructions::ADDIS:      printf("0x%016llx | addis      r%d, r%d, 0x%04x\n", state.pc, (u8)instr.rt, (u8)instr.ra, (u8)instr.si); break;
+    case PPUTypes::Instructions::ADDIS:     printf("0x%016llx | addis      r%d, r%d, 0x%04x\n", state.pc, (u8)instr.rt, (u8)instr.ra, (u8)instr.si); break;
     case PPUTypes::Instructions::BC:        printf("0x%016llx | bc%c%c%c       %d, %d, 0x%08x		; %s\n", state.pc, instr.lk ? 'l' : (instr.aa ? '\0' : ' '), instr.aa ? 'a' : ' ', (instr.aa && !instr.lk) ? ' ' : '\0', (u8)instr.bo, (u8)instr.bi, (s32)(s16)(instr.bd << 2), branchCondition(instr.bo, instr.bi, state) ? "taken" : "not taken");  break;
     case PPUTypes::Instructions::SC:        printf("0x%016llx | sc\n", state.pc); break;
     case PPUTypes::Instructions::B:         printf("0x%016llx | b%c%c%c        0x%08x\n", state.pc, instr.lk ? 'l' : (instr.aa ? '\0' : ' '), instr.aa ? 'a' : ' ', (instr.aa && !instr.lk) ? ' ' : '\0', (s32)(instr.li << 8) >> 6);  break;   // What the fuck did I just do
@@ -15,7 +15,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
         case PPUTypes::G_13Opcodes::BCLR:   printf("0x%016llx | bclr%c      %d, %d  				; %s\n", state.pc, instr.lk ? 'l' : ' ', (u8)instr.bo, (u8)instr.bi, branchCondition(instr.bo, instr.bi, state) ? "taken" : "not taken");    break;
         case PPUTypes::G_13Opcodes::BCCTR:  printf("0x%016llx | bcctr%c     %d, %d  				; %s\n", state.pc, instr.lk ? 'l' : ' ', (u8)instr.bo, (u8)instr.bi, branchCondition(instr.bo, instr.bi, state) ? "taken" : "not taken");    break;
 
-        default: printf("0x%016llx | unknown 0x%02x\n", state.pc, (u8)instr.opc); break;
+        default: printf("0x%016llx | unknown 0x%02x (0x%08x)\n", state.pc, (u8)instr.opc, instr.raw); break;
         }
         break;
     }
@@ -31,7 +31,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
         case PPUTypes::G_1EOpcodes::RLDICL: printf("0x%016llx | rldicl%c    r%d, r%d, %d, %d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs, instr.sh_lo | (instr.sh_hi << 5), ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1));    break;
         case PPUTypes::G_1EOpcodes::RLDICR: printf("0x%016llx | rldicr%c    r%d, r%d, %d, %d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs, instr.sh_lo | (instr.sh_hi << 5), ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1));    break;
 
-        default: printf("0x%016llx | unknown 0x%02x\n", state.pc, (u8)instr.opc); break;
+        default: printf("0x%016llx | unknown 0x%02x (0x%08x)\n", state.pc, (u8)instr.opc, instr.raw); break;
         }
         break;
     }
@@ -47,7 +47,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
         case PPUTypes::G_1FOpcodes::EXTSH:  printf("0x%016llx | extsh%c     r%d, r%d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs);   break;
         case PPUTypes::G_1FOpcodes::EXTSW:  printf("0x%016llx | extsw%c     r%d, r%d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs);   break;
 
-        default: printf("0x%016llx | unknown 0x%02x\n", state.pc, (u8)instr.opc); break;
+        default: printf("0x%016llx | unknown 0x%02x (0x%08x)\n", state.pc, (u8)instr.opc, instr.raw); break;
         }
         break;
     }
@@ -73,6 +73,6 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
         break;
     }
     
-    default: printf("0x%016llx | unknown 0x%02x\n", state.pc, (u8)instr.opc); break;
+    default: printf("0x%016llx | unknown 0x%02x (0x%08x)\n", state.pc, (u8)instr.opc, instr.raw); break;
     }
 }

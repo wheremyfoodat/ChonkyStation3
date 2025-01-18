@@ -52,7 +52,7 @@ static Logger sysThread         = Logger<false>("[Module ][sysThread     ] ");
 static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
 static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
-static Logger misc_sc           = Logger<true> ("[Syscall][misc          ] ");
+static Logger misc_sc           = Logger<true> ("[Syscall][Misc          ] ");
 static Logger tty               = Logger<1>    ();
 
 // RSX

@@ -126,6 +126,15 @@ u64 CellGcmSys::cellGcmBindZcull() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmMapMainMemory() {
+    const u32 ea = ARG0;
+    const u32 size = ARG1;
+    const u32 offs_ptr = ARG2;
+    log("cellGcmMapMainMemory(ea: 0x%08x, size: 0x%08x, offs_ptr: 0x%08x)\n", ea, size, offs_ptr);
+
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmSetDisplayBuffer() {
     const u8 buf_id = ARG0;
     const u32 offs = ARG1;

@@ -8,9 +8,9 @@ namespace PPUTypes {
 struct ConditionRegister {
     u32 raw = 0;
     enum {
-        Negative = 0b1000,
-        Positive = 0b0100,
-        Zero     = 0b0010
+        LESS    = 0b1000,
+        GREATER = 0b0100,
+        EQUAL   = 0b0010
     };
     
     void setCRField(u8 n, u8 v, u8 so = 0) {
@@ -24,13 +24,11 @@ struct ConditionRegister {
         return (raw >> bit) & 0b1111;
     }
 
-    // TODO: Rename to less than, greater than, equal
-    // No idea why I called them negative, positive and zero
     template <typename T>
     void compareAndUpdateCRField(u8 n, T a, T b, u8 so = 0) {
-        if (a < b) setCRField(n, Negative, so);
-        else if (a > b) setCRField(n, Positive, so);
-        else setCRField(n, Zero, so);
+        if (a < b) setCRField(n, LESS, so);
+        else if (a > b) setCRField(n, GREATER, so);
+        else setCRField(n, EQUAL, so);
     }
 };
 
@@ -478,6 +476,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     DCBI    = 0x1d6,
     DIVD    = 0x1e9,
     DIVW    = 0x1eb,
+    LVLX    = 0x207,
     LWBRX   = 0x216,
     LFSX    = 0x217,
     SRW     = 0x218,

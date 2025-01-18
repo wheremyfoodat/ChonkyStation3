@@ -3,6 +3,10 @@
 #include <PPU.hpp>
 
 #include <cmath>
+#if _MSC_VER
+#include <intrin.h>
+#pragma intrinsic(_mul128)
+#endif
 
 
 // Circular dependency
@@ -46,6 +50,7 @@ public:
     void stb        (const Instruction& instr);
     void stbu       (const Instruction& instr);
     void lhz        (const Instruction& instr);
+    void lhzu       (const Instruction& instr);
     void sth        (const Instruction& instr);
     void lfs        (const Instruction& instr);
     void lfd        (const Instruction& instr);
@@ -90,7 +95,9 @@ public:
     void subfc      (const Instruction& instr);
     void mulhdu     (const Instruction& instr);
     void addc       (const Instruction& instr);
+    void mulhwu     (const Instruction& instr);
     void mfcr       (const Instruction& instr);
+    void lwarx      (const Instruction& instr);
     void ldx        (const Instruction& instr);
     void lwzx       (const Instruction& instr);
     void cntlzw     (const Instruction& instr);
@@ -102,6 +109,7 @@ public:
     void subf       (const Instruction& instr);
     void cntlzd     (const Instruction& instr);
     void andc       (const Instruction& instr);
+    void mulhd      (const Instruction& instr);
     void mulhw      (const Instruction& instr);
     void lbzx       (const Instruction& instr);
     void lvx        (const Instruction& instr);
@@ -110,6 +118,8 @@ public:
     void subfe      (const Instruction& instr);
     void mtcrf      (const Instruction& instr);
     void stdx       (const Instruction& instr);
+    void stwcx      (const Instruction& instr);
+    void stwx       (const Instruction& instr);
     void addze      (const Instruction& instr);
     void stbx       (const Instruction& instr);
     void stvx       (const Instruction& instr);
@@ -125,6 +135,7 @@ public:
     void mtspr      (const Instruction& instr);
     void divd       (const Instruction& instr);
     void divw       (const Instruction& instr);
+    void lvlx       (const Instruction& instr);
     void srw        (const Instruction& instr);
     void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);
