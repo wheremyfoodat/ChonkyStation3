@@ -33,10 +33,17 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
 
     case 0x01:  log("sysProcessGetPID()\n"); ps3->ppu->state.gprs[3] = 1;   break;
-    case 0x19:  unimpl("sysProcessGetSDKVersion() STUBBED\n"); ps3->ppu->state.gprs[3] = 1;   break;
+    case 0x19: {
+        const u32 pid = ARG0;
+        const u32 ver_ptr = ARG1;
+        // TODO: Get this from the elf's PROC_PARAM
+        unimpl("sysProcessGetSDKVersion() STUBBED\n");
+        ps3->mem.write<u32>(ver_ptr, 0x00360001);
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        break;
+    }
     case 0x78:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
-    case 0x8d:
-        ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;
+    case 0x8d:  ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;
     case 0x91: {
         log("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 1000);

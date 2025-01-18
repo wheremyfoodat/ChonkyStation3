@@ -39,6 +39,17 @@ public:
         { PRX_PARAM,        "PRX_PARAM  " },
     };
 
+    struct PROCParam {
+        BEField<u32> size;
+        BEField<u32> magic;
+        BEField<u32> version;
+        BEField<u32> sdk_version;
+        BEField<u32> primary_prio;
+        BEField<u32> primary_stacksize;
+        BEField<u32> malloc_pagesize;
+        BEField<u32> ppc_seg;
+    };
+
     struct PRXParam {
         BEField<u32> size;
         BEField<u32> magic;

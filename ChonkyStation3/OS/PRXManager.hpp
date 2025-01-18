@@ -24,9 +24,9 @@ public:
     std::unordered_map<std::string, std::string> lle_modules {
         { "cellResc",       "libresc.prx" },
         { "cellPngDec",     "libpngdec.prx" },
-        { "cellFont",       "libfont.prx" },
-        { "cellFontFT",     "libfontFT.prx" },
-        { "cell_FreeType2", "libfreetype.prx" },
+        //{ "cellFont",       "libfont.prx" },
+        //{ "cellFontFT",     "libfontFT.prx" },
+        //{ "cell_FreeType2", "libfreetype.prx" },
     };
     fs::path lle_lib_dir = "./Filesystem/dev_flash/sys/external/";
 

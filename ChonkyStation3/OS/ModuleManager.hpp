@@ -17,6 +17,7 @@
 #include <Modules/CellSysutil.hpp>
 #include <Modules/CellSysmodule.hpp>
 #include <Modules/CellResc.hpp>
+#include <Modules/CellGame.hpp>
 
 
 // Circular dependency
@@ -24,7 +25,7 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3) {}
+    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -90,6 +91,12 @@ public:
         { 0x5a338cdb, { "cellRescGetBufferSize",                        std::bind(&CellResc::cellRescGetBufferSize, &cellResc) }},
         { 0x8107277c, { "cellRescSetBufferAddress",                     std::bind(&CellResc::cellRescSetBufferAddress, &cellResc) }},
         { 0xd1ca0503, { "cellRescVideoOutResolutionId2RescBufferMode",  std::bind(&CellResc::cellRescVideoOutResolutionId2RescBufferMode, &cellResc) }},
+
+        { 0x7a0a83c4, { "cellFontInitLibraryFreeTypeWithRevision",      std::bind(&ModuleManager::stub, this) }},
+        { 0xf03dcc29, { "cellFontInitializeWithRevision",               std::bind(&ModuleManager::stub, this) }},
+
+        { 0x70acec67, { "cellGameContentPermit",                        std::bind(&CellGame::cellGameContentPermit, &cellGame) }},
+        { 0xf52639ea, { "cellGameBootCheck",                            std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
     };
 
     std::string getImportName(const u32 nid);
@@ -103,9 +110,14 @@ public:
     CellSysutil cellSysutil;
     CellSysmodule cellSysmodule;
     CellResc cellResc;
+    CellGame cellGame;
 
-    static Result stub(void* a) { Helpers::panic("Unimplemented function\n"); }
+    u64 stub() {
+        unimpl("UNIMPLEMENTED\n");
+        return Result::CELL_OK;
+    }
 
 private:
     MAKE_LOG_FUNCTION(log, lle_module);
+    MAKE_LOG_FUNCTION(unimpl, unimplemented);
 };

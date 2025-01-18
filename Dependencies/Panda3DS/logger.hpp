@@ -38,6 +38,7 @@ public:
 //#define false true
 
 // Modules
+static Logger cellGame          = Logger<true> ("[Module ][cellGame      ] ");
 static Logger cellResc          = Logger<true> ("[Module ][cellResc      ] ");
 static Logger cellSysmodule     = Logger<true> ("[Module ][cellSysmodule ] ");
 static Logger cellSysutil       = Logger<true> ("[Module ][cellSysutil   ] ");
@@ -71,7 +72,7 @@ static Logger manager_prx       = Logger<1>    ("[Manager][PRX           ] ");
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
 static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
-static Logger lle_module        = Logger<1>    ("[LLE    ][Module        ] ");
+static Logger lle_module        = Logger<true> ("[LLE    ][Module        ] ");
 static Logger unimplemented     = Logger<1>    ("[Other  ][Unimplemented ] ");
 
 #undef true
