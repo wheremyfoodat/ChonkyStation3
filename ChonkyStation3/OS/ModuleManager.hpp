@@ -19,6 +19,7 @@
 #include <Modules/CellResc.hpp>
 #include <Modules/CellGame.hpp>
 #include <Modules/CellSpurs.hpp>
+#include <Modules/CellRtc.hpp>
 
 
 // Circular dependency
@@ -26,7 +27,7 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3) {}
+    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -100,6 +101,8 @@ public:
         { 0xf52639ea, { "cellGameBootCheck",                            std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
 
         { 0xacfc8dbc, { "cellSpursInitialize",                          std::bind(&CellSpurs::cellSpursInitialize, &cellSpurs) }},
+
+        { 0x9dafc0d9, { "cellRtcGetCurrentTick",                        std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
     };
 
     std::string getImportName(const u32 nid);
@@ -115,6 +118,7 @@ public:
     CellResc cellResc;
     CellGame cellGame;
     CellSpurs cellSpurs;
+    CellRtc cellRtc;
 
     u64 stub() {
         unimpl("UNIMPLEMENTED\n");
