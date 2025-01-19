@@ -17,6 +17,9 @@ public:
     CellSpurs(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
+    u64 cellSpursCreateTaskset();
+    u64 _cellSpursEventFlagInitialize();
+    u64 cellSpursEventFlagAttachLv2EventQueue();
     u64 cellSpursInitialize();
 
 private:

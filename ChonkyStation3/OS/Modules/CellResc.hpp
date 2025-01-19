@@ -16,7 +16,6 @@ class CellResc {
 public:
     CellResc(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, cellResc);
 
     u64 cellRescSetDsts();
     u64 cellRescSetDisplayMode();
@@ -24,4 +23,7 @@ public:
     u64 cellRescGetBufferSize();
     u64 cellRescSetBufferAddress();
     u64 cellRescVideoOutResolutionId2RescBufferMode();
+
+private:
+    MAKE_LOG_FUNCTION(log, cellResc);
 };

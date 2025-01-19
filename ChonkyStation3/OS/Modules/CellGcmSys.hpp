@@ -18,7 +18,6 @@ class CellGcmSys {
 public:
     CellGcmSys(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, cellGcmSys);
 
     struct CellGcmConfig {
         BEField<u32> local_addr;    // Pointer to RSX local memory
@@ -70,4 +69,7 @@ public:
     u64 cellGcmGetLabelAddress();
 
     u64 cellGcmCallback();
+
+private:
+    MAKE_LOG_FUNCTION(log, cellGcmSys);
 };

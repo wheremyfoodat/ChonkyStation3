@@ -16,7 +16,6 @@ class SysLwMutex {
 public:
     SysLwMutex(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, sysLwMutex);
 
     struct LwMutex {
         BEField<u32> owner;
@@ -36,4 +35,7 @@ public:
     u64 sysLwMutexCreate();
     u64 sysLwMutexLock();
     u64 sysLwMutexUnlock();
+
+private:
+    MAKE_LOG_FUNCTION(log, sysLwMutex);
 };

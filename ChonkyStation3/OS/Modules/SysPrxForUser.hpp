@@ -16,7 +16,6 @@ class SysPrxForUser {
 public:
     SysPrxForUser(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, sysPrxForUser);
 
     u64 sysProcessExit();
     u64 sysProcessAtExitSpawn();
@@ -27,4 +26,7 @@ public:
     u64 sysSpinlockUnlock();
     u64 sysMemset();
     u64 sysMemcpy();
+
+private:
+    MAKE_LOG_FUNCTION(log, sysPrxForUser);
 };

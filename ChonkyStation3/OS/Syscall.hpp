@@ -31,4 +31,7 @@ public:
 
     // sysTimer
     u64 sysTimerUsleep();
+
+    // sysEvent
+    u64 sysEventQueueCreate();
 };

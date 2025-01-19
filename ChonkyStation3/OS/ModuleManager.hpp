@@ -20,6 +20,7 @@
 #include <Modules/CellGame.hpp>
 #include <Modules/CellSpurs.hpp>
 #include <Modules/CellRtc.hpp>
+#include <Modules/CellFs.hpp>
 
 
 // Circular dependency
@@ -27,7 +28,7 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3) {}
+    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -100,9 +101,21 @@ public:
         { 0x70acec67, { "cellGameContentPermit",                        std::bind(&CellGame::cellGameContentPermit, &cellGame) }},
         { 0xf52639ea, { "cellGameBootCheck",                            std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
 
+        { 0x52cc6c82, { "cellSpursCreateTaskset",                       std::bind(&CellSpurs::cellSpursCreateTaskset, &cellSpurs) }},
+        { 0x5ef96465, { "_cellSpursEventFlagInitialize",                std::bind(&CellSpurs::_cellSpursEventFlagInitialize, &cellSpurs) }},
+        { 0x87630976, { "cellSpursEventFlagAttachLv2EventQueue",        std::bind(&CellSpurs::cellSpursEventFlagAttachLv2EventQueue, &cellSpurs) }},
         { 0xacfc8dbc, { "cellSpursInitialize",                          std::bind(&CellSpurs::cellSpursInitialize, &cellSpurs) }},
 
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                        std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
+
+        { 0x7de6dced, { "cellFsStat",                                   std::bind(&CellFs::cellFsStat, &cellFs) }},
+
+        { 0x0b168f92, { "cellAudioInit",                                std::bind(&ModuleManager::stub, this) }},
+        { 0x4692ab35, { "cellAudioOutConfigure",                        std::bind(&ModuleManager::stub, this) }},
+        { 0x74a66af0, { "cellAudioGetPortConfig",                       std::bind(&ModuleManager::stub, this) }},
+        { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",             std::bind(&ModuleManager::stub, this) }},
+        { 0xcd7bc431, { "cellAudioPortOpen",                            std::bind(&ModuleManager::stub, this) }},
+        { 0xf4e3caa0, { "cellAudioOutGetState",                         std::bind(&ModuleManager::stub, this) }},
     };
 
     std::string getImportName(const u32 nid);
@@ -119,6 +132,7 @@ public:
     CellGame cellGame;
     CellSpurs cellSpurs;
     CellRtc cellRtc;
+    CellFs cellFs;
 
     u64 stub() {
         unimpl("UNIMPLEMENTED\n");

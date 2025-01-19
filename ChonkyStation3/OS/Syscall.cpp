@@ -48,8 +48,9 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
-    case 0xa9:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 0xa9:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n"); ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 0x78:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 0x80:  ps3->ppu->state.gprs[3] = sysEventQueueCreate();    break;
     case 0x8d:  ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;
     case 0x91: {
         log("sysTimeGetCurrentTime() STUBBED\n");

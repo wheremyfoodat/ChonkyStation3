@@ -18,7 +18,6 @@ class CellSysmodule {
 public:
     CellSysmodule(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, cellSysmodule);
 
     u64 cellSysmoduleLoadModule();
 
@@ -135,4 +134,7 @@ public:
         { 0xf053, "cellAdecAt3multi" },
         { 0xf054, "cellAtracMulti" }
     };
+
+private:
+    MAKE_LOG_FUNCTION(log, cellSysmodule);
 };

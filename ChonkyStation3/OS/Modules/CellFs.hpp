@@ -12,13 +12,13 @@ class PlayStation3;
 
 using namespace CellTypes;
 
-class CellSysutil {
+class CellFs {
 public:
-    CellSysutil(PlayStation3* ps3) : ps3(ps3) {}
+    CellFs(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
-    u64 cellSysutilRegisterCallback();
+    u64 cellFsStat();
 
 private:
-    MAKE_LOG_FUNCTION(log, cellSysutil);
+    MAKE_LOG_FUNCTION(log, cellFs);
 };

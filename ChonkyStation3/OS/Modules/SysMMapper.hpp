@@ -17,9 +17,11 @@ class SysMMapper {
 public:
     SysMMapper(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, sysMMapper);
     
     u64 sysMMapperAllocateMemory();
     u64 sysMMapperFreeMemory();
     u64 sysMMapperUnmapMemory();
+
+private:
+    MAKE_LOG_FUNCTION(log, sysMMapper);
 };

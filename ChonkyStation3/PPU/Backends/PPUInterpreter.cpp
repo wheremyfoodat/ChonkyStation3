@@ -151,6 +151,7 @@ void PPUInterpreter::step() {
         case SRD:       srd(instr);     break;
         case SYNC:      break;
         case LFDX:      lfdx(instr);    break;
+        case SRAW:      sraw(instr);    break;
         case SRAWI:     srawi(instr);   break;
         case SRADI1:
         case SRADI2:    sradi(instr);   break;
@@ -1137,6 +1138,12 @@ void PPUInterpreter::srd(const Instruction& instr) {
 void PPUInterpreter::lfdx(const Instruction& instr) {
     u64 v = mem.read<u64>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
     state.fprs[instr.frt] = reinterpret_cast<double&>(v);
+}
+
+void PPUInterpreter::sraw(const Instruction& instr) {
+    state.gprs[instr.ra] = (s32)state.gprs[instr.rs] >> (state.gprs[instr.rb] & 0x3f);
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::srawi(const Instruction& instr) {

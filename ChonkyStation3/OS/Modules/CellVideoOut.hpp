@@ -18,7 +18,6 @@ class CellVideoOut {
 public:
     CellVideoOut(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, cellVideoOut);
 
     enum CellVideoOutResolutionId : u32 {
         CELL_VIDEO_OUT_RESOLUTION_UNDEFINED = 0,
@@ -155,4 +154,7 @@ public:
     u64 cellVideoOutGetState();
     u64 cellVideoOutGetResolutionAvailability();
     u64 cellVideoOutGetResolution();
+
+private:
+    MAKE_LOG_FUNCTION(log, cellVideoOut);
 };

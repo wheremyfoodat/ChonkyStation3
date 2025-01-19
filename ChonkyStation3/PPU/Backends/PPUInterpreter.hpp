@@ -139,6 +139,7 @@ public:
     void srw        (const Instruction& instr);
     void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);
+    void sraw       (const Instruction& instr);
     void srawi      (const Instruction& instr);
     void sradi      (const Instruction& instr);
     void extsh      (const Instruction& instr);

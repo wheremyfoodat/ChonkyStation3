@@ -38,6 +38,7 @@ public:
 //#define false true
 
 // Modules
+static Logger cellFs            = Logger<true> ("[Module ][cellFs        ] ");
 static Logger cellRtc           = Logger<true> ("[Module ][cellRtc       ] ");
 static Logger cellSpurs         = Logger<true> ("[Module ][cellSpurs     ] ");
 static Logger cellGame          = Logger<true> ("[Module ][cellGame      ] ");
@@ -52,6 +53,7 @@ static Logger sysPrxForUser     = Logger<false>("[Module ][sysPrxForUser ] ");
 static Logger sysThread         = Logger<false>("[Module ][sysThread     ] ");
 
 // Syscalls
+static Logger sysEvent          = Logger<true> ("[Syscall][sysEvent      ] ");
 static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
 static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
