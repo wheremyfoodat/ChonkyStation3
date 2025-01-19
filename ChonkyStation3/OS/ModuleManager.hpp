@@ -111,8 +111,11 @@ public:
 
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                        std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
 
+        { 0x2cb51f0d, { "cellFsClose",                                  std::bind(&CellFs::cellFsClose, &cellFs) }},
+        { 0x4d5ff8e2, { "cellFsRead",                                   std::bind(&CellFs::cellFsRead, &cellFs) }},
         { 0x718bf5f8, { "cellFsOpen",                                   std::bind(&CellFs::cellFsOpen, &cellFs) }},
         { 0x7de6dced, { "cellFsStat",                                   std::bind(&CellFs::cellFsStat, &cellFs) }},
+        { 0xa397d042, { "cellFsLseek",                                  std::bind(&CellFs::cellFsLseek, &cellFs) }},
 
         { 0x0b168f92, { "cellAudioInit",                                std::bind(&ModuleManager::stub, this) }},
         { 0x4692ab35, { "cellAudioOutConfigure",                        std::bind(&ModuleManager::stub, this) }},

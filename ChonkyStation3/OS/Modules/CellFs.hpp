@@ -19,10 +19,11 @@ public:
     CellFs(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
-    std::unordered_map<u32, FILE*> open_files;
-
+    u64 cellFsClose();
+    u64 cellFsRead();
     u64 cellFsOpen();
     u64 cellFsStat();
+    u64 cellFsLseek();
 
 private:
     MAKE_LOG_FUNCTION(log, cellFs);
