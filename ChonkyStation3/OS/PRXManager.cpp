@@ -9,7 +9,7 @@ void PRXManager::require(const std::string name) {
     required_modules.push_back(lle_modules[name]);
 
     // Check if library is present
-    fs::path lib_path = lle_lib_dir / lle_modules[name];
+    fs::path lib_path = ps3->fs.guestPathToHost(lib_dir / lle_modules[name]);
     if (!fs::exists(lib_path)) {
         Helpers::panic("Required %s is missing", lle_modules[name].c_str());
     }
@@ -46,7 +46,8 @@ bool PRXManager::loadModules() {
 
     for (auto& i : to_load) {
         if (!isLibLoaded(i)) {
-            libs.push_back(loader.load(lle_lib_dir / i, exports));
+            const fs::path lib_path = ps3->fs.guestPathToHost(lib_dir / i);
+            libs.push_back(loader.load(lib_path, exports));
             loaded = true;
         }
     }

@@ -18,8 +18,9 @@ public:
     SysThread(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
-    u64 sysThreadGetID();
-    u64 sysThreadInitializeTLS();
+    u64 sysPPUThreadCreate();
+    u64 sysPPUThreadGetID();
+    u64 sysPPUThreadInitializeTLS();
 
     void initializeTLS(u64 thread_id, u32 tls_seg_addr, u32 tls_seg_size, u32 tls_mem_size, PPUTypes::State& state);
 

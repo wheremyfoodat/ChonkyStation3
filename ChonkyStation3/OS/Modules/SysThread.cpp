@@ -2,16 +2,33 @@
 #include "PlayStation3.hpp"
 
 
-u64 SysThread::sysThreadGetID() {
-    u32 ptr = ARG0;
-    log("sysThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, ps3->thread_manager.current_thread->id);
+u64 SysThread::sysPPUThreadCreate() {
+    const u32 thread_id_ptr = ARG0; // thread_id is u64
+    const u32 entry = ARG1;
+    const u64 arg = ARG2;
+    const s32 prio = ARG3;
+    const u32 stack_size = ARG4;
+    const u64 flags = ARG5;
+    const u32 thread_name_ptr = ARG6;
+    log("sysPPUThreadCreate(thread_id_ptr: 0x%08x, entry: 0x%08x, arg: 0x%016llx, prio: %d, stack_size: 0x%08x, flags: 0x%016llx, thread_name_ptr: 0x%08x)\n", thread_id_ptr, entry, arg, prio, stack_size, flags, thread_name_ptr);
 
-    ps3->mem.write<u64>(ptr, ps3->thread_manager.current_thread->id);
+    const std::string name = Helpers::readString(ps3->mem.getPtr(thread_name_ptr));
+    ps3->thread_manager.createThread(entry, stack_size, arg, (const u8*)name.c_str(), 0, 0, 0);
+
+    return Result::CELL_OK;
+}
+
+u64 SysThread::sysPPUThreadGetID() {
+    const u32 ptr = ARG0;
+    Thread* current_thread = ps3->thread_manager.getCurrentThread();
+    log("sysThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, current_thread->id);
+
+    ps3->mem.write<u64>(ptr, current_thread->id);
     return Result::CELL_OK;
 }
 
 // Allocate TLS memory, copy TLS image to the newly allocated area. Returns TLS address in R13
-u64 SysThread::sysThreadInitializeTLS() {
+u64 SysThread::sysPPUThreadInitializeTLS() {
     const u64 thread_id = ARG0;
     const u32 tls_seg_addr = ARG1;
     const u32 tls_seg_size = ARG2;

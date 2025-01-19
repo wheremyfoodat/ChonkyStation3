@@ -14,7 +14,7 @@ u64 SysLwMutex::sysLwMutexLock() {
         log("Tried to lock already locked mutex\n");
     }
 
-    mtx->owner = ps3->thread_manager.current_thread->id;   // owner
+    mtx->owner = ps3->thread_manager.getCurrentThread()->id;   // owner
 
     return Result::CELL_OK;
 }

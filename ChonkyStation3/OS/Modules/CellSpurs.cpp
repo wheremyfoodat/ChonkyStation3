@@ -2,6 +2,8 @@
 #include "PlayStation3.hpp"
 
 
+// TODO: SPU :(
+
 u64 CellSpurs::cellSpursCreateTaskset() {
     const u32 spurs_ptr = ARG0;
     const u32 taskset_ptr = ARG1;
@@ -35,6 +37,29 @@ u64 CellSpurs::cellSpursInitialize() {
     const u32 ppu_prio = ARG3;
     const u8 exit_if_no_work = ARG4;
     log("cellSpursInitialize(spurs_ptr: 0x%08x, n_spus: %d, spu_prio: %d, ppu_prio: %d, exit_if_no_work: %d) UNIMPLEMENTED\n", spurs_ptr, n_spus, spu_prio, ppu_prio, exit_if_no_work);
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursAttachLv2EventQueue() {
+    const u32 spurs_ptr = ARG0;
+    const u32 queue_id = ARG1;
+    const u32 port_ptr = ARG2;
+    const s32 is_dynamic = ARG3;
+    log("cellSpursAttachLv2EventQueue(spurs_ptr: 0x%08x, queue_id: %d, port_ptr: 0x%08x, is_dynamic: %d) UNIMPLEMENTED\n", spurs_ptr, queue_id, port_ptr, is_dynamic);
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursCreateTask() {
+    const u32 taskset_ptr = ARG0;
+    const u32 task_id_ptr = ARG1;
+    const u32 elf_ptr = ARG2;
+    const u32 ctx_ptr = ARG3;
+    const u32 size = ARG4;
+    const u32 pattern_ptr = ARG5;
+    const u32 arg_ptr = ARG6;
+    log("cellSpursCreateTask(taskset_ptr: 0x%08x, task_id_ptr: 0x%08x, elf_ptr: 0x%08x, ctx_ptr: 0x%08x, size: 0x%08d, pattern_ptr: 0x%08x, arg_ptr: 0x%08x) UNIMPLEMENTED\n", taskset_ptr, task_id_ptr, elf_ptr, ctx_ptr, size, pattern_ptr, arg_ptr);
 
     return Result::CELL_OK;
 }

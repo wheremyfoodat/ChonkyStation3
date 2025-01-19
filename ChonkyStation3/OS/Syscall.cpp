@@ -32,8 +32,8 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
 
-    case 0x01:  log("sysProcessGetPID()\n"); ps3->ppu->state.gprs[3] = 1;   break;
-    case 0x19: {
+    case 1:  log("sysProcessGetPID()\n"); ps3->ppu->state.gprs[3] = 1;   break;
+    case 25: {
         const u32 pid = ARG0;
         const u32 ver_ptr = ARG1;
         // TODO: Get this from the elf's PROC_PARAM
@@ -42,34 +42,36 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
-    case 0x30: {
+    case 48: {
         log("sysPpuThreadGetPriority() STUBBED\n");
         ps3->mem.write<u32>(ARG1, 1);
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
-    case 0xa9:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n"); ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
-    case 0x78:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
-    case 0x80:  ps3->ppu->state.gprs[3] = sysEventQueueCreate();    break;
-    case 0x8d:  ps3->ppu->state.gprs[3] = sysTimerUsleep(); break;
-    case 0x91: {
+    case 169:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n"); ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 120:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 128:  ps3->ppu->state.gprs[3] = sysEventQueueCreate();         break;
+    case 134:  ps3->ppu->state.gprs[3] = sysEventPortCreate();          break;
+    case 136:  ps3->ppu->state.gprs[3] = sysEventPortConnectLocal();    break;
+    case 141:  ps3->ppu->state.gprs[3] = sysTimerUsleep();  break;
+    case 145: {
         log("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 1000);
         ps3->mem.write<u64>(ARG1, 1000);
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
-    case 0x93: {
+    case 147: {
         log("sysTimeGetTimebaseFrequency() UNIMPLEMENTED\n");
         ps3->ppu->state.gprs[3] = 1000;
         break;
     }
-    case 0x14a: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
-    case 0x14b: ps3->ppu->state.gprs[3] = Result::CELL_OK;  log("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
-    case 0x151: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;
-    case 0x15c: ps3->ppu->state.gprs[3] = sysMemoryAllocate();     break;
-    case 0x160: ps3->ppu->state.gprs[3] = sysMemoryGetUserMemorySize();     break;
-    case 0x193: {   // puts
+    case 330: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
+    case 331: ps3->ppu->state.gprs[3] = Result::CELL_OK;  log("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
+    case 337: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;
+    case 348: ps3->ppu->state.gprs[3] = sysMemoryAllocate();     break;
+    case 352: ps3->ppu->state.gprs[3] = sysMemoryGetUserMemorySize();     break;
+    case 403: {   // puts
         std::string str;
         u8* ptr = ps3->mem.getPtr(ARG1);
         for (int i = 0; i < ARG2; i++)
@@ -78,7 +80,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
-    case 0x329: {
+    case 809: {
         const u32 fd = ARG0;
         const u32 stat_ptr = ARG1;
         log("cellFsFStat(fd: 0x%08x, stat_ptr: 0x%08x) STUBBED\n", fd, stat_ptr);
@@ -101,7 +103,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_BADF;
         break;
     }
-    case 0x3dc: ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 988: ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
 
     default:
         Helpers::panic("Unimplemented syscall number 0x%02x (%d) @ 0x%016llx\n", syscall_num, syscall_num, ps3->ppu->state.pc);

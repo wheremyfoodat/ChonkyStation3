@@ -55,8 +55,9 @@ public:
         { 0x1bc200f4, { "sysLwMutexUnlock",                             std::bind(&SysLwMutex::sysLwMutexUnlock, &sysLwMutex) }},
         { 0x2f85c0ef, { "sysLwMutexCreate",                             std::bind(&SysLwMutex::sysLwMutexCreate, &sysLwMutex) }},
 
-        { 0x350d454e, { "sysThreadGetID",                               std::bind(&SysThread::sysThreadGetID, &sysThread) }},
-        { 0x744680a2, { "sysThreadInitializeTLS",                       std::bind(&SysThread::sysThreadInitializeTLS, &sysThread) }},
+        { 0x24a1ea07, { "sysPPUThreadCreate",                           std::bind(&SysThread::sysPPUThreadCreate, &sysThread) }},
+        { 0x350d454e, { "sysPPUThreadGetID",                            std::bind(&SysThread::sysPPUThreadGetID, &sysThread) }},
+        { 0x744680a2, { "sysPPUThreadInitializeTLS",                    std::bind(&SysThread::sysPPUThreadInitializeTLS, &sysThread) }},
 
         { 0x409ad939, { "sysMMapperFreeMemory",                         std::bind(&SysMMapper::sysMMapperFreeMemory, &sysMMapper) }},
         { 0x4643ba6e, { "sysMMapperUnmapMemory",                        std::bind(&SysMMapper::sysMMapperUnmapMemory, &sysMMapper) }},
@@ -105,9 +106,12 @@ public:
         { 0x5ef96465, { "_cellSpursEventFlagInitialize",                std::bind(&CellSpurs::_cellSpursEventFlagInitialize, &cellSpurs) }},
         { 0x87630976, { "cellSpursEventFlagAttachLv2EventQueue",        std::bind(&CellSpurs::cellSpursEventFlagAttachLv2EventQueue, &cellSpurs) }},
         { 0xacfc8dbc, { "cellSpursInitialize",                          std::bind(&CellSpurs::cellSpursInitialize, &cellSpurs) }},
+        { 0xb9bc6207, { "cellSpursAttachLv2EventQueue",                 std::bind(&CellSpurs::cellSpursAttachLv2EventQueue, &cellSpurs) }},
+        { 0xbeb600ac, { "cellSpursCreateTask",                          std::bind(&CellSpurs::cellSpursCreateTask, &cellSpurs) }},
 
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                        std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
 
+        { 0x718bf5f8, { "cellFsOpen",                                   std::bind(&CellFs::cellFsOpen, &cellFs) }},
         { 0x7de6dced, { "cellFsStat",                                   std::bind(&CellFs::cellFsStat, &cellFs) }},
 
         { 0x0b168f92, { "cellAudioInit",                                std::bind(&ModuleManager::stub, this) }},

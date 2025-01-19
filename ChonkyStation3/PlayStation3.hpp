@@ -16,6 +16,7 @@
 #include <PRXManager.hpp>
 #include <Syscall.hpp>
 #include <Scheduler.hpp>
+#include <Filesystem.hpp>
 
 
 class PlayStation3 {
@@ -32,6 +33,7 @@ public:
     Syscall syscall;
     ElfSymbolParser elf_parser;
     Scheduler scheduler;
+    Filesystem fs;
 
     u64 cycle_count = 0;
     void run();

@@ -28,7 +28,7 @@ public:
         //{ "cellFontFT",     "libfontFT.prx" },
         //{ "cell_FreeType2", "libfreetype.prx" },
     };
-    fs::path lle_lib_dir = "./Filesystem/dev_flash/sys/external/";
+    fs::path lib_dir = "/dev_flash/sys/external/";
 
     std::vector<std::string> required_modules;  // List of required modules, load them with loadModules()
     std::vector<PRXLibraryInfo> libs;   // List of loaded libraries

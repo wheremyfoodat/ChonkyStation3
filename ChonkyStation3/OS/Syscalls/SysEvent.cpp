@@ -14,3 +14,21 @@ u64 Syscall::sysEventQueueCreate() {
     ps3->mem.write<u32>(queue_id_ptr, ps3->handle_manager.request());
     return Result::CELL_OK;
 }
+
+u64 Syscall::sysEventPortCreate() {
+    const u32 port_id_ptr = ARG0;
+    const s32 port_type = ARG1;
+    const u64 name = ARG2;
+    log("sysEventPortCreate(port_id_ptr: 0x%08x, port_type: %d, name: 0x%016x) STUBBED\n", port_id_ptr, port_type, name);
+
+    ps3->mem.write<u32>(port_id_ptr, ps3->handle_manager.request());
+    return Result::CELL_OK;
+}
+
+u64 Syscall::sysEventPortConnectLocal() {
+    const u32 port_id = ARG0;
+    const u32 queue_id = ARG1;
+    log("sysEventPortConnectLocal(port_id: %d, queue_id: %d) STUBBED\n", port_id, queue_id);
+
+    return Result::CELL_OK;
+}

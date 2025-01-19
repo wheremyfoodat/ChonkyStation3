@@ -50,7 +50,7 @@ static Logger cellVideoOut      = Logger<true> ("[Module ][cellVideoOut  ] ");
 static Logger sysLwMutex        = Logger<false>("[Module ][sysLwMutex    ] ");
 static Logger sysMMapper        = Logger<true> ("[Module ][sysMMapper    ] ");
 static Logger sysPrxForUser     = Logger<false>("[Module ][sysPrxForUser ] ");
-static Logger sysThread         = Logger<false>("[Module ][sysThread     ] ");
+static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
 
 // Syscalls
 static Logger sysEvent          = Logger<true> ("[Syscall][sysEvent      ] ");
@@ -77,6 +77,7 @@ static Logger manager_prx       = Logger<1>    ("[Manager][PRX           ] ");
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
 static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
 static Logger lle_module        = Logger<true> ("[LLE    ][Module        ] ");
+static Logger filesystem        = Logger<true> ("[Other  ][Filesystem    ] ");
 static Logger unimplemented     = Logger<1>    ("[Other  ][Unimplemented ] ");
 
 #undef true

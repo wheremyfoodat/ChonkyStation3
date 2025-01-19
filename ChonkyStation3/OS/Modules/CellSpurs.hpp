@@ -21,6 +21,8 @@ public:
     u64 _cellSpursEventFlagInitialize();
     u64 cellSpursEventFlagAttachLv2EventQueue();
     u64 cellSpursInitialize();
+    u64 cellSpursAttachLv2EventQueue();
+    u64 cellSpursCreateTask();
 
 private:
     MAKE_LOG_FUNCTION(log, cellSpurs);

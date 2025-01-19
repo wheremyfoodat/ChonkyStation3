@@ -2,13 +2,14 @@
 #include "PlayStation3.hpp"
 
 
-Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread = false) {
+Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread) {
     threads.push_back({ entry, stack_size, arg, name, next_thread_id++, tls_vaddr, tls_filesize, tls_memsize, this});
-    // If this is the first thread we create, set current_thread to point to this thread and initialize ppu
+    // If this is the first thread we create, set 
+    // _thread to point to this thread and initialize ppu
     if (is_start_thread) {
-        current_thread = &threads.back();
+        current_thread_id = threads.back().id;
         mapStack(threads.back());
-        ps3->ppu->state = current_thread->state;
+        ps3->ppu->state = getCurrentThread()->state;
     }
     
     printf("Created thread \"%s\"\n", threads.back().name.c_str());
@@ -18,6 +19,7 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, u8* name
 }
 
 void ThreadManager::contextSwitch(Thread& thread) {
+    Thread* current_thread = getCurrentThread();
     if (current_thread->id == thread.id) return;
 
     printf("Switched from thread %s to thread %s\n", current_thread->name.c_str(), thread.name.c_str());
@@ -39,8 +41,25 @@ void ThreadManager::reschedule() {
         }
     }
 
+    // TODO: check that there is a "next event"
+    // If there isn't something bad happened
     if (!found_thread)
         ps3->skipToNextEvent();
+}
+
+Thread* ThreadManager::getCurrentThread() {
+    return getThreadByID(current_thread_id);
+}
+
+Thread* ThreadManager::getThreadByID(u32 id) {
+    Thread* thread = nullptr;
+    for (auto& i : threads) {
+        if (i.id == id) {
+            thread = &i;
+            break;
+        }
+    }
+    return thread;
 }
 
 u64 ThreadManager::allocateStack(u64 stack_size) {

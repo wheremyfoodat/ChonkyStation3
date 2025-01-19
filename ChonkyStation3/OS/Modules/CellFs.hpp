@@ -6,6 +6,8 @@
 
 #include <CellTypes.hpp>
 
+#include <unordered_map>
+
 
 // Circular dependency
 class PlayStation3;
@@ -17,6 +19,9 @@ public:
     CellFs(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
+    std::unordered_map<u32, FILE*> open_files;
+
+    u64 cellFsOpen();
     u64 cellFsStat();
 
 private:
