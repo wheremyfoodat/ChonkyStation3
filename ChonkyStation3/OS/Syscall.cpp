@@ -32,7 +32,11 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
 
-    case 1:  log("sysProcessGetPID()\n"); ps3->ppu->state.gprs[3] = 1;   break;
+    case 1: {
+        log("sysProcessGetPID()\n");
+        ps3->ppu->state.gprs[3] = 1;
+        break;
+    }
     case 25: {
         const u32 pid = ARG0;
         const u32 ver_ptr = ARG1;

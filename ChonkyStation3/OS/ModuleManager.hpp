@@ -21,6 +21,7 @@
 #include <Modules/CellSpurs.hpp>
 #include <Modules/CellRtc.hpp>
 #include <Modules/CellFs.hpp>
+#include <Modules/CellPngDec.hpp>
 
 
 // Circular dependency
@@ -28,7 +29,7 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3) {}
+    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -43,17 +44,21 @@ public:
     std::unordered_map<u32, Import> import_map {
         { 0xe6f2c1e7, { "sysProcessExit",                               std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser) }},
         { 0x2c847572, { "sysProcessAtExitSpawn",                        std::bind(&SysPrxForUser::sysProcessAtExitSpawn, &sysPrxForUser) }},
+        { 0x2d36462b, { "_sys_strlen",                                  std::bind(&SysPrxForUser::sysStrlen, &sysPrxForUser) }},
         { 0x8461e528, { "sysGetSystemTime",                             std::bind(&SysPrxForUser::sysGetSystemTime, &sysPrxForUser) }},
         { 0x96328741, { "sysProcess_At_ExitSpawn",                      std::bind(&SysPrxForUser::sysProcess_At_ExitSpawn, &sysPrxForUser) }},
         { 0x5267cb35, { "sysSpinlockUnlock",                            std::bind(&SysPrxForUser::sysSpinlockUnlock, &sysPrxForUser) }},
         { 0x8c2bb498, { "sysSpinlockInitialize",                        std::bind(&SysPrxForUser::sysSpinlockInitialize, &sysPrxForUser) }},
+        { 0x99c88692, { "_sys_strcpy",                                  std::bind(&SysPrxForUser::sysStrcpy, &sysPrxForUser) }},
         { 0xa285139d, { "sysSpinlockLock",                              std::bind(&SysPrxForUser::sysSpinlockLock, &sysPrxForUser) }},
         { 0x68b9b011, { "_sys_memset",                                  std::bind(&SysPrxForUser::sysMemset, &sysPrxForUser) }},
         { 0x6bf66ea7, { "_sys_memcpy",                                  std::bind(&SysPrxForUser::sysMemcpy, &sysPrxForUser) }},
+        { 0xfb5db080, { "_sys_memcmp",                                  std::bind(&SysPrxForUser::sysMemcmp, &sysPrxForUser) }},
 
         { 0x1573dc3f, { "sysLwMutexLock",                               std::bind(&SysLwMutex::sysLwMutexLock, &sysLwMutex) }},
         { 0x1bc200f4, { "sysLwMutexUnlock",                             std::bind(&SysLwMutex::sysLwMutexUnlock, &sysLwMutex) }},
         { 0x2f85c0ef, { "sysLwMutexCreate",                             std::bind(&SysLwMutex::sysLwMutexCreate, &sysLwMutex) }},
+        { 0xc3476d0c, { "sysLwMutexDestroy",                            std::bind(&SysLwMutex::sysLwMutexDestroy, &sysLwMutex) }},
 
         { 0x24a1ea07, { "sysPPUThreadCreate",                           std::bind(&SysThread::sysPPUThreadCreate, &sysThread) }},
         { 0x350d454e, { "sysPPUThreadGetID",                            std::bind(&SysThread::sysPPUThreadGetID, &sysThread) }},
@@ -85,8 +90,11 @@ public:
         { 0xa322db75, { "cellVideoOutGetResolutionAvailability",        std::bind(&CellVideoOut::cellVideoOutGetResolutionAvailability, &cellVideoOut) }},
         { 0xe558748d, { "cellVideoOutGetResolution",                    std::bind(&CellVideoOut::cellVideoOutGetResolution, &cellVideoOut) }},
 
+        { 0x02ff3c1b, { "cellSysutilUnregisterCallback",                std::bind(&CellSysutil::cellSysutilUnregisterCallback, &cellSysutil) }},
+        { 0x40e895d3, { "cellSysutilGetSystemParamInt",                 std::bind(&CellSysutil::cellSysutilGetSystemParamInt, &cellSysutil) }},
         { 0x9d98afa0, { "cellSysutilRegisterCallback",                  std::bind(&CellSysutil::cellSysutilRegisterCallback, &cellSysutil) }},
 
+        { 0x112a5ee9, { "cellSysmoduleUnloadModule",                    std::bind(&CellSysmodule::cellSysmoduleUnloadModule, &cellSysmodule) }},
         { 0x32267a31, { "cellSysmoduleLoadModule",                      std::bind(&CellSysmodule::cellSysmoduleLoadModule, &cellSysmodule) }},
 
         { 0x10db5b1a, { "cellRescSetDsts",                              std::bind(&CellResc::cellRescSetDsts, &cellResc) }},
@@ -116,6 +124,7 @@ public:
         { 0x718bf5f8, { "cellFsOpen",                                   std::bind(&CellFs::cellFsOpen, &cellFs) }},
         { 0x7de6dced, { "cellFsStat",                                   std::bind(&CellFs::cellFsStat, &cellFs) }},
         { 0xa397d042, { "cellFsLseek",                                  std::bind(&CellFs::cellFsLseek, &cellFs) }},
+        { 0xef3efa34, { "cellFsFstat",                                  std::bind(&CellFs::cellFsFstat, &cellFs) }},
 
         { 0x0b168f92, { "cellAudioInit",                                std::bind(&ModuleManager::stub, this) }},
         { 0x4692ab35, { "cellAudioOutConfigure",                        std::bind(&ModuleManager::stub, this) }},
@@ -123,6 +132,28 @@ public:
         { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",             std::bind(&ModuleManager::stub, this) }},
         { 0xcd7bc431, { "cellAudioPortOpen",                            std::bind(&ModuleManager::stub, this) }},
         { 0xf4e3caa0, { "cellAudioOutGetState",                         std::bind(&ModuleManager::stub, this) }},
+
+        { 0x1cf98800, { "cellPadInit",                                  std::bind(&ModuleManager::stub, this) }},
+
+        { 0x32cf311f, { "sceNpScoreInit",                               std::bind(&ModuleManager::stub, this) }},
+        { 0x4885aa18, { "sceNpTerm",                                    std::bind(&ModuleManager::stub, this) }},
+        { 0x52a6b523, { "sceNpManagerUnregisterCallback",               std::bind(&ModuleManager::stub, this) }},
+        { 0x9851f805, { "sceNpScoreTerm",                               std::bind(&ModuleManager::stub, this) }},
+        { 0xa7bff757, { "sceNpManagerGetStatus",                        std::bind(&ModuleManager::stub, this) }},
+        { 0xad218faf, { "sceNpDrmIsAvailable",                          std::bind(&ModuleManager::stub, this) }},
+        { 0xbd28fdbf, { "sceNpInit",                                    std::bind(&ModuleManager::stub, this) }},
+        { 0xe7dcd3b4, { "sceNpManagerRegisterCallback",                 std::bind(&ModuleManager::stub, this) }},
+        
+        { 0x105ee2cb, { "cellNetCtlTerm",                               std::bind(&ModuleManager::stub, this) }},
+        { 0xbd5a59fc, { "cellNetCtlInit",                               std::bind(&ModuleManager::stub, this) }},
+
+        { 0x157d30c5, { "cellPngDecCreate",                             std::bind(&CellPngDec::cellPngDecCreate, cellPngDec) }},
+        { 0x2310f155, { "cellPngDecDecodeData",                         std::bind(&CellPngDec::cellPngDecDecodeData, cellPngDec) }},
+        { 0x5b3d1ff1, { "cellPngDecClose",                              std::bind(&CellPngDec::cellPngDecClose, cellPngDec) }},
+        { 0x820dae1a, { "cellPngDecDestroy",                            std::bind(&CellPngDec::cellPngDecDestroy, cellPngDec) }},
+        { 0x9ccdcc95, { "cellPngDecReadHeader",                         std::bind(&CellPngDec::cellPngDecReadHeader, cellPngDec) }},
+        { 0xd2bc5bfd, { "cellPngDecOpen",                               std::bind(&CellPngDec::cellPngDecOpen, cellPngDec) }},
+        { 0xe97c9bd4, { "cellPngDecSetParameter",                       std::bind(&CellPngDec::cellPngDecSetParameter, cellPngDec) }},
     };
 
     std::string getImportName(const u32 nid);
@@ -140,11 +171,15 @@ public:
     CellSpurs cellSpurs;
     CellRtc cellRtc;
     CellFs cellFs;
+    CellPngDec cellPngDec;
 
     u64 stub() {
         unimpl("UNIMPLEMENTED\n");
         return Result::CELL_OK;
     }
+
+    u32 last_lle_nid = 0;
+    void printReturnValue();
 
 private:
     MAKE_LOG_FUNCTION(log, lle_module);

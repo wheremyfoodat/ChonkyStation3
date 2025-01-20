@@ -77,11 +77,13 @@ public:
     void vspltisw   (const Instruction& instr);
     void vctsxs     (const Instruction& instr);
     void vand       (const Instruction& instr);
+    void vandc      (const Instruction& instr);
     void vor        (const Instruction& instr);
     void vxor       (const Instruction& instr);
     // G_13
     void mcrf       (const Instruction& instr);
     void bclr       (const Instruction& instr);
+    void crorc      (const Instruction& instr);
     void cror       (const Instruction& instr);
     void bcctr      (const Instruction& instr);
     // G_1E
@@ -126,19 +128,23 @@ public:
     void mulld      (const Instruction& instr);
     void mullw      (const Instruction& instr);
     void add        (const Instruction& instr);
+    void lhzx       (const Instruction& instr);
     void xor_       (const Instruction& instr);
     void mfspr      (const Instruction& instr);
     void mftb       (const Instruction& instr);
+    void sthx       (const Instruction& instr);
     void or_        (const Instruction& instr);
     void divdu      (const Instruction& instr);
     void divwu      (const Instruction& instr);
     void mtspr      (const Instruction& instr);
+    void nand       (const Instruction& instr);
     void divd       (const Instruction& instr);
     void divw       (const Instruction& instr);
     void lvlx       (const Instruction& instr);
     void srw        (const Instruction& instr);
     void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);
+    void stfsx      (const Instruction& instr);
     void sraw       (const Instruction& instr);
     void srawi      (const Instruction& instr);
     void sradi      (const Instruction& instr);
@@ -156,6 +162,7 @@ public:
     void fadds      (const Instruction& instr);
     void fmuls      (const Instruction& instr);
     void fmadds     (const Instruction& instr);
+    void fnmsubs    (const Instruction& instr);
     // G_3E
     void std        (const Instruction& instr);
     void stdu       (const Instruction& instr);

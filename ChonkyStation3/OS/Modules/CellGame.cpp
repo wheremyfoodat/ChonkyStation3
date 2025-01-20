@@ -7,10 +7,10 @@ u64 CellGame::cellGameContentPermit() {
     const u32 user_dir_ptr = ARG1;
     log("cellGameContentPermit(content_info_dir_ptr: 0x%08x, user_dir_ptr: 0x%08x)\n", content_info_dir_ptr, user_dir_ptr);
 
-    const std::string path = "/dev_hdd0/game/STUB12345";
-    const std::string path_user = "/dev_hdd0/game/STUB12345/USRDIR";
-    std::memcpy(ps3->mem.getPtr(content_info_dir_ptr), path.c_str(), path.length());
-    std::memcpy(ps3->mem.getPtr(user_dir_ptr), path_user.c_str(), path_user.length());
+    const std::string path = "/dev_hdd0/game/STUB12345\0\0";
+    const std::string path_user = "/dev_hdd0/game/STUB12345/USRDIR\0\0";
+    std::memcpy(ps3->mem.getPtr(content_info_dir_ptr), path.c_str(), path.length() + 1);
+    std::memcpy(ps3->mem.getPtr(user_dir_ptr), path_user.c_str(), path_user.length() + 1);
 
     return Result::CELL_OK;
 }
@@ -23,8 +23,8 @@ u64 CellGame::cellGameBootCheck() {
 
     ps3->mem.write<u32>(type_ptr, CELL_GAME_GAMETYPE_HDD);
     ps3->mem.write<u32>(attrib_ptr, 0);
-    const std::string path = "/dev_hdd0/game/STUB12345/";
-    std::memcpy(ps3->mem.getPtr(dir_ptr), path.c_str(), path.length());
+    const std::string path = "/dev_hdd0/game/STUB12345/\0\0";
+    std::memcpy(ps3->mem.getPtr(dir_ptr), path.c_str(), path.length() + 1);
 
     return Result::CELL_OK;
 }

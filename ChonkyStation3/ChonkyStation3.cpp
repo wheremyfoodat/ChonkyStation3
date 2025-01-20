@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         Helpers::panic("OpenGL init failed");
     }
 
-    PlayStation3 ps3 = PlayStation3(file);
+    PlayStation3* ps3 = new PlayStation3(file);
 
     printf("\nEXECUTING\n");
     printf(  "---------\n\n");
@@ -58,8 +58,8 @@ int main(int argc, char** argv) {
     double curr_time = 0;
 
     while (!quit) {
-        ps3.run();
-        ps3.module_manager.cellGcmSys.flip = 0;
+        ps3->run();
+        ps3->module_manager.cellGcmSys.flip = 0;
 
         frame_count++;
 

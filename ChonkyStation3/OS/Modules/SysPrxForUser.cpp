@@ -17,6 +17,13 @@ u64 SysPrxForUser::sysProcessAtExitSpawn() {
     return Result::CELL_OK;
 }
 
+u64 SysPrxForUser::sysStrlen() {
+    const u32 str = ARG0;
+    log("sysStrlen(str: 0x%08x)\n", str);
+
+    return std::strlen((const char*)ps3->mem.getPtr(str));
+}
+
 u64 SysPrxForUser::sysGetSystemTime() {
     log("sysGetSystemTime()\n");
 
@@ -37,6 +44,15 @@ u64 SysPrxForUser::sysSpinlockInitialize() {
 
     ps3->mem.write<u32>(ptr, 0);
     return Result::CELL_OK;
+}
+
+u64 SysPrxForUser::sysStrcpy() {
+    const u32 dst = ARG0;
+    const u32 src = ARG1;
+    log("sysStrcpy(dst: 0x%08x, src: 0x%08x)\n", dst, src);
+
+    std::strcpy((char*)ps3->mem.getPtr(dst), (char*)ps3->mem.getPtr(src));
+    return dst;
 }
 
 u64 SysPrxForUser::sysSpinlockLock() {
@@ -80,4 +96,13 @@ u64 SysPrxForUser::sysMemcpy() {
 
     std::memcpy(ps3->mem.getPtr(dst), ps3->mem.getPtr(src), size);
     return Result::CELL_OK;
+}
+
+u64 SysPrxForUser::sysMemcmp() {
+    const u32 buf1 = ARG0;
+    const u32 buf2 = ARG1;
+    const u32 size = ARG2;
+    log("sysMemcmp(dst: 0x%08x, src: 0x%08x, size: 0x%08x)\n", buf1, buf2, size);
+
+    return std::memcmp(ps3->mem.getPtr(buf1), ps3->mem.getPtr(buf2), size);
 }

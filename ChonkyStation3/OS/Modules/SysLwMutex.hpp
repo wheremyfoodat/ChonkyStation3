@@ -35,6 +35,7 @@ public:
     u64 sysLwMutexCreate();
     u64 sysLwMutexLock();
     u64 sysLwMutexUnlock();
+    u64 sysLwMutexDestroy();
 
 private:
     MAKE_LOG_FUNCTION(log, sysLwMutex);

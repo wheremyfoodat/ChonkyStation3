@@ -61,6 +61,7 @@ struct State {
     ConditionRegister cr;
     XER xer;
     u64 ctr = 0;
+    u64 vrsave = 0;
 };
 
 union Instruction {
@@ -354,7 +355,7 @@ enum G_04Opcodes {
     VSLO            = 0x40c,
     VSUBUHM         = 0x440,
     VAVGUH          = 0x442,
-    VANDC           = 0x444,
+    VANDC           = 0x444,    // Vector Logical AND with Complement
     VMINFP          = 0x44a,
     VSRO            = 0x44c,
     VSUBUWM         = 0x480,
@@ -474,6 +475,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     DIVWU   = 0x1cb,
     MTSPR   = 0x1d3,
     DCBI    = 0x1d6,
+    NAND    = 0x1dc,
     DIVD    = 0x1e9,
     DIVW    = 0x1eb,
     LVLX    = 0x207,

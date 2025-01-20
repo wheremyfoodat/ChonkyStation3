@@ -19,6 +19,7 @@ public:
     CellSysmodule(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
+    u64 cellSysmoduleUnloadModule();
     u64 cellSysmoduleLoadModule();
 
     std::string getModule(u16 id);

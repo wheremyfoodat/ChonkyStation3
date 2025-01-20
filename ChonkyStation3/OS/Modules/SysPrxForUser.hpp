@@ -19,13 +19,16 @@ public:
 
     u64 sysProcessExit();
     u64 sysProcessAtExitSpawn();
+    u64 sysStrlen();
     u64 sysGetSystemTime();
     u64 sysProcess_At_ExitSpawn();
     u64 sysSpinlockInitialize();
+    u64 sysStrcpy();
     u64 sysSpinlockLock();
     u64 sysSpinlockUnlock();
     u64 sysMemset();
     u64 sysMemcpy();
+    u64 sysMemcmp();
 
 private:
     MAKE_LOG_FUNCTION(log, sysPrxForUser);

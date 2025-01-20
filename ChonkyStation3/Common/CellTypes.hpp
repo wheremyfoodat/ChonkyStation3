@@ -31,26 +31,6 @@ enum Result : u32 {
     CELL_EIO    = 0x8001002B,
 };
 
-// TODO: probably move this to the proper FS module when I implement it
-enum CELL_FS_S : u32 {
-    CELL_FS_S_IFDIR = 0040000,	// Directory
-    CELL_FS_S_IFREG = 0100000,	// Regular
-    CELL_FS_S_IFLNK = 0120000,	// Symbolic link
-    CELL_FS_S_IFWHT = 0160000,	// Unknown
-
-    CELL_FS_S_IRUSR = 0000400,	// R for owner
-    CELL_FS_S_IWUSR = 0000200,	// W for owner
-    CELL_FS_S_IXUSR = 0000100,	// X for owner
-
-    CELL_FS_S_IRGRP = 0000040,	// R for group
-    CELL_FS_S_IWGRP = 0000020,	// W for group
-    CELL_FS_S_IXGRP = 0000010,	// X for group
-
-    CELL_FS_S_IROTH = 0000004,	// R for other
-    CELL_FS_S_IWOTH = 0000002,	// W for other
-    CELL_FS_S_IXOTH = 0000001,	// X for other
-};
-
 struct CellFsStat {
     BEField<u32> mode;
     BEField<s32> uid;

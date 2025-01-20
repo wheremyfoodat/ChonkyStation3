@@ -44,6 +44,17 @@ u64 CellFs::cellFsStat() {
     const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
     log("cellFsStat(path_ptr: 0x%08x, stat_ptr: 0x%08x) [path: %s]\n", path_ptr, stat_ptr, path.c_str());
 
+    CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
+    bool is_dir = ps3->fs.isDirectory(path);
+    stat->mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);
+    stat->uid = 1;
+    stat->gid = 1;
+    stat->atime = 0;
+    stat->mtime = 0;
+    stat->ctime = 0;
+    stat->size = !is_dir ? ps3->fs.getFileSize(path) : 4096;
+    stat->blksize = 4096;
+
     return Result::CELL_OK;
 }
 
@@ -56,6 +67,24 @@ u64 CellFs::cellFsLseek() {
     
     const u64 pos = ps3->fs.seek(file_id, offs, seek_mode);
     ps3->mem.write<u64>(pos_ptr, pos);
+
+    return Result::CELL_OK;
+}
+
+u64 CellFs::cellFsFstat() {
+    const u32 file_id = ARG0;
+    const u32 stat_ptr = ARG1;
+    log("cellFsFstat(file_id: %d, stat_ptr: 0x%08x)\n", file_id, stat_ptr);
+
+    CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
+    stat->mode = 0100000 | 0666;   // Regular file (TODO: Check if it's a directory)
+    stat->uid = 1;
+    stat->gid = 1;
+    stat->atime = 0;
+    stat->mtime = 0;
+    stat->ctime = 0;
+    stat->size = ps3->fs.getFileSize(file_id);
+    stat->blksize = 4096;
 
     return Result::CELL_OK;
 }
