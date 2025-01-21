@@ -31,11 +31,11 @@ uniform sampler2D tex;
         FragmentInstruction instr = fetchInstr(curr_offs);
         curr_offs += sizeof(FragmentInstruction);
         const u32 opc = instr.dst.opc | (instr.src1.branch << 6);
-        if (!fragment_opcodes.contains(opc)) {
-            log("ERROR: SKIPPED BAD OPC 0x%08x\n", opc);
-            main += "// BAD OPC\n";
-            continue;
-        }
+        //if (!fragment_opcodes.contains(opc)) {
+        //    log("ERROR: SKIPPED BAD OPC 0x%08x\n", opc);
+        //    main += "// BAD OPC\n";
+        //    continue;
+        //}
         log("%s (0x%08x)\n", fragment_opcodes[opc].c_str(), opc);
         
         if (opc == RSXFragment::NOP) continue;
@@ -70,7 +70,7 @@ uniform sampler2D tex;
             break;
         }
         case RSXFragment::SLE: {
-            main += std::format("// UNIMPLEMENTED SLE\n");
+            main += std::format("{}{} = {}(lessThanEqual({}, {}));\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::TEX: {
