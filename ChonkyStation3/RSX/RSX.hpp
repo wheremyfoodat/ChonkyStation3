@@ -35,6 +35,7 @@ public:
 
     OpenGL::Vector<float, 4> clear_color;
     std::vector<u32> vertex_shader_data;
+    std::vector<u32> required_constants;    // For vertex shader
     FragmentShader fragment_shader_program;
 
     u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
@@ -112,6 +113,12 @@ public:
         u8 type;
     };
     IndexArray index_array;
+
+    void compileProgram();
+    void setupVAO();
+    void getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start = 0);
+    void uploadVertexConstants();
+    void uploadFragmentUniforms();
 
     // I == command is implemented or at least handled in some way
     enum Commands : u32 {
@@ -260,7 +267,7 @@ public:
         NV4097_SET_BEGIN_END                                    = 0x00001808,
         NV4097_ARRAY_ELEMENT16                                  = 0x0000180c,
         NV4097_ARRAY_ELEMENT32                                  = 0x00001810,
-        NV4097_DRAW_ARRAYS                                      = 0x00001814,
+        NV4097_DRAW_ARRAYS                                      = 0x00001814,   // I
         NV4097_INLINE_ARRAY                                     = 0x00001818,
         NV4097_SET_INDEX_ARRAY_ADDRESS                          = 0x0000181c,   // I
         NV4097_SET_INDEX_ARRAY_DMA                              = 0x00001820,

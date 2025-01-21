@@ -39,6 +39,97 @@ u32 RSX::offsetAndLocationToAddress(u32 offset, u8 location) {
     return offset + ((location == 0) ? ps3->module_manager.cellGcmSys.gcm_config.local_addr : ps3->module_manager.cellGcmSys.gcm_config.io_addr);
 }
 
+void RSX::compileProgram() {
+    ShaderCache::CachedShader cached_shader;
+    // Check if our shaders were cached
+    const u64 hash_vertex = shader_cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
+    if (!shader_cache.getShader(hash_vertex, cached_shader)) {
+        // Shader wasn't cached, compile it and add it to the cache
+        std::vector<u32> required_constants;
+        auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, required_constants);
+        OpenGL::Shader new_shader;
+        new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex);
+        shader_cache.cacheShader(hash_vertex, { new_shader, required_constants });
+        vertex = new_shader;
+    }
+    else {
+        vertex = cached_shader.shader;
+        required_constants = cached_shader.required_constants.value();
+    }
+
+    const u64 hash_fragment = shader_cache.computeHash(fragment_shader_program.getData(ps3->mem), fragment_shader_program.getSize(ps3->mem));
+    if (!shader_cache.getShader(hash_fragment, cached_shader)) {
+        // Shader wasn't cached, compile it and add it to the cache
+        auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
+        OpenGL::Shader new_shader;
+        new_shader.create(fragment_shader, OpenGL::ShaderType::Fragment);
+        shader_cache.cacheShader(hash_fragment, { new_shader, std::nullopt });
+        fragment = new_shader;
+    }
+    else {
+        fragment = cached_shader.shader;
+    }
+
+    // Check if our shader program was cached
+    const u64 hash_program = shader_cache.computeProgramHash(hash_vertex, hash_fragment);
+    if (!shader_cache.getProgram(hash_program, program)) {
+        // Program wasn't cached, link it and add it to the cache
+        OpenGL::Program new_program;
+        new_program.create({ vertex, fragment });
+        shader_cache.cacheProgram(hash_program, new_program);
+        program = new_program;
+    }
+}
+
+void RSX::setupVAO() {
+    for (auto& binding : vertex_array.bindings) {
+        u32 offs_in_buf = binding.offset - vertex_array.getBase();
+        // Setup VAO attribute
+        vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
+        vao.enableAttribute(binding.index);
+    }
+}
+
+void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
+    u32 vtx_buf_offs = vtx_buf.size();
+    vtx_buf.resize(vtx_buf_offs + (vertex_array.size() * n_vertices));
+
+    for (auto& binding : vertex_array.bindings) {
+        u32 offs = binding.offset;
+        u32 offs_in_buf = binding.offset - vertex_array.getBase();
+
+        // Collect vertex data
+        for (int i = start; i < start + n_vertices; i++) {
+            for (int j = 0; j < binding.size; j++) {
+                u32 x = ps3->mem.read<u32>(offs + j * 4);
+                *(float*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * 4] = reinterpret_cast<float&>(x);
+            }
+            //log("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
+            offs += binding.stride;
+        }
+    }
+}
+
+void RSX::uploadVertexConstants() {
+    // Constants
+    // TODO: don't upload constants if they weren't changed
+    for (auto& i : required_constants) {
+        u32 x = constants[i * 4 + 0];
+        u32 y = constants[i * 4 + 1];
+        u32 z = constants[i * 4 + 2];
+        u32 w = constants[i * 4 + 3];
+        glUniform4f(glGetUniformLocation(program.handle(), std::format("const_{}", i).c_str()), reinterpret_cast<float&>(x), reinterpret_cast<float&>(y), reinterpret_cast<float&>(z), reinterpret_cast<float&>(w));
+    }
+}
+
+void RSX::uploadFragmentUniforms() {
+    // Fragment uniforms
+    for (auto& i : fragment_uniforms) {
+        glUniform4f(glGetUniformLocation(program.handle(), i.name.c_str()), i.x, i.y, i.z, i.w);
+    }
+    fragment_uniforms.clear();
+}
+
 void RSX::runCommandList() {
     int cmd_count = gcm.ctrl->put - gcm.ctrl->get;
     if (cmd_count <= 0) return;
@@ -142,6 +233,35 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_DRAW_ARRAYS: {
+            compileProgram();
+            program.use();
+
+            setupVAO();
+            uploadVertexConstants();
+            uploadFragmentUniforms();
+
+            // Texture samplers
+            glUniform1i(glGetUniformLocation(program.handle(), "tex"), 0);
+
+            std::vector<u8> vtx_buf;
+            int n_vertices = 0;
+            for (auto& j : args) {
+                const u32 first = j & 0xffffff;
+                const u32 count = (j >> 24) + 1;
+                n_vertices += count;
+
+                log("Draw Arrays: first: %d count: %d\n", first, count);
+                getVertices(count, vtx_buf, first);
+            }
+            
+            glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
+            glDrawArrays(GL_TRIANGLES, 0, n_vertices);
+
+            vertex_array.bindings.clear();
+            break;
+        }
+
         case NV4097_SET_INDEX_ARRAY_ADDRESS: {
             const u32 location = args[1] & 0xf;   // Local or RSX
             const u32 addr = offsetAndLocationToAddress(args[0], location);
@@ -153,37 +273,7 @@ void RSX::runCommandList() {
         }
 
         case NV4097_DRAW_INDEX_ARRAY: {
-            // Check if our shaders were cached
-            const u64 hash_vertex = shader_cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
-            if (!shader_cache.getShader(hash_vertex, vertex)) {
-                // Shader wasn't cached, compile it and add it to the cache
-                auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data);
-                OpenGL::Shader new_shader;
-                new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex);
-                shader_cache.cacheShader(hash_vertex, new_shader);
-                vertex = new_shader;
-            }
-
-            const u64 hash_fragment = shader_cache.computeHash(fragment_shader_program.getData(ps3->mem), fragment_shader_program.getSize(ps3->mem));
-            if (!shader_cache.getShader(hash_fragment, fragment)) {
-                // Shader wasn't cached, compile it and add it to the cache
-                auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
-                OpenGL::Shader new_shader;
-                new_shader.create(fragment_shader, OpenGL::ShaderType::Fragment);
-                shader_cache.cacheShader(hash_fragment, new_shader);
-                fragment = new_shader;
-            }
-
-            // Check if our shader program was cached
-            const u64 hash_program = shader_cache.computeProgramHash(hash_vertex, hash_fragment);
-            if (!shader_cache.getProgram(hash_program, program)) {
-                // Program wasn't cached, link it and add it to the cache
-                OpenGL::Program new_program;
-                new_program.create({ vertex, fragment });
-                shader_cache.cacheProgram(hash_program, new_program);
-                program = new_program;
-            }
-
+            compileProgram();
             program.use();
 
             std::vector<u32> indices;
@@ -210,40 +300,11 @@ void RSX::runCommandList() {
 
             // Draw
             std::vector<u8> vtx_buf;
-            vtx_buf.resize(vertex_array.size() * n_vertices);
-
-            for (auto& binding : vertex_array.bindings) {
-                u32 offs = binding.offset;
-                u32 offs_in_buf = binding.offset - vertex_array.getBase();
-                for (int i = 0; i < n_vertices; i++) {
-                    u32 x = ps3->mem.read<u32>(offs + 0);
-                    u32 y = ps3->mem.read<u32>(offs + 4);
-                    u32 z = ps3->mem.read<u32>(offs + 8);
-                    *(float*)&vtx_buf[offs_in_buf + binding.stride * i + 0] = reinterpret_cast<float&>(x);
-                    *(float*)&vtx_buf[offs_in_buf + binding.stride * i + 4] = reinterpret_cast<float&>(y);
-                    *(float*)&vtx_buf[offs_in_buf + binding.stride * i + 8] = reinterpret_cast<float&>(z);
-                    //log("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
-                    offs += binding.stride;
-                }
-                vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
-                vao.enableAttribute(binding.index);
-            }
-
-            // Constants
-            // TODO: don't upload constants if they weren't changed
-            for (auto& i : vertex_shader_decompiler.required_constants) {
-                u32 x = constants[i * 4 + 0];
-                u32 y = constants[i * 4 + 1];
-                u32 z = constants[i * 4 + 2];
-                u32 w = constants[i * 4 + 3];
-                glUniform4f(glGetUniformLocation(program.handle(), std::format("const_{}", i).c_str()), reinterpret_cast<float&>(x), reinterpret_cast<float&>(y), reinterpret_cast<float&>(z), reinterpret_cast<float&>(w));
-            }
-
-            // Fragment uniforms
-            for (auto& i : fragment_uniforms) {
-                glUniform4f(glGetUniformLocation(program.handle(), i.name.c_str()), i.x, i.y, i.z, i.w);
-            }
-            fragment_uniforms.clear();
+            getVertices(n_vertices, vtx_buf);
+            
+            setupVAO();
+            uploadVertexConstants();
+            uploadFragmentUniforms();
 
             // Texture samplers
             glUniform1i(glGetUniformLocation(program.handle(), "tex"), 0);
@@ -278,9 +339,7 @@ void RSX::runCommandList() {
             texture.width = width;
             texture.height = height;
 
-            //tex.create(width, height, GL_RGBA8, GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0 + 0);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
             break;
         }
@@ -307,7 +366,7 @@ void RSX::runCommandList() {
         }
 
         case NV4097_SET_TRANSFORM_PROGRAM_LOAD: {
-            Helpers::debugAssert(args[0] == 0, "Set transform program load address: addr != 0\n");
+            Helpers::debugAssert(args[1] == 0, "Set transform program load address: addr != 0 (0x%08x)\n", args[1]);
             vertex_shader_data.clear();
             break;
         }

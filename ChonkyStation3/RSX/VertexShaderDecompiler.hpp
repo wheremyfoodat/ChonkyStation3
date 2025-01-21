@@ -59,13 +59,12 @@ public:
 
     MAKE_LOG_FUNCTION(log, vertex_shader);
 
-    std::string decompile(std::vector<u32> shader_data);
+    std::string decompile(std::vector<u32> shader_data, std::vector<u32>& required_constants);
     
     void declareFunction(std::string name, std::string code, std::string& shader);
     void markInputAsUsed(std::string name, int location);
     void markOutputAsUsed(std::string name, int location);
     void markConstantAsUsed(std::string name);
-    //void markConstAsUsed(std::string name, int location);
 
     std::string source(VertexSource& src, VertexInstruction* instr);
     std::string dest(VertexInstruction* instr);
@@ -74,7 +73,7 @@ public:
 
     bool used_inputs[16];
     bool used_outputs[16];
-    std::vector<u32> required_constants;
+    std::vector<u32>* curr_constants;
     std::string inputs;
     std::string outputs;
     std::string constants;

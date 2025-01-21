@@ -34,7 +34,7 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
-#define true false
+//#define true false
 //#define false true
 
 // Modules
@@ -62,7 +62,7 @@ static Logger misc_sc           = Logger<false>("[Syscall][Misc          ] ");
 static Logger tty               = Logger<1>    ();
 
 // RSX
-static Logger rsx               = Logger<false>("[RSX    ][Command       ] ");
+static Logger rsx               = Logger<true> ("[RSX    ][Command       ] ");
 static Logger vertex_shader     = Logger<true> ("[Shader ][Vertex        ] ");
 static Logger fragment_shader   = Logger<true> ("[Shader ][Fragment      ] ");
 static Logger shader_cache      = Logger<true> ("[Shader ][Cache         ] ");

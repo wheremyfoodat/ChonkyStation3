@@ -1,7 +1,7 @@
 #include "VertexShaderDecompiler.hpp"
 
 
-std::string VertexShaderDecompiler::decompile(std::vector<u32> shader_data) {
+std::string VertexShaderDecompiler::decompile(std::vector<u32> shader_data, std::vector<u32>& required_constants) {
     std::string shader_base =
 R"(
 #version 410 core
@@ -21,6 +21,7 @@ vec4 r[16];
     constants = "";
     initialization = "";
     required_constants.clear();
+    curr_constants = &required_constants;
 
 
     for (int i = 0; i < shader_data.size(); i += 4) {
@@ -120,8 +121,8 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
     case VERTEX_SOURCE_TYPE::CONST: {
         source = "const_" + std::to_string(instr->w1.const_src_idx);
         //source = "c[" + std::to_string(instr->w1.const_src_idx) + "]";
-        if (std::find(required_constants.begin(), required_constants.end(), instr->w1.const_src_idx) == required_constants.end()) {
-            required_constants.push_back(instr->w1.const_src_idx);
+        if (std::find(curr_constants->begin(), curr_constants->end(), instr->w1.const_src_idx) == curr_constants->end()) {
+            curr_constants->push_back(instr->w1.const_src_idx);
             markConstantAsUsed(source);
         }
         break;

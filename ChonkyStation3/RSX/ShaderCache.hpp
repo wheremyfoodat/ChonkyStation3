@@ -5,6 +5,7 @@
 #include <opengl.hpp>
 
 #include <unordered_map>
+#include <optional>
 
 #include <xxhash.h>
 
@@ -21,8 +22,13 @@ public:
             return hash_vertex == other.hash_vertex && hash_fragment == other.hash_fragment;
         }
     };
+
+    struct CachedShader {
+        OpenGL::Shader shader;
+        std::optional<std::vector<u32>> required_constants;    // For vertex only
+    };
     
-    bool getShader(u64 hash, OpenGL::Shader& shader) {
+    bool getShader(u64 hash, CachedShader& shader) {
         if (shader_cache.contains(hash)) {
             shader = shader_cache[hash];
             //log("Got cached shader: %016x\n", hash);
@@ -40,7 +46,7 @@ public:
         return false;
     }
 
-    void cacheShader(u64 hash, OpenGL::Shader& shader) {
+    void cacheShader(u64 hash, CachedShader shader) {
         shader_cache[hash] = shader;
         log("Cached new shader: %016x\n", hash);
     }
@@ -61,6 +67,6 @@ public:
 
 private:
     // TODO: Might change this to an std::vector of "CachedShader" structs or something
-    std::unordered_map<u64, OpenGL::Shader> shader_cache;
+    std::unordered_map<u64, CachedShader> shader_cache;
     std::unordered_map<u64, OpenGL::Program> program_cache;
 };
