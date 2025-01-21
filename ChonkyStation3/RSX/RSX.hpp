@@ -46,6 +46,15 @@ public:
         float w;
     };
     std::vector<FragmentUniform> fragment_uniforms;
+
+    struct Texture {
+        u32 addr;
+        u8 format;
+        u16 width;
+        u16 height;
+    };
+    Texture texture;
+
     u32 semaphore_offset = 0;
     u32 dest_offset = 0;
     u16 point_x = 0;
@@ -55,6 +64,7 @@ public:
     OpenGL::VertexBuffer vbo;
     OpenGL::Shader vertex, fragment;
     OpenGL::Program program;
+    OpenGL::Texture tex;
 
     GLuint ibo;
 
@@ -266,13 +276,13 @@ public:
         NV4097_SET_VERTEX_DATA2S_M                              = 0x00001900,
         NV4097_SET_VERTEX_DATA4UB_M                             = 0x00001940,
         NV4097_SET_VERTEX_DATA4S_M                              = 0x00001980,
-        NV4097_SET_TEXTURE_OFFSET                               = 0x00001a00,
+        NV4097_SET_TEXTURE_OFFSET                               = 0x00001a00,   // I
         NV4097_SET_TEXTURE_FORMAT                               = 0x00001a04,
         NV4097_SET_TEXTURE_ADDRESS                              = 0x00001a08,
         NV4097_SET_TEXTURE_CONTROL0                             = 0x00001a0c,
         NV4097_SET_TEXTURE_CONTROL1                             = 0x00001a10,
         NV4097_SET_TEXTURE_FILTER                               = 0x00001a14,
-        NV4097_SET_TEXTURE_IMAGE_RECT                           = 0x00001a18,
+        NV4097_SET_TEXTURE_IMAGE_RECT                           = 0x00001a18,   // I
         NV4097_SET_TEXTURE_BORDER_COLOR                         = 0x00001a1c,
         NV4097_SET_VERTEX_DATA4F_M                              = 0x00001c00,
         NV4097_SET_COLOR_KEY_COLOR                              = 0x00001d00,

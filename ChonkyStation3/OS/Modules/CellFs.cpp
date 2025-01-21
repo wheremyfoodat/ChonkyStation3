@@ -78,13 +78,13 @@ u64 CellFs::cellFsFstat() {
 
     CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
     stat->mode = 0100000 | 0666;   // Regular file (TODO: Check if it's a directory)
-    stat->uid = 1;
-    stat->gid = 1;
+    stat->uid = 0;
+    stat->gid = 0;
     stat->atime = 0;
     stat->mtime = 0;
     stat->ctime = 0;
     stat->size = ps3->fs.getFileSize(file_id);
-    stat->blksize = 4096;
+    stat->blksize = 512;
 
     return Result::CELL_OK;
 }

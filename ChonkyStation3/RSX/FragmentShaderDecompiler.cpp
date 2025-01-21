@@ -8,7 +8,8 @@ R"(
 #version 410 core
 
 
-vec4 unimpl;
+vec4 no_dest;
+uniform sampler2D tex;
 
 )";
     std::string shader;
@@ -61,6 +62,10 @@ vec4 unimpl;
         }
         case RSXFragment::MAX: {
             main += std::format("{}{} = {}(max({}, {}));\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1));
+            break;
+        }
+        case RSXFragment::TEX: {
+            main += std::format("{}{} = {}(texture(tex, vec2({})).gbar);\n", dest(instr), mask_str, type, source(instr, 0));
             break;
         }
         case RSXFragment::EX2: {
@@ -275,7 +280,7 @@ std::string FragmentShaderDecompiler::dest(FragmentInstruction& instr) {
         markRegAsUsed(dest, instr.dst.dest_idx);
     }
     else {
-        dest = "unimpl";
+        dest = "no_dest";
     }
     return dest;
 }

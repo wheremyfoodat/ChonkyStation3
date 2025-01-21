@@ -18,6 +18,13 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     OpenGL::disableScissor();
     OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
 
+    glGenTextures(1, &tex.m_handle);
+    glBindTexture(GL_TEXTURE_2D, tex.m_handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     std::memset(constants, 0, 512 * 4);
 }
 
@@ -238,11 +245,43 @@ void RSX::runCommandList() {
             }
             fragment_uniforms.clear();
 
+            // Texture samplers
+            glUniform1i(glGetUniformLocation(program.handle(), "tex"), 0);
+
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
             glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
             vertex_array.bindings.clear();
+            break;
+        }
+
+        case NV4097_SET_TEXTURE_OFFSET: {
+            const u32 offs = args[0];
+            const u8 loc = (args[1] & 0x3) - 1;
+            const u32 addr = offsetAndLocationToAddress(offs, loc);
+            const u8 dimension = (args[1] >> 4) & 0xf;
+            const u8 format = (args[1] >> 8) & 0xff;
+            // TODO: mipmap, cubemap
+            log("Set texture: addr: 0x%08x, dimension: 0x%02x, format: 0x%02x, location: %s\n", addr, dimension, format, loc == 0 ? "RSX" : "MAIN");
+
+            texture.addr = addr;
+            texture.format = format;
+            break;
+        }
+
+        case NV4097_SET_TEXTURE_IMAGE_RECT: {
+            const u16 width = args[0] >> 16;
+            const u16 height = args[0] & 0xfffff;
+            log("Texture: width: %d, height: %d\n", width, height);
+            
+            texture.width = width;
+            texture.height = height;
+
+            //tex.create(width, height, GL_RGBA8, GL_TEXTURE_2D);
+            glActiveTexture(GL_TEXTURE0 + 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
             break;
         }
 
@@ -333,7 +372,6 @@ void RSX::runCommandList() {
 void RSX::checkGLError() {
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
-        log("GL error 0x%x\n", err);
-        exit(0);
+        Helpers::panic("GL error 0x%x\n", err);
     }
 }

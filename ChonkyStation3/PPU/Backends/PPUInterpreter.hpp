@@ -33,6 +33,7 @@ public:
     void bc         (const Instruction& instr);
     void sc         (const Instruction& instr);
     void b          (const Instruction& instr);
+    void rlwimi     (const Instruction& instr);
     void rlwinm     (const Instruction& instr);
     void rlwnm      (const Instruction& instr);
     void ori        (const Instruction& instr);
@@ -52,6 +53,7 @@ public:
     void lhz        (const Instruction& instr);
     void lhzu       (const Instruction& instr);
     void sth        (const Instruction& instr);
+    void sthu       (const Instruction& instr);
     void lfs        (const Instruction& instr);
     void lfd        (const Instruction& instr);
     void stfs       (const Instruction& instr);

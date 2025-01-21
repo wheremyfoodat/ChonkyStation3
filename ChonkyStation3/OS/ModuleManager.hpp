@@ -147,13 +147,13 @@ public:
         { 0x105ee2cb, { "cellNetCtlTerm",                               std::bind(&ModuleManager::stub, this) }},
         { 0xbd5a59fc, { "cellNetCtlInit",                               std::bind(&ModuleManager::stub, this) }},
 
-        { 0x157d30c5, { "cellPngDecCreate",                             std::bind(&CellPngDec::cellPngDecCreate, cellPngDec) }},
-        { 0x2310f155, { "cellPngDecDecodeData",                         std::bind(&CellPngDec::cellPngDecDecodeData, cellPngDec) }},
-        { 0x5b3d1ff1, { "cellPngDecClose",                              std::bind(&CellPngDec::cellPngDecClose, cellPngDec) }},
-        { 0x820dae1a, { "cellPngDecDestroy",                            std::bind(&CellPngDec::cellPngDecDestroy, cellPngDec) }},
-        { 0x9ccdcc95, { "cellPngDecReadHeader",                         std::bind(&CellPngDec::cellPngDecReadHeader, cellPngDec) }},
-        { 0xd2bc5bfd, { "cellPngDecOpen",                               std::bind(&CellPngDec::cellPngDecOpen, cellPngDec) }},
-        { 0xe97c9bd4, { "cellPngDecSetParameter",                       std::bind(&CellPngDec::cellPngDecSetParameter, cellPngDec) }},
+        { 0x157d30c5, { "cellPngDecCreate",                             std::bind(&CellPngDec::cellPngDecCreate, &cellPngDec) }},
+        { 0x2310f155, { "cellPngDecDecodeData",                         std::bind(&CellPngDec::cellPngDecDecodeData, &cellPngDec) }},
+        { 0x5b3d1ff1, { "cellPngDecClose",                              std::bind(&CellPngDec::cellPngDecClose, &cellPngDec) }},
+        { 0x820dae1a, { "cellPngDecDestroy",                            std::bind(&CellPngDec::cellPngDecDestroy, &cellPngDec) }},
+        { 0x9ccdcc95, { "cellPngDecReadHeader",                         std::bind(&CellPngDec::cellPngDecReadHeader, &cellPngDec) }},
+        { 0xd2bc5bfd, { "cellPngDecOpen",                               std::bind(&CellPngDec::cellPngDecOpen, &cellPngDec) }},
+        { 0xe97c9bd4, { "cellPngDecSetParameter",                       std::bind(&CellPngDec::cellPngDecSetParameter, &cellPngDec) }},
     };
 
     std::string getImportName(const u32 nid);

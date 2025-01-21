@@ -78,6 +78,7 @@ void PPUInterpreter::step() {
         }
         break;
     }
+    case RLWIMI:    rlwimi(instr);  break;
     case RLWINM:    rlwinm(instr);  break;
     case RLWNM:     rlwnm(instr);   break;
     case ORI:       ori(instr);     break;
@@ -182,6 +183,7 @@ void PPUInterpreter::step() {
     case LHZ:   lhz(instr);     break;
     case LHZU:  lhzu(instr);    break;
     case STH:   sth(instr);     break;
+    case STHU:  sthu(instr);     break;
     case LFS:   lfs(instr);     break;
     case LFD:   lfd(instr);     break;
     case STFS:  stfs(instr);    break;
@@ -334,6 +336,13 @@ void PPUInterpreter::b(const Instruction& instr) {
     state.pc -= 4;
 }
 
+void PPUInterpreter::rlwimi(const Instruction& instr) {
+    const auto mask = rotationMask(instr.mb_5, instr.me_5);
+    state.gprs[instr.ra] = (state.gprs[instr.ra] & ~mask) | (std::rotl<u32>(state.gprs[instr.rs], instr.sh) & mask);
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
+}
+
 void PPUInterpreter::rlwinm(const Instruction& instr) {
     const auto mask = rotationMask(instr.mb_5, instr.me_5);
     state.gprs[instr.ra] = std::rotl<u32>(state.gprs[instr.rs], instr.sh) & mask;
@@ -442,6 +451,13 @@ void PPUInterpreter::sth(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
     const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     mem.write<u16>(addr, state.gprs[instr.rs]);
+}
+
+void PPUInterpreter::sthu(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = state.gprs[instr.ra] + sd;
+    mem.write<u16>(addr, state.gprs[instr.rs]);
+    state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::lfs(const Instruction& instr) {

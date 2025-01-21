@@ -33,7 +33,9 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
         // PROC_PARAM
         else if (seg->get_type() == PROC_PARAM) {
             PROCParam* proc_param = (PROCParam*)seg->get_data();
-            log("sdk_version: 0x%08x\n", (u32)proc_param->sdk_version);
+            log("version            : 0x%08x\n", (u32)proc_param->version);
+            log("sdk_version        : 0x%08x\n", (u32)proc_param->sdk_version);
+            log("primary_stacksize  : 0x%08x\n", (u32)proc_param->primary_stacksize);
         }
         
         // PRX_PARAM

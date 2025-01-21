@@ -19,7 +19,7 @@ u64 SysPrxForUser::sysProcessAtExitSpawn() {
 
 u64 SysPrxForUser::sysStrlen() {
     const u32 str = ARG0;
-    log("sysStrlen(str: 0x%08x)\n", str);
+    log("sysStrlen(str: 0x%08x) [str: \"%s\"]\n", str, ps3->mem.getPtr(str));
 
     return std::strlen((const char*)ps3->mem.getPtr(str));
 }
@@ -49,9 +49,10 @@ u64 SysPrxForUser::sysSpinlockInitialize() {
 u64 SysPrxForUser::sysStrcpy() {
     const u32 dst = ARG0;
     const u32 src = ARG1;
-    log("sysStrcpy(dst: 0x%08x, src: 0x%08x)\n", dst, src);
+    log("sysStrcpy(dst: 0x%08x, src: 0x%08x)", dst, src);
 
     std::strcpy((char*)ps3->mem.getPtr(dst), (char*)ps3->mem.getPtr(src));
+    logNoPrefix(" [copied str: \"%s\"]\n", ps3->mem.getPtr(dst));
     return dst;
 }
 
