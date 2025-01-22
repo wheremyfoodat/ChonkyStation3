@@ -9,6 +9,9 @@ R"(
 
 
 vec4 no_dest;
+vec4 cc0;
+vec4 cc1;
+
 uniform sampler2D tex;
 
 )";
@@ -43,50 +46,52 @@ uniform sampler2D tex;
         int num_lanes;
         const auto mask_str = mask(instr, num_lanes);
         const auto type = getType(num_lanes);
+        std::string decompiled_dest = dest(instr);
+        std::string decompiled_src;
 
         switch (opc) {
         case RSXFragment::MOV: {
-            main += std::format("{}{} = {}({});\n", dest(instr), mask_str, type, source(instr, 0));
+            decompiled_src = std::format("{}({})", type, source(instr, 0));
             break;
         }
         case RSXFragment::MUL: {
-            main += std::format("{}{} = {}({} * {});\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1));
+            decompiled_src = std::format("{}({} * {})", type, source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::ADD: {
-            main += std::format("{}{} = {}({} + {});\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1));
+            decompiled_src = std::format("{}({} + {})", type, source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::MAD: {
-            main += std::format("{}{} = {}(({} * {}) + {});\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1), source(instr, 2));
+            decompiled_src = std::format("{}(({} * {}) + {})", type, source(instr, 0), source(instr, 1), source(instr, 2));
             break;
         }
         case RSXFragment::DP3: {
-            main += std::format("{}{} = {}(dot(vec3({}), vec3({})));\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1));
+            decompiled_src = std::format("{}(dot(vec3({}), vec3({})))", type, source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::MAX: {
-            main += std::format("{}{} = {}(max({}, {}));\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1));
+            decompiled_src = std::format("{}(max({}, {}))", type, source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::SLE: {
-            main += std::format("{}{} = {}(lessThanEqual({}, {}));\n", dest(instr), mask_str, type, source(instr, 0), source(instr, 1));
+            decompiled_src = std::format("{}(lessThanEqual({}, {}))", type, source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::TEX: {
-            main += std::format("{}{} = {}(texture(tex, vec2({})).gbar);\n", dest(instr), mask_str, type, source(instr, 0));
+            decompiled_src = std::format("{}(texture(tex, vec2({})))", type, source(instr, 0));
             break;
         }
         case RSXFragment::EX2: {
-            main += std::format("{}{} = {}(vec4(exp2({}.x)));\n", dest(instr), mask_str, type, source(instr, 0));
+            decompiled_src = std::format("{}(vec4(exp2({}.x)))", type, source(instr, 0));
             break;
         }
         case RSXFragment::LG2: {
-            main += std::format("{}{} = {}(vec4(log2({}.x)));\n", dest(instr), mask_str, type, source(instr, 0));
+            decompiled_src = std::format("{}(vec4(log2({}.x)))", type, source(instr, 0));
             break;
         }
         case RSXFragment::NRM: {
-            main += std::format("{}{} = {}(normalize(vec3({})));\n", dest(instr), mask_str, type, source(instr, 0));
+            decompiled_src = std::format("{}(normalize(vec3({})))", type, source(instr, 0));
             break;
         }
 
@@ -94,6 +99,29 @@ uniform sampler2D tex;
             log("Shader so far:\n");
             log("%s\n", main.c_str());
             Helpers::panic("Unimplemented fragment instruction %s\n", fragment_opcodes[opc].c_str());
+        }
+
+        // Conditional execution
+        if (!hasCond(instr))
+            main += std::format("{}{} = {};\n", decompiled_dest, mask_str, decompiled_src);
+        else {
+            // Swizzle condition
+            const std::string all = "xyzw";
+            std::string swizzle = "    ";
+            swizzle[0] = all[instr.src0.cond_swizzle_x];
+            swizzle[1] = all[instr.src0.cond_swizzle_y];
+            swizzle[2] = all[instr.src0.cond_swizzle_z];
+            swizzle[3] = all[instr.src0.cond_swizzle_w];
+            std::string cc = instr.src0.cc_idx == 0 ? "cc0" : "cc1";
+            std::string cond = getCond(instr);
+
+            if (num_lanes == 1)
+                main += std::format("if ({}.{} {} 0)\n\t{}.{} = {};\n", cc, swizzle[0], cond, decompiled_dest, all[0], decompiled_src);
+            else {
+                for (int i = 0; i < num_lanes; i++) {
+                    main += std::format("if ({}.{} {} 0)\n\t{}.{} = {}.{};\n", cc, swizzle[i], cond, decompiled_dest, all[i], decompiled_src, all[i]);
+                }
+            }
         }
 
         if (instr.dst.end) break;
@@ -289,7 +317,13 @@ std::string FragmentShaderDecompiler::dest(FragmentInstruction& instr) {
         markRegAsUsed(dest, instr.dst.dest_idx);
     }
     else {
-        dest = "no_dest";
+        if (instr.dst.set_cc) {
+            if (instr.src0.set_cc_idx == 1) Helpers::panic("dest: unimplemented set cc1\n");
+            dest = "cc0";
+        }
+        else {
+            dest = "no_dest";
+        }
     }
     return dest;
 }
@@ -329,4 +363,18 @@ std::string FragmentShaderDecompiler::getType(const int num_lanes) {
     default:
         Helpers::panic("getType: %d lanes\n", num_lanes);
     }
+}
+
+std::string FragmentShaderDecompiler::getCond(FragmentInstruction& instr) {
+    if      (instr.src0.cond_eq && instr.src0.cond_lt) return "<=";
+    else if (instr.src0.cond_eq && instr.src0.cond_gt) return ">=";
+    else if (instr.src0.cond_lt && instr.src0.cond_gt) return "!=";
+    else if (instr.src0.cond_lt) return "<";
+    else if (instr.src0.cond_gt) return ">";
+    else if (instr.src0.cond_eq) return "==";
+    else Helpers::panic("condition can never be met\n");  // Are there going to be games that do this?
+}
+
+bool FragmentShaderDecompiler::hasCond(FragmentInstruction& instr) {
+    return !(instr.src0.cond_lt && instr.src0.cond_eq && instr.src0.cond_gt);
 }

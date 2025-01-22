@@ -22,7 +22,7 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     glBindTexture(GL_TEXTURE_2D, tex.m_handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     std::memset(constants, 0, 512 * 4);
@@ -128,6 +128,28 @@ void RSX::uploadFragmentUniforms() {
         glUniform4f(glGetUniformLocation(program.handle(), i.name.c_str()), i.x, i.y, i.z, i.w);
     }
     fragment_uniforms.clear();
+}
+
+GLuint RSX::getTextureInternalFormat(u8 fmt) {
+    switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
+
+    case CELL_GCM_TEXTURE_B8:   return GL_RED;
+    case CELL_GCM_TEXTURE_A8R8G8B8: return GL_RGBA;
+
+    default:
+        Helpers::panic("Unimplemented texture format 0x%02x (0x%02x)\n", fmt, fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN));
+    }
+}
+
+GLuint RSX::getTexturePixelFormat(u8 fmt) {
+    switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
+
+    case CELL_GCM_TEXTURE_B8:   return GL_RED;
+    case CELL_GCM_TEXTURE_A8R8G8B8: return GL_RGBA;
+
+    default:
+        Helpers::panic("Unimplemented texture format 0x%02x (0x%02x)\n", fmt, fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN));
+    }
 }
 
 void RSX::runCommandList() {
@@ -339,8 +361,10 @@ void RSX::runCommandList() {
             texture.width = width;
             texture.height = height;
 
+            const auto fmt = getTexturePixelFormat(texture.format);
+            const auto internal = getTextureInternalFormat(texture.format);
             glActiveTexture(GL_TEXTURE0 + 0);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
+            glTexImage2D(GL_TEXTURE_2D, 0, fmt, width, height, 0, fmt, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
             break;
         }
 

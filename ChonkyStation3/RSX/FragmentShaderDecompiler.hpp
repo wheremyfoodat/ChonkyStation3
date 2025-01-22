@@ -41,6 +41,8 @@ public:
     std::string dest(FragmentInstruction& instr);
     std::string mask(FragmentInstruction& instr, int& num_lanes);
     std::string getType(const int num_lanes);
+    std::string getCond(FragmentInstruction& instr);
+    bool hasCond(FragmentInstruction& instr);
 
     u32 curr_offs = 0;
     int next_constant = 0;
