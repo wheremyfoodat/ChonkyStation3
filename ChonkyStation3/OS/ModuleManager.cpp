@@ -6,7 +6,9 @@ void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid))
         Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
 
-    ps3->ppu->state.gprs[3] = import_map[nid].handler();
+    const auto import = import_map[nid];
+    last_call = import.name;
+    ps3->ppu->state.gprs[3] = import.handler();
 }
 
 void ModuleManager::lle(u32 nid) {

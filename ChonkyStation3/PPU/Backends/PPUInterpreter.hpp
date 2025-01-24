@@ -56,8 +56,10 @@ public:
     void sthu       (const Instruction& instr);
     void lfs        (const Instruction& instr);
     void lfd        (const Instruction& instr);
+    void lfdu       (const Instruction& instr);
     void stfs       (const Instruction& instr);
     void stfd       (const Instruction& instr);
+    void stfdu      (const Instruction& instr);
     // G_04
     void vcmpequb   (const Instruction& instr);
     void vaddfp     (const Instruction& instr);
@@ -115,6 +117,7 @@ public:
     void andc       (const Instruction& instr);
     void mulhd      (const Instruction& instr);
     void mulhw      (const Instruction& instr);
+    void ldarx      (const Instruction& instr);
     void lbzx       (const Instruction& instr);
     void lvx        (const Instruction& instr);
     void neg        (const Instruction& instr);
@@ -125,6 +128,7 @@ public:
     void stwcx      (const Instruction& instr);
     void stwx       (const Instruction& instr);
     void addze      (const Instruction& instr);
+    void stdcx      (const Instruction& instr);
     void stbx       (const Instruction& instr);
     void stvx       (const Instruction& instr);
     void mulld      (const Instruction& instr);
@@ -180,5 +184,7 @@ public:
     void fmsub      (const Instruction& instr);
     void fmadd      (const Instruction& instr);
     void fneg       (const Instruction& instr);
+    void fabs_      (const Instruction& instr);
+    void fctidz     (const Instruction& instr);
     void fcfid      (const Instruction& instr);
 };

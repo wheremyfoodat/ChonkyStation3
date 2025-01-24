@@ -157,6 +157,7 @@ public:
     };
 
     std::string getImportName(const u32 nid);
+    std::string last_call;
 
     SysPrxForUser sysPrxForUser;
     SysThread sysThread;
@@ -174,7 +175,7 @@ public:
     CellPngDec cellPngDec;
 
     u64 stub() {
-        unimpl("UNIMPLEMENTED\n");
+        unimpl("%s UNIMPLEMENTED\n", last_call.c_str());
         return Result::CELL_OK;
     }
 

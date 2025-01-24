@@ -4,7 +4,7 @@
 
 void Filesystem::mount(Filesystem::Device device, fs::path path) {
     if (!fs::exists(path)) {
-        Helpers::panic("Mount path %s for device %s does not exist\n", path.generic_string().c_str(), deviceToString(device).c_str());
+        Helpers::panic("Mount point %s for device %s does not exist\n", path.generic_string().c_str(), deviceToString(device).c_str());
     }
 
     mounted_devices[device] = path;

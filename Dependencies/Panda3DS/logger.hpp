@@ -34,8 +34,8 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
-#define true false
-//#define false true
+//#define true false
+#define false true
 
 // Modules
 static Logger cellPngDec        = Logger<true> ("[Module ][cellPngDec    ] ");

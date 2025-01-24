@@ -56,12 +56,14 @@ u64 CellVideoOut::cellVideoOutGetResolutionAvailability() {
 }
 
 u64 CellVideoOut::cellVideoOutGetResolution() {
-    const u32 res_id = ARG0;
+    u32 res_id = ARG0;
     const u32 res_ptr = ARG1;
     log("cellVideoOutGetResolution(res_id: 0x%08x, res_ptr: 0x%08x)", res_id, res_ptr);
 
-    if (resolutions.find(res_id) == resolutions.end())
-        Helpers::panic("Unknown resolution ID\n");
+    if (resolutions.find(res_id) == resolutions.end()) {
+        logNoPrefix(" WARNING: Unknown resolution ID (returning 720p)");
+        res_id = CELL_VIDEO_OUT_RESOLUTION_720;
+    }
 
     const auto res_ = resolutions[res_id];
     logNoPrefix(" [resolution: %dx%d]\n", res_.width, res_.height);

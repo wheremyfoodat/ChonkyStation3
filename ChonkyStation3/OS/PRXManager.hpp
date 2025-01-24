@@ -23,7 +23,7 @@ public:
     // For now you need to decrypt the libraries on your own.
     std::unordered_map<std::string, std::string> lle_modules {
         { "cellResc",       "libresc.prx" },
-        { "cellPngDec",     "libpngdec.prx" },
+        //{ "cellPngDec",     "libpngdec.prx" },
         //{ "cellFont",       "libfont.prx" },
         //{ "cellFontFT",     "libfontFT.prx" },
         //{ "cell_FreeType2", "libfreetype.prx" },
