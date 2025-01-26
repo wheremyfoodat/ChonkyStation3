@@ -17,6 +17,14 @@ u64 CellResc::cellRescSetDisplayMode() {
     return Result::CELL_OK;
 }
 
+u64 CellResc::cellRescSetConvertAndFlip() {
+    log("cellRescSetConvertAndFlip() STUBBED\n");
+
+    ps3->thread_manager.getCurrentThread()->sleep(1000000);
+
+    return Result::CELL_OK;
+}
+
 u64 CellResc::cellRescInit() {
     const u32 config_ptr = ARG0;
     log("cellRescInit(config_ptr: 0x%08x) UNIMPLEMENTED\n", config_ptr);

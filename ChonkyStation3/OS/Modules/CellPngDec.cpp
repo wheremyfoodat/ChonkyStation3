@@ -18,6 +18,14 @@ u64 CellPngDec::cellPngDecDecodeData() {
     img.clear();
     lodepng::load_file(buf, curr_file.generic_string().c_str());
     lodepng::State state;
+    
+    state.decoder.color_convert = 1;
+    if (out_param.output_color_space == CELL_PNGDEC_RGB)
+        state.info_raw.colortype = LCT_RGB;
+    else
+        state.info_png.color.colortype = LCT_RGBA;
+    state.info_raw.bitdepth = out_param.output_bit_depth;
+
     u32 width;
     u32 height;
     u32 err;
@@ -149,6 +157,15 @@ u64 CellPngDec::cellPngDecSetParameter() {
     out->output_mode = in->output_mode;
     out->output_color_space = in->output_color_space;
     out->use_mem_space = 0; // ??
+
+    out_param.output_width_byte = out->output_width_byte;
+    out_param.output_width = out->output_width;
+    out_param.output_height = out->output_height;
+    out_param.output_components = out->output_components;
+    out_param.output_bit_depth = out->output_bit_depth;
+    out_param.output_mode = out->output_mode;
+    out_param.output_color_space = out->output_color_space;
+    out_param.use_mem_space = out->use_mem_space;
 
     return Result::CELL_OK;
 }

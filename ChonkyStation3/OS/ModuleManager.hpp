@@ -101,6 +101,7 @@ public:
 
         { 0x10db5b1a, { "cellRescSetDsts",                              std::bind(&CellResc::cellRescSetDsts, &cellResc) }},
         { 0x23134710, { "cellRescSetDisplayMode",                       std::bind(&CellResc::cellRescSetDisplayMode, &cellResc) }},
+        { 0x25c107e6, { "cellRescSetConvertAndFlip",                    std::bind(&CellResc::cellRescSetConvertAndFlip, &cellResc) }},
         { 0x516ee89e, { "cellRescInit",                                 std::bind(&CellResc::cellRescInit, &cellResc) }},
         { 0x5a338cdb, { "cellRescGetBufferSize",                        std::bind(&CellResc::cellRescGetBufferSize, &cellResc) }},
         { 0x8107277c, { "cellRescSetBufferAddress",                     std::bind(&CellResc::cellRescSetBufferAddress, &cellResc) }},

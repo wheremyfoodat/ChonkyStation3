@@ -8,11 +8,9 @@ void PPUInterpreter::printFunctionCall() {
         printf("[DEBUG] %s @ 0x%08llx\n", symbol.value().name.c_str(), state.pc);
 }
 
-
 void PPUInterpreter::step() {
     const u32 instr_raw = mem.read<u32>(state.pc);
     const Instruction instr = { .raw = instr_raw };
-
 
     switch (instr.opc) {
     
@@ -739,24 +737,24 @@ void PPUInterpreter::bclr(const Instruction& instr) {
 }
 
 void PPUInterpreter::crnand(const Instruction& instr) {
-    const auto a = (state.cr.raw >> instr.ba) & 1;
-    const auto b = (state.cr.raw >> instr.bb) & 1;
-    state.cr.raw &= ~(1 << instr.bt);
-    state.cr.raw |= (~(a & b)) << instr.bt;
+    const auto a = (state.cr.raw >> (31 - instr.ba)) & 1;
+    const auto b = (state.cr.raw >> (31 - instr.bb)) & 1;
+    state.cr.raw &= ~(1 << (31 - instr.bt));
+    state.cr.raw |= (~(a & b) & 1) << (31 - instr.bt);
 }
 
 void PPUInterpreter::crorc(const Instruction& instr) {
-    const auto a = (state.cr.raw >> instr.ba) & 1;
-    const auto b = (state.cr.raw >> instr.bb) & 1;
-    state.cr.raw &= ~(1 << instr.bt);
-    state.cr.raw |= (a | ~b) << instr.bt;
+    const auto a = (state.cr.raw >> (31 - instr.ba)) & 1;
+    const auto b = (state.cr.raw >> (31 - instr.bb)) & 1;
+    state.cr.raw &= ~(1 << (31 - instr.bt));
+    state.cr.raw |= ((a | ~b) & 1) << (31 - instr.bt);
 }
 
 void PPUInterpreter::cror(const Instruction& instr) {
-    const auto a = (state.cr.raw >> instr.ba) & 1;
-    const auto b = (state.cr.raw >> instr.bb) & 1;
-    state.cr.raw &= ~(1 << instr.bt);
-    state.cr.raw |= (a | b) << instr.bt;
+    const auto a = (state.cr.raw >> (31 - instr.ba)) & 1;
+    const auto b = (state.cr.raw >> (31 - instr.bb)) & 1;
+    state.cr.raw &= ~(1 << (31 - instr.bt));
+    state.cr.raw |= (a | b) << (31 - instr.bt);
 }
 
 void PPUInterpreter::bcctr(const Instruction& instr) {

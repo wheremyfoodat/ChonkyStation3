@@ -86,6 +86,17 @@ public:
         BEField<u32> use_mem_space;
     };
 
+    struct CellPngDecOutParamLE {
+        u64 output_width_byte;
+        u32 output_width;
+        u32 output_height;
+        u32 output_components;
+        u32 output_bit_depth;
+        s32 output_mode;
+        s32 output_color_space;
+        u32 use_mem_space;
+    };
+
     struct CellPngDecDataOutInfo {
         BEField<u32> chunkInformation;
         BEField<u32> numText;
@@ -109,6 +120,7 @@ public:
 
     CellPngDecSrcLE curr_src;
     CellPngDecInfoLE curr_info;
+    CellPngDecOutParamLE out_param;
     fs::path curr_file;
     std::vector<u8> buf;
 

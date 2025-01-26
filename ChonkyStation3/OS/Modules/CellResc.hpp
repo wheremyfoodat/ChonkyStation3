@@ -19,6 +19,7 @@ public:
 
     u64 cellRescSetDsts();
     u64 cellRescSetDisplayMode();
+    u64 cellRescSetConvertAndFlip();
     u64 cellRescInit();
     u64 cellRescGetBufferSize();
     u64 cellRescSetBufferAddress();
