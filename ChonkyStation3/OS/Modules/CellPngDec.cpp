@@ -3,7 +3,31 @@
 
 
 u64 CellPngDec::cellPngDecDecodeData() {
+    const u32 handle = ARG0;
+    const u32 subhandle = ARG1;
+    const u32 data_ptr = ARG2;
+    const u32 data_ctrl_param_ptr = ARG3;
+    const u32 data_out_info_ptr = ARG4;
     log("cellPngDecDecodeData()\n");
+
+    CellPngDecDataOutInfo* out_info = (CellPngDecDataOutInfo*)ps3->mem.getPtr(data_out_info_ptr);
+
+    std::vector<u8> buf;
+    std::vector<u8> img;
+    buf.clear();
+    img.clear();
+    lodepng::load_file(buf, curr_file.generic_string().c_str());
+    lodepng::State state;
+    u32 width;
+    u32 height;
+    u32 err;
+    if (err = lodepng::decode(img, width, height, state, buf))
+        Helpers::panic("Failed to decode png %s: %s\n", curr_file.generic_string().c_str(), lodepng_error_text(err));
+
+    std::memcpy(ps3->mem.getPtr(data_ptr), img.data(), img.size());
+
+    out_info->status = 0;   // FINISHED
+
     return Result::CELL_OK;
 }
 
@@ -27,6 +51,8 @@ u64 CellPngDec::cellPngDecReadHeader() {
 
     std::vector<u8> buf;
     std::vector<u8> img;
+    buf.clear();
+    img.clear();
     lodepng::load_file(buf, curr_file.generic_string().c_str());
     lodepng::State state;
     u32 width;
@@ -39,10 +65,14 @@ u64 CellPngDec::cellPngDecReadHeader() {
     info->width = width;
     info->height = height;
     info->n_components = lodepng_get_channels(&state.info_png.color);
-    info->color_space = CELL_PNGDEC_RGB;    // TODO: this is hardcoded for now
+    switch (info->n_components) {
+    case 3: info->color_space = CELL_PNGDEC_RGB;    break;
+    case 4: info->color_space = CELL_PNGDEC_RGBA;   break;
+    default:    Helpers::panic("pngdec: %d components\n", info->n_components);
+    }
     info->bit_depth = state.info_png.color.bitdepth;
-    // interlace
-    // chunk info
+    info->interlace_method = 0; // no interlace
+    info->chunk_info = 0;
 
     curr_info.width = info->width;
     curr_info.height = info->height;
@@ -92,8 +122,10 @@ u64 CellPngDec::cellPngDecOpen() {
         // Dump buffer
         std::string filename = std::format("{:08x}.png", (u32)src->stream_ptr);
         curr_file = filename;
-        std::ofstream file(filename, std::ios::binary);
-        file.write((const char*)curr_src.stream, curr_src.stream_size);
+        if (!fs::exists(filename)) {
+            std::ofstream file(filename, std::ios::binary);
+            file.write((const char*)curr_src.stream, curr_src.stream_size);
+        }
     }
 
     return Result::CELL_OK;

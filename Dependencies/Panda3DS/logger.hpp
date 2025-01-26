@@ -35,9 +35,10 @@ public:
 // Our loggers here. Enable/disable by toggling the template param
 
 //#define true false
-#define false true
+//#define false true
 
 // Modules
+static Logger sceNpTrophy       = Logger<true> ("[Module ][sceNpTrophy   ] ");
 static Logger cellPngDec        = Logger<true> ("[Module ][cellPngDec    ] ");
 static Logger cellFs            = Logger<true> ("[Module ][cellFs        ] ");
 static Logger cellRtc           = Logger<true> ("[Module ][cellRtc       ] ");
@@ -46,7 +47,7 @@ static Logger cellGame          = Logger<true> ("[Module ][cellGame      ] ");
 static Logger cellResc          = Logger<true> ("[Module ][cellResc      ] ");
 static Logger cellSysmodule     = Logger<true> ("[Module ][cellSysmodule ] ");
 static Logger cellSysutil       = Logger<true> ("[Module ][cellSysutil   ] ");
-static Logger cellGcmSys        = Logger<false>("[Module ][cellGcmSys    ] ");
+static Logger cellGcmSys        = Logger<true> ("[Module ][cellGcmSys    ] ");
 static Logger cellVideoOut      = Logger<true> ("[Module ][cellVideoOut  ] ");
 static Logger sysLwMutex        = Logger<false>("[Module ][sysLwMutex    ] ");
 static Logger sysMMapper        = Logger<true> ("[Module ][sysMMapper    ] ");
@@ -58,7 +59,7 @@ static Logger sysEvent          = Logger<true> ("[Syscall][sysEvent      ] ");
 static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
 static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
-static Logger misc_sc           = Logger<false>("[Syscall][Misc          ] ");
+static Logger misc_sc           = Logger<true> ("[Syscall][Misc          ] ");
 static Logger tty               = Logger<1>    ();
 
 // RSX
@@ -79,7 +80,7 @@ static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
 static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
 static Logger lle_module        = Logger<true> ("[LLE    ][Module        ] ");
 static Logger filesystem        = Logger<true> ("[Other  ][Filesystem    ] ");
-static Logger unimplemented     = Logger<1>    ("[Other  ][Unimplemented ] ");
+static Logger unimplemented     = Logger<true> ("[Other  ][Unimplemented ] ");
 
 #undef true
 #undef false

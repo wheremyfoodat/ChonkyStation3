@@ -68,6 +68,7 @@ public:
     };
 
     u64 cellSysutilUnregisterCallback();
+    u64 cellSysutilCheckCallback();
     u64 cellSysutilGetSystemParamInt();
     u64 cellSysutilRegisterCallback();
 

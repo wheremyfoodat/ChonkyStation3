@@ -47,6 +47,8 @@ public:
     CellGcmControl* ctrl;
 
     CellGcmConfig gcm_config;
+    u32 main_mem_base = 0;
+    u32 main_mem_size = 0;
     u32 dma_ctrl_addr = 0;
     u32 label_addr = 0;
     u32 flip = 0;

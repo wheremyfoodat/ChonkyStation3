@@ -34,6 +34,7 @@ public:
 
     // sysEvent
     u64 sysEventQueueCreate();
+    u64 sysEventQueueReceive();
     u64 sysEventPortCreate();
     u64 sysEventPortConnectLocal();
 

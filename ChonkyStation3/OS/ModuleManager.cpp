@@ -3,8 +3,12 @@
 
 
 void ModuleManager::call(u32 nid) {
-    if (!import_map.contains(nid))
-        Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
+    if (!import_map.contains(nid)) {
+        //Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
+        last_call = getImportName(nid);
+        stub();
+        return;
+    }
 
     const auto import = import_map[nid];
     last_call = import.name;
@@ -20,7 +24,8 @@ void ModuleManager::lle(u32 nid) {
     last_lle_nid = nid;
 
     ps3->ppu->state.pc = ps3->mem.read<u32>(exports.funcs[nid].addr);
-    ps3->ppu->state.gprs[2] = exports.funcs[nid].toc;
+    ps3->ppu->state.gprs[2] = ps3->mem.read<u32>(exports.funcs[nid].addr + 4);
+    //ps3->ppu->state.gprs[2] = exports.funcs[nid].toc;
 
     log("%s\n", getImportName(nid).c_str());
 }

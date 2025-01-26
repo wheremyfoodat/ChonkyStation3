@@ -66,12 +66,13 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
-    case 169:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n"); ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 120:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 128:  ps3->ppu->state.gprs[3] = sysEventQueueCreate();         break;
+    case 130:  ps3->ppu->state.gprs[3] = sysEventQueueReceive();         break;
     case 134:  ps3->ppu->state.gprs[3] = sysEventPortCreate();          break;
     case 136:  ps3->ppu->state.gprs[3] = sysEventPortConnectLocal();    break;
     case 141:  ps3->ppu->state.gprs[3] = sysTimerUsleep();  break;
+    case 144:  unimpl("sysTimeGetTimezone() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 145: {
         log("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 1000);
@@ -79,11 +80,14 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
+    case 169:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n"); ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 147: {
         log("sysTimeGetTimebaseFrequency() UNIMPLEMENTED\n");
         ps3->ppu->state.gprs[3] = 1000;
         break;
     }
+    case 182: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysSpuThreadWriteSnr() UNIMPLEMENTED\n");   break;
+    case 190: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysSpuThreadWriteSpuMb() UNIMPLEMENTED\n"); break;
     case 330: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
     case 331: ps3->ppu->state.gprs[3] = Result::CELL_OK;  log("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
     case 337: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;

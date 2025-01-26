@@ -30,6 +30,18 @@ void PPU::printState() {
         printf("v%02d:  { 0x%08x, 0x%08x, 0x%08x, 0x%08x } (%f, %f, %f, %f)\n", i, state.vrs[i].w[3], state.vrs[i].w[2], state.vrs[i].w[1], state.vrs[i].w[0], *(float*)&state.vrs[i].w[3], *(float*)&state.vrs[i].w[2], *(float*)&state.vrs[i].w[1], *(float*)&state.vrs[i].w[0]);
 }
 
+bool PPU::doesAnyRegContain(u64 val) {
+    for (auto& i : state.gprs)
+        if (i == val) return true;
+    return false;
+}
+
+bool PPU::doesAnyRegContainMasked(u64 val, u64 mask) {
+    for (auto& i : state.gprs)
+        if ((i & mask) == (val & mask)) return true;
+    return false;
+}
+
 bool PPU::branchCondition(u8 bo, u8 bi) {
     // BO bit 4: don't test CR if set
     // BO bit 2: don't test CTR (and don't decrement) if set

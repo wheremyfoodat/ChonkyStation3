@@ -14,6 +14,7 @@ __declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
 
+
 static constexpr double MS_PER_FRAME = 1000.0 / 60.0;
 
 int main(int argc, char** argv) {

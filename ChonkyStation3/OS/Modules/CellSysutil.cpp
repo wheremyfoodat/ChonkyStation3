@@ -8,6 +8,12 @@ u64 CellSysutil::cellSysutilUnregisterCallback() {
     return Result::CELL_OK;
 }
 
+u64 CellSysutil::cellSysutilCheckCallback() {
+    log("cellSysutilCheckCallback() UNIMPLEMENTED\n");
+
+    return Result::CELL_OK;
+}
+
 u64 CellSysutil::cellSysutilGetSystemParamInt() {
     const u32 param = ARG0;
     const u32 val_ptr = ARG1;

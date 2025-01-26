@@ -58,6 +58,7 @@ public:
     void lfd        (const Instruction& instr);
     void lfdu       (const Instruction& instr);
     void stfs       (const Instruction& instr);
+    void stfsu      (const Instruction& instr);
     void stfd       (const Instruction& instr);
     void stfdu      (const Instruction& instr);
     // G_04
@@ -87,6 +88,7 @@ public:
     // G_13
     void mcrf       (const Instruction& instr);
     void bclr       (const Instruction& instr);
+    void crnand     (const Instruction& instr);
     void crorc      (const Instruction& instr);
     void cror       (const Instruction& instr);
     void bcctr      (const Instruction& instr);
@@ -167,6 +169,7 @@ public:
     void fsubs      (const Instruction& instr);
     void fadds      (const Instruction& instr);
     void fmuls      (const Instruction& instr);
+    void fmsubs     (const Instruction& instr);
     void fmadds     (const Instruction& instr);
     void fnmsubs    (const Instruction& instr);
     // G_3E

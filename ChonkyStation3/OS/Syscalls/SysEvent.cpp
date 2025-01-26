@@ -15,6 +15,11 @@ u64 Syscall::sysEventQueueCreate() {
     return Result::CELL_OK;
 }
 
+u64 Syscall::sysEventQueueReceive() {
+    unimpl("sysEventQueueReceive() UNIMLPEMENTED\n");
+    return Result::CELL_OK;
+}
+
 u64 Syscall::sysEventPortCreate() {
     const u32 port_id_ptr = ARG0;
     const s32 port_type = ARG1;

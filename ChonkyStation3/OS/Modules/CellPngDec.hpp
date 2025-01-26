@@ -86,6 +86,13 @@ public:
         BEField<u32> use_mem_space;
     };
 
+    struct CellPngDecDataOutInfo {
+        BEField<u32> chunkInformation;
+        BEField<u32> numText;
+        BEField<u32> numUnknownChunk;
+        BEField<s32> status;
+    };
+
     enum CellPngDecStreamSrcSel : u32 {
         CELL_PNGDEC_FILE = 0,
         CELL_PNGDEC_BUFFER = 1,

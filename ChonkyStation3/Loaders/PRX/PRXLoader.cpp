@@ -132,7 +132,7 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
         for (int i = 0; i < module->n_funcs; i++) {
             const u32 nid = ps3->mem.read<u32>(module->nids_ptr + i * sizeof(u32));
             const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
-            exports.funcs[nid] = { addr, lib->toc };
+            exports.funcs[nid] = { addr, allocations[0] + lib->toc };
             log("* Exported function: 0x%08x @ 0x%08x \t[%s]\n", nid, addr, ps3->module_manager.getImportName(nid).c_str());
         }
 

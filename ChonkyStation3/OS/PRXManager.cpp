@@ -66,7 +66,7 @@ void PRXManager::initializeLibraries() {
     for (auto& i : libs) {
         log("Initializing lib %s...\n", i.name.c_str());
         if (i.start_func)
-            ps3->ppu->runFunc(ps3->mem.read<u32>(i.start_func), i.toc);
+            ps3->ppu->runFunc(ps3->mem.read<u32>(i.start_func), ps3->mem.read<u32>(i.start_func + 4));
         log("Done\n");
     }
 }

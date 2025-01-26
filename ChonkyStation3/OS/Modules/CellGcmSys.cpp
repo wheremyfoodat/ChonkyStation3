@@ -72,8 +72,15 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     else if (Helpers::inRange<u32>(addr, gcm_config.io_addr, gcm_config.io_addr + gcm_config.io_size - 1)) {
         offs = addr - gcm_config.io_addr;
     }
-    else
+    // Check if it's in the main memory area mapped to IO region
+    else if (Helpers::inRange<u32>(addr, main_mem_base, main_mem_base + main_mem_size - 1)) {
+        offs = addr - main_mem_base;
+    }
+    else {
         Helpers::panic("\ncellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
+        ps3->mem.write<u32>(offs_ptr, 0);
+        return 0x802100ff;  // CELL_GCM_ERROR_FAILURE
+    }
 
     logNoPrefix(" [offs: 0x%08x]\n", offs);
     ps3->mem.write<u32>(offs_ptr, offs);
@@ -132,6 +139,12 @@ u64 CellGcmSys::cellGcmMapMainMemory() {
     const u32 offs_ptr = ARG2;
     log("cellGcmMapMainMemory(ea: 0x%08x, size: 0x%08x, offs_ptr: 0x%08x)\n", ea, size, offs_ptr);
 
+    // This is a stub, will break if this function is called more than once with different addresses
+    //ps3->mem.mmap(ea, ps3->mem.translateAddr(gcm_config.io_addr), size);
+    main_mem_base = ea;
+    main_mem_size = size;
+    ps3->mem.write<u32>(offs_ptr, 0x0);
+
     return Result::CELL_OK;
 }
 
@@ -189,6 +202,13 @@ u64 CellGcmSys::cellGcmGetConfiguration() {
     config->io_size = gcm_config.io_size;
     config->memFreq = gcm_config.memFreq;
     config->coreFreq = gcm_config.coreFreq;
+
+    log("Got config:\n");
+    log("ptr: 0x%08x\n", config_ptr);
+    log("local_addr: 0x%08x\n", (u32)config->local_addr);
+    log("io_addr   : 0x%08x\n", (u32)config->io_addr);
+    log("local_size: 0x%08x\n", (u32)config->local_size);
+    log("io_size   : 0x%08x\n", (u32)config->io_size);
 
     return Result::CELL_OK;
 }
