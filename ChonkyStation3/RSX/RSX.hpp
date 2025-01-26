@@ -60,6 +60,11 @@ public:
     u32 dest_offset = 0;
     u16 point_x = 0;
     u16 point_y = 0;
+    u32 primitive = 0;
+    u16 blend_sfactor_rgb = 0;
+    u16 blend_sfactor_a = 0;
+    u16 blend_dfactor_rgb = 0;
+    u16 blend_dfactor_a = 0;
 
     OpenGL::VertexArray vao;
     OpenGL::VertexBuffer vbo;
@@ -121,6 +126,7 @@ public:
     void uploadFragmentUniforms();
     GLuint getTexturePixelFormat(u8 fmt);
     GLuint getTextureInternalFormat(u8 fmt);
+    GLuint getPrimitive(u32 prim);
 
     enum CellGcmTexture : u32 {
         // Color Flag
@@ -161,6 +167,18 @@ public:
         CELL_GCM_TEXTURE_UN = 0x40,
     };
 
+    enum CellGcmPrimitive : u32 {
+        CELL_GCM_PRIMITIVE_POINTS = 1,
+        CELL_GCM_PRIMITIVE_LINES = 2,
+        CELL_GCM_PRIMITIVE_LINE_LOOP = 3,
+        CELL_GCM_PRIMITIVE_LINE_STRIP = 4,
+        CELL_GCM_PRIMITIVE_TRIANGLES = 5,
+        CELL_GCM_PRIMITIVE_TRIANGLE_STRIP = 6,
+        CELL_GCM_PRIMITIVE_TRIANGLE_FAN = 7,
+        CELL_GCM_PRIMITIVE_QUADS = 8,
+        CELL_GCM_PRIMITIVE_QUAD_STRIP = 9,
+        CELL_GCM_PRIMITIVE_POLYGON = 10,
+    };
 
     // I == command is implemented or at least handled in some way
     enum Commands : u32 {
@@ -217,8 +235,8 @@ public:
         NV4097_SET_ALPHA_TEST_ENABLE                            = 0x00000304,
         NV4097_SET_ALPHA_FUNC                                   = 0x00000308,
         NV4097_SET_ALPHA_REF                                    = 0x0000030c,
-        NV4097_SET_BLEND_ENABLE                                 = 0x00000310,
-        NV4097_SET_BLEND_FUNC_SFACTOR                           = 0x00000314,
+        NV4097_SET_BLEND_ENABLE                                 = 0x00000310,   // I
+        NV4097_SET_BLEND_FUNC_SFACTOR                           = 0x00000314,   // I
         NV4097_SET_BLEND_FUNC_DFACTOR                           = 0x00000318,
         NV4097_SET_BLEND_COLOR                                  = 0x0000031c,
         NV4097_SET_BLEND_EQUATION                               = 0x00000320,
@@ -278,7 +296,7 @@ public:
         NV4097_SET_POLY_OFFSET_FILL_ENABLE                      = 0x00000a68,
         NV4097_SET_DEPTH_FUNC                                   = 0x00000a6c,
         NV4097_SET_DEPTH_MASK                                   = 0x00000a70,
-        NV4097_SET_DEPTH_TEST_ENABLE                            = 0x00000a74,
+        NV4097_SET_DEPTH_TEST_ENABLE                            = 0x00000a74,   // I
         NV4097_SET_POLYGON_OFFSET_SCALE_FACTOR                  = 0x00000a78,
         NV4097_SET_POLYGON_OFFSET_BIAS                          = 0x00000a7c,
         NV4097_SET_VERTEX_DATA_SCALED4S_M                       = 0x00000a80,
@@ -306,7 +324,7 @@ public:
         NV4097_SET_ZPASS_PIXEL_COUNT_ENABLE                     = 0x000017cc,
         NV4097_GET_REPORT                                       = 0x00001800,
         NV4097_SET_ZCULL_STATS_ENABLE                           = 0x00001804,
-        NV4097_SET_BEGIN_END                                    = 0x00001808,
+        NV4097_SET_BEGIN_END                                    = 0x00001808,   // I
         NV4097_ARRAY_ELEMENT16                                  = 0x0000180c,
         NV4097_ARRAY_ELEMENT32                                  = 0x00001810,
         NV4097_DRAW_ARRAYS                                      = 0x00001814,   // I

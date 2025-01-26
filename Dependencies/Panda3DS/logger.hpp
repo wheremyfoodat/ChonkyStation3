@@ -44,7 +44,7 @@ static Logger cellFs            = Logger<true> ("[Module ][cellFs        ] ");
 static Logger cellRtc           = Logger<true> ("[Module ][cellRtc       ] ");
 static Logger cellSpurs         = Logger<true> ("[Module ][cellSpurs     ] ");
 static Logger cellGame          = Logger<true> ("[Module ][cellGame      ] ");
-static Logger cellResc          = Logger<true> ("[Module ][cellResc      ] ");
+static Logger cellResc          = Logger<false>("[Module ][cellResc      ] ");
 static Logger cellSysmodule     = Logger<true> ("[Module ][cellSysmodule ] ");
 static Logger cellSysutil       = Logger<true> ("[Module ][cellSysutil   ] ");
 static Logger cellGcmSys        = Logger<true> ("[Module ][cellGcmSys    ] ");
@@ -59,13 +59,13 @@ static Logger sysEvent          = Logger<true> ("[Syscall][sysEvent      ] ");
 static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
 static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
-static Logger misc_sc           = Logger<true> ("[Syscall][Misc          ] ");
+static Logger misc_sc           = Logger<false>("[Syscall][Misc          ] ");
 static Logger tty               = Logger<1>    ();
 
 // RSX
 static Logger rsx               = Logger<true> ("[RSX    ][Command       ] ");
-static Logger vertex_shader     = Logger<true> ("[Shader ][Vertex        ] ");
-static Logger fragment_shader   = Logger<true> ("[Shader ][Fragment      ] ");
+static Logger vertex_shader     = Logger<false>("[Shader ][Vertex        ] ");
+static Logger fragment_shader   = Logger<false>("[Shader ][Fragment      ] ");
 static Logger shader_cache      = Logger<true> ("[Shader ][Cache         ] ");
 
 // Loader

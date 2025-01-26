@@ -10,6 +10,20 @@ u64 CellResc::cellRescSetDsts() {
     return Result::CELL_OK;
 }
 
+u64 CellResc::cellRescSetWaitFlip() {
+    log("cellRescSetWaitFlip()\n");
+
+    ps3->thread_manager.getCurrentThread()->sleep(10000);
+    return Result::CELL_OK;
+}
+
+u64 CellResc::cellRescResetFlipStatus() {
+    log("cellRescResetFlipStatus()\n");
+    
+    ps3->module_manager.cellGcmSys.flip = 1;
+    return Result::CELL_OK;
+}
+
 u64 CellResc::cellRescSetDisplayMode() {
     const u32 buf_mode = ARG0;
     log("cellRescSetDisplayMode(buf_mode: 0x%08x) UNIMPLEMENTED\n", buf_mode);
@@ -19,8 +33,6 @@ u64 CellResc::cellRescSetDisplayMode() {
 
 u64 CellResc::cellRescSetConvertAndFlip() {
     log("cellRescSetConvertAndFlip() STUBBED\n");
-
-    ps3->thread_manager.getCurrentThread()->sleep(1000000);
 
     return Result::CELL_OK;
 }
@@ -48,6 +60,11 @@ u64 CellResc::cellRescSetBufferAddress() {
     log("cellRescSetBufferAddress(color_bufs: 0x%08x, vertex_array: 0x%08x, frag_shader: 0x%08x) UNIMPLEMENTED\n", color_bufs, vertex_array, frag_shader);
 
     return Result::CELL_OK;
+}
+
+u64 CellResc::cellRescGetFlipStatus() {
+    log("cellRescGetFlipStatus()\n");
+    return ps3->module_manager.cellGcmSys.flip;
 }
 
 u64 CellResc::cellRescVideoOutResolutionId2RescBufferMode() {

@@ -11,6 +11,7 @@ u64 CellPngDec::cellPngDecDecodeData() {
     log("cellPngDecDecodeData()\n");
 
     CellPngDecDataOutInfo* out_info = (CellPngDecDataOutInfo*)ps3->mem.getPtr(data_out_info_ptr);
+    CellPngDecDataCtrlParam* ctrl = (CellPngDecDataCtrlParam*)ps3->mem.getPtr(data_ctrl_param_ptr);
 
     std::vector<u8> buf;
     std::vector<u8> img;
@@ -19,11 +20,16 @@ u64 CellPngDec::cellPngDecDecodeData() {
     lodepng::load_file(buf, curr_file.generic_string().c_str());
     lodepng::State state;
     
+    u32 n_components = 0;
     state.decoder.color_convert = 1;
-    if (out_param.output_color_space == CELL_PNGDEC_RGB)
+    if (out_param.output_color_space == CELL_PNGDEC_RGB) {
         state.info_raw.colortype = LCT_RGB;
-    else
+        n_components = 3;
+    }
+    else {
         state.info_png.color.colortype = LCT_RGBA;
+        n_components = 4;
+    }
     state.info_raw.bitdepth = out_param.output_bit_depth;
 
     u32 width;
@@ -32,7 +38,20 @@ u64 CellPngDec::cellPngDecDecodeData() {
     if (err = lodepng::decode(img, width, height, state, buf))
         Helpers::panic("Failed to decode png %s: %s\n", curr_file.generic_string().c_str(), lodepng_error_text(err));
 
-    std::memcpy(ps3->mem.getPtr(data_ptr), img.data(), img.size());
+    // Do we need padding?
+    const u64 actual_width = width * n_components;
+    if (ctrl->output_bytes_per_line > actual_width) {
+        // buf isn't needed anymore, we can reuse it
+        buf.clear();
+        buf.resize(ctrl->output_bytes_per_line * height);
+        for (int i = 0; i < height; i++) {
+            std::memcpy(&buf[i * ctrl->output_bytes_per_line], &img[i * actual_width], actual_width);
+        }
+        std::memcpy(ps3->mem.getPtr(data_ptr), buf.data(), buf.size());
+    }
+    else {
+        std::memcpy(ps3->mem.getPtr(data_ptr), img.data(), img.size());
+    }
 
     out_info->status = 0;   // FINISHED
 
@@ -68,7 +87,7 @@ u64 CellPngDec::cellPngDecReadHeader() {
     u32 err;
     if (err = lodepng::decode(img, width, height, state, buf))
         Helpers::panic("Failed to decode png %s: %s\n", curr_file.generic_string().c_str(), lodepng_error_text(err));
-    displayPNGInfo(state.info_png);
+    //displayPNGInfo(state.info_png);
 
     info->width = width;
     info->height = height;

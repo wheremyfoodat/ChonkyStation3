@@ -9,7 +9,17 @@ u64 CellSysutil::cellSysutilUnregisterCallback() {
 }
 
 u64 CellSysutil::cellSysutilCheckCallback() {
-    log("cellSysutilCheckCallback() UNIMPLEMENTED\n");
+    log("cellSysutilCheckCallback() STUBBED\n");
+
+    // TODO: Currently this is stubbed to just always call the callbacks.
+    for (int i = 0; i < 3; i++) {
+        if (callbacks[i].func_ptr) {
+            log("Running callback func %d\n", i);
+            ps3->ppu->state.gprs[3] = callbacks[i].userdata_ptr;
+            ps3->ppu->runFunc(callbacks[i].func_ptr);
+            log("Done\n");
+        }
+    }
 
     return Result::CELL_OK;
 }
@@ -33,7 +43,13 @@ u64 CellSysutil::cellSysutilGetSystemParamInt() {
 }
 
 u64 CellSysutil::cellSysutilRegisterCallback() {
-    log("cellSysUtilRegisterCallback() UNIMPLEMENTED\n");
+    const u32 slot = ARG0;
+    const u32 func_ptr = ARG1;
+    const u32 userdata_ptr = ARG2;
+    log("cellSysUtilRegisterCallback(slot: %d, func_ptr: 0x%08x, userdata_ptr: 0x%08x)\n", slot, func_ptr, userdata_ptr);
+    Helpers::debugAssert(slot < 4, "cellSysutilRegisterCallback(): slot is not in range 0-3\n");
+
+    callbacks[slot] = { ps3->mem.read<u32>(func_ptr), userdata_ptr };
 
     return Result::CELL_OK;
 }

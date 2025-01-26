@@ -99,12 +99,17 @@ public:
         { 0x112a5ee9, { "cellSysmoduleUnloadModule",                    std::bind(&CellSysmodule::cellSysmoduleUnloadModule, &cellSysmodule) }},
         { 0x32267a31, { "cellSysmoduleLoadModule",                      std::bind(&CellSysmodule::cellSysmoduleLoadModule, &cellSysmodule) }},
 
+        { 0x01220224, { "cellRescGcmSurface2RescSrc",                   std::bind(&ModuleManager::stub, this) }},
+        { 0x0d3c22ce, { "cellRescSetWaitFlip",                          std::bind(&CellResc::cellRescSetWaitFlip, &cellResc) }},
         { 0x10db5b1a, { "cellRescSetDsts",                              std::bind(&CellResc::cellRescSetDsts, &cellResc) }},
+        { 0x129922a0, { "cellRescResetFlipStatus",                      std::bind(&CellResc::cellRescResetFlipStatus, &cellResc) }},
         { 0x23134710, { "cellRescSetDisplayMode",                       std::bind(&CellResc::cellRescSetDisplayMode, &cellResc) }},
         { 0x25c107e6, { "cellRescSetConvertAndFlip",                    std::bind(&CellResc::cellRescSetConvertAndFlip, &cellResc) }},
         { 0x516ee89e, { "cellRescInit",                                 std::bind(&CellResc::cellRescInit, &cellResc) }},
         { 0x5a338cdb, { "cellRescGetBufferSize",                        std::bind(&CellResc::cellRescGetBufferSize, &cellResc) }},
+        { 0x6cd0f95f, { "cellRescSetSrc",                               std::bind(&ModuleManager::stub, this) }},
         { 0x8107277c, { "cellRescSetBufferAddress",                     std::bind(&CellResc::cellRescSetBufferAddress, &cellResc) }},
+        { 0xc47c5c22, { "cellRescGetFlipStatus",                        std::bind(&CellResc::cellRescGetFlipStatus, &cellResc) }},
         { 0xd1ca0503, { "cellRescVideoOutResolutionId2RescBufferMode",  std::bind(&CellResc::cellRescVideoOutResolutionId2RescBufferMode, &cellResc) }},
 
         { 0x7a0a83c4, { "cellFontInitLibraryFreeTypeWithRevision",      std::bind(&ModuleManager::stub, this) }},

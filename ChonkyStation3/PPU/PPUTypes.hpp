@@ -62,6 +62,22 @@ struct State {
     XER xer;
     u64 ctr = 0;
     u64 vrsave = 0;
+
+    State& operator=(const State& other) {
+        for (int i = 0; i < 32; i++) gprs[i] = other.gprs[i];
+        for (int i = 0; i < 32; i++) fprs[i] = other.fprs[i];
+        for (int i = 0; i < 32; i++) {
+            vrs[i].dw[0] = vrs[i].dw[0];
+            vrs[i].dw[1] = vrs[i].dw[1];
+        }
+        pc = other.pc;
+        lr = other.lr;
+        xer.ca = other.xer.ca;
+        xer.ov = other.xer.ov;
+        xer.so = other.xer.so;
+        cr.raw = other.cr.raw;
+        return *this;
+    }
 };
 
 union Instruction {

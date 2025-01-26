@@ -12,6 +12,8 @@ void PPUInterpreter::step() {
     const u32 instr_raw = mem.read<u32>(state.pc);
     const Instruction instr = { .raw = instr_raw };
 
+    if (ps3->thread_manager.getCurrentThread()->id == 65539) PPUDisassembler::disasm(state, instr, &ps3->mem);
+
     switch (instr.opc) {
     
     case G_04: {

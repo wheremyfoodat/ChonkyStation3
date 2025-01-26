@@ -24,7 +24,13 @@ public:
     u64 allocateStack(u64 stack_size);
     void mapStack(Thread& thread);
 
+    void setTLS(u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize);
     u32 allocTLS(u32 size);
+
+    u32 tls_vaddr;
+    u32 tls_filesize;
+    u32 tls_memsize;
+
 private:
     u32 next_thread_id = 0x10000;
     u32 next_tls_addr = TLS_REGION_START;

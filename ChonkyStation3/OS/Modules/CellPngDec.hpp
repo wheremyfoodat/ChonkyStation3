@@ -109,6 +109,10 @@ public:
         CELL_PNGDEC_BUFFER = 1,
     };
 
+    struct CellPngDecDataCtrlParam {
+        BEField<u64> output_bytes_per_line;
+    };
+
     enum CellPngDecColorSpace : s32 {
         CELL_PNGDEC_GRAYSCALE = 1,
         CELL_PNGDEC_RGB = 2,

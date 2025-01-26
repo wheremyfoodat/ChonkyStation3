@@ -14,8 +14,17 @@ using namespace CellTypes;
 
 class CellSysutil {
 public:
-    CellSysutil(PlayStation3* ps3) : ps3(ps3) {}
+    CellSysutil(PlayStation3* ps3) : ps3(ps3) {
+        // Reset callbacks
+        for (int i = 0; i < 4; i++) callbacks[i] = { 0, 0 };
+    }
     PlayStation3* ps3;
+
+    struct CellSysutilCallback {
+        u32 func_ptr;
+        u32 userdata_ptr;
+    };
+    CellSysutilCallback callbacks[4];
     
     enum SYSTEM_PARAM : u32 {
         // Integers

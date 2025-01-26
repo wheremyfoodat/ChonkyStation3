@@ -18,6 +18,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
         module_manager.registerImport(i.first, i.second);
 
     // Create main thread
+    thread_manager.setTLS(elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize);
     Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true);
 
     // Load PRXs required by the ELF

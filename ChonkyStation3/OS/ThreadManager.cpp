@@ -5,14 +5,15 @@
 Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread) {
     threads.push_back({ entry, stack_size, arg, name, next_thread_id++, tls_vaddr, tls_filesize, tls_memsize, this});
     // If this is the first thread we create, set 
-    // _thread to point to this thread and initialize ppu
+    // current_thread to point to this thread and initialize ppu
     if (is_start_thread) {
         current_thread_id = threads.back().id;
         mapStack(threads.back());
         ps3->ppu->state = getCurrentThread()->state;
     }
     
-    printf("Created thread \"%s\"\n", threads.back().name.c_str());
+    printf("Created thread %d \"%s\"\n", threads.back().id, threads.back().name.c_str());
+    printf("Entry: 0x%08x\n", threads.back().state.pc);
     //ps3->ppu->printState();
 
     return &threads.back();
@@ -26,9 +27,11 @@ void ThreadManager::contextSwitch(Thread& thread) {
     current_thread->state = ps3->ppu->state;
     ps3->ppu->state = thread.state;
     
-    current_thread = &thread;
+    current_thread_id = thread.id;
     mapStack(thread);
-    // TODO: tls
+
+    printf("New state:\n");
+    ps3->ppu->printState();
 }
 
 void ThreadManager::reschedule() {
@@ -70,6 +73,12 @@ void ThreadManager::mapStack(Thread& thread) {
     // Unmap current stack region
     ps3->mem.ram.unmap(STACK_REGION_START);
     ps3->mem.ram.mmap(STACK_REGION_START, thread.stack, thread.stack_size);
+}
+
+void ThreadManager::setTLS(u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize) {
+    this->tls_vaddr = tls_vaddr;
+    this->tls_filesize = tls_filesize;
+    this->tls_memsize = tls_memsize;
 }
 
 u32 ThreadManager::allocTLS(u32 tls_size) {

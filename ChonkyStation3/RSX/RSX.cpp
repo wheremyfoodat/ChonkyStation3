@@ -6,6 +6,7 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     OpenGL::setViewport(1280, 720);     // TODO: Get resolution from cellVideoOut
     OpenGL::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     OpenGL::clearColor();
+    //OpenGL::setClearDepth(-1.0f);
     OpenGL::clearDepth();
     vao.create();
     vbo.create();
@@ -13,17 +14,18 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     vbo.bind();
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    OpenGL::enableDepth();
+    //OpenGL::enableDepth();
     OpenGL::setDepthFunc(OpenGL::DepthFunc::Less);
     OpenGL::disableScissor();
     OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
+    OpenGL::setBlendEquation(OpenGL::BlendEquation::Add);
 
     glGenTextures(1, &tex.m_handle);
     glBindTexture(GL_TEXTURE_2D, tex.m_handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     std::memset(constants, 0, 512 * 4);
 }
@@ -152,6 +154,25 @@ GLuint RSX::getTexturePixelFormat(u8 fmt) {
     }
 }
 
+GLuint RSX::getPrimitive(u32 prim) {
+    switch (prim) {
+    case CELL_GCM_PRIMITIVE_POINTS:         return GL_POINTS;
+    case CELL_GCM_PRIMITIVE_LINES:          return GL_LINES;
+    case CELL_GCM_PRIMITIVE_LINE_LOOP:      return GL_LINE_LOOP;
+    case CELL_GCM_PRIMITIVE_LINE_STRIP:     return GL_LINE_STRIP;
+    case CELL_GCM_PRIMITIVE_TRIANGLES:      return GL_TRIANGLES;
+    case CELL_GCM_PRIMITIVE_TRIANGLE_STRIP: return GL_TRIANGLE_STRIP;
+    case CELL_GCM_PRIMITIVE_TRIANGLE_FAN:   return GL_TRIANGLE_FAN;
+    case CELL_GCM_PRIMITIVE_QUADS:          return GL_TRIANGLES;
+    case CELL_GCM_PRIMITIVE_QUAD_STRIP:     Helpers::panic("Unimplemented quad strip\n");
+    case CELL_GCM_PRIMITIVE_POLYGON:        Helpers::panic("Unimplemented polygon\n");
+    default:                                Helpers::panic("Invalid RSX primitive type %d\n", prim);
+    }
+}
+
+// Temporary hack to get the arkedo games to work (I'm skipping drawing the fade in/out quads on top of the text)
+bool skip = false;
+
 void RSX::runCommandList() {
     int cmd_count = gcm.ctrl->put - gcm.ctrl->get;
     if (cmd_count <= 0) return;
@@ -195,9 +216,43 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_SET_BLEND_ENABLE: {
+            if (args[0]) {
+                log("Enabled blending\n");
+                OpenGL::enableBlend();
+            }
+            else {
+                log("Disabled blending\n");
+                OpenGL::disableBlend();
+            }
+            break;
+        }
+
+        case NV4097_SET_BLEND_FUNC_SFACTOR: {
+            blend_sfactor_rgb = args[0] & 0xffff;
+            blend_sfactor_a = args[0] >> 16;
+            if (args.size() > 1) {
+                blend_dfactor_rgb = args[1] & 0xffff;
+                blend_dfactor_a = args[1] >> 16;
+            }
+            break;
+        }
+
         case NV4097_SET_SHADER_PROGRAM: {
             fragment_shader_program.addr = offsetAndLocationToAddress(args[0] & ~3, (args[0] & 3) - 1);
             log("Fragment shader: address: 0x%08x\n", fragment_shader_program.addr);
+            break;
+        }
+
+        case NV4097_SET_DEPTH_TEST_ENABLE: {
+            if (args[0]) {
+                log("Enabled depth test\n");
+                OpenGL::enableDepth();
+            }
+            else {
+                log("Disabled depth test\n");
+                OpenGL::disableDepth();
+            }
             break;
         }
 
@@ -255,6 +310,12 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_SET_BEGIN_END: {
+            primitive = args[0];
+            log("Primitive: 0x%0x\n", primitive);
+            break;
+        }
+
         case NV4097_DRAW_ARRAYS: {
             compileProgram();
             program.use();
@@ -265,6 +326,9 @@ void RSX::runCommandList() {
 
             // Texture samplers
             glUniform1i(glGetUniformLocation(program.handle(), "tex"), 0);
+
+            // Blending
+            glBlendFuncSeparate(blend_sfactor_rgb, blend_dfactor_rgb, blend_sfactor_a, blend_dfactor_a);
 
             std::vector<u8> vtx_buf;
             int n_vertices = 0;
@@ -277,8 +341,24 @@ void RSX::runCommandList() {
                 getVertices(count, vtx_buf, first);
             }
             
-            glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
-            glDrawArrays(GL_TRIANGLES, 0, n_vertices);
+            
+            // Hack for quads
+            if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
+                std::vector<u32> indices;
+                indices.push_back(0);
+                indices.push_back(1);
+                indices.push_back(2);
+                indices.push_back(2);
+                indices.push_back(3);
+                indices.push_back(0);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
+                if (!skip) glDrawElements(getPrimitive(primitive), indices.size(), GL_UNSIGNED_INT, 0);
+            }
+            else {
+                glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
+                if (!skip) glDrawArrays(getPrimitive(primitive), 0, n_vertices);
+            }
 
             vertex_array.bindings.clear();
             break;
@@ -333,7 +413,7 @@ void RSX::runCommandList() {
 
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
             glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+            glDrawElements(getPrimitive(primitive), indices.size(), GL_UNSIGNED_INT, 0);
 
             vertex_array.bindings.clear();
             break;
@@ -360,6 +440,8 @@ void RSX::runCommandList() {
             
             texture.width = width;
             texture.height = height;
+            if (texture.width == 16) skip = true;
+            else skip = false;
 
             const auto fmt = getTexturePixelFormat(texture.format);
             const auto internal = getTextureInternalFormat(texture.format);
@@ -384,8 +466,12 @@ void RSX::runCommandList() {
 
         case NV4097_CLEAR_SURFACE: {
             OpenGL::setClearColor(clear_color.r(), clear_color.g(), clear_color.b(), clear_color.a());
-            OpenGL::clearColor();
-            OpenGL::clearDepthAndStencil();
+            if (args[0] & 0xF0)
+                OpenGL::clearColor();
+            if (args[0] & 1)
+                OpenGL::clearDepth();
+            if (args[0] & 2)
+                OpenGL::clearStencil();
             break;
         }
 

@@ -13,13 +13,13 @@ u64 SysThread::sysPPUThreadCreate() {
     log("sysPPUThreadCreate(thread_id_ptr: 0x%08x, entry: 0x%08x, arg: 0x%016llx, prio: %d, stack_size: 0x%08x, flags: 0x%016llx, thread_name_ptr: 0x%08x)\n", thread_id_ptr, entry, arg, prio, stack_size, flags, thread_name_ptr);
 
     const std::string name = Helpers::readString(ps3->mem.getPtr(thread_name_ptr));
-    Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, (const u8*)name.c_str(), 0, 0, 0);
+    Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, (const u8*)name.c_str(), ps3->thread_manager.tls_vaddr, ps3->thread_manager.tls_filesize, ps3->thread_manager.tls_memsize);
     // HACK: sleep spu threads
     //if (thread->name == "spu_printf_handler"
     //    || thread->name == "soundmain")
         thread->status = Thread::THREAD_STATUS::Sleeping;
 
-    ps3->mem.write<u32>(thread_id_ptr, thread->id);
+    ps3->mem.write<u64>(thread_id_ptr, thread->id);
 
     return Result::CELL_OK;
 }
