@@ -48,8 +48,10 @@ void Thread::sleep(u64 us) {
     const u64 cycles = Scheduler::uSecondsToCycles(us);
     mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), cycles, "thread wakeup");
     status = THREAD_STATUS::Sleeping;
-    mgr->reschedule();
     log("Sleeping thread %d for %d us\n", id, us);
+    // We put the reschedule on the scheduler instead of having it happen instantly because it would break
+    // if a reschedule is called in the middle of an HLE function
+    mgr->ps3->scheduler.push(std::bind(&ThreadManager::reschedule, mgr), 1, "thread reschedule");
 }
 
 void Thread::wakeUp() {

@@ -12,7 +12,7 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8
         ps3->ppu->state = getCurrentThread()->state;
     }
     
-    printf("Created thread %d \"%s\"\n", threads.back().id, threads.back().name.c_str());
+    printf("Created thread %d \"%s\" (entry: 0x%08x)\n", threads.back().id, threads.back().name.c_str(), (u32)threads.back().state.pc);
 
     return &threads.back();
 }

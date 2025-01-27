@@ -6,8 +6,9 @@ void Scheduler::tick(u64 cycles) {
 
     for (int i = 0; i < events.size(); i++) {
         if (time >= events.top().time) {
-            events.top().func();
+            auto event = events.top();
             events.pop();
+            event.func();
         }
         else break;
     }
@@ -16,8 +17,9 @@ void Scheduler::tick(u64 cycles) {
 u64 Scheduler::tickToNextEvent() {
     u64 elapsed = events.top().time - time;
     time = events.top().time;
-    events.top().func();
+    auto event = events.top();
     events.pop();
+    event.func();
 
     return elapsed;
 }
