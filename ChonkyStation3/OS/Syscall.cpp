@@ -9,42 +9,35 @@ Syscall::Syscall(PlayStation3* ps3) {
 void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     const auto syscall_num = ps3->ppu->state.gprs[11];
 
-    switch (syscall_num) {
-    
-    // cellGcmCallback
-    case 0x06: ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
+    const u8 stub = ps3->mem.read<u32>(ps3->ppu->state.pc) & 0xffff;
+    switch (stub) {
     // Module call
-    case 0x10:
-    case 0x11: {
-        bool should_return = ps3->ppu->state.gprs[11] == 0x10;
+    case 0x10: {
         // Normally the stub does this to jump to the function (mtctr + bctr), I don't think it matters but to be sure I added this here
         ps3->ppu->state.ctr = ps3->ppu->state.gprs[0];
         // import addr is stored in r12
         ps3->module_manager.call(ps3->module_manager.imports[ps3->ppu->state.gprs[12]]);
-        // return
-        if (should_return) ps3->ppu->state.pc = ps3->ppu->state.lr;
-        if (decrement_pc_if_module_call && should_return) ps3->ppu->state.pc -= 4;
-        break;
+        return;
     }
-    case 0x2010:
-    case 0x2011: {
-        bool should_return = ps3->ppu->state.gprs[11] == 0x2010;
+    case 0x2010: {
         // Normally the stub does this to jump to the function (mtctr + bctr), I don't think it matters but to be sure I added this here
         ps3->ppu->state.ctr = ps3->ppu->state.gprs[0];
-        
+
         const u32 stub_addr = ps3->mem.read<u32>(ps3->ppu->state.gprs[2]);
         ps3->module_manager.call(ps3->module_manager.imports[stub_addr]);
-
-        // return
-        if (should_return) ps3->ppu->state.pc = ps3->ppu->state.lr;
-        if (decrement_pc_if_module_call && should_return) ps3->ppu->state.pc -= 4;
-        break;
+        return;
     }
     case 0x1010: {
         ps3->module_manager.lle(ps3->module_manager.imports[ps3->ppu->state.gprs[12]]);
         ps3->ppu->state.pc -= 4;
-        break;
+        return;
     }
+    }
+
+    switch (syscall_num) {
+    
+    // cellGcmCallback
+    case 0x06: ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
 
     case 1: {
         log("sysProcessGetPID()\n");

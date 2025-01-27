@@ -13,8 +13,6 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8
     }
     
     printf("Created thread %d \"%s\"\n", threads.back().id, threads.back().name.c_str());
-    printf("Entry: 0x%08x\n", threads.back().state.pc);
-    //ps3->ppu->printState();
 
     return &threads.back();
 }
@@ -29,9 +27,6 @@ void ThreadManager::contextSwitch(Thread& thread) {
     
     current_thread_id = thread.id;
     mapStack(thread);
-
-    printf("New state:\n");
-    ps3->ppu->printState();
 }
 
 void ThreadManager::reschedule() {

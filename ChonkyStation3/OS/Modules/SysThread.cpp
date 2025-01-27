@@ -15,8 +15,8 @@ u64 SysThread::sysPPUThreadCreate() {
     const std::string name = Helpers::readString(ps3->mem.getPtr(thread_name_ptr));
     Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, (const u8*)name.c_str(), ps3->thread_manager.tls_vaddr, ps3->thread_manager.tls_filesize, ps3->thread_manager.tls_memsize);
     // HACK: sleep spu threads
-    //if (thread->name == "spu_printf_handler"
-    //    || thread->name == "soundmain")
+    if (thread->name == "spu_printf_handler"
+        || thread->name == "soundmain")
         thread->status = Thread::THREAD_STATUS::Sleeping;
 
     ps3->mem.write<u64>(thread_id_ptr, thread->id);

@@ -16,32 +16,30 @@ void StubPatcher::patch(u32 addr, bool lle, PlayStation3* ps3) {
             if (!lle) {
                 u32 sc = 0x10;
                 if (addr_in_r2) sc += 0x2000;
-                ps3->mem.write<u32>(addr + i - 4, 0x39600000 | sc);     // li r11, 0x10
-                ps3->mem.write<u32>(addr + i - 0, 0x44000000);          // sc
+                ps3->mem.write<u32>(addr + i - 4, 0x44000000 | sc);     // sc   (we check the low 16 bits to figure out the stub type)
+                ps3->mem.write<u32>(addr + i - 0, 0x4e800020);          // blr
                 stubbed = true;
             }
             else {
                 u32 sc = 0x1010;
                 if (addr_in_r2) sc += 0x2000;
-                ps3->mem.write<u32>(addr + i - 4, 0x39600000 | sc);     // li r11, 0x1010
-                ps3->mem.write<u32>(addr + i - 0, 0x44000000);          // sc
+                ps3->mem.write<u32>(addr + i - 4, 0x44000000 | sc);     // sc   (we check the low 16 bits to figure out the stub type)
+                ps3->mem.write<u32>(addr + i - 0, 0x4e800020);          // blr
                 stubbed = true;
             }
             break;
         }
         else if (instr_raw == 0x4e800421) {
             if (!lle) {
-                u32 sc = 0x11;
+                u32 sc = 0x10;
                 if (addr_in_r2) sc += 0x2000;
-                ps3->mem.write<u32>(addr + i - 4, 0x39600000 | sc);     // li r11, 0x11
-                ps3->mem.write<u32>(addr + i - 0, 0x44000000);          // sc
+                ps3->mem.write<u32>(addr + i - 0, 0x44000000 | sc);          // sc
                 stubbed = true;
             }
             else {
-                u32 sc = 0x1011;
+                u32 sc = 0x1010;
                 if (addr_in_r2) sc += 0x2000;
-                ps3->mem.write<u32>(addr + i - 4, 0x39600000 | sc);     // li r11, 0x1011
-                ps3->mem.write<u32>(addr + i - 0, 0x44000001);          // sc
+                ps3->mem.write<u32>(addr + i - 0, 0x44000000 | sc);          // sc
                 stubbed = true;
             }
             break;

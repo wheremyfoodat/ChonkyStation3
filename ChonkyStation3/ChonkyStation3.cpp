@@ -58,6 +58,8 @@ int main(int argc, char** argv) {
     double last_time = SDL_GetTicks64() / 1000.0;
     double curr_time = 0;
 
+    SDL_GL_SwapWindow(window);
+
     while (!quit) {
         ps3->run();
         ps3->module_manager.cellGcmSys.flip = 0;
