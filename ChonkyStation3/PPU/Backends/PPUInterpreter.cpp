@@ -133,6 +133,7 @@ void PPUInterpreter::step() {
         case STDX:      stdx(instr);    break;
         case STWCX_:    stwcx(instr);   break;
         case STWX:      stwx(instr);    break;
+        case STDUX:     stdux(instr);   break;
         case ADDZE:     addze(instr);   break;
         case STDCX_:    stdcx(instr);   break;
         case STBX:      stbx(instr);    break;
@@ -1066,6 +1067,12 @@ void PPUInterpreter::stwcx(const Instruction& instr) {
 
 void PPUInterpreter::stwx(const Instruction& instr) {
     mem.write<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb], state.gprs[instr.rs]);
+}
+
+void PPUInterpreter::stdux(const Instruction& instr) {
+    const u32 addr = state.gprs[instr.ra] + state.gprs[instr.rb];
+    mem.write<u64>(addr, state.gprs[instr.rs]);
+    state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::addze(const Instruction& instr) {

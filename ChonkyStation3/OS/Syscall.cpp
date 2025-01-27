@@ -9,7 +9,7 @@ Syscall::Syscall(PlayStation3* ps3) {
 void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     const auto syscall_num = ps3->ppu->state.gprs[11];
 
-    const u8 stub = ps3->mem.read<u32>(ps3->ppu->state.pc) & 0xffff;
+    const u16 stub = ps3->mem.read<u32>(ps3->ppu->state.pc) & 0xffff;
     switch (stub) {
     // Module call
     case 0x10: {

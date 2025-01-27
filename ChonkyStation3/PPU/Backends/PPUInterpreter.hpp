@@ -129,6 +129,7 @@ public:
     void stdx       (const Instruction& instr);
     void stwcx      (const Instruction& instr);
     void stwx       (const Instruction& instr);
+    void stdux      (const Instruction& instr);
     void addze      (const Instruction& instr);
     void stdcx      (const Instruction& instr);
     void stbx       (const Instruction& instr);

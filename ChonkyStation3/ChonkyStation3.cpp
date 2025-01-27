@@ -76,8 +76,9 @@ int main(int argc, char** argv) {
             frame_count = 0;
         }
 
-        SDL_Event e;
+        ps3->resetButtons();
 
+        SDL_Event e;
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
                 case SDL_QUIT: {
@@ -93,6 +94,21 @@ int main(int argc, char** argv) {
                     } else if (e.button.button == SDL_BUTTON_RIGHT) {
                         vsync_enabled = !vsync_enabled;
                         SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
+                    }
+                    break;
+                }
+
+                case SDL_KEYDOWN: {
+                    switch (e.key.keysym.sym) {
+                    case SDL_KeyCode::SDLK_m:       ps3->pressButton(CELL_PAD_CTRL_START);
+                    case SDL_KeyCode::SDLK_k:       ps3->pressButton(CELL_PAD_CTRL_CROSS);
+                    case SDL_KeyCode::SDLK_l:       ps3->pressButton(CELL_PAD_CTRL_CIRCLE);
+                    case SDL_KeyCode::SDLK_j:       ps3->pressButton(CELL_PAD_CTRL_SQUARE);
+                    case SDL_KeyCode::SDLK_i:       ps3->pressButton(CELL_PAD_CTRL_TRIANGLE);
+                    case SDL_KeyCode::SDLK_DOWN:    ps3->pressButton(CELL_PAD_CTRL_DOWN);
+                    case SDL_KeyCode::SDLK_UP:      ps3->pressButton(CELL_PAD_CTRL_UP);
+                    case SDL_KeyCode::SDLK_LEFT:    ps3->pressButton(CELL_PAD_CTRL_LEFT);
+                    case SDL_KeyCode::SDLK_RIGHT:   ps3->pressButton(CELL_PAD_CTRL_RIGHT);
                     }
                     break;
                 }

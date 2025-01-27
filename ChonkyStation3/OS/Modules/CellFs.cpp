@@ -35,6 +35,9 @@ u64 CellFs::cellFsOpen() {
     const u32 file_id = ps3->fs.open(path);
     ps3->mem.write<u32>(file_id_ptr, file_id);
 
+    if (file_id == 0) {
+        return Result::CELL_BADF;   // Is this the right error?
+    }
     return Result::CELL_OK;
 }
 

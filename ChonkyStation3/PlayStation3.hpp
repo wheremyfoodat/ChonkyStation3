@@ -39,4 +39,7 @@ public:
     void run();
     void step();
     void skipToNextEvent();
+
+    void pressButton(u32 button);
+    void resetButtons();
 };

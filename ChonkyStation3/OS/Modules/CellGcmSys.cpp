@@ -37,7 +37,7 @@ u64 CellGcmSys::cellGcmInitBody() {
     ps3->mem.write<u32>(callback_addr + 12, 0x4E800020);     // blr
 
     ctx->begin = io_addr;
-    ctx->end =  io_addr + 32 * 1024 - 4;
+    ctx->end =  io_addr + io_size;
     ctx->current = io_addr;
     ctx->callback = callback_addr;
 
@@ -236,6 +236,7 @@ u64 CellGcmSys::cellGcmCallback() {
         std::memcpy(ps3->mem.getPtr(ctx->begin), ps3->mem.getPtr(ctx->current) - bytes_remaining, bytes_remaining);
 
     ctx->current = ctx->begin + bytes_remaining;
+    std::memset(ps3->mem.getPtr(ctx->current), 0, ctx->end - ctx->current);
 
     ctrl->put = bytes_remaining;
     ctrl->get = 0;

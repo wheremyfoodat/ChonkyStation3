@@ -38,6 +38,7 @@ public:
 //#define false true
 
 // Modules
+static Logger cellPad           = Logger<true> ("[Module ][cellPad       ] ");
 static Logger cellSaveData      = Logger<true> ("[Module ][cellSaveData  ] ");
 static Logger sceNpTrophy       = Logger<true> ("[Module ][sceNpTrophy   ] ");
 static Logger cellPngDec        = Logger<true> ("[Module ][cellPngDec    ] ");

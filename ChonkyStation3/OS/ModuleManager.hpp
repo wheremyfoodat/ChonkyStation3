@@ -24,6 +24,7 @@
 #include <Modules/CellPngDec.hpp>
 #include <Modules/SceNpTrophy.hpp>
 #include <Modules/CellSaveData.hpp>
+#include <Modules/CellPad.hpp>
 
 
 // Circular dependency
@@ -33,7 +34,7 @@ class ModuleManager {
 public:
     ModuleManager(PlayStation3* ps3) :  ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3),
                                         cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3), sceNpTrophy(ps3),
-                                        cellSaveData(ps3) {}
+                                        cellSaveData(ps3), cellPad(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -102,6 +103,7 @@ public:
 
         { 0x112a5ee9, { "cellSysmoduleUnloadModule",                    std::bind(&CellSysmodule::cellSysmoduleUnloadModule, &cellSysmodule) }},
         { 0x32267a31, { "cellSysmoduleLoadModule",                      std::bind(&CellSysmodule::cellSysmoduleLoadModule, &cellSysmodule) }},
+        { 0x5a59e258, { "cellSysmoduleIsLoaded",                        std::bind(&ModuleManager::stub, this) }},
 
         { 0x01220224, { "cellRescGcmSurface2RescSrc",                   std::bind(&ModuleManager::stub, this) }},
         { 0x0d3c22ce, { "cellRescSetWaitFlip",                          std::bind(&CellResc::cellRescSetWaitFlip, &cellResc) }},
@@ -146,7 +148,10 @@ public:
         { 0xf4e3caa0, { "cellAudioOutGetState",                         std::bind(&ModuleManager::stub, this) }},
 
         { 0x1cf98800, { "cellPadInit",                                  std::bind(&ModuleManager::stub, this) }},
-        { 0xa703a51d, { "cellPadGetInfo2",                              std::bind(&ModuleManager::stub, this) }},
+        { 0x578e3c98, { "cellPadSetPortSetting",                        std::bind(&ModuleManager::stub, this) }},
+        { 0x8b72cda1, { "cellPadGetData",                               std::bind(&CellPad::cellPadGetData, &cellPad)}},
+        { 0xa703a51d, { "cellPadGetInfo2",                              std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
+        { 0x3aaad464, { "cellPadGetInfo",                               std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},   // TODO: No idea if cellPadGetInfo is the same as cellPadGetInfo2?
 
         { 0x32cf311f, { "sceNpScoreInit",                               std::bind(&ModuleManager::stub, this) }},
         { 0x4885aa18, { "sceNpTerm",                                    std::bind(&ModuleManager::stub, this) }},
@@ -177,6 +182,11 @@ public:
         { 0xe3bf9a28, { "sceNpTrophyCreateContext",                     std::bind(&SceNpTrophy::sceNpTrophyCreateContext, &sceNpTrophy) } },
         
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                        std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
+        
+        { 0xda0eb71a, { "sysLwcondCreate",                              std::bind(&ModuleManager::stub, this) } },
+
+        { 0x433f6ec0, { "cellKbInit",                                   std::bind(&ModuleManager::stub, this) } },
+        { 0x4ab1fa77, { "cellKbCnvRawCode",                             std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);
@@ -198,6 +208,7 @@ public:
     CellPngDec cellPngDec;
     SceNpTrophy sceNpTrophy;
     CellSaveData cellSaveData;
+    CellPad cellPad;
 
     u64 stub() {
         unimpl("%s UNIMPLEMENTED\n", last_call.c_str());

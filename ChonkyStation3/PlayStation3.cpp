@@ -44,3 +44,17 @@ void PlayStation3::skipToNextEvent() {
     const u64 ticks = scheduler.tickToNextEvent();
     cycle_count += ticks;
 }
+
+void PlayStation3::pressButton(u32 button) {
+    int idx = 2;
+    if (button >= (1 << 16)) {
+        idx = 3;
+        button >> 16;
+    }
+    module_manager.cellPad.buttons[idx] |= button;
+}
+
+void PlayStation3::resetButtons() {
+    for (int i = 0; i < CELL_PAD_MAX_CODES; i++)
+        module_manager.cellPad.buttons[i] = 0;
+}

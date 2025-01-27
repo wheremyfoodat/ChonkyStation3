@@ -16,7 +16,9 @@ u32 Filesystem::open(fs::path path) {
     // For now if this happens it likely means something is wrong, so just crash.
     const fs::path host_path = ps3->fs.guestPathToHost(path);
     if (!fs::exists(host_path)) {
-        Helpers::panic("Tried to open non-existing file %s\n", path.generic_string().c_str());
+        //Helpers::panic("Tried to open non-existing file %s\n", path.generic_string().c_str());
+        log("WARNING: Tried to open non-existing file %s\n", path.generic_string().c_str());
+        return 0;
     }
 
     const u32 new_file_id = ps3->handle_manager.request();

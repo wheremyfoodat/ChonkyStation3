@@ -182,10 +182,20 @@ void RSX::runCommandList() {
         u32 cmd = fetch32();
         const auto cmd_num = cmd & 0x3ffff;
         const auto argc = (cmd >> 18) & 0x7ff;
+        if (gcm.ctrl->get + (argc * 4) > gcm.ctrl->put) {
+            // Not enough data to collect arguments, return
+            gcm.ctrl->get = gcm.ctrl->get - 4;  // Decrement get and curr_cmd to point back to the command that failed
+            curr_cmd -= 4;
+            return;
+        }
 
         if (cmd & 0x20000000) { // jump
             curr_cmd = cmd & ~0x20000000;
+            Helpers::panic("rsx: jump\n");
             continue;
+        }
+        if (cmd & 0x00000002) { // call
+            Helpers::panic("rsx: call\n");
         }
 
         std::vector<u32> args;
@@ -341,6 +351,7 @@ void RSX::runCommandList() {
             
             // Hack for quads
             if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
+                //if (n_vertices > 4) Helpers::panic("more than 4 vertices\n");
                 std::vector<u32> indices;
                 indices.push_back(0);
                 indices.push_back(1);
