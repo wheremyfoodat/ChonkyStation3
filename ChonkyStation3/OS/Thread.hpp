@@ -26,10 +26,21 @@ public:
 
     enum class THREAD_STATUS {
         Running,
-        Sleeping
+        Sleeping,
+        Terminated
     };
     THREAD_STATUS status = THREAD_STATUS::Running;
 
+    void reschedule(u64 cycles = 0);
     void sleep(u64 us);
     void wakeUp();
+    void exit();
+
+    static std::string threadStatusToString(THREAD_STATUS status) {
+        switch (status) {
+        case THREAD_STATUS::Running:    return "Running";
+        case THREAD_STATUS::Sleeping:   return "Sleeping";
+        case THREAD_STATUS::Terminated: return "Terminated";
+        }
+    }
 };

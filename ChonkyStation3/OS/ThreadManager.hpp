@@ -10,7 +10,12 @@ class PlayStation3;
 
 class ThreadManager {
 public:
-    ThreadManager(PlayStation3* ps3) : ps3(ps3) {}
+    ThreadManager(PlayStation3* ps3) : ps3(ps3) {
+        // Avoid reallocations
+        // My code relies on this... I know it's bad. I pass pointers to Thread objects to the scheduler, if we reallocate
+        // the pointers will become invalid
+        threads.reserve(128);   // More than enough
+    }
     PlayStation3* ps3;
 
     Thread* createThread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread = false);

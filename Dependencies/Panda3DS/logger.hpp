@@ -34,10 +34,11 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
-//#define true false
+#define true false
 //#define false true
 
 // Modules
+static Logger cellSaveData      = Logger<true> ("[Module ][cellSaveData  ] ");
 static Logger sceNpTrophy       = Logger<true> ("[Module ][sceNpTrophy   ] ");
 static Logger cellPngDec        = Logger<true> ("[Module ][cellPngDec    ] ");
 static Logger cellFs            = Logger<true> ("[Module ][cellFs        ] ");

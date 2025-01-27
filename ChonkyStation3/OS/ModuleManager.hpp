@@ -23,6 +23,7 @@
 #include <Modules/CellFs.hpp>
 #include <Modules/CellPngDec.hpp>
 #include <Modules/SceNpTrophy.hpp>
+#include <Modules/CellSaveData.hpp>
 
 
 // Circular dependency
@@ -30,7 +31,9 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) : ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3), cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3), sceNpTrophy(ps3) {}
+    ModuleManager(PlayStation3* ps3) :  ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3),
+                                        cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3), sceNpTrophy(ps3),
+                                        cellSaveData(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -64,6 +67,7 @@ public:
         { 0x24a1ea07, { "sysPPUThreadCreate",                           std::bind(&SysThread::sysPPUThreadCreate, &sysThread) }},
         { 0x350d454e, { "sysPPUThreadGetID",                            std::bind(&SysThread::sysPPUThreadGetID, &sysThread) }},
         { 0x744680a2, { "sysPPUThreadInitializeTLS",                    std::bind(&SysThread::sysPPUThreadInitializeTLS, &sysThread) }},
+        { 0xaff080a4, { "sysPPUThreadExit",                             std::bind(&SysThread::sysPPUThreadExit, &sysThread) }},
 
         { 0x409ad939, { "sysMMapperFreeMemory",                         std::bind(&SysMMapper::sysMMapperFreeMemory, &sysMMapper) }},
         { 0x4643ba6e, { "sysMMapperUnmapMemory",                        std::bind(&SysMMapper::sysMMapperUnmapMemory, &sysMMapper) }},
@@ -164,9 +168,15 @@ public:
         { 0xd2bc5bfd, { "cellPngDecOpen",                               std::bind(&CellPngDec::cellPngDecOpen, &cellPngDec) }},
         { 0xe97c9bd4, { "cellPngDecSetParameter",                       std::bind(&CellPngDec::cellPngDecSetParameter, &cellPngDec) }},
 
+        { 0x1197b52c, { "sceNpTrophyRegisterContext",                   std::bind(&SceNpTrophy::sceNpTrophyRegisterContext, &sceNpTrophy) } },
         { 0x1c25470d, { "sceNpTrophyCreateHandle",                      std::bind(&SceNpTrophy::sceNpTrophyCreateHandle, &sceNpTrophy) } },
+        { 0x370136fe, { "sceNpTrophyGetRequiredDiskSpace",              std::bind(&SceNpTrophy::sceNpTrophyGetRequiredDiskSpace, &sceNpTrophy) } },
         { 0x39567781, { "sceNpTrophyInit",                              std::bind(&ModuleManager::stub, this) } },
+        { 0x49d18217, { "sceNpTrophyGetGameInfo",                       std::bind(&SceNpTrophy::sceNpTrophyGetGameInfo, &sceNpTrophy) } },
+        { 0xb3ac3478, { "sceNpTrophyGetTrophyUnlockState",              std::bind(&SceNpTrophy::sceNpTrophyGetTrophyUnlockState, &sceNpTrophy) } },
         { 0xe3bf9a28, { "sceNpTrophyCreateContext",                     std::bind(&SceNpTrophy::sceNpTrophyCreateContext, &sceNpTrophy) } },
+        
+        { 0xfbd5c856, { "cellSaveDataAutoLoad2",                        std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
     };
 
     std::string getImportName(const u32 nid);
@@ -187,6 +197,7 @@ public:
     CellFs cellFs;
     CellPngDec cellPngDec;
     SceNpTrophy sceNpTrophy;
+    CellSaveData cellSaveData;
 
     u64 stub() {
         unimpl("%s UNIMPLEMENTED\n", last_call.c_str());

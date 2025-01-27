@@ -31,18 +31,23 @@ void ThreadManager::contextSwitch(Thread& thread) {
 
 void ThreadManager::reschedule() {
     bool found_thread = false;
-    for (auto& i : threads) {
-        if (i.status == Thread::THREAD_STATUS::Running) {
-            found_thread = true;
-            contextSwitch(i);
-            break;
-        }
-    }
+    //printf("Rescheduling...\n");
 
-    // TODO: check that there is a "next event"
-    // If there isn't something bad happened
-    if (!found_thread)
-        ps3->skipToNextEvent();
+    do {
+        for (auto& i : threads) {
+            //printf("Thread %s (%d): %s", i.name.c_str(), i.id, Thread::threadStatusToString(i.status).c_str());
+            if (i.status == Thread::THREAD_STATUS::Running) {
+                //printf(" (switching to this thread)\n");
+                found_thread = true;
+                contextSwitch(i);
+                break;
+            }
+            //printf("\n");
+        }
+
+        if (!found_thread)
+            ps3->skipToNextEvent(); // Will panic if there are no events
+    } while (!found_thread);
 }
 
 Thread* ThreadManager::getCurrentThread() {

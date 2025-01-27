@@ -170,9 +170,6 @@ GLuint RSX::getPrimitive(u32 prim) {
     }
 }
 
-// Temporary hack to get the arkedo games to work (I'm skipping drawing the fade in/out quads on top of the text)
-bool skip = false;
-
 void RSX::runCommandList() {
     int cmd_count = gcm.ctrl->put - gcm.ctrl->get;
     if (cmd_count <= 0) return;
@@ -353,11 +350,11 @@ void RSX::runCommandList() {
                 indices.push_back(0);
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
                 glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
-                if (!skip) glDrawElements(getPrimitive(primitive), indices.size(), GL_UNSIGNED_INT, 0);
+                glDrawElements(getPrimitive(primitive), indices.size(), GL_UNSIGNED_INT, 0);
             }
             else {
                 glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
-                if (!skip) glDrawArrays(getPrimitive(primitive), 0, n_vertices);
+                glDrawArrays(getPrimitive(primitive), 0, n_vertices);
             }
 
             vertex_array.bindings.clear();
@@ -440,8 +437,6 @@ void RSX::runCommandList() {
             
             texture.width = width;
             texture.height = height;
-            if (texture.width == 16) skip = true;
-            else skip = false;
 
             const auto fmt = getTexturePixelFormat(texture.format);
             const auto internal = getTextureInternalFormat(texture.format);

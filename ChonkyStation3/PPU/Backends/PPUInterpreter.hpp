@@ -149,6 +149,7 @@ public:
     void divd       (const Instruction& instr);
     void divw       (const Instruction& instr);
     void lvlx       (const Instruction& instr);
+    void lfsx       (const Instruction& instr);
     void srw        (const Instruction& instr);
     void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);

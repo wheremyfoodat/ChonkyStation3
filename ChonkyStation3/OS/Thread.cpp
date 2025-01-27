@@ -44,18 +44,28 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 id, u32 t
     state.gprs[31] = state.gprs[5];
 }
 
+// We put the reschedule on the scheduler instead of having it happen instantly because it would break
+// if a reschedule is called in the middle of an HLE function
+void Thread::reschedule(u64 cycles) {
+    mgr->ps3->scheduler.push(std::bind(&ThreadManager::reschedule, mgr), cycles, "thread reschedule");
+}
+
 void Thread::sleep(u64 us) {
     const u64 cycles = Scheduler::uSecondsToCycles(us);
     mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), cycles, "thread wakeup");
     status = THREAD_STATUS::Sleeping;
+    reschedule();
     log("Sleeping thread %d for %d us\n", id, us);
-    // We put the reschedule on the scheduler instead of having it happen instantly because it would break
-    // if a reschedule is called in the middle of an HLE function
-    mgr->ps3->scheduler.push(std::bind(&ThreadManager::reschedule, mgr), 1, "thread reschedule");
 }
 
 void Thread::wakeUp() {
     status = THREAD_STATUS::Running;
-    mgr->reschedule();
+    reschedule();
     log("Woke up thread %d\n", id);
+}
+
+void Thread::exit() {
+    status = THREAD_STATUS::Terminated;
+    reschedule();
+    log("Thread %d exited\n", id);
 }

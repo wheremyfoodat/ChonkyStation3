@@ -15,10 +15,16 @@ void Scheduler::tick(u64 cycles) {
 }
 
 u64 Scheduler::tickToNextEvent() {
+    if (events.empty()) {
+        Helpers::panic("Tried to tick to the next scheduler event, but there are none in the queue\n");
+    }
+
     u64 elapsed = events.top().time - time;
     time = events.top().time;
     auto event = events.top();
     events.pop();
+
+    //printf("Skipped to event \"%s\"\n", event.name.c_str());
     event.func();
 
     return elapsed;

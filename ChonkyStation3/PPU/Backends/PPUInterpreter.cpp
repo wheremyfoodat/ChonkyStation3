@@ -154,6 +154,7 @@ void PPUInterpreter::step() {
         case DIVD:      divd(instr);    break;
         case DIVW:      divw(instr);    break;
         case LVLX:      lvlx(instr);    break;
+        case LFSX:      lfsx(instr);    break;
         case SRW:       srw(instr);     break;
         case SRD:       srd(instr);     break;
         case SYNC:      break;
@@ -1222,6 +1223,11 @@ void PPUInterpreter::lvlx(const Instruction& instr) {
     state.vrs[instr.vd].dw[1] = 0;
     for (int i = 0; i < 16 - b; i++)
         state.vrs[instr.vd].b[15 - i] = ps3->mem.read<u8>(addr + i);
+}
+
+void PPUInterpreter::lfsx(const Instruction& instr) {
+    u32 v = mem.read<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
+    state.fprs[instr.frt] = reinterpret_cast<float&>(v);
 }
 
 void PPUInterpreter::srw(const Instruction& instr) {

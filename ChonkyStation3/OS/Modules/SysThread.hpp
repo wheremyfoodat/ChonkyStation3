@@ -21,6 +21,7 @@ public:
     u64 sysPPUThreadCreate();
     u64 sysPPUThreadGetID();
     u64 sysPPUThreadInitializeTLS();
+    u64 sysPPUThreadExit();
 
     void initializeTLS(u64 thread_id, u32 tls_seg_addr, u32 tls_seg_size, u32 tls_mem_size, PPUTypes::State& state);
 
