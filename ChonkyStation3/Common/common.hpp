@@ -129,16 +129,27 @@ template<typename T>
 static inline T bswap(T val) {
     if constexpr (sizeof(T) == sizeof(u8)) return val;
     else if constexpr (sizeof(T) == sizeof(u16)) {
+#ifdef _MSC_VER
+        return _byteswap_ushort(val);
+#else
         return (val >> 8) | (val << 8);
+#endif
     }
     else if constexpr (sizeof(T) == sizeof(u32)) {
+#ifdef _MSC_VER
+        return _byteswap_ulong(val);
+#else
         u32 byte0 = val & 0xff;
         u32 byte1 = (val >> 8) & 0xff;
         u32 byte2 = (val >> 16) & 0xff;
         u32 byte3 = (val >> 24) & 0xff;
         return (byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3;
+#endif
     }
     else if constexpr (sizeof(T) == sizeof(u64)) {
+#ifdef _MSC_VER
+        return _byteswap_uint64(val);
+#else
         u64 byte0 = val & 0xff;
         u64 byte1 = (val >> 8) & 0xff;
         u64 byte2 = (val >> 16) & 0xff;
@@ -148,6 +159,7 @@ static inline T bswap(T val) {
         u64 byte6 = (val >> 48) & 0xff;
         u64 byte7 = (val >> 56) & 0xff;
         return (byte0 << 56) | (byte1 << 48) | (byte2 << 40) | (byte3 << 32) | (byte4 << 24) | (byte5 << 16) | (byte6 << 8) | byte7;
+#endif
     }
     else return 0;
 }

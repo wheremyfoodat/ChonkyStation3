@@ -181,6 +181,7 @@ public:
         { 0xb3ac3478, { "sceNpTrophyGetTrophyUnlockState",              std::bind(&SceNpTrophy::sceNpTrophyGetTrophyUnlockState, &sceNpTrophy) } },
         { 0xe3bf9a28, { "sceNpTrophyCreateContext",                     std::bind(&SceNpTrophy::sceNpTrophyCreateContext, &sceNpTrophy) } },
         
+        { 0x8b7ed64b, { "cellSaveDataAutoSave2",                        std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                        std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
         
         { 0xda0eb71a, { "sysLwcondCreate",                              std::bind(&ModuleManager::stub, this) } },

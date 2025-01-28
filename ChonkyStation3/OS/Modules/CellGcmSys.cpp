@@ -223,10 +223,8 @@ u64 CellGcmSys::cellGcmGetLabelAddress() {
 
 
 // Resets the command buffer
-// If there are any remaining commands to be executed, execute them
+// If there are any remaining commands to be executed, copy them back at the start
 // Update context and fifo control accordingly
-// TODO: I used to copy the remaining commands back at the start of the buffer, so they would get executed the next time put is updated instead of right now.
-// Unsure what's the best approach, and/or if it makes any difference.
 u64 CellGcmSys::cellGcmCallback() {
     log("cellGcmCallback()\n");
     log("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
