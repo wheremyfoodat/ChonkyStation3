@@ -20,13 +20,6 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
     OpenGL::setBlendEquation(OpenGL::BlendEquation::Add);
 
-    glGenTextures(1, &tex.m_handle);
-    glBindTexture(GL_TEXTURE_2D, tex.m_handle);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
     std::memset(constants, 0, 512 * 4);
 }
 
@@ -41,16 +34,16 @@ u32 RSX::offsetAndLocationToAddress(u32 offset, u8 location) {
 }
 
 void RSX::compileProgram() {
-    ShaderCache::CachedShader cached_shader;
+    RSXCache::CachedShader cached_shader;
     // Check if our shaders were cached
-    const u64 hash_vertex = shader_cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
-    if (!shader_cache.getShader(hash_vertex, cached_shader)) {
+    const u64 hash_vertex = cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
+    if (!cache.getShader(hash_vertex, cached_shader)) {
         // Shader wasn't cached, compile it and add it to the cache
         std::vector<u32> required_constants;
         auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, required_constants);
         OpenGL::Shader new_shader;
         new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex);
-        shader_cache.cacheShader(hash_vertex, { new_shader, required_constants });
+        cache.cacheShader(hash_vertex, { new_shader, required_constants });
         vertex = new_shader;
     }
     else {
@@ -58,13 +51,13 @@ void RSX::compileProgram() {
         required_constants = cached_shader.required_constants.value();
     }
 
-    const u64 hash_fragment = shader_cache.computeHash(fragment_shader_program.getData(ps3->mem), fragment_shader_program.getSize(ps3->mem));
-    if (!shader_cache.getShader(hash_fragment, cached_shader)) {
+    const u64 hash_fragment = cache.computeHash(fragment_shader_program.getData(ps3->mem), fragment_shader_program.getSize(ps3->mem));
+    if (!cache.getShader(hash_fragment, cached_shader)) {
         // Shader wasn't cached, compile it and add it to the cache
         auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
         OpenGL::Shader new_shader;
         new_shader.create(fragment_shader, OpenGL::ShaderType::Fragment);
-        shader_cache.cacheShader(hash_fragment, { new_shader, std::nullopt });
+        cache.cacheShader(hash_fragment, { new_shader, std::nullopt });
         fragment = new_shader;
     }
     else {
@@ -72,12 +65,12 @@ void RSX::compileProgram() {
     }
 
     // Check if our shader program was cached
-    const u64 hash_program = shader_cache.computeProgramHash(hash_vertex, hash_fragment);
-    if (!shader_cache.getProgram(hash_program, program)) {
+    const u64 hash_program = cache.computeProgramHash(hash_vertex, hash_fragment);
+    if (!cache.getProgram(hash_program, program)) {
         // Program wasn't cached, link it and add it to the cache
         OpenGL::Program new_program;
         new_program.create({ vertex, fragment });
-        shader_cache.cacheProgram(hash_program, new_program);
+        cache.cacheProgram(hash_program, new_program);
         program = new_program;
     }
 }
@@ -449,8 +442,24 @@ void RSX::runCommandList() {
 
             const auto fmt = getTexturePixelFormat(texture.format);
             const auto internal = getTextureInternalFormat(texture.format);
+            
+            // Texture cache
+            const u64 hash = cache.computeTextureHash(ps3->mem.getPtr(texture.addr), width, height, 4);    // TODO: don't hardcode
+
+            OpenGL::Texture cached_texture;
+            if (!cache.getTexture(hash, cached_texture)) {
+                glGenTextures(1, &cached_texture.m_handle);
+                glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glActiveTexture(GL_TEXTURE0 + 0);
+                glTexImage2D(GL_TEXTURE_2D, 0, fmt, width, height, 0, fmt, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
+                cache.cacheTexture(hash, cached_texture);
+            }
             glActiveTexture(GL_TEXTURE0 + 0);
-            glTexImage2D(GL_TEXTURE_2D, 0, fmt, width, height, 0, fmt, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
+            glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
             break;
         }
 

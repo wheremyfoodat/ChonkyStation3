@@ -10,9 +10,13 @@
 #include <xxhash.h>
 
 
-class ShaderCache {
+class RSXCache {
 public:
-    MAKE_LOG_FUNCTION(log, shader_cache);
+    RSXCache() {
+        shader_cache.clear();
+        program_cache.clear();
+        texture_cache.clear();
+    }
 
     struct ProgramHash {
         u64 hash_vertex;
@@ -65,8 +69,30 @@ public:
         return computeHash((u8*)&hashes[0], sizeof(u64) * 2);
     }
 
+    u64 computeTextureHash(u8* ptr, u64 width, u64 height, u64 n_components) {
+        const size_t size = width * height * n_components;
+        return computeHash(ptr, size);
+    }
+
+    bool getTexture(u64 hash, OpenGL::Texture& texture) {
+        if (texture_cache.contains(hash)) {
+            texture = texture_cache[hash];
+            //log("Got cached texture: %016x\n", hash);
+            return true;
+        }
+        return false;
+    }
+
+    void cacheTexture(u64 hash, OpenGL::Texture& texture) {
+        texture_cache[hash] = texture;
+        log("Cached new texture: %016x\n", hash);
+    }
+
 private:
+    MAKE_LOG_FUNCTION(log, rsx_cache);
+
     // TODO: Might change this to an std::vector of "CachedShader" structs or something
     std::unordered_map<u64, CachedShader> shader_cache;
     std::unordered_map<u64, OpenGL::Program> program_cache;
+    std::unordered_map<u64, OpenGL::Texture> texture_cache;
 };

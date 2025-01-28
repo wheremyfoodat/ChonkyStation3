@@ -9,7 +9,7 @@
 #include <VertexShaderDecompiler.hpp>
 #include <FragmentShaderDecompiler.hpp>
 #include <FragmentShader.hpp>
-#include <ShaderCache.hpp>
+#include <RSXCache.hpp>
 #include <Modules/CellGcmSys.hpp>
 
 
@@ -21,7 +21,7 @@ public:
     CellGcmSys& gcm;
     VertexShaderDecompiler vertex_shader_decompiler;
     FragmentShaderDecompiler fragment_shader_decompiler;
-    ShaderCache shader_cache;
+    RSXCache cache;
 
     PlayStation3* ps3;
     MAKE_LOG_FUNCTION(log, rsx);

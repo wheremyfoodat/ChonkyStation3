@@ -235,17 +235,13 @@ u64 CellGcmSys::cellGcmCallback() {
     const int bytes_queued = ctx->current - ctx->begin;
     const int bytes_remaining = bytes_queued - ctrl->put;
 
-    if (bytes_remaining > 0) {
-        // Flush command buffer
-        ctrl->get = ctrl->put;
-        ctrl->put = ctrl->put + bytes_remaining;
-        ps3->rsx.runCommandList();
-    }
+    if (bytes_remaining > 0)
+        std::memcpy(ps3->mem.getPtr(ctx->begin), ps3->mem.getPtr(ctx->current) - bytes_remaining, bytes_remaining);
 
-    ctx->current = ctx->begin;
-    std::memset(ps3->mem.getPtr(ctx->current), 0, ctx->end - ctx->begin);
+    ctx->current = ctx->begin + bytes_remaining;
+    std::memset(ps3->mem.getPtr(ctx->current), 0, ctx->end - ctx->current);
 
-    ctrl->put = 0;
+    ctrl->put = bytes_remaining;
     ctrl->get = 0;
 
     return Result::CELL_OK;
