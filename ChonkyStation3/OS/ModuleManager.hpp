@@ -68,6 +68,7 @@ public:
         { 0x24a1ea07, { "sysPPUThreadCreate",                           std::bind(&SysThread::sysPPUThreadCreate, &sysThread) }},
         { 0x350d454e, { "sysPPUThreadGetID",                            std::bind(&SysThread::sysPPUThreadGetID, &sysThread) }},
         { 0x744680a2, { "sysPPUThreadInitializeTLS",                    std::bind(&SysThread::sysPPUThreadInitializeTLS, &sysThread) }},
+        { 0xa3e3be68, { "sysPPUThreadOnce",                             std::bind(&SysThread::sysPPUThreadOnce, &sysThread) }},
         { 0xaff080a4, { "sysPPUThreadExit",                             std::bind(&SysThread::sysPPUThreadExit, &sysThread) }},
 
         { 0x409ad939, { "sysMMapperFreeMemory",                         std::bind(&SysMMapper::sysMMapperFreeMemory, &sysMMapper) }},
@@ -98,12 +99,15 @@ public:
 
         { 0x02ff3c1b, { "cellSysutilUnregisterCallback",                std::bind(&CellSysutil::cellSysutilUnregisterCallback, &cellSysutil) }},
         { 0x189a74da, { "cellSysutilCheckCallback",                     std::bind(&CellSysutil::cellSysutilCheckCallback, &cellSysutil) }},
+        { 0x220894e3, { "cellSysutilEnableBgmPlayback",                 std::bind(&ModuleManager::stub, this) }},
         { 0x40e895d3, { "cellSysutilGetSystemParamInt",                 std::bind(&CellSysutil::cellSysutilGetSystemParamInt, &cellSysutil) }},
+        { 0x6cfd856f, { "cellSysutilGetBgmPlaybackStatus2",             std::bind(&ModuleManager::stub, this) }},
         { 0x9d98afa0, { "cellSysutilRegisterCallback",                  std::bind(&CellSysutil::cellSysutilRegisterCallback, &cellSysutil) }},
 
         { 0x112a5ee9, { "cellSysmoduleUnloadModule",                    std::bind(&CellSysmodule::cellSysmoduleUnloadModule, &cellSysmodule) }},
         { 0x32267a31, { "cellSysmoduleLoadModule",                      std::bind(&CellSysmodule::cellSysmoduleLoadModule, &cellSysmodule) }},
         { 0x5a59e258, { "cellSysmoduleIsLoaded",                        std::bind(&ModuleManager::stub, this) }},
+        { 0x63ff6ff9, { "cellSysmoduleInitialize",                      std::bind(&ModuleManager::stub, this) }},
 
         { 0x01220224, { "cellRescGcmSurface2RescSrc",                   std::bind(&ModuleManager::stub, this) }},
         { 0x0d3c22ce, { "cellRescSetWaitFlip",                          std::bind(&CellResc::cellRescSetWaitFlip, &cellResc) }},
@@ -153,14 +157,18 @@ public:
         { 0xa703a51d, { "cellPadGetInfo2",                              std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
         { 0x3aaad464, { "cellPadGetInfo",                               std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},   // TODO: No idea if cellPadGetInfo is the same as cellPadGetInfo2?
 
+        { 0x2ecd48ed, { "sceNpDrmVerifyUpgradeLicense",                 std::bind(&ModuleManager::stub, this) }},
         { 0x32cf311f, { "sceNpScoreInit",                               std::bind(&ModuleManager::stub, this) }},
         { 0x4885aa18, { "sceNpTerm",                                    std::bind(&ModuleManager::stub, this) }},
         { 0x52a6b523, { "sceNpManagerUnregisterCallback",               std::bind(&ModuleManager::stub, this) }},
         { 0x9851f805, { "sceNpScoreTerm",                               std::bind(&ModuleManager::stub, this) }},
         { 0xa7bff757, { "sceNpManagerGetStatus",                        std::bind(&ModuleManager::stub, this) }},
         { 0xad218faf, { "sceNpDrmIsAvailable",                          std::bind(&ModuleManager::stub, this) }},
+        { 0xbcc09fe7, { "sceNpBasicRegisterHandler",                    std::bind(&ModuleManager::stub, this) }},
         { 0xbd28fdbf, { "sceNpInit",                                    std::bind(&ModuleManager::stub, this) }},
         { 0xe7dcd3b4, { "sceNpManagerRegisterCallback",                 std::bind(&ModuleManager::stub, this) }},
+
+        { 0x41251f74, { "sceNp2Init",                                   std::bind(&ModuleManager::stub, this) }},
         
         { 0x105ee2cb, { "cellNetCtlTerm",                               std::bind(&ModuleManager::stub, this) }},
         { 0xbd5a59fc, { "cellNetCtlInit",                               std::bind(&ModuleManager::stub, this) }},
@@ -188,6 +196,8 @@ public:
 
         { 0x433f6ec0, { "cellKbInit",                                   std::bind(&ModuleManager::stub, this) } },
         { 0x4ab1fa77, { "cellKbCnvRawCode",                             std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x139a9e9b, { "sysNetInitializeNetworkEx",                    std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);

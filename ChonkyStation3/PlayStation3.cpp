@@ -29,6 +29,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 }
 
 void PlayStation3::run() {
+    skipped_cycles = 0;
     while (cycle_count++ < CPU_FREQ) {
         step();
     }
@@ -43,6 +44,7 @@ void PlayStation3::step() {
 void PlayStation3::skipToNextEvent() {
     const u64 ticks = scheduler.tickToNextEvent();
     cycle_count += ticks;
+    skipped_cycles += ticks;
 }
 
 void PlayStation3::pressButton(u32 button) {

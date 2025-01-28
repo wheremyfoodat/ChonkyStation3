@@ -18,6 +18,7 @@ u64 SysThread::sysPPUThreadCreate() {
     if (thread->name == "spu_printf_handler"
         || thread->name == "soundmain"
         || thread->name == "SNKTrophy_Event_Thread"
+        || thread->name == "EE AudioLoop"
        )
         thread->status = Thread::THREAD_STATUS::Sleeping;
 
@@ -28,7 +29,7 @@ u64 SysThread::sysPPUThreadCreate() {
 u64 SysThread::sysPPUThreadGetID() {
     const u32 ptr = ARG0;
     Thread* current_thread = ps3->thread_manager.getCurrentThread();
-    log("sysPPUThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, current_thread->id);
+    //log("sysPPUThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, current_thread->id);
 
     ps3->mem.write<u64>(ptr, current_thread->id);
     return Result::CELL_OK;
@@ -50,6 +51,19 @@ u64 SysThread::sysPPUThreadInitializeTLS() {
     putc('\n', stdout);
 
     initializeTLS(thread_id, tls_seg_addr, tls_seg_size, tls_mem_size, ps3->ppu->state);
+    return Result::CELL_OK;
+}
+
+u64 SysThread::sysPPUThreadOnce() {
+    const u32 once_ctrl_ptr = ARG0;
+    const u32 func_ptr = ARG1;
+    log("sysPPUThreadOnce(once_ctrl_ptr: 0x%08x, func_ptr: 0x%08x)\n", once_ctrl_ptr, func_ptr);
+
+    if (ps3->mem.read<u32>(once_ctrl_ptr) == SYS_PPU_THREAD_ONCE_INIT) {
+        ps3->ppu->runFunc(ps3->mem.read<u32>(func_ptr));
+        ps3->mem.write<u32>(once_ctrl_ptr, SYS_PPU_THREAD_DONE_INIT);
+    }
+    
     return Result::CELL_OK;
 }
 

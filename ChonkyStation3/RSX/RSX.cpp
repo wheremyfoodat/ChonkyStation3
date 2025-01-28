@@ -13,7 +13,7 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     vao.bind();
     vbo.bind();
     glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glGenBuffers(1, &quad_ibo);
     //OpenGL::enableDepth();
     OpenGL::setDepthFunc(OpenGL::DepthFunc::Less);
     OpenGL::disableScissor();
@@ -21,6 +21,16 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     OpenGL::setBlendEquation(OpenGL::BlendEquation::Add);
 
     std::memset(constants, 0, 512 * 4);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
+    quad_index_array.push_back(0);
+    quad_index_array.push_back(1);
+    quad_index_array.push_back(2);
+    quad_index_array.push_back(2);
+    quad_index_array.push_back(3);
+    quad_index_array.push_back(0);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 }
 
 u32 RSX::fetch32() {
@@ -343,16 +353,9 @@ void RSX::runCommandList() {
             // Hack for quads
             if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
                 //if (n_vertices > 4) Helpers::panic("more than 4 vertices\n");
-                std::vector<u32> indices;
-                indices.push_back(0);
-                indices.push_back(1);
-                indices.push_back(2);
-                indices.push_back(2);
-                indices.push_back(3);
-                indices.push_back(0);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
                 glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
-                glDrawElements(getPrimitive(primitive), indices.size(), GL_UNSIGNED_INT, 0);
+                glDrawElements(getPrimitive(primitive), quad_index_array.size(), GL_UNSIGNED_INT, 0);
             }
             else {
                 glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
@@ -410,6 +413,7 @@ void RSX::runCommandList() {
             // Texture samplers
             glUniform1i(glGetUniformLocation(program.handle(), "tex"), 0);
 
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
             glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
             glDrawElements(getPrimitive(primitive), indices.size(), GL_UNSIGNED_INT, 0);

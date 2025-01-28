@@ -36,6 +36,7 @@ public:
     std::vector<u32> vertex_shader_data;
     std::vector<u32> required_constants;    // For vertex shader
     FragmentShader fragment_shader_program;
+    std::vector<u32> quad_index_array;
 
     u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
     struct FragmentUniform {
@@ -72,6 +73,7 @@ public:
     OpenGL::Texture tex;
 
     GLuint ibo;
+    GLuint quad_ibo;
 
     void checkGLError();
 

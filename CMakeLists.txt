@@ -34,6 +34,7 @@ target_include_directories(ChonkyStation3 PUBLIC Dependencies/lodepng)
 target_link_libraries(ChonkyStation3 PUBLIC glad SDL2-static xxHash::xxhash)
 
 #target_compile_options(ChonkyStation3 PUBLIC /fsanitize=address)
+set_target_properties(ChonkyStation3 PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral -Wno-format-security -Wno-invalid-offsetof")

@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
     int frame_count = 0;
     double last_time = SDL_GetTicks64() / 1000.0;
     double curr_time = 0;
+    float ppu_usage = 0;
 
     SDL_GL_SwapWindow(window);
 
@@ -82,7 +83,8 @@ int main(int argc, char** argv) {
         curr_time = curr_ticks / 1000.0;
 
         if (curr_time - last_time > 1.0) {
-            title = std::format("ChonkyStation3 | {} | {} FPS", file.filename().string(), frame_count);
+            ppu_usage = ((CPU_FREQ - ps3->skipped_cycles) * 100.0f) / CPU_FREQ;
+            title = std::format("ChonkyStation3 | {} | {} FPS | PPU: {:.2f}%", file.filename().string(), frame_count, std::ceil(ppu_usage * 100.0f) / 100.0f);
             SDL_SetWindowTitle(window, title.c_str());
             last_time = curr_time;
             frame_count = 0;

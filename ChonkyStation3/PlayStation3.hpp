@@ -36,6 +36,7 @@ public:
     Filesystem fs;
 
     u64 cycle_count = 0;
+    u64 skipped_cycles = 0;
     void run();
     void step();
     void skipToNextEvent();

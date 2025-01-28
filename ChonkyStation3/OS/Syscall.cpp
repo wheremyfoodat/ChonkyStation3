@@ -59,6 +59,10 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
+    case 82:   unimpl("sysEventFlagCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 90:   unimpl("sysSemaphoreCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 92:   unimpl("sysSemaphoreWait() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 94:   unimpl("sysSemaphorePost() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 120:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");  ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 128:  ps3->ppu->state.gprs[3] = sysEventQueueCreate();         break;
     case 130:  ps3->ppu->state.gprs[3] = sysEventQueueReceive();         break;
@@ -95,14 +99,16 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
+    case 801:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsOpen();  break;
+    case 802:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsRead();  break;
+    case 804:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsClose(); break;
+    case 808:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsStat();  break;
     case 809: {
         const u32 fd = ARG0;
         const u32 stat_ptr = ARG1;
-        log("cellFsFStat(fd: 0x%08x, stat_ptr: 0x%08x) STUBBED\n", fd, stat_ptr);
-
-        CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
 
         if (fd == 1) {  // stdout?
+            CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
             stat->mode = CELL_FS_S_IRUSR | CELL_FS_S_IWUSR | CELL_FS_S_IXUSR |
                          CELL_FS_S_IRGRP | CELL_FS_S_IWGRP | CELL_FS_S_IXGRP |
                          CELL_FS_S_IROTH | CELL_FS_S_IWOTH | CELL_FS_S_IXOTH |
@@ -114,11 +120,15 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
             stat->ctime = 0;
             stat->size = 0;
             stat->blksize = 4096;
+            ps3->ppu->state.gprs[3] = Result::CELL_BADF;
         }
-        ps3->ppu->state.gprs[3] = Result::CELL_BADF;
+        else {
+            ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsFstat();
+        }
         break;
     }
-    case 988: ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 818:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsLseek();  break;
+    case 988:   ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
 
     default:
         Helpers::panic("Unimplemented syscall number 0x%02x (%d) @ 0x%016llx\n", syscall_num, syscall_num, ps3->ppu->state.pc);
