@@ -49,7 +49,7 @@ void PlayStation3::pressButton(u32 button) {
     int idx = 2;
     if (button >= (1 << 16)) {
         idx = 3;
-        button >> 16;
+        button >>= 16;
     }
     module_manager.cellPad.buttons[idx] |= button;
 }

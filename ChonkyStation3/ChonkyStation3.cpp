@@ -97,23 +97,19 @@ int main(int argc, char** argv) {
                     }
                     break;
                 }
-
-                case SDL_KEYDOWN: {
-                    switch (e.key.keysym.sym) {
-                    case SDL_KeyCode::SDLK_m:       ps3->pressButton(CELL_PAD_CTRL_START);
-                    case SDL_KeyCode::SDLK_k:       ps3->pressButton(CELL_PAD_CTRL_CROSS);
-                    case SDL_KeyCode::SDLK_l:       ps3->pressButton(CELL_PAD_CTRL_CIRCLE);
-                    case SDL_KeyCode::SDLK_j:       ps3->pressButton(CELL_PAD_CTRL_SQUARE);
-                    case SDL_KeyCode::SDLK_i:       ps3->pressButton(CELL_PAD_CTRL_TRIANGLE);
-                    case SDL_KeyCode::SDLK_DOWN:    ps3->pressButton(CELL_PAD_CTRL_DOWN);
-                    case SDL_KeyCode::SDLK_UP:      ps3->pressButton(CELL_PAD_CTRL_UP);
-                    case SDL_KeyCode::SDLK_LEFT:    ps3->pressButton(CELL_PAD_CTRL_LEFT);
-                    case SDL_KeyCode::SDLK_RIGHT:   ps3->pressButton(CELL_PAD_CTRL_RIGHT);
-                    }
-                    break;
-                }
             }
         }
+
+        const u8* keystate = SDL_GetKeyboardState(NULL);
+        if (keystate[SDL_SCANCODE_M])      ps3->pressButton(CELL_PAD_CTRL_START);
+        if (keystate[SDL_SCANCODE_K])      ps3->pressButton(CELL_PAD_CTRL_CROSS);
+        if (keystate[SDL_SCANCODE_L])      ps3->pressButton(CELL_PAD_CTRL_CIRCLE);
+        if (keystate[SDL_SCANCODE_J])      ps3->pressButton(CELL_PAD_CTRL_SQUARE);
+        if (keystate[SDL_SCANCODE_I])      ps3->pressButton(CELL_PAD_CTRL_TRIANGLE);
+        if (keystate[SDL_SCANCODE_DOWN])   ps3->pressButton(CELL_PAD_CTRL_DOWN);
+        if (keystate[SDL_SCANCODE_UP])     ps3->pressButton(CELL_PAD_CTRL_UP);
+        if (keystate[SDL_SCANCODE_LEFT])   ps3->pressButton(CELL_PAD_CTRL_LEFT);
+        if (keystate[SDL_SCANCODE_RIGHT])  ps3->pressButton(CELL_PAD_CTRL_RIGHT);
 
         SDL_GL_SwapWindow(window);
     }

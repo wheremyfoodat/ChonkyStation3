@@ -29,7 +29,6 @@ public:
     void runCommandList();
     u32 fetch32();
     u32 offsetAndLocationToAddress(u32 offset, u8 location);
-    u32 curr_cmd = 0;
 
     bool flipped = false;
 

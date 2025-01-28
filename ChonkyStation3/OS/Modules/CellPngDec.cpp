@@ -149,10 +149,8 @@ u64 CellPngDec::cellPngDecOpen() {
         // Dump buffer
         std::string filename = std::format("{:08x}.png", (u32)src->stream_ptr);
         curr_file = filename;
-        if (!fs::exists(filename)) {
-            std::ofstream file(filename, std::ios::binary);
-            file.write((const char*)curr_src.stream, curr_src.stream_size);
-        }
+        std::ofstream file(filename, std::ios::binary);
+        file.write((const char*)curr_src.stream, curr_src.stream_size);
     }
 
     return Result::CELL_OK;

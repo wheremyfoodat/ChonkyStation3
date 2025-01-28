@@ -31,8 +31,7 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
 }
 
 u32 RSX::fetch32() {
-    u32 data = ps3->mem.read<u32>(gcm.gcm_config.io_addr + curr_cmd);
-    curr_cmd += 4;
+    u32 data = ps3->mem.read<u32>(gcm.gcm_config.io_addr + gcm.ctrl->get);
     gcm.ctrl->get = gcm.ctrl->get + 4;  // Didn't overload += in BEField
     return data;
 }
@@ -185,12 +184,11 @@ void RSX::runCommandList() {
         if (gcm.ctrl->get + (argc * 4) > gcm.ctrl->put) {
             // Not enough data to collect arguments, return
             gcm.ctrl->get = gcm.ctrl->get - 4;  // Decrement get and curr_cmd to point back to the command that failed
-            curr_cmd -= 4;
             return;
         }
 
         if (cmd & 0x20000000) { // jump
-            curr_cmd = cmd & ~0x20000000;
+            gcm.ctrl->get = cmd & ~0x20000000;
             Helpers::panic("rsx: jump\n");
             continue;
         }

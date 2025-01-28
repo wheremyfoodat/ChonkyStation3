@@ -133,6 +133,7 @@ u64 CellGcmSys::cellGcmBindZcull() {
     return Result::CELL_OK;
 }
 
+bool mapped = false;
 u64 CellGcmSys::cellGcmMapMainMemory() {
     const u32 ea = ARG0;
     const u32 size = ARG1;
@@ -222,25 +223,30 @@ u64 CellGcmSys::cellGcmGetLabelAddress() {
 
 
 // Resets the command buffer
-// If there are any remaining commands to be executed, copy them back at the start
+// If there are any remaining commands to be executed, execute them
 // Update context and fifo control accordingly
+// TODO: I used to copy the remaining commands back at the start of the buffer, so they would get executed the next time put is updated instead of right now.
+// Unsure what's the best approach, and/or if it makes any difference.
 u64 CellGcmSys::cellGcmCallback() {
     log("cellGcmCallback()\n");
     log("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
     log("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
 
-    const int bytes_executed = ctx->current - ctx->begin;
-    const int bytes_remaining = bytes_executed - ctrl->put;
+    const int bytes_queued = ctx->current - ctx->begin;
+    const int bytes_remaining = bytes_queued - ctrl->put;
 
-    if (bytes_remaining > 0)
-        std::memcpy(ps3->mem.getPtr(ctx->begin), ps3->mem.getPtr(ctx->current) - bytes_remaining, bytes_remaining);
+    if (bytes_remaining > 0) {
+        // Flush command buffer
+        ctrl->get = ctrl->put;
+        ctrl->put = ctrl->put + bytes_remaining;
+        ps3->rsx.runCommandList();
+    }
 
-    ctx->current = ctx->begin + bytes_remaining;
-    std::memset(ps3->mem.getPtr(ctx->current), 0, ctx->end - ctx->current);
+    ctx->current = ctx->begin;
+    std::memset(ps3->mem.getPtr(ctx->current), 0, ctx->end - ctx->begin);
 
-    ctrl->put = bytes_remaining;
+    ctrl->put = 0;
     ctrl->get = 0;
-    ps3->rsx.curr_cmd = 0;
 
     return Result::CELL_OK;
 }
