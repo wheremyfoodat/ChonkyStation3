@@ -28,9 +28,6 @@ SDL_GameController* findController() {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2)
-        Helpers::panic("Usage: ChonkyStation3.exe [executable path]");
-
     printf("ChonkyStation3\n\n");
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
@@ -40,8 +37,11 @@ int main(int argc, char** argv) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     
-    fs::path file = argv[1];
-    std::string title = std::format("ChonkyStation3 | {}", file.filename().string());
+    fs::path file = "";
+    if (argc >= 2)
+        file = argv[1];
+
+    std::string title = "ChonkyStation3";
 
     SDL_Window* window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_GLContext context = SDL_GL_CreateContext(window);
@@ -56,6 +56,14 @@ int main(int argc, char** argv) {
     }
 
     PlayStation3* ps3 = new PlayStation3(file);
+
+    std::string title_game;
+    if (argc >= 2)
+        title_game = file.generic_string();
+    else
+        title_game = ps3->curr_game.title;
+    title = std::format("ChonkyStation3 | {}", title_game);
+    SDL_SetWindowTitle(window, title.c_str());
 
     printf("\nEXECUTING\n");
     printf(  "---------\n\n");
@@ -76,7 +84,6 @@ int main(int argc, char** argv) {
     while (!quit) {
         ps3->run();
         ps3->module_manager.cellGcmSys.flip = 0;
-
         frame_count++;
 
         const u64 curr_ticks = SDL_GetTicks64();
@@ -84,7 +91,7 @@ int main(int argc, char** argv) {
 
         if (curr_time - last_time > 1.0) {
             ppu_usage = ((CPU_FREQ - ps3->skipped_cycles) * 100.0f) / CPU_FREQ;
-            title = std::format("ChonkyStation3 | {} | {} FPS | PPU: {:.2f}%", file.filename().string(), frame_count, std::ceil(ppu_usage * 100.0f) / 100.0f);
+            title = std::format("ChonkyStation3 | {} | {} FPS | PPU: {:.2f}%", title_game, frame_count, std::ceil(ppu_usage * 100.0f) / 100.0f);
             SDL_SetWindowTitle(window, title.c_str());
             last_time = curr_time;
             frame_count = 0;

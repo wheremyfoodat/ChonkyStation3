@@ -25,6 +25,9 @@ public:
         CELL_GAME_GAMETYPE_HOME,
     };
 
+    std::string content_path = "/dev_hdd0/game/STUB12345\0\0";
+    void setContentPath(fs::path path);
+
     u64 cellGameContentPermit();
     u64 cellGameBootCheck();
 

@@ -59,6 +59,10 @@ bool Filesystem::isDirectory(fs::path path) {
     return fs::is_directory(guestPathToHost(path));
 }
 
+bool Filesystem::exists(fs::path path) {
+    return fs::exists(guestPathToHost(path));
+}
+
 Filesystem::File& Filesystem::getFileFromID(u32 id) {
     if (!open_files.contains(id))
         Helpers::panic("File id %d does not exist\n", id);

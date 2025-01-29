@@ -7,11 +7,40 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     // Initialize filesystem
     fs.mount(Filesystem::Device::DEV_FLASH, "./Filesystem/dev_flash/");
     fs.mount(Filesystem::Device::DEV_HDD0, "./Filesystem/dev_hdd0/");
+
+    fs::path elf_path;
+    // An executable was passed as CLI argument, run it directly
+    if (!(executable.generic_string() == "")) {
+        elf_path = executable;
+    }
+    else {
+        // Find installed games
+        GameLoader game_loader = GameLoader(this);  // Requires dev_hdd0 to be mounted
+        // Print games
+        printf("Found %lld installed games:\n", game_loader.games.size());
+        for (int i = 0; i < game_loader.games.size(); i++) {
+            printf("%s\n", std::format("[{:>3d}] {} | {:<40s} | {:<40s}", i, game_loader.games[i].id, game_loader.games[i].title, game_loader.games[i].content_path.generic_string()).c_str());
+        }
+        // Ask the user what game to run
+        int idx;
+        printf("Enter game to run (index): ");
+        std::cin >> idx;
+        while (idx < 0 || idx >= game_loader.games.size()) {
+            printf("Invalid index. Retry: ");
+            std::cin >> idx;
+        }
+
+        curr_game = game_loader.games[idx];
+        // Tell cellGame the path of the game's contents
+        module_manager.cellGame.setContentPath(game_loader.games[idx].content_path);
+        // Get path of EBOOT.elf
+        elf_path = fs.guestPathToHost(game_loader.games[idx].content_path / "USRDIR/EBOOT.elf");
+    }
     
     // Load ELF file
     ELFLoader elf = ELFLoader(this, mem);
     std::unordered_map<u32, u32> imports = {};
-    auto entry = elf.load(executable, imports, module_manager);
+    auto entry = elf.load(elf_path, imports, module_manager);
     
     // Register ELF module imports in module manager
     for (auto& i : imports)

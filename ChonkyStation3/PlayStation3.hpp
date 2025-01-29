@@ -9,6 +9,8 @@
 #include <RSX.hpp>
 #include <Memory.hpp>
 #include <ELF/ELFLoader.hpp>
+#include <SFO/SFOLoader.hpp>
+#include <Game/GameLoader.hpp>
 #include <ElfSymbolParser.hpp>
 #include <ModuleManager.hpp>
 #include <ThreadManager.hpp>
@@ -34,6 +36,8 @@ public:
     ElfSymbolParser elf_parser;
     Scheduler scheduler;
     Filesystem fs;
+
+    GameLoader::InstalledGame curr_game;
 
     u64 cycle_count = 0;
     u64 curr_block_cycles = 0;

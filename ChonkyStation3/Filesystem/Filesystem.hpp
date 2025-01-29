@@ -33,6 +33,7 @@ public:
     u64 getFileSize(u32 file_id);
     u64 getFileSize(fs::path path);
     bool isDirectory(fs::path path);
+    bool exists(fs::path path);
     File& getFileFromID(u32 id);
     bool isDeviceMounted(Device device);
     fs::path guestPathToHost(fs::path path);
