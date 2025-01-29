@@ -30,21 +30,33 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 
 void PlayStation3::run() {
     skipped_cycles = 0;
-    while (cycle_count++ < CPU_FREQ) {
-        step();
+    while (cycle_count < CPU_FREQ) {
+        while (curr_block_cycles++ < 2048) {
+            step();
+            if (force_scheduler_update) {
+                force_scheduler_update = false;
+                break;
+            }
+        }
+        cycle_count += curr_block_cycles;
+        scheduler.tick(curr_block_cycles);
+        curr_block_cycles = 0;
     }
     cycle_count = 0;
 }
 
 void PlayStation3::step() {
     ppu->step();
-    scheduler.tick(1);
 }
 
 void PlayStation3::skipToNextEvent() {
     const u64 ticks = scheduler.tickToNextEvent();
     cycle_count += ticks;
     skipped_cycles += ticks;
+}
+
+void PlayStation3::forceSchedulerUpdate() {
+    force_scheduler_update = true;
 }
 
 void PlayStation3::pressButton(u32 button) {

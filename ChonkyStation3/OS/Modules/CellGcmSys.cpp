@@ -111,8 +111,9 @@ u64 CellGcmSys::cellGcmGetFlipStatus() {
 
 u64 CellGcmSys::cellGcmSetWaitFlip() {
     const u32 mode = ARG0;
-    log("cellGcmSetWaitFlip(mode: 0x%08x) UNIMPLEMENTED\n", mode);
+    log("cellGcmSetWaitFlip(mode: 0x%08x)\n", mode);
 
+    ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
     return Result::CELL_OK;
 }
 

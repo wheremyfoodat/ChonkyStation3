@@ -33,6 +33,7 @@ public:
 
     void reschedule(u64 cycles = 0);
     void sleep(u64 us);
+    void sleepForCycles(u64 cycles);
     void wakeUp();
     void exit();
 

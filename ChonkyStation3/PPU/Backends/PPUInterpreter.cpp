@@ -2,6 +2,8 @@
 #include <PlayStation3.hpp>
 
 
+//#define PRINT_DEBUG_SYMBOLS
+
 void PPUInterpreter::printFunctionCall() {
     auto symbol = ps3->elf_parser.getSymbol(state.pc);
     if (symbol.has_value())
@@ -326,7 +328,9 @@ void PPUInterpreter::bc(const Instruction& instr) {
 
     if (branchCondition(instr.bo, instr.bi)) {
         state.pc = (instr.aa == 1) ? sbd : (state.pc + sbd);
+#ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
+#endif
         state.pc -= 4;
     }
 }
@@ -342,7 +346,9 @@ void PPUInterpreter::b(const Instruction& instr) {
         state.lr = state.pc + 4;
 
     state.pc = (instr.aa == 1) ? sli : (state.pc + sli);
+#ifdef PRINT_DEBUG_SYMBOLS
     printFunctionCall();
+#endif
     state.pc -= 4;
 }
 
@@ -733,7 +739,9 @@ void PPUInterpreter::bclr(const Instruction& instr) {
 
     if (branchCondition(instr.bo, instr.bi)) {
         state.pc = lr;
+#ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
+#endif
         state.pc -= 4;
     }
 }
@@ -765,7 +773,9 @@ void PPUInterpreter::bcctr(const Instruction& instr) {
 
     if (branchCondition(instr.bo, instr.bi)) {
         state.pc = state.ctr;
+#ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
+#endif
         state.pc -= 4;
     }
 }

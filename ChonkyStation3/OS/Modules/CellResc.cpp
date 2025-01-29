@@ -13,7 +13,7 @@ u64 CellResc::cellRescSetDsts() {
 u64 CellResc::cellRescSetWaitFlip() {
     log("cellRescSetWaitFlip()\n");
 
-    ps3->thread_manager.getCurrentThread()->sleep(1000);
+    ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
     return Result::CELL_OK;
 }
 

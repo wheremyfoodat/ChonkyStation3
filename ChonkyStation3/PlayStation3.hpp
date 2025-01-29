@@ -36,10 +36,14 @@ public:
     Filesystem fs;
 
     u64 cycle_count = 0;
+    u64 curr_block_cycles = 0;
     u64 skipped_cycles = 0;
+    bool force_scheduler_update = false;
+
     void run();
     void step();
     void skipToNextEvent();
+    void forceSchedulerUpdate();
 
     void pressButton(u32 button);
     void resetButtons();
