@@ -198,6 +198,8 @@ public:
         { 0x4ab1fa77, { "cellKbCnvRawCode",                             std::bind(&ModuleManager::stub, this) } },
         
         { 0x139a9e9b, { "sysNetInitializeNetworkEx",                    std::bind(&ModuleManager::stub, this) } },
+
+        { 0xa9072dee, { "cellSyncMutexInitialize",                      std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);
