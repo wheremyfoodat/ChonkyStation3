@@ -36,13 +36,8 @@ int main(int argc, char** argv) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    
-    fs::path file = "";
-    if (argc >= 2)
-        file = argv[1];
 
     std::string title = "ChonkyStation3";
-
     SDL_Window* window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, context);
@@ -55,11 +50,15 @@ int main(int argc, char** argv) {
         Helpers::panic("OpenGL init failed");
     }
 
+    fs::path file = "";
+    if (argc >= 2)
+        file = argv[1];
+
     PlayStation3* ps3 = new PlayStation3(file);
 
     std::string title_game;
     if (argc >= 2)
-        title_game = file.generic_string();
+        title_game = file.filename().generic_string();
     else
         title_game = ps3->curr_game.title;
     title = std::format("ChonkyStation3 | {}", title_game);

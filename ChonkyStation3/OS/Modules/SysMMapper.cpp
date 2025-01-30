@@ -7,12 +7,12 @@ u64 SysMMapper::sysMMapperAllocateMemory() {
     const u64 flags = ARG1;
     const u32 addr_ptr = ARG2;
     
-    auto block = ps3->mem.alloc(size);
+    auto block = ps3->mem.allocPhys(size);
     auto handle = ps3->handle_manager.request();
     block->handle = handle;
     ps3->mem.write<u32>(addr_ptr, handle);
 
-    log("sysMMapperAllocateMemory(size: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x) [allocated memory addr: 0x%08llx]\n", size, flags, addr_ptr, block->vaddr);
+    log("sysMMapperAllocateMemory(size: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x) [allocated memory paddr: 0x%08llx]\n", size, flags, addr_ptr, block->start);
     return Result::CELL_OK;
 }
 
@@ -40,6 +40,27 @@ u64 SysMMapper::sysMMapperUnmapMemory() {
     if (!info.first) return Result::CELL_OK;
 
     ps3->mem.write<u32>(handle_ptr, info.second->handle);
+
+    return Result::CELL_OK;
+}
+
+u64 SysMMapper::sysMMapperMapMemory() {
+    const u32 start_addr = ARG0;
+    const u32 handle = ARG1;
+    const u64 flags = ARG2;
+    log("sysMMapperMapMemory(start_addr: 0x%08x, handle: 0x%08x, flags: 0x%08x)", start_addr, handle, flags);
+
+    auto block = ps3->mem.ram.findBlockWithHandle(handle);
+    Helpers::debugAssert(block.first, "sysMMapperMapMemory: unknown handle\n");
+    if (ps3->mem.isMapped(start_addr).first) {
+        logNoPrefix(" [already mapped, freeing block]\n");
+        // If this area was already mapped, we free the block. Should be OK. If things break try removing this.
+        ps3->mem.freeBlockWithHandle(handle);
+    }
+    else {
+        logNoPrefix("\n");
+        ps3->mem.mmap(start_addr, block.second->start, block.second->size);
+    }
 
     return Result::CELL_OK;
 }

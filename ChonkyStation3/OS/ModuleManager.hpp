@@ -74,6 +74,7 @@ public:
         { 0x409ad939, { "sysMMapperFreeMemory",                         std::bind(&SysMMapper::sysMMapperFreeMemory, &sysMMapper) }},
         { 0x4643ba6e, { "sysMMapperUnmapMemory",                        std::bind(&SysMMapper::sysMMapperUnmapMemory, &sysMMapper) }},
         { 0xb257540b, { "sysMMapperAllocateMemory",                     std::bind(&SysMMapper::sysMMapperAllocateMemory, &sysMMapper) }},
+        { 0xdc578057, { "sysMMapperMapMemory",                          std::bind(&SysMMapper::sysMMapperMapMemory, &sysMMapper) }},
 
         { 0x055bd74d, { "cellGcmGetTiledPitchSize",                     std::bind(&CellGcmSys::cellGcmGetTiledPitchSize, &cellGcmSys) }},
         { 0x15bae46b, { "cellGcmInitBody",                              std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
@@ -200,6 +201,9 @@ public:
         { 0x139a9e9b, { "sysNetInitializeNetworkEx",                    std::bind(&ModuleManager::stub, this) } },
 
         { 0xa9072dee, { "cellSyncMutexInitialize",                      std::bind(&ModuleManager::stub, this) } },
+
+        { 0x84bb6774, { "sysPRXGetModuleInfo",                          std::bind(&ModuleManager::stub, this) } },
+        { 0xa5d06bf0, { "sysPRXGetModuleList",                          std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);
@@ -223,10 +227,7 @@ public:
     CellSaveData cellSaveData;
     CellPad cellPad;
 
-    u64 stub() {
-        unimpl("%s UNIMPLEMENTED\n", last_call.c_str());
-        return Result::CELL_OK;
-    }
+    u64 stub();
 
     u32 last_lle_nid = 0;
     void printReturnValue();

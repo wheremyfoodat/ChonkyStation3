@@ -5,7 +5,7 @@
 u64 SysLwMutex::sysLwMutexLock() {
     const u32 ptr = ARG0;
     const u64 timeout = ARG1;
-    log("sysLwMutexLock(ptr: 0x%08x, timeout: %lld)\n", ptr, timeout);
+    log("sysLwMutexLock(ptr: 0x%08x, timeout: %lld) @ 0x%08x\n", ptr, timeout, ps3->ppu->state.lr);
 
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     if (mtx->owner != -1) {

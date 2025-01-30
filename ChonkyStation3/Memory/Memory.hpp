@@ -32,6 +32,7 @@ public:
     struct Block {
         u64 start;
         size_t size;
+        u64 handle;
     };
     std::vector<Block> blocks;
 
@@ -39,17 +40,20 @@ public:
         u64 vaddr;
         u64 paddr;
         size_t size;
-        u32 handle;
+        u64 handle;
     };
     std::vector<MapEntry> map;
 
-    u64 allocPhys(size_t size);
+    Block* allocPhys(size_t size);
     MapEntry* alloc(size_t size);
     void free(MapEntry* entry);
     std::pair<bool, Block*> findBlockFromAddr(u64 paddr);
     std::pair<bool, Block*> findNextBlock(u64 start_addr);
+    std::pair<bool, Block*> findBlockWithHandle(u64 handle);
+    void freeBlockWithHandle(u64 handle);
     std::pair<bool, MapEntry*> findNextMappedArea(u64 start_addr);
-    std::pair<bool, MapEntry*> findMapEntryWithHandle(u32 handle);
+    u64 findNextAllocatableVaddr(size_t size);
+    std::pair<bool, MapEntry*> findMapEntryWithHandle(u64 handle);
     std::pair<bool, MapEntry*> isMapped(u64 vaddr);
     MapEntry* mmap(u64 vaddr, u64 paddr, size_t size);
     void unmap(u64 vaddr);
@@ -87,13 +91,16 @@ public:
     void markAsFastMem(u64 page, u8* ptr, bool r, bool w);
     void markAsSlowMem(u64 page, bool r, bool w);
 
-    u64 allocPhys(size_t size) { return ram.allocPhys(size); }
+    MemoryRegion::Block* allocPhys(size_t size) { return ram.allocPhys(size); }
     MemoryRegion::MapEntry* alloc(size_t size) { return ram.alloc(size); }
     void free(MemoryRegion::MapEntry* entry) { ram.free(entry); }
     std::pair<bool, MemoryRegion::Block*> findBlockFromAddr(u64 paddr) { return ram.findBlockFromAddr(paddr); }
     std::pair<bool, MemoryRegion::Block*> findNextBlock(u64 start_addr) { return ram.findNextBlock(start_addr); }
+    std::pair<bool, MemoryRegion::Block*> findBlockWithHandle(u64 handle) { return ram.findBlockWithHandle(handle); }
+    void freeBlockWithHandle(u64 handle) { ram.freeBlockWithHandle(handle); }
     std::pair<bool, MemoryRegion::MapEntry*> findNextMappedArea(u64 start_addr) { return ram.findNextMappedArea(start_addr); }
-    std::pair<bool, MemoryRegion::MapEntry*> findMapEntryWithHandle(u32 handle) { return ram.findMapEntryWithHandle(handle); }
+    u64 findNextAllocatableVaddr(size_t size) { return ram.findNextAllocatableVaddr(size); }
+    std::pair<bool, MemoryRegion::MapEntry*> findMapEntryWithHandle(u64 handle) { return ram.findMapEntryWithHandle(handle); }
     std::pair<bool, MemoryRegion::MapEntry*> isMapped(u64 vaddr) { return ram.isMapped(vaddr); }
     MemoryRegion::MapEntry* mmap(u64 vaddr, u64 paddr, size_t size) { return ram.mmap(vaddr, paddr, size); }
     void unmap(u64 vaddr) { ram.unmap(vaddr); }

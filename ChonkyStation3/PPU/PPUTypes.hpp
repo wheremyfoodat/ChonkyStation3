@@ -462,6 +462,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     STWCX_  = 0x096,
     STWX    = 0x097,
     STDUX   = 0x0b5,
+    STVEWX  = 0x0c7,
     ADDZE   = 0x0ca,
     STDCX_  = 0x0d6,
     STBX    = 0x0d7,

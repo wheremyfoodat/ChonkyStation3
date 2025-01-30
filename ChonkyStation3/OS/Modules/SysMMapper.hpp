@@ -21,6 +21,7 @@ public:
     u64 sysMMapperAllocateMemory();
     u64 sysMMapperFreeMemory();
     u64 sysMMapperUnmapMemory();
+    u64 sysMMapperMapMemory();
 
 private:
     MAKE_LOG_FUNCTION(log, sysMMapper);

@@ -117,6 +117,7 @@ public:
     void subf       (const Instruction& instr);
     void cntlzd     (const Instruction& instr);
     void andc       (const Instruction& instr);
+    void lvewx      (const Instruction& instr);
     void mulhd      (const Instruction& instr);
     void mulhw      (const Instruction& instr);
     void ldarx      (const Instruction& instr);
@@ -130,6 +131,7 @@ public:
     void stwcx      (const Instruction& instr);
     void stwx       (const Instruction& instr);
     void stdux      (const Instruction& instr);
+    void stvewx     (const Instruction& instr);
     void addze      (const Instruction& instr);
     void stdcx      (const Instruction& instr);
     void stbx       (const Instruction& instr);
@@ -170,6 +172,7 @@ public:
     void fdivs      (const Instruction& instr);
     void fsubs      (const Instruction& instr);
     void fadds      (const Instruction& instr);
+    void fsqrts     (const Instruction& instr);
     void fmuls      (const Instruction& instr);
     void fmsubs     (const Instruction& instr);
     void fmadds     (const Instruction& instr);

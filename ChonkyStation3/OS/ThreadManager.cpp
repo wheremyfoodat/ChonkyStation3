@@ -66,7 +66,7 @@ Thread* ThreadManager::getThreadByID(u32 id) {
 }
 
 u64 ThreadManager::allocateStack(u64 stack_size) {
-    return ps3->mem.ram.allocPhys(stack_size);
+    return ps3->mem.ram.allocPhys(stack_size)->start;
 }
 
 void ThreadManager::mapStack(Thread& thread) {

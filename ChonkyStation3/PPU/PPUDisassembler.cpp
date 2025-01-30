@@ -19,12 +19,12 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
         }
         break;
     }
-    case PPUTypes::Instructions::ORI:       printf("0x%016llx | ori        r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u8)instr.ui); break;
+    case PPUTypes::Instructions::ORI:       printf("0x%016llx | ori        r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u16)instr.ui); break;
     case PPUTypes::Instructions::ORIS:      printf("0x%016llx | oris       r%d, r%d, 0x%04x 		; r%d = 0x%016llx\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u8)instr.ui, (u8)instr.rs, state.gprs[instr.rs]); break;
-    case PPUTypes::Instructions::XORI:      printf("0x%016llx | xori       r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u8)instr.ui); break;
-    case PPUTypes::Instructions::XORIS:     printf("0x%016llx | xoris      r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u8)instr.ui); break;
-    case PPUTypes::Instructions::ANDI:      printf("0x%016llx | andi       r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u8)instr.ui); break;
-    case PPUTypes::Instructions::ANDIS:     printf("0x%016llx | andis      r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u8)instr.ui); break;
+    case PPUTypes::Instructions::XORI:      printf("0x%016llx | xori       r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u16)instr.ui); break;
+    case PPUTypes::Instructions::XORIS:     printf("0x%016llx | xoris      r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u16)instr.ui); break;
+    case PPUTypes::Instructions::ANDI:      printf("0x%016llx | andi       r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u16)instr.ui); break;
+    case PPUTypes::Instructions::ANDIS:     printf("0x%016llx | andis      r%d, r%d, 0x%04x\n", state.pc, (u8)instr.ra, (u8)instr.rs, (u16)instr.ui); break;
     case PPUTypes::Instructions::G_1E: {
         switch (instr.g_1e_field) {
 

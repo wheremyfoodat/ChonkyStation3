@@ -48,3 +48,12 @@ std::string ModuleManager::getImportName(const u32 nid) {
 void ModuleManager::printReturnValue() {
     log("%s returned with 0x%08x\n", getImportName(last_lle_nid).c_str(), ps3->ppu->state.gprs[3]);
 }
+
+u64 ModuleManager::stub() {
+    unimpl("%s() UNIMPLEMENTED @ 0x%08x\n", last_call.c_str(), ps3->ppu->state.lr);
+    if (last_call == "sysNetInitializeNetworkEx") {
+        //ps3->ppu->should_log = true;
+        printf("Enabling logs\n");
+    }
+    return Result::CELL_OK;
+}

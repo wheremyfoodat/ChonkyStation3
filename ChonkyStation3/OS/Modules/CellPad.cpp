@@ -16,7 +16,7 @@ u64 CellPad::cellPadGetData() {
     data->button[4] = 0x7f; // Right stick X
     data->button[5] = 0x7f; // Right stick Y
     data->button[6] = 0x7f; // Left stick X
-    data->button[7] = 0x7f; // Right stick Y
+    data->button[7] = 0x7f; // Left stick Y
 
     return Result::CELL_OK;
 }

@@ -20,6 +20,8 @@ public:
 
     PPUTypes::State state;
 
+    bool should_log = false;    // For debugging, unused normally
+
     void printState();
     bool doesAnyRegContain(u64 val);
     bool doesAnyRegContainMasked(u64 val, u64 mask);

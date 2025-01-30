@@ -85,6 +85,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
     case 182: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysSpuThreadWriteSnr() UNIMPLEMENTED\n");   break;
     case 190: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysSpuThreadWriteSpuMb() UNIMPLEMENTED\n"); break;
+    case 254: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysSpuThreadGroupLog() UNIMPLEMENTED\n"); break;
     case 330: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
     case 331: ps3->ppu->state.gprs[3] = Result::CELL_OK;  log("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
     case 337: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;

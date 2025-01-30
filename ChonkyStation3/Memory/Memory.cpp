@@ -2,7 +2,7 @@
 
 
 // Allocates size bytes of physical memory. Returns physical address of the allocated memory.
-u64 MemoryRegion::allocPhys(size_t size) {
+MemoryRegion::Block* MemoryRegion::allocPhys(size_t size) {
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Find the next free block of memory big enough for the given size
@@ -34,7 +34,7 @@ u64 MemoryRegion::allocPhys(size_t size) {
     // Allocate block
     blocks.push_back({ addr, aligned_size });
 
-    return addr;
+    return &blocks.back();
 }
 
 // Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem.
@@ -42,32 +42,10 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Allocate block of memory
-    u64 paddr = allocPhys(aligned_size);
-    u64 vaddr = virtual_base;
-    // Find the next free area in the address map
-    //log("Searching allocateable area...\n");
-    while (true) {
-        auto next_area = findNextMappedArea(vaddr);
-        //log("0x%016llx (next area at 0x%016llx, spacing: 0x%016llx)...", vaddr, next_area.second->vaddr, next_area.second->vaddr - vaddr);
-        if (next_area.first) {
-            if (next_area.second->vaddr - vaddr >= aligned_size) {
-                // addr OK
-                break;
-            }
-            else {
-                // Keep searching
-                vaddr = next_area.second->vaddr + next_area.second->size;
-                //log(" not ok\n");
-            }
-        }
-        else {
-            // addr OK
-            break;
-        }
-    }
-    //log(" ok\n");
+    u64 paddr = allocPhys(aligned_size)->start;
 
     // Map area
+    u64 vaddr = findNextAllocatableVaddr(size);
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
     
     // Fastmem
@@ -122,6 +100,28 @@ std::pair<bool, MemoryRegion::Block*> MemoryRegion::findNextBlock(u64 start_addr
     return { block != nullptr, block };
 }
 
+// Returns whether there is an allocated block in the physical address space with the given handle and, in case there is, returns the block info.
+std::pair<bool, MemoryRegion::Block*> MemoryRegion::findBlockWithHandle(u64 handle) {
+    for (auto& i : blocks) {
+        if (i.handle == handle)
+            return { true, &i };
+    }
+    return { false, nullptr };
+}
+
+// Frees a physical block with the given handle, or does nothing if there is no block with the given handle.
+void MemoryRegion::freeBlockWithHandle(u64 handle) {
+    // Get the block
+    auto block = findBlockWithHandle(handle);
+    // Remove the block
+    for (int i = 0; i < blocks.size(); i++) {
+        if (blocks[i].start == block.second->start) {
+            blocks.erase(blocks.begin() + i);
+            break;
+        }
+    }
+}
+
 // Returns whether there is a mapped area in the virtual address space after the given virtual address and, in case there is, returns the map info.
 std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findNextMappedArea(u64 start_addr) {
     MapEntry* map_entry = nullptr;
@@ -137,8 +137,38 @@ std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findNextMappedArea(u64 st
     return { map_entry != nullptr, map_entry };
 }
 
+// Returns the first available unmapped region in the virtual address space big enough to fit size bytes, or 0 if there is none.
+u64 MemoryRegion::findNextAllocatableVaddr(size_t size) {
+    u64 vaddr = virtual_base;
+    u64 aligned_size = pageAlign(size);
+
+    // Find the next free area in the address map
+    //log("Searching allocateable area...\n");
+    while (true) {
+        auto next_area = findNextMappedArea(vaddr);
+        //log("0x%016llx (next area at 0x%016llx, spacing: 0x%016llx)...", vaddr, next_area.second->vaddr, next_area.second->vaddr - vaddr);
+        if (next_area.first) {
+            if (next_area.second->vaddr - vaddr >= aligned_size) {
+                // addr OK
+                break;
+            }
+            else {
+                // Keep searching
+                vaddr = next_area.second->vaddr + next_area.second->size;
+                //log(" not ok\n");
+            }
+        }
+        else {
+            // addr OK
+            break;
+        }
+    }
+    //log(" ok\n");
+    return vaddr;
+}
+
 // Returns whether there is a mapped area in the virtual address space with the given handle and, in case there is, returns the map info.
-std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findMapEntryWithHandle(u32 handle) {
+std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findMapEntryWithHandle(u64 handle) {
     for (auto& i : map) {
         if (i.handle == handle)
             return { true, &i };
