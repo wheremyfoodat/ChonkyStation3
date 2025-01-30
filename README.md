@@ -7,8 +7,9 @@
 ---
 
 <p>
-ChonkyStation 3 is a work-in-progress emulator for the PlayStation 3 system.
-It can currently boot a few simple commercial games.
-This is a hobby project I'm making for fun and to learn and you should not use this to actually play games. At least not now.
+ChonkyStation 3 is a work-in-progress emulator for the PlayStation 3 system.<br>
+It can currently boot a few simple commercial games.<br>
+This is a hobby project I'm developing for fun and to learn.<br>
+You should not use this to actually play games. At least not for now.<br>
 </p>
 <img src="Resources/arkedo_series_pixel_menu.png">
