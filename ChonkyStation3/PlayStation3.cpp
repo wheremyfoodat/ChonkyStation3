@@ -9,6 +9,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     fs.mount(Filesystem::Device::DEV_HDD0, "./Filesystem/dev_hdd0/");
 
     fs::path elf_path;
+    std::string elf_path_encrypted;
     // An executable was passed as CLI argument, run it directly
     if (!(executable.generic_string() == "")) {
         elf_path = executable;
@@ -35,6 +36,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
         module_manager.cellGame.setContentPath(game_loader.games[idx].content_path);
         // Get path of EBOOT.elf
         elf_path = fs.guestPathToHost(game_loader.games[idx].content_path / "USRDIR/EBOOT.elf");
+        elf_path_encrypted = (game_loader.games[idx].content_path / "USRDIR/EBOOT.BIN").generic_string();
     }
     
     // Load ELF file
@@ -48,7 +50,8 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 
     // Create main thread
     thread_manager.setTLS(elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize);
-    Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true);
+    elf_path_encrypted += '\0';
+    Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true, elf_path_encrypted);
 
     // Load PRXs required by the ELF
     prx_manager.loadModulesRecursively();

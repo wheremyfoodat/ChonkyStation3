@@ -23,6 +23,33 @@ u64 CellVideoOut::cellVideoOutConfigure() {
     return Result::CELL_OK;
 }
 
+u64 CellVideoOut::cellVideoOutGetDeviceInfo() {
+    const u32 video_out = ARG0;
+    const u32 device_idx = ARG1;
+    const u32 info_ptr = ARG2;
+    log("cellVideoOutGetDeviceInfo(video_out: 0x%08x, device_idx: %d, info_ptr: 0x%08x)\n", video_out, device_idx, info_ptr);
+
+    CellVideoOutDeviceInfo* info = (CellVideoOutDeviceInfo*)ps3->mem.getPtr(info_ptr);
+    info->port_type = CELL_VIDEO_OUT_PORT_HDMI;
+    info->state = CELL_VIDEO_OUT_OUTPUT_STATE_ENABLED;
+    info->rgb_output_range = 1;
+    info->n_available_modes = 1;
+    info->available_modes[0].res_id = CELL_VIDEO_OUT_RESOLUTION_720;
+    info->available_modes[0].scan_mode = CELL_VIDEO_OUT_SCAN_MODE_PROGRESSIVE;
+    info->available_modes[0].conversion = CELL_VIDEO_OUT_DISPLAY_CONVERSION_NONE;
+    info->available_modes[0].aspect = CELL_VIDEO_OUT_ASPECT_16_9;
+    info->available_modes[0].refresh_rates = CELL_VIDEO_OUT_REFRESH_RATE_59_94HZ;
+
+    return Result::CELL_OK;
+}
+
+u64 CellVideoOut::cellVideoOutGetNumberOfDevice() {
+    const u32 video_out = ARG0;
+    log("cellVideoOutGetNumberOfDevice(video_out: 0x%08x)\n", video_out);
+
+    return 1;
+}
+
 u64 CellVideoOut::cellVideoOutGetState() {
     const u32 video_out = ARG0;
     const u32 device_idx = ARG1;
@@ -60,15 +87,19 @@ u64 CellVideoOut::cellVideoOutGetResolution() {
     const u32 res_ptr = ARG1;
     log("cellVideoOutGetResolution(res_id: 0x%08x, res_ptr: 0x%08x)", res_id, res_ptr);
 
+    CellVideoOutResolution* res = (CellVideoOutResolution*)ps3->mem.getPtr(res_ptr);
+    CellVideoOutResolutionLE res_;
     if (resolutions.find(res_id) == resolutions.end()) {
         logNoPrefix(" WARNING: Unknown resolution ID (returning 720p)");
-        res_id = CELL_VIDEO_OUT_RESOLUTION_720;
-    }
-
-    const auto res_ = resolutions[res_id];
+        //res_id = CELL_VIDEO_OUT_RESOLUTION_720;
+        //res_.width = 1280;
+        //res_.height = 720;
+        res_.width = 0;
+        res_.height = 0;
+    } else 
+        res_ = resolutions[res_id];
     logNoPrefix(" [resolution: %dx%d]\n", res_.width, res_.height);
 
-    CellVideoOutResolution* res = (CellVideoOutResolution*)ps3->mem.getPtr(res_ptr);
     res->width = res_.width;
     res->height = res_.height;
 

@@ -37,7 +37,7 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 id, u32 t
     state.gprs[8] = tls_vaddr;
     state.gprs[9] = tls_filesize;
     state.gprs[10] = tls_memsize;
-    state.gprs[12] = PAGE_SIZE;
+    state.gprs[12] = 0x100000;
 
     state.gprs[28] = state.gprs[4];
     state.gprs[29] = state.gprs[3];
@@ -63,7 +63,7 @@ void Thread::sleepForCycles(u64 cycles) {
     mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), mgr->ps3->curr_block_cycles + cycles, "thread wakeup");
     status = THREAD_STATUS::Sleeping;
     reschedule();
-    log("Sleeping thread %d for %d cycles\n", id, cycles);
+    log("Sleeping thread %d for %lld cycles\n", id, cycles);
 }
 
 void Thread::wakeUp() {

@@ -51,9 +51,6 @@ void ModuleManager::printReturnValue() {
 
 u64 ModuleManager::stub() {
     unimpl("%s() UNIMPLEMENTED @ 0x%08x\n", last_call.c_str(), ps3->ppu->state.lr);
-    if (last_call == "sysNetInitializeNetworkEx") {
-        //ps3->ppu->should_log = true;
-        printf("Enabling logs\n");
-    }
+    //if (last_call == "sysNetInitializeNetworkEx")   ps3->ppu->should_log = true;
     return Result::CELL_OK;
 }

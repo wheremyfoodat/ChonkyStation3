@@ -36,6 +36,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
             log("version            : 0x%08x\n", (u32)proc_param->version);
             log("sdk_version        : 0x%08x\n", (u32)proc_param->sdk_version);
             log("primary_stacksize  : 0x%08x\n", (u32)proc_param->primary_stacksize);
+            log("malloc_pagesize    : 0x%08x\n", (u32)proc_param->malloc_pagesize);
         }
         
         // PRX_PARAM

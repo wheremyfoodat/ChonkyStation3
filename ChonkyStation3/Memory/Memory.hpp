@@ -52,7 +52,7 @@ public:
     std::pair<bool, Block*> findBlockWithHandle(u64 handle);
     void freeBlockWithHandle(u64 handle);
     std::pair<bool, MapEntry*> findNextMappedArea(u64 start_addr);
-    u64 findNextAllocatableVaddr(size_t size);
+    u64 findNextAllocatableVaddr(size_t size, u64 start_addr = 0);
     std::pair<bool, MapEntry*> findMapEntryWithHandle(u64 handle);
     std::pair<bool, MapEntry*> isMapped(u64 vaddr);
     MapEntry* mmap(u64 vaddr, u64 paddr, size_t size);
@@ -99,7 +99,7 @@ public:
     std::pair<bool, MemoryRegion::Block*> findBlockWithHandle(u64 handle) { return ram.findBlockWithHandle(handle); }
     void freeBlockWithHandle(u64 handle) { ram.freeBlockWithHandle(handle); }
     std::pair<bool, MemoryRegion::MapEntry*> findNextMappedArea(u64 start_addr) { return ram.findNextMappedArea(start_addr); }
-    u64 findNextAllocatableVaddr(size_t size) { return ram.findNextAllocatableVaddr(size); }
+    u64 findNextAllocatableVaddr(size_t size, u64 start_addr = 0) { return ram.findNextAllocatableVaddr(size, start_addr); }
     std::pair<bool, MemoryRegion::MapEntry*> findMapEntryWithHandle(u64 handle) { return ram.findMapEntryWithHandle(handle); }
     std::pair<bool, MemoryRegion::MapEntry*> isMapped(u64 vaddr) { return ram.isMapped(vaddr); }
     MemoryRegion::MapEntry* mmap(u64 vaddr, u64 paddr, size_t size) { return ram.mmap(vaddr, paddr, size); }

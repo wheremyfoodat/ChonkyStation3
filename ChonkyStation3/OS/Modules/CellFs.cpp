@@ -44,8 +44,9 @@ u64 CellFs::cellFsOpen() {
 u64 CellFs::cellFsStat() {
     const u32 path_ptr = ARG0;
     const u32 stat_ptr = ARG1;
+    log("cellFsStat(path_ptr: 0x%08x, stat_ptr: 0x%08x)", path_ptr, stat_ptr);
     const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
-    log("cellFsStat(path_ptr: 0x%08x, stat_ptr: 0x%08x) [path: %s]\n", path_ptr, stat_ptr, path.c_str());
+    logNoPrefix(" [path: %s]\n", path.c_str());
 
     CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
     bool is_dir = ps3->fs.isDirectory(path);

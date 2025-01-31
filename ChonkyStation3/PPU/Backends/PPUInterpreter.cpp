@@ -4,6 +4,8 @@
 
 //#define PRINT_DEBUG_SYMBOLS
 
+PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {}
+
 void PPUInterpreter::printFunctionCall() {
     auto symbol = ps3->elf_parser.getSymbol(state.pc);
     if (symbol.has_value())
@@ -807,8 +809,8 @@ void PPUInterpreter::rldicr(const Instruction& instr) {
 }
 
 void PPUInterpreter::rldic(const Instruction& instr) {
-    const auto sh = instr.sh_lo | (instr.sh_hi << 5);
-    const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
+    auto sh = instr.sh_lo | (instr.sh_hi << 5);
+    auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
     const auto mask = (0xffffffffffffffffull >> mb) & (0xffffffffffffffffull << sh);
     Helpers::debugAssert((63 - sh) > mb, "rldic: 63 - sh <= mb (invert mask?)\n");
     state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
@@ -817,10 +819,10 @@ void PPUInterpreter::rldic(const Instruction& instr) {
 }
 
 void PPUInterpreter::rldimi(const Instruction& instr) {
-    const auto sh = instr.sh_lo | (instr.sh_hi << 5);
-    const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
+    auto sh = instr.sh_lo | (instr.sh_hi << 5);
+    auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
     const auto mask = (0xffffffffffffffffull >> mb) & (0xffffffffffffffffull << sh);
-    Helpers::debugAssert((63 - sh) > mb, "rldic: 63 - sh <= mb (invert mask?)\n");
+    Helpers::debugAssert((63 - sh) > mb, "rldimi: 63 - sh <= mb (invert mask?)\n");
     state.gprs[instr.ra] = (state.gprs[instr.ra] & ~mask) | (std::rotl<u64>(state.gprs[instr.rs], sh) & mask);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);

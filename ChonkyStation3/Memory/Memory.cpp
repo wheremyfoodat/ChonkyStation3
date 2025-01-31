@@ -138,8 +138,8 @@ std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findNextMappedArea(u64 st
 }
 
 // Returns the first available unmapped region in the virtual address space big enough to fit size bytes, or 0 if there is none.
-u64 MemoryRegion::findNextAllocatableVaddr(size_t size) {
-    u64 vaddr = virtual_base;
+u64 MemoryRegion::findNextAllocatableVaddr(size_t size, u64 start_addr) {
+    u64 vaddr = (start_addr == 0) ? virtual_base : start_addr;
     u64 aligned_size = pageAlign(size);
 
     // Find the next free area in the address map

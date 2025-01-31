@@ -16,7 +16,7 @@ using namespace PPUTypes;
 
 class PPUInterpreter : public PPU {
 public:
-    PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {}
+    PPUInterpreter(Memory& mem, PlayStation3* ps3);
     void step() override;
 
     // Debug symbols

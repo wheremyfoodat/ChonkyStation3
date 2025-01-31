@@ -14,7 +14,7 @@ u64 CellSysutil::cellSysutilCheckCallback() {
     // TODO: Currently this is stubbed to just always call the callbacks.
     for (int i = 0; i < 3; i++) {
         if (callbacks[i].func_ptr) {
-            log("Running callback func %d\n", i);
+            log("Running callback func %d @ 0x%08x\n", i, callbacks[i].func_ptr);
             ps3->ppu->state.gprs[3] = callbacks[i].userdata_ptr;
             ps3->ppu->runFunc(callbacks[i].func_ptr);
             log("Done\n");

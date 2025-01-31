@@ -2,7 +2,7 @@
 #include "PlayStation3.hpp"
 
 
-Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread) {
+Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread, std::string executable_path) {
     threads.push_back({ entry, stack_size, arg, name, next_thread_id++, tls_vaddr, tls_filesize, tls_memsize, this});
     // If this is the first thread we create, set 
     // current_thread to point to this thread and initialize ppu
@@ -10,6 +10,14 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8
         current_thread_id = threads.back().id;
         mapStack(threads.back());
         ps3->ppu->state = getCurrentThread()->state;
+
+        // argc and argv
+        auto entry = ps3->mem.alloc(1_MB);
+        ps3->mem.write<u64>(ps3->ppu->state.gprs[1], entry->vaddr);
+        std::memcpy(ps3->mem.getPtr(entry->vaddr), executable_path.c_str(), executable_path.length()); // argv[0] should be executable path
+        ps3->ppu->state.gprs[3] = 1; // argc
+        ps3->ppu->state.gprs[4] = ps3->ppu->state.gprs[1];
+        ps3->ppu->state.gprs[1] -= 8;
     }
     
     printf("Created thread %d \"%s\" (entry: 0x%08x)\n", threads.back().id, threads.back().name.c_str(), (u32)threads.back().state.pc);

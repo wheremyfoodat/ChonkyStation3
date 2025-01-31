@@ -81,6 +81,18 @@ public:
         CELL_VIDEO_OUT_DISPLAY_CONVERSION_TO_720_3D_FRAME_PACKING = 0x80,
     };
 
+    enum CellVideoOutPortType : u32 {
+        CELL_VIDEO_OUT_PORT_NONE = 0x00,
+        CELL_VIDEO_OUT_PORT_HDMI = 0x01,
+        CELL_VIDEO_OUT_PORT_NETWORK = 0x41,
+        CELL_VIDEO_OUT_PORT_COMPOSITE_S = 0x81,
+        CELL_VIDEO_OUT_PORT_D = 0x82,
+        CELL_VIDEO_OUT_PORT_COMPONENT = 0x83,
+        CELL_VIDEO_OUT_PORT_RGB = 0x84,
+        CELL_VIDEO_OUT_PORT_AVMULTI_SCART = 0x85,
+        CELL_VIDEO_OUT_PORT_DSUB = 0x86,
+    };
+
     enum CellVideoOutDisplayAspect : u32 {
         CELL_VIDEO_OUT_ASPECT_AUTO,
         CELL_VIDEO_OUT_ASPECT_4_3,
@@ -122,6 +134,31 @@ public:
         CellVideoOutDisplayMode display_mode;
     };
 
+    struct CellVideoOutColorInfo {
+        BEField<u16> red_x;
+        BEField<u16> red_y;
+        BEField<u16> green_x;
+        BEField<u16> green_y;
+        BEField<u16> blue_x;
+        BEField<u16> blue_y;
+        BEField<u16> white_x;
+        BEField<u16> white_y;
+        BEField<u32> gamma;
+    };
+
+    struct CellVideoOutDeviceInfo {
+        u8 port_type;
+        u8 color_space;
+        BEField<u16> latency;
+        u8 n_available_modes;
+        u8 state;
+        u8 rgb_output_range;
+        u8 reserved[5];
+        CellVideoOutColorInfo color_info;
+        CellVideoOutDisplayMode available_modes[32];
+        // ksv list
+    };
+
     std::unordered_map<u32, CellVideoOutResolutionLE> resolutions {
         { CELL_VIDEO_OUT_RESOLUTION_1080,                            { 0x780, 0x438 } },
         { CELL_VIDEO_OUT_RESOLUTION_720,                             { 0x500, 0x2d0 } },
@@ -151,6 +188,8 @@ public:
     CellVideoOutResolutionLE getResolution();
 
     u64 cellVideoOutConfigure();
+    u64 cellVideoOutGetDeviceInfo();
+    u64 cellVideoOutGetNumberOfDevice();
     u64 cellVideoOutGetState();
     u64 cellVideoOutGetResolutionAvailability();
     u64 cellVideoOutGetResolution();

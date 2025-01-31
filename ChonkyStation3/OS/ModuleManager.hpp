@@ -94,6 +94,8 @@ public:
         { 0xf80196c1, { "cellGcmGetLabelAddress",                       std::bind(&CellGcmSys::cellGcmGetLabelAddress, &cellGcmSys) }},
 
         { 0x0bae8772, { "cellVideoOutConfigure",                        std::bind(&CellVideoOut::cellVideoOutConfigure, &cellVideoOut) }},
+        { 0x1e930eef, { "cellVideoOutGetDeviceInfo",                    std::bind(&CellVideoOut::cellVideoOutGetDeviceInfo, &cellVideoOut) }},
+        { 0x75bbb672, { "cellVideoOutGetNumberOfDevice",                std::bind(&CellVideoOut::cellVideoOutGetNumberOfDevice, &cellVideoOut) }},
         { 0x887572d5, { "cellVideoOutGetState",                         std::bind(&CellVideoOut::cellVideoOutGetState, &cellVideoOut) }},
         { 0xa322db75, { "cellVideoOutGetResolutionAvailability",        std::bind(&CellVideoOut::cellVideoOutGetResolutionAvailability, &cellVideoOut) }},
         { 0xe558748d, { "cellVideoOutGetResolution",                    std::bind(&CellVideoOut::cellVideoOutGetResolution, &cellVideoOut) }},
