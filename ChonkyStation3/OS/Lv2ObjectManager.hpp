@@ -3,6 +3,7 @@
 #include <common.hpp>
 
 #include <Lv2Object.hpp>
+#include <Lv2Base.hpp>
 #include <HandleManager.hpp>
 
 class Lv2ObjectManager {
