@@ -192,7 +192,6 @@ void RSX::runCommandList() {
 
         if (cmd & 0x20000000) { // jump
             gcm.ctrl->get = cmd & ~0x20000000;
-            Helpers::panic("rsx: jump\n");
             continue;
         }
         if (cmd & 0x00000002) { // call

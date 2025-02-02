@@ -4,6 +4,7 @@
 #include <logger.hpp>
 
 #include <CellTypes.hpp>
+#include <Lv2Objects/Lv2Mutex.hpp>
 
 
 // Circular dependency
@@ -37,6 +38,11 @@ public:
     u64 sysEventQueueReceive();
     u64 sysEventPortCreate();
     u64 sysEventPortConnectLocal();
+
+    // sysMutex
+    u64 sysMutexCreate();
+    u64 sysMutexLock();
+    u64 sysMutexUnlock();
 
     // Temporary until I move the FS syscalls to their own file
     enum CELL_FS_S : u32 {

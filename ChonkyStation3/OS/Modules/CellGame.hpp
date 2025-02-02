@@ -12,6 +12,8 @@ class PlayStation3;
 
 using namespace CellTypes;
 
+static constexpr u64 CELL_DISCGAME_ERROR_NOT_DISCBOOT = 0x8002bd02;
+
 class CellGame {
 public:
     CellGame(PlayStation3* ps3) : ps3(ps3) {}
@@ -30,6 +32,8 @@ public:
 
     u64 cellGameContentPermit();
     u64 cellGameBootCheck();
+
+    u64 cellDiscGameGetBootDiscInfo();
 
 private:
     MAKE_LOG_FUNCTION(log, cellGame);

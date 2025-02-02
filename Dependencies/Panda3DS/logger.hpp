@@ -57,6 +57,7 @@ static Logger sysPrxForUser     = Logger<false>("[Module ][sysPrxForUser ] ");
 static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
 
 // Syscalls
+static Logger sysMutex_sc       = Logger<true> ("[Syscall][sysMutex      ] ");
 static Logger sysEvent          = Logger<true> ("[Syscall][sysEvent      ] ");
 static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
 static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
@@ -84,6 +85,7 @@ static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
 static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
 static Logger lle_module        = Logger<true> ("[LLE    ][Module        ] ");
 static Logger filesystem        = Logger<true> ("[Other  ][Filesystem    ] ");
+static Logger lv2_obj           = Logger<true> ("[Other  ][Lv2 Object    ] ");
 static Logger unimplemented     = Logger<true> ("[Other  ][Unimplemented ] ");
 
 #undef true

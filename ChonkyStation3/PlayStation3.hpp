@@ -16,6 +16,7 @@
 #include <ThreadManager.hpp>
 #include <HandleManager.hpp>
 #include <PRXManager.hpp>
+#include <Lv2ObjectManager.hpp>
 #include <Syscall.hpp>
 #include <Scheduler.hpp>
 #include <Filesystem.hpp>
@@ -32,6 +33,7 @@ public:
     ThreadManager thread_manager;
     HandleManager handle_manager;
     PRXManager prx_manager;
+    Lv2ObjectManager lv2_obj;
     Syscall syscall;
     ElfSymbolParser elf_parser;
     Scheduler scheduler;

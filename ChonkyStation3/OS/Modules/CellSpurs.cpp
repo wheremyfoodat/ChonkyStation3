@@ -4,6 +4,24 @@
 
 // TODO: SPU :(
 
+u64 CellSpurs::cellSpursAttributeSetNamePrefix() {
+    const u32 attr = ARG0;
+    const u32 prefix_ptr = ARG1;
+    const u32 size = ARG2;
+    std::string prefix = Helpers::readString(ps3->mem.getPtr(prefix_ptr));
+    log("cellSpursAttributeSetNamePrefix(attr: 0x%08x, prefix_ptr: 0x%08x, size: 0x%08x) [prefix: %s] UNIMPLEMENTED\n", attr, prefix_ptr, size, prefix.c_str());
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursInitializeWithAttribute2() {
+    const u32 spurs_ptr = ARG0;
+    const u32 attr_ptr = ARG1;
+    log("cellSpursInitializeWithAttribute2(spurs_ptr: 0x%08x, attr_ptr: 0x%08x) UNIMPLEMENTED\n", spurs_ptr, attr_ptr);
+
+    return Result::CELL_OK;
+}
+
 u64 CellSpurs::cellSpursCreateTaskset() {
     const u32 spurs_ptr = ARG0;
     const u32 taskset_ptr = ARG1;
@@ -23,9 +41,34 @@ u64 CellSpurs::_cellSpursEventFlagInitialize() {
     return Result::CELL_OK;
 }
 
+u64 CellSpurs::cellSpursAttributeEnableSystemWorkload() {
+    const u32 attr_ptr = ARG0;
+    const u32 prio_ptr = ARG1;
+    const u32 max_spu = ARG2;
+    const u32 is_preemptible_ptr = ARG3;
+    std::string prio = Helpers::readString(ps3->mem.getPtr(prio_ptr));
+    std::string is_preemptible = Helpers::readString(ps3->mem.getPtr(is_preemptible_ptr));
+    log("cellSpursAttributeEnableSystemWorkload(attr_ptr: 0x%08x, prio_ptr: 0x%08x, max_spu: %d, is_preemptible_ptr: 0x%08x) [prio: %s, is_preemptible: %s] UNIMPLEMENTED\n", attr_ptr, prio_ptr, max_spu, is_preemptible_ptr, prio.c_str(), is_preemptible.c_str());
+
+    return Result::CELL_OK;
+}
+
 u64 CellSpurs::cellSpursEventFlagAttachLv2EventQueue() {
     const u32 event_flag_ptr = ARG0;
     log("cellSpursEventFlagAttachLv2EventQueue(event_flag_ptr: 0x%08x) UNIMPLEMENTED\n", event_flag_ptr);
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::_cellSpursAttributeInitialize() {
+    const u32 attr_ptr = ARG0;
+    const u32 revision = ARG1;
+    const u32 sdk_ver = ARG2;
+    const u32 n_spus = ARG3;
+    const s32 spu_prio = ARG4;
+    const s32 ppu_prio = ARG5;
+    const u8 exit_if_no_work = ARG5;
+    log("_cellSpursAttributeInitialize(attr_ptr: 0x%08x, revision: 0x%08x, sdk_ver: 0x%08x, n_spus: 0x%08x, spu_prio: 0x%08x, ppu_prio: 0x%08x, exit_if_no_work: 0x%08x) UNIMPLEMENTED\n", attr_ptr, revision, sdk_ver, n_spus, spu_prio, ppu_prio, exit_if_no_work);
 
     return Result::CELL_OK;
 }

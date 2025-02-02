@@ -14,6 +14,8 @@ class PlayStation3;
 
 using namespace CellTypes;
 
+static constexpr u64 CELL_ENOTMOUNTED = 0x8001003A;
+
 class CellFs {
 public:
     CellFs(PlayStation3* ps3) : ps3(ps3) {}

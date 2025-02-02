@@ -18,6 +18,7 @@ u64 CellGame::cellGameContentPermit() {
 
     return Result::CELL_OK;
 }
+
 u64 CellGame::cellGameBootCheck() {
     const u32 type_ptr = ARG0;
     const u32 attrib_ptr = ARG1;
@@ -31,4 +32,11 @@ u64 CellGame::cellGameBootCheck() {
     std::memcpy(ps3->mem.getPtr(dir_ptr), path.c_str(), path.length() + 1);
 
     return Result::CELL_OK;
+}
+
+u64 CellGame::cellDiscGameGetBootDiscInfo() {
+    const u32 param_ptr = ARG0;
+    log("cellDiscGameGetBootDiscInfo(param_ptr: 0x%08x)\n", param_ptr);
+    
+    return CELL_DISCGAME_ERROR_NOT_DISCBOOT;
 }

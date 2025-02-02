@@ -48,6 +48,11 @@ u64 CellFs::cellFsStat() {
     const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
     logNoPrefix(" [path: %s]\n", path.c_str());
 
+    // Games might stat /dev_bdvd to check if the game was booted from disc
+    std::string device_str = std::next(fs::path(path).begin(), 1)->generic_string();
+    if (device_str == "dev_bdvd")
+        return CELL_ENOTMOUNTED;
+
     CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
     bool is_dir = ps3->fs.isDirectory(path);
     stat->mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);

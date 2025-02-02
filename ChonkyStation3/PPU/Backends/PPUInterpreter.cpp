@@ -3,8 +3,27 @@
 
 
 //#define PRINT_DEBUG_SYMBOLS
+#define TRACK_CALL_STACK
 
-PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {}
+PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
+    // Generate a rotation mask array - this code is adapted from RPCS3
+    for (u32 mb = 0; mb < 64; mb++) {
+        for (u32 me = 0; me < 64; me++) {
+            const u64 mask = ((u64)-1 >> mb) ^ ((me >= 63) ? 0 : (u64)-1 >> (me + 1));
+            rotation_mask[mb][me] = mb > me ? ~mask : mask;
+        }
+    }
+}
+
+void PPUInterpreter::printCallStack() {
+    for (auto& i : call_stack) {
+        if (known_funcs.contains(i.first))
+            printf("%s called from 0x%08x\n", known_funcs[i.first].c_str(), i.second);
+        else
+            printf("sub_%x called from 0x%08x\n", i.first, i.second);
+    }
+    printf("current pc: 0x%08x\n", (u32)state.pc);
+}
 
 void PPUInterpreter::printFunctionCall() {
     auto symbol = ps3->elf_parser.getSymbol(state.pc);
@@ -15,8 +34,6 @@ void PPUInterpreter::printFunctionCall() {
 void PPUInterpreter::step() {
     const u32 instr_raw = mem.read<u32>(state.pc);
     const Instruction instr = { .raw = instr_raw };
-
-    if (should_log) PPUDisassembler::disasm(state, instr, &ps3->mem);
 
     switch (instr.opc) {
     
@@ -180,6 +197,7 @@ void PPUInterpreter::step() {
         case STFIWX:    stfiwx(instr);  break;
 
         default:
+            printCallStack();
             Helpers::panic("Unimplemented G_1F instruction 0x%03x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_1f_field, (u32)instr.g_1f_field, instr.raw, state.pc);
         }
         break;
@@ -246,6 +264,7 @@ void PPUInterpreter::step() {
     case G_3F: {
         switch (instr.g_3f_field & 0x1f) {
 
+        case FSEL:  fsel(instr);    break;
         case FMUL:  fmul(instr);    break;
         case FMSUB: fmsub(instr);   break;
         case FMADD: fmadd(instr);   break;
@@ -338,6 +357,10 @@ void PPUInterpreter::bc(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
 #endif
+#ifdef TRACK_CALL_STACK
+        if (instr.lk)
+            call_stack.push_back({ state.pc, state.lr - 4 });
+#endif
         state.pc -= 4;
     }
 }
@@ -356,25 +379,29 @@ void PPUInterpreter::b(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
     printFunctionCall();
 #endif
+#ifdef TRACK_CALL_STACK
+    if (instr.lk)
+        call_stack.push_back({ state.pc, state.lr - 4 });
+#endif
     state.pc -= 4;
 }
 
 void PPUInterpreter::rlwimi(const Instruction& instr) {
-    const auto mask = rotationMask(instr.mb_5, instr.me_5);
+    const u64 mask = rotation_mask[32 + instr.mb_5][32 + instr.me_5];
     state.gprs[instr.ra] = (state.gprs[instr.ra] & ~mask) | (std::rotl<u32>(state.gprs[instr.rs], instr.sh) & mask);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::rlwinm(const Instruction& instr) {
-    const auto mask = rotationMask(instr.mb_5, instr.me_5);
+    const u64 mask = rotation_mask[32 + instr.mb_5][32 + instr.me_5];
     state.gprs[instr.ra] = std::rotl<u32>(state.gprs[instr.rs], instr.sh) & mask;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::rlwnm(const Instruction& instr) {
-    const auto mask = rotationMask(instr.mb_5, instr.me_5);
+    const u64 mask = rotation_mask[32 + instr.mb_5][32 + instr.me_5];
     const auto rot = state.gprs[instr.rb] & 0x1f;
     state.gprs[instr.ra] = std::rotl<u32>(state.gprs[instr.rs], rot) & mask;
     if (instr.rc)
@@ -749,6 +776,9 @@ void PPUInterpreter::bclr(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
 #endif
+#ifdef TRACK_CALL_STACK
+        call_stack.pop_back();
+#endif
         state.pc -= 4;
     }
 }
@@ -783,6 +813,10 @@ void PPUInterpreter::bcctr(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
 #endif
+#ifdef TRACK_CALL_STACK
+        if (instr.lk)
+            call_stack.push_back({ state.pc, state.lr - 4 });
+#endif
         state.pc -= 4;
     }
 }
@@ -792,7 +826,7 @@ void PPUInterpreter::bcctr(const Instruction& instr) {
 void PPUInterpreter::rldicl(const Instruction& instr) {
     const auto sh = instr.sh_lo | (instr.sh_hi << 5);
     const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
-    const auto mask = 0xffffffffffffffffull >> mb;
+    const auto mask = rotation_mask[mb][63];
     state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
 
     if (instr.rc)
@@ -802,27 +836,25 @@ void PPUInterpreter::rldicl(const Instruction& instr) {
 void PPUInterpreter::rldicr(const Instruction& instr) {
     const auto sh = instr.sh_lo | (instr.sh_hi << 5);
     const auto me = ((instr.me_6 & 1) << 5) | (instr.me_6 >> 1);
-    const auto mask = 0xffffffffffffffffull << (63 - me);
+    const auto mask = rotation_mask[0][me];
     state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::rldic(const Instruction& instr) {
-    auto sh = instr.sh_lo | (instr.sh_hi << 5);
-    auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
-    const auto mask = (0xffffffffffffffffull >> mb) & (0xffffffffffffffffull << sh);
-    Helpers::debugAssert((63 - sh) > mb, "rldic: 63 - sh <= mb (invert mask?)\n");
+    const auto sh = instr.sh_lo | (instr.sh_hi << 5);
+    const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
+    const auto mask = rotation_mask[mb][63 - sh];
     state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::rldimi(const Instruction& instr) {
-    auto sh = instr.sh_lo | (instr.sh_hi << 5);
-    auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
-    const auto mask = (0xffffffffffffffffull >> mb) & (0xffffffffffffffffull << sh);
-    Helpers::debugAssert((63 - sh) > mb, "rldimi: 63 - sh <= mb (invert mask?)\n");
+    const auto sh = instr.sh_lo | (instr.sh_hi << 5);
+    const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
+    const auto mask = rotation_mask[mb][63 - sh];
     state.gprs[instr.ra] = (state.gprs[instr.ra] & ~mask) | (std::rotl<u64>(state.gprs[instr.rs], sh) & mask);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
@@ -1453,6 +1485,11 @@ void PPUInterpreter::fadd(const Instruction& instr) {
 void PPUInterpreter::fmr(const Instruction& instr) {
     Helpers::debugAssert(!instr.rc, "fmr: rc\n");
     state.fprs[instr.frt] = state.fprs[instr.frb];
+}
+
+void PPUInterpreter::fsel(const Instruction& instr) {
+    Helpers::debugAssert(!instr.rc, "fsel: rc\n");
+    state.fprs[instr.frt] = (state.fprs[instr.fra] >= 0.0) ? state.fprs[instr.frc] : state.fprs[instr.frb];
 }
 
 void PPUInterpreter::fmul(const Instruction& instr) {

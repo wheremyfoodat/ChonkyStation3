@@ -79,8 +79,10 @@ public:
         { 0x055bd74d, { "cellGcmGetTiledPitchSize",                     std::bind(&CellGcmSys::cellGcmGetTiledPitchSize, &cellGcmSys) }},
         { 0x15bae46b, { "cellGcmInitBody",                              std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
         { 0x21ac3697, { "cellGcmAddressToOffset",                       std::bind(&CellGcmSys::cellGcmAddressToOffset, &cellGcmSys) }},
+        { 0x2922aed0, { "cellGcmGetOffsetTable",                        std::bind(&CellGcmSys::cellGcmGetOffsetTable, &cellGcmSys) }},
         { 0x4524cccd, { "cellGcmBindTile",                              std::bind(&CellGcmSys::cellGcmBindTile, &cellGcmSys) }},
         { 0x4ae8d215, { "cellGcmSetFlipMode",                           std::bind(&CellGcmSys::cellGcmSetFlipMode, &cellGcmSys) }},
+        { 0x626e8518, { "cellGcmMapEaIoAddressWithFlags",               std::bind(&CellGcmSys::cellGcmMapEaIoAddressWithFlags, &cellGcmSys) }},
         { 0x72a577ce, { "cellGcmGetFlipStatus",                         std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
         { 0x983fb9aa, { "cellGcmSetWaitFlip",                           std::bind(&CellGcmSys::cellGcmSetWaitFlip, &cellGcmSys) }},
         { 0x9dc04436, { "cellGcmBindZcull",                             std::bind(&CellGcmSys::cellGcmBindZcull, &cellGcmSys) }},
@@ -89,6 +91,7 @@ public:
         { 0xa547adde, { "cellGcmGetControlRegister",                    std::bind(&CellGcmSys::cellGcmGetControlRegister, &cellGcmSys) }},
         { 0xb2e761d4, { "cellGcmResetFlipStatus",                       std::bind(&CellGcmSys::cellGcmResetFlipStatus, &cellGcmSys) }},
         { 0xbd100dbc, { "cellGcmSetTileInfo",                           std::bind(&CellGcmSys::cellGcmSetTileInfo, &cellGcmSys) }},
+        { 0xdb23e867, { "cellGcmUnmapIoAddress",                        std::bind(&CellGcmSys::cellGcmUnmapIoAddress, &cellGcmSys) }},
         { 0xdc09357e, { "cellGcmSetFlip",                               std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
         { 0xe315a0b2, { "cellGcmGetConfiguration",                      std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
         { 0xf80196c1, { "cellGcmGetLabelAddress",                       std::bind(&CellGcmSys::cellGcmGetLabelAddress, &cellGcmSys) }},
@@ -131,9 +134,13 @@ public:
         { 0x70acec67, { "cellGameContentPermit",                        std::bind(&CellGame::cellGameContentPermit, &cellGame) }},
         { 0xf52639ea, { "cellGameBootCheck",                            std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
 
+        { 0x07529113, { "cellSpursAttributeSetNamePrefix",              std::bind(&CellSpurs::cellSpursAttributeSetNamePrefix, &cellSpurs) }},
+        { 0x30aa96c4, { "cellSpursInitializeWithAttribute2",            std::bind(&CellSpurs::cellSpursInitializeWithAttribute2, &cellSpurs) }},
         { 0x52cc6c82, { "cellSpursCreateTaskset",                       std::bind(&CellSpurs::cellSpursCreateTaskset, &cellSpurs) }},
         { 0x5ef96465, { "_cellSpursEventFlagInitialize",                std::bind(&CellSpurs::_cellSpursEventFlagInitialize, &cellSpurs) }},
         { 0x87630976, { "cellSpursEventFlagAttachLv2EventQueue",        std::bind(&CellSpurs::cellSpursEventFlagAttachLv2EventQueue, &cellSpurs) }},
+        { 0x95180230, { "_cellSpursAttributeInitialize",                std::bind(&CellSpurs::_cellSpursAttributeInitialize, &cellSpurs) }},
+        { 0x9dcbcb5d, { "cellSpursAttributeEnableSystemWorkload",       std::bind(&CellSpurs::cellSpursAttributeEnableSystemWorkload, &cellSpurs) }},
         { 0xacfc8dbc, { "cellSpursInitialize",                          std::bind(&CellSpurs::cellSpursInitialize, &cellSpurs) }},
         { 0xb9bc6207, { "cellSpursAttachLv2EventQueue",                 std::bind(&CellSpurs::cellSpursAttachLv2EventQueue, &cellSpurs) }},
         { 0xbeb600ac, { "cellSpursCreateTask",                          std::bind(&CellSpurs::cellSpursCreateTask, &cellSpurs) }},
@@ -206,6 +213,9 @@ public:
 
         { 0x84bb6774, { "sysPRXGetModuleInfo",                          std::bind(&ModuleManager::stub, this) } },
         { 0xa5d06bf0, { "sysPRXGetModuleList",                          std::bind(&ModuleManager::stub, this) } },
+
+        { 0xb72bc4e6, { "cellDiscGameGetBootDiscInfo",                  std::bind(&CellGame::cellDiscGameGetBootDiscInfo, &cellGame) } },
+        { 0xdfdd302e, { "cellDiscGameRegisterDiscChangeCallback",       std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);

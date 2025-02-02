@@ -88,6 +88,14 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmGetOffsetTable() {
+    const u32 table_ptr = ARG0;
+    log("cellGcmGetOffsetTable(table_ptr: 0x%08x)\n", table_ptr);
+
+    // TODO
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmBindTile() {
     const u8 idx = ARG0;
     log("cellGcmBindTile(idx: %d) UNIMPLEMENTED\n", idx);
@@ -100,6 +108,17 @@ u64 CellGcmSys::cellGcmSetFlipMode() {
     const u32 mode = ARG0;
     log("cellGcmSetFlipMode(mode: 0x%08x) UNIMPLEMENTED\n", mode);
 
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmMapEaIoAddressWithFlags() {
+    const u32 ea = ARG0;
+    const u32 io = ARG1;
+    const u32 size = ARG2;
+    const u32 flags = ARG3;
+    log("cellGcmMapEaIoAddressWithFlags(ea: 0x%08x, io: 0x%08x, size: 0x%08x, flags: 0x%08x)\n", ea, io, size, flags);
+
+    // TODO
     return Result::CELL_OK;
 }
 
@@ -185,6 +204,14 @@ u64 CellGcmSys::cellGcmSetTileInfo() {
     const u8 bank = ARG7;
     log("cellGcmSetTileInfo(idx: %d, location: %d, offs: 0x%08x, size: 0x%08x, pitch: 0x%08x, compression: %d, base: 0x%04x, bank: %d) UNIMPLEMENTED\n", idx, location, offs, size, pitch, compression, base, bank);
 
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmUnmapIoAddress() {
+    const u32 io_addr = ARG0;
+    log("cellGcmUnmapIoAddress(io_addr: 0x%08x)\n", io_addr);
+
+    // TODO
     return Result::CELL_OK;
 }
 

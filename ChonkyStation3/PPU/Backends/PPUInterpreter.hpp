@@ -19,9 +19,14 @@ public:
     PPUInterpreter(Memory& mem, PlayStation3* ps3);
     void step() override;
 
+    u64 rotation_mask[64][64];
+
+    void printCallStack();
+    std::unordered_map<u32, std::string> known_funcs;   // For debugging
+    std::vector<std::pair<u32, u32>> call_stack;    // First: addr of function, second: addr the function is called from
     // Debug symbols
     void printFunctionCall();
-
+    
     // Main
     void mulli      (const Instruction& instr);
     void subfic     (const Instruction& instr);
@@ -187,6 +192,7 @@ public:
     void fdiv       (const Instruction& instr);
     void fsub       (const Instruction& instr);
     void fadd       (const Instruction& instr);
+    void fsel       (const Instruction& instr);
     void fmul       (const Instruction& instr);
     void fmr        (const Instruction& instr);
     void fmsub      (const Instruction& instr);
