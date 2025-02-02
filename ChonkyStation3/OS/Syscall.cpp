@@ -65,7 +65,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 94:   unimpl("sysSemaphorePost() UNIMPLEMENTED\n");            ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 100:  ps3->ppu->state.gprs[3] = sysMutexCreate();              break;
     case 102:  ps3->ppu->state.gprs[3] = sysMutexLock();                break;
-    case 104:  ps3->ppu->state.gprs[3] = sysMutexUnlock();                break;
+    case 104:  ps3->ppu->state.gprs[3] = sysMutexUnlock();              break;
     case 105:  unimpl("sysCondCreate() UNIMPLEMENTED\n");               ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 120:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");             ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 128:  ps3->ppu->state.gprs[3] = sysEventQueueCreate();         break;
