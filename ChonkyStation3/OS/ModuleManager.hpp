@@ -138,17 +138,25 @@ public:
         { 0xf52639ea, { "cellGameBootCheck",                                std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
 
         { 0x07529113, { "cellSpursAttributeSetNamePrefix",                  std::bind(&CellSpurs::cellSpursAttributeSetNamePrefix, &cellSpurs) }},
+        { 0x182d9890, { "cellSpursRequestIdleSpu",                          std::bind(&CellSpurs::cellSpursRequestIdleSpu, &cellSpurs) }},
+        { 0x1f402f8f, { "cellSpursGetInfo",                                 std::bind(&CellSpurs::cellSpursGetInfo, &cellSpurs) }},
         { 0x30aa96c4, { "cellSpursInitializeWithAttribute2",                std::bind(&CellSpurs::cellSpursInitializeWithAttribute2, &cellSpurs) }},
+        { 0x4a5eab63, { "cellSpursWorkloadAttributeSetName",                std::bind(&CellSpurs::cellSpursWorkloadAttributeSetName, &cellSpurs) }},
         { 0x52cc6c82, { "cellSpursCreateTaskset",                           std::bind(&CellSpurs::cellSpursCreateTaskset, &cellSpurs) }},
         { 0x5ef96465, { "_cellSpursEventFlagInitialize",                    std::bind(&CellSpurs::_cellSpursEventFlagInitialize, &cellSpurs) }},
         { 0x82275c1c, { "cellSpursAttributeSetMemoryContainerForSpuThread", std::bind(&CellSpurs::cellSpursAttributeSetMemoryContainerForSpuThread, &cellSpurs) }},
         { 0x87630976, { "cellSpursEventFlagAttachLv2EventQueue",            std::bind(&CellSpurs::cellSpursEventFlagAttachLv2EventQueue, &cellSpurs) }},
         { 0x95180230, { "_cellSpursAttributeInitialize",                    std::bind(&CellSpurs::_cellSpursAttributeInitialize, &cellSpurs) }},
         { 0x9dcbcb5d, { "cellSpursAttributeEnableSystemWorkload",           std::bind(&CellSpurs::cellSpursAttributeEnableSystemWorkload, &cellSpurs) }},
+        { 0xa73bf47e, { "_cellSpursWorkloadFlagReceiver",                   std::bind(&CellSpurs::_cellSpursWorkloadFlagReceiver, &cellSpurs) }},
         { 0xaa6269a8, { "cellSpursInitializeWithAttribute",                 std::bind(&CellSpurs::cellSpursInitializeWithAttribute, &cellSpurs) }},
         { 0xacfc8dbc, { "cellSpursInitialize",                              std::bind(&CellSpurs::cellSpursInitialize, &cellSpurs) }},
         { 0xb9bc6207, { "cellSpursAttachLv2EventQueue",                     std::bind(&CellSpurs::cellSpursAttachLv2EventQueue, &cellSpurs) }},
         { 0xbeb600ac, { "cellSpursCreateTask",                              std::bind(&CellSpurs::cellSpursCreateTask, &cellSpurs) }},
+        { 0xc0158d8b, { "cellSpursAddWorkloadWithAttribute",                std::bind(&CellSpurs::cellSpursAddWorkloadWithAttribute, &cellSpurs) }},
+        { 0xc765b995, { "cellSpursGetWorkloadFlag",                         std::bind(&CellSpurs::cellSpursGetWorkloadFlag, &cellSpurs) }},
+        { 0xd2e23fa9, { "cellSpursSetExceptionEventHandler",                std::bind(&CellSpurs::cellSpursSetExceptionEventHandler, &cellSpurs) }},
+        { 0xefeb2679, { "_cellSpursWorkloadAttributeInitialize",            std::bind(&CellSpurs::_cellSpursWorkloadAttributeInitialize, &cellSpurs) }},
 
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                            std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
 
@@ -234,6 +242,9 @@ public:
         { 0x3d0d3b72, { "cellSailSoundAdapterInitialize",                   std::bind(&ModuleManager::stub, this) } },
         { 0x4cc54f8e, { "cellSailFutureInitialize",                         std::bind(&ModuleManager::stub, this) } },
         { 0xbdf21b0f, { "cellSailPlayerBoot",                               std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x5c832bd7, { "cellUsbdSetThreadPriority2",                       std::bind(&ModuleManager::stub, this) } },
+        { 0xd0e766fe, { "cellUsbdInit",                                     std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);

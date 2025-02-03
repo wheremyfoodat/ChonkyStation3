@@ -14,10 +14,35 @@ u64 CellSpurs::cellSpursAttributeSetNamePrefix() {
     return Result::CELL_OK;
 }
 
+u64 CellSpurs::cellSpursRequestIdleSpu() {
+    log("cellSpursRequestIdleSpu() UNIMPLEMENTED\n");
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursGetInfo() {
+    const u32 spurs_ptr = ARG0;
+    const u32 info_ptr = ARG1;
+    log("cellSpursGetInfo(spurs_ptr: 0x%08x, info_ptr: 0x%08x) UNIMPLEMENTED\n", spurs_ptr, info_ptr);
+
+    return Result::CELL_OK;
+}
+
 u64 CellSpurs::cellSpursInitializeWithAttribute2() {
     const u32 spurs_ptr = ARG0;
     const u32 attr_ptr = ARG1;
     log("cellSpursInitializeWithAttribute2(spurs_ptr: 0x%08x, attr_ptr: 0x%08x) UNIMPLEMENTED\n", spurs_ptr, attr_ptr);
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursWorkloadAttributeSetName() {
+    const u32 attr_ptr = ARG0;
+    const u32 name_class_ptr = ARG1;
+    const u32 name_instance_ptr = ARG2;
+    std::string name_class = Helpers::readString(ps3->mem.getPtr(name_class_ptr));
+    std::string name_instance = Helpers::readString(ps3->mem.getPtr(name_instance_ptr));
+    log("cellSpursWorkloadAttributeSetName(attr_ptr: 0x%08x, name_class_ptr: 0x%08x, name_instance_ptr: 0x%08x) [name_class: %s, name_instance: %s] UNIMPLEMENTED\n", attr_ptr, name_class_ptr, name_instance_ptr, name_class.c_str(), name_instance.c_str());
 
     return Result::CELL_OK;
 }
@@ -81,6 +106,15 @@ u64 CellSpurs::_cellSpursAttributeInitialize() {
     return Result::CELL_OK;
 }
 
+u64 CellSpurs::_cellSpursWorkloadFlagReceiver() {
+    const u32 spurs_ptr = ARG0;
+    const u32 workload_id = ARG1;
+    const u32 is_set = ARG2;
+    log("_cellSpursWorkloadFlagReceiver(spurs_ptr: 0x%08x, workload_id: %d, is_set: 0x%08x) UNIMPLEMENTED\n", spurs_ptr, workload_id, is_set);
+
+    return Result::CELL_OK;
+}
+
 u64 CellSpurs::cellSpursInitializeWithAttribute() {
     const u32 spurs_ptr = ARG0;
     const u32 attr_ptr = ARG1;
@@ -120,5 +154,48 @@ u64 CellSpurs::cellSpursCreateTask() {
     const u32 arg_ptr = ARG6;
     log("cellSpursCreateTask(taskset_ptr: 0x%08x, task_id_ptr: 0x%08x, elf_ptr: 0x%08x, ctx_ptr: 0x%08x, size: 0x%08d, pattern_ptr: 0x%08x, arg_ptr: 0x%08x) UNIMPLEMENTED\n", taskset_ptr, task_id_ptr, elf_ptr, ctx_ptr, size, pattern_ptr, arg_ptr);
 
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursAddWorkloadWithAttribute() {
+    const u32 spurs_ptr = ARG0;
+    const u32 workload_id_ptr = ARG1;
+    const u32 attr_ptr = ARG2;
+    log("cellSpursAddWorkloadWithAttribute(spurs_ptr: 0x%08x, workload_id_ptr: 0x%08x, attr_ptr: 0x%08x) UNIMPLEMENTED\n", spurs_ptr, workload_id_ptr, attr_ptr);
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursGetWorkloadFlag() {
+    const u32 spurs_ptr = ARG0;
+    const u32 flag_ptr = ARG1;
+    log("cellSpursGetWorkloadFlag(spurs_ptr: 0x%08x, flag_ptr: 0x%08x) UNIMPLEMENTED\n", spurs_ptr, flag_ptr);
+
+    CellSpursWorkloadFlag* flag = (CellSpursWorkloadFlag*)ps3->mem.getPtr(flag_ptr);
+    flag->flag = -1;
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursSetExceptionEventHandler() {
+    const u32 handler_ptr = ARG0;
+    const u32 arg_ptr = ARG1;
+    log("cellSpursSetExceptionEventHandler(handler_ptr: 0x%08x, arg_ptr: 0x%08x) UNIMPLEMENTED\n");
+
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::_cellSpursWorkloadAttributeInitialize() {
+    const u32 attr_ptr = ARG0;
+    const u32 revision = ARG1;
+    const u32 sdk_ver = ARG2;
+    const u32 pm_ptr = ARG3;
+    const u32 size = ARG4;
+    const u64 data = ARG5;
+    const u32 prio_ptr = ARG6;
+    const u32 min_cnt = ARG7;
+    //const u32 max_cnt = ARG8;
+    log("_cellSpursWorkloadAttributeInitialize(attr_ptr: 0x%08x, revision: 0x%08x, sdk_ver: 0x%08x, pm_ptr: 0x%08x, size: 0x08x, data: 0x%016llx, prio_ptr: 0x%08x, min_cnt: %d, max_cnt: ???) UNIMPLEMENTED\n", attr_ptr, revision, sdk_ver, pm_ptr, size, data, prio_ptr, min_cnt);
+    
     return Result::CELL_OK;
 }

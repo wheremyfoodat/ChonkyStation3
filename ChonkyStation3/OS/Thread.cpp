@@ -8,7 +8,7 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 id, u32 t
     this->id = id;
     this->name = Helpers::readString(name);
     stack = mgr->allocateStack(stack_size);
-    this->stack_size = stack_size;  // Add 8 because we simulate 1 empty argument and 1 of whatever env is
+    this->stack_size = stack_size;
 
     const u64 sp = STACK_REGION_START + stack_size;
     state.pc = real_entry;

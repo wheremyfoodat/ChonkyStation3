@@ -33,6 +33,7 @@ public:
     void cmpli      (const Instruction& instr);
     void cmpi       (const Instruction& instr);
     void addic      (const Instruction& instr);
+    void addic_     (const Instruction& instr);
     void addi       (const Instruction& instr);
     void addis      (const Instruction& instr);
     void bc         (const Instruction& instr);

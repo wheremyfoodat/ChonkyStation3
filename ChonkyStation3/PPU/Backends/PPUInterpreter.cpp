@@ -78,7 +78,8 @@ void PPUInterpreter::step() {
     case SUBFIC: subfic(instr);  break;
     case CMPLI:  cmpli(instr);   break;
     case CMPI:   cmpi(instr);    break;
-    case ADDIC:  addic(instr);    break;
+    case ADDIC:  addic(instr);   break;
+    case ADDIC_: addic_(instr);  break;
     case ADDI:   addi(instr);    break;
     case ADDIS:  addis(instr);   break;
     case BC:     bc(instr);      break;
@@ -338,6 +339,16 @@ void PPUInterpreter::addic(const Instruction& instr) {
     const auto res = a + b;
     state.xer.ca = res < a;
     state.gprs[instr.rt] = res;
+}
+
+void PPUInterpreter::addic_(const Instruction& instr) {
+    const auto a = state.gprs[instr.ra];
+    const s64 b = (s64)(s16)instr.si;
+    const auto res = a + b;
+    state.xer.ca = res < a;
+    state.gprs[instr.rt] = res;
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
 }
 
 void PPUInterpreter::addi(const Instruction& instr) {
