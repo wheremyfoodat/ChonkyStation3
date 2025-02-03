@@ -6,15 +6,20 @@
 #include <Lv2Base.hpp>
 #include <HandleManager.hpp>
 
+
+// Circular dependency
+class PlayStation3;
+
 class Lv2ObjectManager {
 public:
-    Lv2ObjectManager(HandleManager* handle_manager) : handle_manager(handle_manager) {}
+    Lv2ObjectManager(PlayStation3* ps3, HandleManager* handle_manager) : ps3(ps3), handle_manager(handle_manager) {}
+    PlayStation3* ps3;
     HandleManager* handle_manager;
 
     template<typename T> requires std::is_base_of_v<Lv2Base, T>
     T* create() {
         const auto handle = handle_manager->request();
-        Lv2Object new_obj = Lv2Object(handle);
+        Lv2Object new_obj = Lv2Object(ps3, handle);
         new_obj.create<T>();
         objs.push_back(new_obj);
 

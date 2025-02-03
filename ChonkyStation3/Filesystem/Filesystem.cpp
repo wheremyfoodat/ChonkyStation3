@@ -104,11 +104,13 @@ std::string Filesystem::deviceToString(Filesystem::Device device) {
     switch (device) {
     case Device::DEV_FLASH: return "dev_flash";
     case Device::DEV_HDD0:  return "dev_hdd0";
+    case Device::APP_HOME:  return "app_home";
     }
 }
 
 Filesystem::Device Filesystem::stringToDevice(std::string device) {
     if (device == "dev_flash") return Device::DEV_FLASH;
     else if (device == "dev_hdd0") return Device::DEV_HDD0;
+    else if (device == "app_home") return Device::APP_HOME;
     else return Device::INVALID;
 }

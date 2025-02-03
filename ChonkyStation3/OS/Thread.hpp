@@ -19,14 +19,23 @@ public:
     State state;
     u64 stack;
     u64 stack_size;
+    std::vector<u64> args;
+    std::vector<u64> env;
     std::string name;
     u32 id;
+
+    void addArg(u64 arg);
+    void finalizeArgs();
+    void addEnv(u64 env);
+    void finalizeEnv();
+    void finalizeArgsAndEnv();  // To be called after finalizeArgs and finalizeEnv (used to align the stack)
 
     MAKE_LOG_FUNCTION(log, thread);
 
     enum class THREAD_STATUS {
         Running,
         Sleeping,
+        Waiting,
         Terminated
     };
     THREAD_STATUS status = THREAD_STATUS::Running;
@@ -34,6 +43,7 @@ public:
     void reschedule(u64 cycles = 0);
     void sleep(u64 us);
     void sleepForCycles(u64 cycles);
+    void wait();
     void wakeUp();
     void exit();
 

@@ -22,7 +22,7 @@ public:
     u64 rotation_mask[64][64];
 
     void printCallStack();
-    std::unordered_map<u32, std::string> known_funcs;   // For debugging
+    std::unordered_map<u32, std::string> known_funcs;   // Used for debugging
     std::vector<std::pair<u32, u32>> call_stack;    // First: addr of function, second: addr the function is called from
     // Debug symbols
     void printFunctionCall();
@@ -169,6 +169,7 @@ public:
     void extsb      (const Instruction& instr);
     void extsw      (const Instruction& instr);
     void stfiwx     (const Instruction& instr);
+    void dcbz       (const Instruction& instr);
     // G_3A
     void ld         (const Instruction& instr);
     void ldu        (const Instruction& instr);

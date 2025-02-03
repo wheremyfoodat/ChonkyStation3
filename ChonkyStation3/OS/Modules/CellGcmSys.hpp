@@ -66,6 +66,7 @@ public:
     u64 cellGcmMapMainMemory();
     u64 cellGcmSetDisplayBuffer();
     u64 cellGcmGetControlRegister();
+    u64 cellGcmSetVBlankHandler();
     u64 cellGcmResetFlipStatus();
     u64 cellGcmSetTileInfo();
     u64 cellGcmUnmapIoAddress();

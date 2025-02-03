@@ -34,8 +34,8 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
-#define true false
-//#define false true
+//#define true false
+#define false true
 
 // Modules
 static Logger cellPad           = Logger<true> ("[Module ][cellPad       ] ");
@@ -57,6 +57,8 @@ static Logger sysPrxForUser     = Logger<false>("[Module ][sysPrxForUser ] ");
 static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
 
 // Syscalls
+static Logger sysSemaphore_sc   = Logger<true> ("[Syscall][sysSemaphore  ] ");
+static Logger sysCond_sc        = Logger<true> ("[Syscall][sysCond       ] ");
 static Logger sysMutex_sc       = Logger<true> ("[Syscall][sysMutex      ] ");
 static Logger sysEvent          = Logger<true> ("[Syscall][sysEvent      ] ");
 static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");

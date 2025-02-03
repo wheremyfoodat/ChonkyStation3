@@ -12,3 +12,12 @@ u64 Syscall::sysTimerUsleep() {
 
     return Result::CELL_OK;
 }
+
+u64 Syscall::sysTimerSleep() {
+    const u64 s = ARG0;
+    log("sysTimerSleep(s: %d)\n", s);
+
+    ps3->thread_manager.getCurrentThread()->sleep(s * 1000000);
+
+    return Result::CELL_OK;
+}

@@ -188,6 +188,7 @@ public:
     CellVideoOutResolutionLE getResolution();
 
     u64 cellVideoOutConfigure();
+    u64 cellVideoOutGetConfiguration();
     u64 cellVideoOutGetDeviceInfo();
     u64 cellVideoOutGetNumberOfDevice();
     u64 cellVideoOutGetState();

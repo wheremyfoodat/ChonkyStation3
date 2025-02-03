@@ -5,6 +5,7 @@
 
 // Circular dependency
 class Lv2Object;
+class PlayStation3;
 
 class Lv2Base {
 public:
@@ -12,4 +13,5 @@ public:
     Lv2Object* obj;
 
     u64 handle();
+    PlayStation3* ps3();
 };

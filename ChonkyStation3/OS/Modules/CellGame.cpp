@@ -19,6 +19,15 @@ u64 CellGame::cellGameContentPermit() {
     return Result::CELL_OK;
 }
 
+u64 CellGame::cellGameContentErrorDialog() {
+    const u32 type = ARG0;
+    const u32 need_space_kb = ARG1;
+    const u32 dir_name_ptr = ARG2;
+    log("cellGameContentErrorDialog(type: 0x%08x, need_space_kb: %d, dir_name_ptr: 0x%08x)\n", type, need_space_kb, dir_name_ptr);
+
+    return Result::CELL_OK;
+}
+
 u64 CellGame::cellGameBootCheck() {
     const u32 type_ptr = ARG0;
     const u32 attrib_ptr = ARG1;

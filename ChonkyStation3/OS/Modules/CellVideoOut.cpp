@@ -12,13 +12,27 @@ u64 CellVideoOut::cellVideoOutConfigure() {
     const u32 option_ptr = ARG2;
     const u32 wait_for_event = ARG3;
     log("cellVideoOutConfigure(video_out: 0x%08x, config_ptr: 0x%08x, option_ptr: 0x%08x, wait_for_event: 0x%08x)\n", video_out, config_ptr, option_ptr, wait_for_event);
-    // TODO: supposedly this enables VSYNC
 
     CellVideoOutConfiguration* config = (CellVideoOutConfiguration*)ps3->mem.getPtr(config_ptr);
     video_config.res_id = config->res_id;
     video_config.format = config->format;
     video_config.aspect = config->aspect;
     video_config.pitch = config->pitch;
+
+    return Result::CELL_OK;
+}
+
+u64 CellVideoOut::cellVideoOutGetConfiguration() {
+    const u32 video_out = ARG0;
+    const u32 config_ptr = ARG1;
+    const u32 option_ptr = ARG2;
+    log("cellVideoOutGetConfiguration(video_out: 0x%08x, config_ptr: 0x%08x, option_ptr: 0x%08x)\n", video_out, config_ptr, option_ptr);
+
+    CellVideoOutConfiguration* config = (CellVideoOutConfiguration*)ps3->mem.getPtr(config_ptr);
+    config->res_id = video_config.res_id;
+    config->format = video_config.format;
+    config->aspect = video_config.aspect;
+    config->pitch = video_config.pitch;
 
     return Result::CELL_OK;
 }

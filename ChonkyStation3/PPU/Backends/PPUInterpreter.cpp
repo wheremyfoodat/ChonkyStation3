@@ -3,7 +3,7 @@
 
 
 //#define PRINT_DEBUG_SYMBOLS
-#define TRACK_CALL_STACK
+//#define TRACK_CALL_STACK
 
 PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
     // Generate a rotation mask array - this code is adapted from RPCS3
@@ -195,6 +195,7 @@ void PPUInterpreter::step() {
         case EXTSB:     extsb(instr);   break;
         case EXTSW:     extsw(instr);   break;
         case STFIWX:    stfiwx(instr);  break;
+        case DCBZ:      dcbz(instr);    break;
 
         default:
             printCallStack();
@@ -777,7 +778,8 @@ void PPUInterpreter::bclr(const Instruction& instr) {
         printFunctionCall();
 #endif
 #ifdef TRACK_CALL_STACK
-        call_stack.pop_back();
+        if (!call_stack.empty())
+            call_stack.pop_back();
 #endif
         state.pc -= 4;
     }
@@ -1366,6 +1368,11 @@ void PPUInterpreter::extsw(const Instruction& instr) {
 
 void PPUInterpreter::stfiwx(const Instruction& instr) {
     mem.write<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb], reinterpret_cast<u32&>(state.fprs[instr.frs]));
+}
+
+void PPUInterpreter::dcbz(const Instruction& instr) {
+    const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
+    std::memset(ps3->mem.getPtr(addr & ~127), 0, 128);
 }
 
 // G_3A

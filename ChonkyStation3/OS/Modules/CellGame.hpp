@@ -31,6 +31,7 @@ public:
     void setContentPath(fs::path path);
 
     u64 cellGameContentPermit();
+    u64 cellGameContentErrorDialog();
     u64 cellGameBootCheck();
 
     u64 cellDiscGameGetBootDiscInfo();

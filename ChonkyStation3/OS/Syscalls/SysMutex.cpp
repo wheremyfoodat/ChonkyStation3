@@ -5,12 +5,12 @@
 MAKE_LOG_FUNCTION(log, sysMutex_sc);
 
 u64 Syscall::sysMutexCreate() {
-    const u32 mutex_ptr = ARG0;
+    const u32 mutex_id_ptr = ARG0;
     const u32 attr_ptr = ARG1;
-    log("sysMutexCreate(mutex_ptr: 0x%08x, attr_ptr: 0x%08x)\n", mutex_ptr, attr_ptr);
+    log("sysMutexCreate(mutex_id_ptr: 0x%08x, attr_ptr: 0x%08x)\n", mutex_id_ptr, attr_ptr);
 
     Lv2Mutex* mutex = ps3->lv2_obj.create<Lv2Mutex>();
-    ps3->mem.write<u32>(mutex_ptr, mutex->handle());
+    ps3->mem.write<u32>(mutex_id_ptr, mutex->handle());
 
     return Result::CELL_OK;
 }

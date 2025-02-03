@@ -185,6 +185,13 @@ u64 CellGcmSys::cellGcmGetControlRegister() {
     return ctrl_addr;
 }
 
+u64 CellGcmSys::cellGcmSetVBlankHandler() {
+    const u32 handler_ptr = ARG0;
+    log("cellGcmSetVBlankHandler(handler_ptr: 0x%08x)\n", handler_ptr);
+
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmResetFlipStatus() {
     log("cellGcmResetFlipStatus()\n");
 

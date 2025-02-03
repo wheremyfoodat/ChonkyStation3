@@ -40,7 +40,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 0x06: ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
 
     case 1: {
-        log("sysProcessGetPID()\n");
+        log_misc("sysProcessGetPID()\n");
         ps3->ppu->state.gprs[3] = 1;
         break;
     }
@@ -54,28 +54,29 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
     case 48: {
-        log("sysPpuThreadGetPriority() STUBBED\n");
+        log_misc("sysPpuThreadGetPriority() STUBBED\n");
         ps3->mem.write<u32>(ARG1, 1);
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
     case 82:   unimpl("sysEventFlagCreate() UNIMPLEMENTED\n");          ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
-    case 90:   unimpl("sysSemaphoreCreate() UNIMPLEMENTED\n");          ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
-    case 92:   unimpl("sysSemaphoreWait() UNIMPLEMENTED\n");            ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
-    case 94:   unimpl("sysSemaphorePost() UNIMPLEMENTED\n");            ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 90:   ps3->ppu->state.gprs[3] = sysSemaphoreCreate();  break;
+    case 92:   ps3->ppu->state.gprs[3] = sysSemaphoreWait();  break;
+    case 94:   ps3->ppu->state.gprs[3] = sysSemaphorePost();  break;
     case 100:  ps3->ppu->state.gprs[3] = sysMutexCreate();              break;
     case 102:  ps3->ppu->state.gprs[3] = sysMutexLock();                break;
     case 104:  ps3->ppu->state.gprs[3] = sysMutexUnlock();              break;
-    case 105:  unimpl("sysCondCreate() UNIMPLEMENTED\n");               ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
+    case 105:  ps3->ppu->state.gprs[3] = sysCondCreate();               break;
     case 120:  unimpl("sysRwlockCreate() UNIMPLEMENTED\n");             ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 128:  ps3->ppu->state.gprs[3] = sysEventQueueCreate();         break;
     case 130:  ps3->ppu->state.gprs[3] = sysEventQueueReceive();        break;
     case 134:  ps3->ppu->state.gprs[3] = sysEventPortCreate();          break;
     case 136:  ps3->ppu->state.gprs[3] = sysEventPortConnectLocal();    break;
     case 141:  ps3->ppu->state.gprs[3] = sysTimerUsleep();              break;
+    case 142:  ps3->ppu->state.gprs[3] = sysTimerSleep();              break;
     case 144:  unimpl("sysTimeGetTimezone() UNIMPLEMENTED\n");          ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 145: {
-        log("sysTimeGetCurrentTime() STUBBED\n");
+        log_misc("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 1000);
         ps3->mem.write<u64>(ARG1, 1000);
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
@@ -83,7 +84,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
     case 169:  unimpl("sysSpuInitialize() UNIMPLEMENTED\n"); ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
     case 147: {
-        log("sysTimeGetTimebaseFrequency() UNIMPLEMENTED\n");
+        log_misc("sysTimeGetTimebaseFrequency() UNIMPLEMENTED\n");
         ps3->ppu->state.gprs[3] = 1000;
         break;
     }
@@ -91,7 +92,8 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 190: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysSpuThreadWriteSpuMb() UNIMPLEMENTED\n"); break;
     case 254: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysSpuThreadGroupLog() UNIMPLEMENTED\n"); break;
     case 330: ps3->ppu->state.gprs[3] = sysMMapperAllocateAddress();      break;
-    case 331: ps3->ppu->state.gprs[3] = Result::CELL_OK;  log("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
+    case 324: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysMemoryContainerCreate() UNIMPLEMENTED\n");  break;
+    case 331: ps3->ppu->state.gprs[3] = Result::CELL_OK;    unimpl("sysMMapperFreeAddress() UNIMPLEMENTED\n");  break;
     case 337: ps3->ppu->state.gprs[3] = sysMMapperSearchAndMapMemory();   break;
     case 348: ps3->ppu->state.gprs[3] = sysMemoryAllocate();     break;
     case 352: ps3->ppu->state.gprs[3] = sysMemoryGetUserMemorySize();     break;

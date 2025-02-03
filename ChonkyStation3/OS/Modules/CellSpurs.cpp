@@ -41,6 +41,14 @@ u64 CellSpurs::_cellSpursEventFlagInitialize() {
     return Result::CELL_OK;
 }
 
+u64 CellSpurs::cellSpursAttributeSetMemoryContainerForSpuThread() {
+    const u32 attr_ptr = ARG0;
+    const u32 container_id = ARG1;
+    log("cellSpursAttributeSetMemoryContainerForSpuThread(attr_ptr: 0x%08x, container_id: %d) UNIMPLEMENTED\n", attr_ptr, container_id);
+
+    return Result::CELL_OK;
+}
+
 u64 CellSpurs::cellSpursAttributeEnableSystemWorkload() {
     const u32 attr_ptr = ARG0;
     const u32 prio_ptr = ARG1;
@@ -70,6 +78,14 @@ u64 CellSpurs::_cellSpursAttributeInitialize() {
     const u8 exit_if_no_work = ARG5;
     log("_cellSpursAttributeInitialize(attr_ptr: 0x%08x, revision: 0x%08x, sdk_ver: 0x%08x, n_spus: 0x%08x, spu_prio: 0x%08x, ppu_prio: 0x%08x, exit_if_no_work: 0x%08x) UNIMPLEMENTED\n", attr_ptr, revision, sdk_ver, n_spus, spu_prio, ppu_prio, exit_if_no_work);
 
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::cellSpursInitializeWithAttribute() {
+    const u32 spurs_ptr = ARG0;
+    const u32 attr_ptr = ARG1;
+    log("cellSpursInitializeWithAttribute(spurs_ptr: 0x%08x, attr_ptr: 0x%08x) UNIMPLEMENTED\n", spurs_ptr, attr_ptr);
+    
     return Result::CELL_OK;
 }
 

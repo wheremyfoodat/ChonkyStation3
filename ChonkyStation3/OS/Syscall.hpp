@@ -5,6 +5,8 @@
 
 #include <CellTypes.hpp>
 #include <Lv2Objects/Lv2Mutex.hpp>
+#include <Lv2Objects/Lv2Cond.hpp>
+#include <Lv2Objects/Lv2Semaphore.hpp>
 
 
 // Circular dependency
@@ -16,7 +18,7 @@ class Syscall {
 public:
     Syscall(PlayStation3* ps3);
     PlayStation3* ps3;
-    MAKE_LOG_FUNCTION(log, misc_sc);
+    MAKE_LOG_FUNCTION(log_misc, misc_sc);
     MAKE_LOG_FUNCTION(unimpl, unimplemented);
     MAKE_LOG_FUNCTION(tty, tty);
 
@@ -32,6 +34,7 @@ public:
 
     // sysTimer
     u64 sysTimerUsleep();
+    u64 sysTimerSleep();
 
     // sysEvent
     u64 sysEventQueueCreate();
@@ -39,10 +42,18 @@ public:
     u64 sysEventPortCreate();
     u64 sysEventPortConnectLocal();
 
+    // sysSemaphore
+    u64 sysSemaphoreCreate();
+    u64 sysSemaphoreWait();
+    u64 sysSemaphorePost();
+
     // sysMutex
     u64 sysMutexCreate();
     u64 sysMutexLock();
     u64 sysMutexUnlock();
+
+    // sysCond
+    u64 sysCondCreate();
 
     // Temporary until I move the FS syscalls to their own file
     enum CELL_FS_S : u32 {
