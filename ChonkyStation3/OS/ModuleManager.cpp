@@ -4,9 +4,9 @@
 
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {
-        Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
+        //Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
         last_call = getImportName(nid);
-        stub();
+        ps3->ppu->state.gprs[3] = stub();
         return;
     }
 
@@ -23,8 +23,9 @@ void ModuleManager::lle(u32 nid) {
     ps3->mem.markAsSlowMem((ps3->ppu->state.lr + 4) >> PAGE_SHIFT, true, false);
     last_lle_nid = nid;
 
-    ps3->ppu->state.pc = ps3->mem.read<u32>(exports.funcs[nid].addr);
-    ps3->ppu->state.gprs[2] = ps3->mem.read<u32>(exports.funcs[nid].addr + 4);
+    //ps3->ppu->state.pc = ps3->mem.read<u32>(exports.funcs[nid].addr);
+    //ps3->ppu->state.gprs[2] = ps3->mem.read<u32>(exports.funcs[nid].addr + 4);
+    ps3->ppu->runFunc(ps3->mem.read<u32>(exports.funcs[nid].addr), ps3->mem.read<u32>(exports.funcs[nid].addr + 4), false);
     //ps3->ppu->state.gprs[2] = exports.funcs[nid].toc;
 
     log("%s\n", getImportName(nid).c_str());

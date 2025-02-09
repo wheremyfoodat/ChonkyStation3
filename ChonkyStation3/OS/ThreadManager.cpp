@@ -48,10 +48,15 @@ void ThreadManager::reschedule() {
         for (auto& i : threads) {
             //printf("Thread %s (%d): %s", i.name.c_str(), i.id, Thread::threadStatusToString(i.status).c_str());
             if (i.status == Thread::THREAD_STATUS::Running) {
-                //printf(" (switching to this thread)\n");
                 found_thread = true;
-                contextSwitch(i);
-                break;
+                if (i.id != getCurrentThread()->id) {   // Prefer switching to a thread different from the current one - if none is found, this function does nothing
+                    //printf(" (switching to this thread)\n");
+                    contextSwitch(i);
+                    break;
+                }
+                else {
+                    //printf(" (current thread)");
+                }
             }
             //printf("\n");
         }

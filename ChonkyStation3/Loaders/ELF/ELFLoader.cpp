@@ -4,7 +4,7 @@
 
 using namespace ELFIO;
 
-u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports, ModuleManager& module_manager) {
+u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports, PROCParam& proc_param, ModuleManager& module_manager) {
     elfio elf;
 
     auto str = path.generic_string();
@@ -32,11 +32,12 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
 
         // PROC_PARAM
         else if (seg->get_type() == PROC_PARAM) {
-            PROCParam* proc_param = (PROCParam*)seg->get_data();
-            log("version            : 0x%08x\n", (u32)proc_param->version);
-            log("sdk_version        : 0x%08x\n", (u32)proc_param->sdk_version);
-            log("primary_stacksize  : 0x%08x\n", (u32)proc_param->primary_stacksize);
-            log("malloc_pagesize    : 0x%08x\n", (u32)proc_param->malloc_pagesize);
+            PROCParam* proc_param_ptr = (PROCParam*)seg->get_data();
+            proc_param = *proc_param_ptr;
+            log("version            : 0x%08x\n", (u32)proc_param.version);
+            log("sdk_version        : 0x%08x\n", (u32)proc_param.sdk_version);
+            log("primary_stacksize  : 0x%08x\n", (u32)proc_param.primary_stacksize);
+            log("malloc_pagesize    : 0x%08x\n", (u32)proc_param.malloc_pagesize);
         }
         
         // PRX_PARAM

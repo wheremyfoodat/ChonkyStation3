@@ -31,6 +31,11 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     quad_index_array.push_back(0);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+    last_tex.addr = 0;
+    last_tex.format = 0;
+    last_tex.width = 0;
+    last_tex.height = 0;
 }
 
 u32 RSX::fetch32() {
@@ -206,6 +211,12 @@ void RSX::runCommandList() {
             log("%s\n", command_names[cmd_num].c_str());
 
         switch (cmd_num) {
+
+        case NV406E_SET_REFERENCE: {
+            log("ref: 0x%08x\n", args[0]);
+            gcm.ctrl->ref = args[0];
+            break;
+        }
 
         case NV406E_SEMAPHORE_OFFSET:
         case NV4097_SET_SEMAPHORE_OFFSET: {
@@ -447,8 +458,14 @@ void RSX::runCommandList() {
             const auto internal = getTextureInternalFormat(texture.format);
             
             // Texture cache
-            const u64 hash = cache.computeTextureHash(ps3->mem.getPtr(texture.addr), width, height, 4);    // TODO: don't hardcode
+            // Don't do anything if the current texture is the same as the last one
+            // TODO: This will break if a game uploads a different texture but with the same format, width and height to the same address as the previous texture.
+            // I'm unsure how common that is. Probably make this toggleable in the future in case some games break
+            if (texture == last_tex) {
+                break;
+            }
 
+            const u64 hash = cache.computeTextureHash(ps3->mem.getPtr(texture.addr), width, height, 4);    // TODO: don't hardcode
             OpenGL::Texture cached_texture;
             if (!cache.getTexture(hash, cached_texture)) {
                 glGenTextures(1, &cached_texture.m_handle);
@@ -460,9 +477,12 @@ void RSX::runCommandList() {
                 glActiveTexture(GL_TEXTURE0 + 0);
                 glTexImage2D(GL_TEXTURE_2D, 0, fmt, width, height, 0, fmt, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
                 cache.cacheTexture(hash, cached_texture);
+                //lodepng::encode("./texture.png", ps3->mem.getPtr(texture.addr), texture.width, texture.height);
             }
             glActiveTexture(GL_TEXTURE0 + 0);
             glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
+
+            last_tex = texture;
             break;
         }
 

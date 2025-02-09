@@ -73,6 +73,12 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
                     break;
                 }
 
+                case 5: {
+                    ps3->mem.write<u16>(reloc_addr, data >> 16);
+                    //logNoPrefix("[0x%08x] <- 0x%04x\n", reloc_addr, data >> 16);
+                    break;
+                }
+
                 case 6: {
                     const u16 reloc_data = (u16)(data >> 16) + ((data >> 15) & 1);
                     ps3->mem.write<u16>(reloc_addr, reloc_data);
@@ -127,7 +133,8 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
         }
 
         log("Library %s exports module %s (%d functions, %d variables)\n", lib->name, ps3->mem.getPtr(module->name_ptr), (u16)module->n_funcs, (u16)module->n_vars);
-        Helpers::debugAssert(module->n_vars == 0, "PRX module: n_vars > 0\n");
+        //Helpers::debugAssert(module->n_vars == 0, "PRX module: n_vars > 0\n");
+        if (module->n_vars != 0) log("WARNING: exporting module with variables (unimplemented)\n");
 
         for (int i = 0; i < module->n_funcs; i++) {
             const u32 nid = ps3->mem.read<u32>(module->nids_ptr + i * sizeof(u32));

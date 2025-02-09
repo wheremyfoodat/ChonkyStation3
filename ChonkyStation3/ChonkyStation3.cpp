@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 
     while (!quit) {
         ps3->run();
-        ps3->module_manager.cellGcmSys.flip = 0;
+        ps3->flip();
         frame_count++;
 
         const u64 curr_ticks = SDL_GetTicks64();

@@ -83,7 +83,9 @@ public:
     void vrsqrtefp  (const Instruction& instr);
     void vslw       (const Instruction& instr);
     void vmrglw     (const Instruction& instr);
+    void vcmpgtuw   (const Instruction& instr);
     void vspltw     (const Instruction& instr);
+    void vcmpgtfp   (const Instruction& instr);
     void vcfsx      (const Instruction& instr);
     void vspltisw   (const Instruction& instr);
     void vctsxs     (const Instruction& instr);
@@ -163,6 +165,7 @@ public:
     void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);
     void stfsx      (const Instruction& instr);
+    void lhbrx      (const Instruction& instr);
     void sraw       (const Instruction& instr);
     void srawi      (const Instruction& instr);
     void sradi      (const Instruction& instr);
@@ -194,8 +197,10 @@ public:
     void fdiv       (const Instruction& instr);
     void fsub       (const Instruction& instr);
     void fadd       (const Instruction& instr);
+    void fsqrt      (const Instruction& instr);
     void fsel       (const Instruction& instr);
     void fmul       (const Instruction& instr);
+    void frsqrte    (const Instruction& instr);
     void fmr        (const Instruction& instr);
     void fmsub      (const Instruction& instr);
     void fmadd      (const Instruction& instr);

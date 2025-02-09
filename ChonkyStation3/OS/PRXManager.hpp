@@ -13,7 +13,7 @@ class PlayStation3;
 
 class PRXManager {
 public:
-    PRXManager(PlayStation3* ps3) : ps3(ps3) {}
+    PRXManager(PlayStation3* ps3);
     PlayStation3* ps3;
 
     // This is a list of modules that *need* to be LLEd.
@@ -21,13 +21,8 @@ public:
     // The map maps the module name to the library filename.
     // TODO: Switch these to the .sprx variants once we can decrypt SELFs/SPRXs.
     // For now you need to decrypt the libraries on your own.
-    std::unordered_map<std::string, std::string> lle_modules {
-        //{ "cellResc",       "libresc.prx" },
-        //{ "cellPngDec",     "libpngdec.prx" },
-        //{ "cellFont",       "libfont.prx" },
-        //{ "cellFontFT",     "libfontFT.prx" },
-        //{ "cell_FreeType2", "libfreetype.prx" },
-    };
+    std::unordered_map<std::string, std::string> lle_modules;
+
     fs::path lib_dir = "/dev_flash/sys/external/";
 
     std::vector<std::string> required_modules;  // List of required modules, load them with loadModules()

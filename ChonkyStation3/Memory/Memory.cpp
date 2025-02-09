@@ -37,15 +37,15 @@ MemoryRegion::Block* MemoryRegion::allocPhys(size_t size) {
     return &blocks.back();
 }
 
-// Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem.
-MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size) {
+// Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem. Optionally specify the lowest possible virtual address to allocate
+MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Allocate block of memory
     u64 paddr = allocPhys(aligned_size)->start;
 
     // Map area
-    u64 vaddr = findNextAllocatableVaddr(size);
+    u64 vaddr = findNextAllocatableVaddr(size, start_addr);
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
     
     // Fastmem

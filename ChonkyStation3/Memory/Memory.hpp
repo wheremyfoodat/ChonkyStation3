@@ -45,7 +45,7 @@ public:
     std::vector<MapEntry> map;
 
     Block* allocPhys(size_t size);
-    MapEntry* alloc(size_t size);
+    MapEntry* alloc(size_t size, u64 start_addr = 0);
     void free(MapEntry* entry);
     std::pair<bool, Block*> findBlockFromAddr(u64 paddr);
     std::pair<bool, Block*> findNextBlock(u64 start_addr);
@@ -92,7 +92,7 @@ public:
     void markAsSlowMem(u64 page, bool r, bool w);
 
     MemoryRegion::Block* allocPhys(size_t size) { return ram.allocPhys(size); }
-    MemoryRegion::MapEntry* alloc(size_t size) { return ram.alloc(size); }
+    MemoryRegion::MapEntry* alloc(size_t size, u64 start_addr = 0) { return ram.alloc(size, start_addr); }
     void free(MemoryRegion::MapEntry* entry) { ram.free(entry); }
     std::pair<bool, MemoryRegion::Block*> findBlockFromAddr(u64 paddr) { return ram.findBlockFromAddr(paddr); }
     std::pair<bool, MemoryRegion::Block*> findNextBlock(u64 start_addr) { return ram.findNextBlock(start_addr); }

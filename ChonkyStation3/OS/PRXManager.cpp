@@ -3,6 +3,17 @@
 #include <PRX/PRXLoader.hpp>
 
 
+PRXManager::PRXManager(PlayStation3* ps3) : ps3(ps3) {
+    lle_modules = {
+        //{ "cellResc",         "libresc.prx" },
+        //{ "cellPngDec",       "libpngdec.prx" },
+        //{ "cellFont",         "libfont.prx" },
+        //{ "cellFontFT",       "libfontFT.prx" },
+        //{ "cell_FreeType2",   "libfreetype.prx" },
+        //{ "cellSync",         "liblv2.prx" },
+    };
+}
+
 void PRXManager::require(const std::string name) {
     if (!lle_modules.contains(name))
         Helpers::panic("%s is not a lle module\n", name.c_str());

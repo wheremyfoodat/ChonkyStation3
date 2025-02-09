@@ -48,6 +48,7 @@ public:
 
     void run();
     void step();
+    void flip();
     void skipToNextEvent();
     void forceSchedulerUpdate();
 

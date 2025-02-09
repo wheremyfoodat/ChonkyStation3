@@ -43,7 +43,8 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     // Load ELF file
     ELFLoader elf = ELFLoader(this, mem);
     std::unordered_map<u32, u32> imports = {};
-    auto entry = elf.load(elf_path, imports, module_manager);
+    ELFLoader::PROCParam proc_param;
+    auto entry = elf.load(elf_path, imports, proc_param, module_manager);
     
     // Register ELF module imports in module manager
     for (auto& i : imports)
@@ -53,6 +54,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     thread_manager.setTLS(elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize);
     elf_path_encrypted += '\0';
     Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true, elf_path_encrypted);
+    ppu->state.gprs[12] = proc_param.malloc_pagesize;
 
     // Load PRXs required by the ELF
     prx_manager.loadModulesRecursively();
@@ -80,6 +82,16 @@ void PlayStation3::run() {
 
 void PlayStation3::step() {
     ppu->step();
+}
+
+void PlayStation3::flip() {
+    module_manager.cellGcmSys.flip = 0;
+    if (module_manager.cellGcmSys.flip_callback) {
+        u32 old_r3 = ppu->state.gprs[3];
+        ppu->state.gprs[3] = 1; // Callback function is always called with 1 as first argument
+        ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.flip_callback));
+        ppu->state.gprs[3] = old_r3;
+    }
 }
 
 void PlayStation3::skipToNextEvent() {

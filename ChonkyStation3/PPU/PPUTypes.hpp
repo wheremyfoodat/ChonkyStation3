@@ -325,13 +325,13 @@ enum G_04Opcodes {
     VADDUWS         = 0x280,
     VMINUW          = 0x282,
     VSRW            = 0x284,
-    VCMPGTUW        = 0x286,
+    VCMPGTUW        = 0x286,    // Vector Compare Greater-Than Unsigned Word
     VCMPGTUW_       = 0x686,
     VRFIP           = 0x28a,
     VSPLTW          = 0x28c,    // Vector Splat Word
     VUPKLSB         = 0x28e,
     VSR             = 0x2c4,
-    VCMPGTFP        = 0x2c6,
+    VCMPGTFP        = 0x2c6,    // Vector Compare Greater-Than Floating-Point
     VCMPGTFP_       = 0x6c6,
     VRFIM           = 0x2ca,
     VUPKLSH         = 0x2ce,

@@ -30,8 +30,6 @@ public:
     PlayStation3* ps3;
     Memory& mem;
 
-    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports, ModuleManager& module_manager);
-
     std::unordered_map<u64, std::string> segment_type_string {
         { ELFIO::PT_LOAD,   "PT_LOAD    " },
         { ELFIO::PT_TLS,    "PT_TLS     " },
@@ -80,6 +78,8 @@ public:
         BEField<u32> s_unk6;
         BEField<u32> s_unk7;
     };
+
+    u64 load(const fs::path& path, std::unordered_map<u32, u32>& imports, PROCParam& proc_param, ModuleManager& module_manager);
 
     u32 tls_vaddr = 0;
     u32 tls_filesize = 0;

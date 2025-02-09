@@ -53,8 +53,13 @@ public:
         u8 format;
         u16 width;
         u16 height;
+
+        bool operator==(const Texture& other) const {
+            return addr == other.addr && format == other.format && width == other.width && height == other.height;
+        }
     };
     Texture texture;
+    Texture last_tex;
 
     u32 semaphore_offset = 0;
     u32 dest_offset = 0;
@@ -184,7 +189,7 @@ public:
     // I == command is implemented or at least handled in some way
     enum Commands : u32 {
         // NV406E
-        NV406E_SET_REFERENCE                                    = 0x00000050,
+        NV406E_SET_REFERENCE                                    = 0x00000050,   // I
         NV406E_SET_CONTEXT_DMA_SEMAPHORE                        = 0x00000060,
         NV406E_SEMAPHORE_OFFSET                                 = 0x00000064,   // I
         NV406E_SEMAPHORE_ACQUIRE                                = 0x00000068,   // I

@@ -16,6 +16,7 @@ u64 SysThread::sysPPUThreadCreate() {
     Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, (const u8*)name.c_str(), ps3->thread_manager.tls_vaddr, ps3->thread_manager.tls_filesize, ps3->thread_manager.tls_memsize);
     // HACK: sleep spu threads
     if (thread->name == "spu_printf_handler"
+        || thread->name == "_SPU_printf_server"
         || thread->name == "soundmain"
         || thread->name == "SNKTrophy_Event_Thread"
         || thread->name == "EE AudioLoop"
@@ -60,7 +61,7 @@ u64 SysThread::sysPPUThreadOnce() {
     log("sysPPUThreadOnce(once_ctrl_ptr: 0x%08x, func_ptr: 0x%08x)\n", once_ctrl_ptr, func_ptr);
 
     if (ps3->mem.read<u32>(once_ctrl_ptr) == SYS_PPU_THREAD_ONCE_INIT) {
-        ps3->ppu->runFunc(ps3->mem.read<u32>(func_ptr));
+        ps3->ppu->runFunc(ps3->mem.read<u32>(func_ptr), ps3->mem.read<u32>(func_ptr + 4));
         ps3->mem.write<u32>(once_ctrl_ptr, SYS_PPU_THREAD_DONE_INIT);
     }
     

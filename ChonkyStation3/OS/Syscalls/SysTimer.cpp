@@ -6,7 +6,7 @@ MAKE_LOG_FUNCTION(log, sysTimer);
 
 u64 Syscall::sysTimerUsleep() {
     const u64 us = ARG0;
-    log("sysTimerUsleep(us: %d)\n", us);
+    log("sysTimerUsleep(us: %d) @ 0x%08x\n", us, (u32)ps3->ppu->state.pc);
 
     ps3->thread_manager.getCurrentThread()->sleep(us);
 

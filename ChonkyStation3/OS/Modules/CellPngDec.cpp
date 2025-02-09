@@ -152,6 +152,12 @@ u64 CellPngDec::cellPngDecOpen() {
         std::ofstream file(filename, std::ios::binary);
         file.write((const char*)curr_src.stream, curr_src.stream_size);
     }
+    else {
+        curr_file = ps3->fs.guestPathToHost((const char*)curr_src.filename);
+        log("file: %s\n", curr_src.filename);
+        log("file_offs: %d\n", curr_src.file_offs);
+        log("file_size: %d\n", curr_src.file_size);
+    }
 
     return Result::CELL_OK;
 }

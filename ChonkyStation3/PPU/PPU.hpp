@@ -16,7 +16,7 @@ public:
     Memory& mem;
     PlayStation3* ps3;
     virtual void step();
-    void runFunc(u32 addr, u32 toc = 0);
+    void runFunc(u32 addr, u32 toc = 0, bool save_all_state = true);
 
     PPUTypes::State state;
 

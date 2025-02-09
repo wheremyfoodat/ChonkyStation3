@@ -54,7 +54,7 @@ u64 SysMMapper::sysMMapperMapMemory() {
     Helpers::debugAssert(block.first, "sysMMapperMapMemory: unknown handle\n");
     if (ps3->mem.isMapped(start_addr).first) {
         logNoPrefix(" [already mapped, freeing block]\n");
-        // If this area was already mapped, we free the block. Should be OK. If things break try removing this.
+        // If this area was already mapped, we free the new block. Should be OK. If things break try removing this.
         ps3->mem.freeBlockWithHandle(handle);
     }
     else {

@@ -53,6 +53,9 @@ u64 CellFs::cellFsStat() {
     if (device_str == "dev_bdvd")
         return CELL_ENOTMOUNTED;
 
+    if (!ps3->fs.exists(path))
+        return CELL_ENOENT;
+
     CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
     bool is_dir = ps3->fs.isDirectory(path);
     stat->mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);

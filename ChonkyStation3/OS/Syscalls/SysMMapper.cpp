@@ -11,7 +11,7 @@ u64 Syscall::sysMMapperAllocateAddress() {
     const u64 flags = ARG1;
     const u64 alignment = ARG2;
     const u32 addr_ptr = ARG3;
-    log("sysMMapperAllocateAddress(size: 0x%016llx, flags: 0x%016llx, alignment: 0x%016llx, addr_ptr: 0x%08x)\n", size, flags, alignment, addr_ptr);
+    log("sys_mmapper_allocate_address(size: 0x%016llx, flags: 0x%016llx, alignment: 0x%016llx, addr_ptr: 0x%08x)\n", size, flags, alignment, addr_ptr);
 
     while (ps3->mem.isMapped(next_address_alloc).first)
         next_address_alloc += 256_MB;
@@ -26,9 +26,9 @@ u64 Syscall::sysMMapperSearchAndMapMemory() {
     const u32 handle = ARG1;
     const u64 flags = ARG2;
     const u32 addr_ptr = ARG3;
-    log("sysMMapperSearchAndMapMemory(start_addr: 0x%08x, handle: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x)\n", start_addr, handle, flags, addr_ptr);
+    log("sys_mmapper_search_and_map(start_addr: 0x%08x, handle: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x)\n", start_addr, handle, flags, addr_ptr);
     auto block = ps3->mem.ram.findBlockWithHandle(handle);
-    Helpers::debugAssert(block.first, "sysMMapperSearchAndMapMemory: unknown handle\n");
+    Helpers::debugAssert(block.first, "sys_mmapper_search_and_map: unknown handle\n");
 
     // Find area to map block to
     u64 vaddr = ps3->mem.findNextAllocatableVaddr(block.second->size, start_addr);

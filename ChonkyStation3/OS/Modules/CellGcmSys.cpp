@@ -58,6 +58,11 @@ u64 CellGcmSys::cellGcmInitBody() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::_cellGcmSetFlipCommand() {
+    log("_cellGcmSetFlipCommand()\n");
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmAddressToOffset() {
     const u32 addr = ARG0;
     const u32 offs_ptr = ARG1;
@@ -103,10 +108,16 @@ u64 CellGcmSys::cellGcmBindTile() {
     return Result::CELL_OK;
 }
 
-
 u64 CellGcmSys::cellGcmSetFlipMode() {
     const u32 mode = ARG0;
     log("cellGcmSetFlipMode(mode: 0x%08x) UNIMPLEMENTED\n", mode);
+
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetDebugOutputLevel() {
+    const s32 level = ARG0;
+    log("cellGcmSetDebugOutputLevel(level: %d)\n", level);
 
     return Result::CELL_OK;
 }
@@ -169,6 +180,14 @@ u64 CellGcmSys::cellGcmMapMainMemory() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmSetFlipHandler() {
+    const u32 func_addr = ARG0;
+    log("cellGcmSetFlipHandler(func_addr: 0x%08x)\n", func_addr);
+    
+    flip_callback = func_addr;
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmSetDisplayBuffer() {
     const u8 buf_id = ARG0;
     const u32 offs = ARG1;
@@ -200,6 +219,11 @@ u64 CellGcmSys::cellGcmResetFlipStatus() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmSetDefaultCommandBuffer() {
+    log("cellGcmSetDefaultCommandBuffer()\n");
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmSetTileInfo() {
     const u8 idx = ARG0;
     const u8 location = ARG1;
@@ -211,6 +235,14 @@ u64 CellGcmSys::cellGcmSetTileInfo() {
     const u8 bank = ARG7;
     log("cellGcmSetTileInfo(idx: %d, location: %d, offs: 0x%08x, size: 0x%08x, pitch: 0x%08x, compression: %d, base: 0x%04x, bank: %d) UNIMPLEMENTED\n", idx, location, offs, size, pitch, compression, base, bank);
 
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmInitDefaultFifoMode() {
+    const s32 mode = ARG0;
+    log("cellGcmInitDefaultFifoMode(mode: %d)\n", mode);
+
+    // TODO
     return Result::CELL_OK;
 }
 
