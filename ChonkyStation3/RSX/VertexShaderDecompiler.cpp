@@ -63,6 +63,20 @@ vec4 r[16];
             main += std::format("{}{} = {}(({} * {}) + {});\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr), source(src2, instr));
             break;
         }
+        case RSXVertex::VECTOR::DP3: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            const auto type = getType(num_lanes);
+            main += std::format("{}{} = {}(dot({}.xyz, {}.xyz));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            break;
+        }
+        case RSXVertex::VECTOR::DPH: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            const auto type = getType(num_lanes);
+            main += std::format("{}{} = {}(dot(vec4({}.xyz, 1.0), {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            break;
+        }
         case RSXVertex::VECTOR::DP4: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
@@ -70,9 +84,23 @@ vec4 r[16];
             main += std::format("{}{} = {}(dot({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
             break;
         }
+        case RSXVertex::VECTOR::FRC: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            const auto type = getType(num_lanes);
+            main += std::format("{}{} = {}(fract({}));\n", dest(instr), mask_str, type, source(src0, instr));
+            break;
+        }
+        case RSXVertex::VECTOR::FLR: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            const auto type = getType(num_lanes);
+            main += std::format("{}{} = {}(floor({}));\n", dest(instr), mask_str, type, source(src0, instr));
+            break;
+        }
 
         default:
-            Helpers::panic("Unknown vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
+            Helpers::panic("Unimplemented vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
         }
     }
     main += "\ngl_Position = fs_pos;\n";

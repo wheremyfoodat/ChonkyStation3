@@ -4,9 +4,14 @@
 
 u64 CellGcmSys::cellGcmGetTiledPitchSize() {
     const u32 size = ARG0;
-    log("cellGcmGetTiledPitchSize(size: %d) UNIMPLEMENTED\n", size);
+    log("cellGcmGetTiledPitchSize(size: %d)\n", size);
 
-    return Result::CELL_OK;
+    for (int i = 0; i < 32; i++) {
+        if (size > tiled_pitches[i] && size <= tiled_pitches[i + 1])
+            return tiled_pitches[i + 1];
+    }
+
+    return 0;
 }
 
 u64 CellGcmSys::cellGcmInitBody() {

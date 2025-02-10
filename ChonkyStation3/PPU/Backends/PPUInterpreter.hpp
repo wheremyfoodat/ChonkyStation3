@@ -91,6 +91,7 @@ public:
     void vctsxs     (const Instruction& instr);
     void vand       (const Instruction& instr);
     void vandc      (const Instruction& instr);
+    void vminfp     (const Instruction& instr);
     void vor        (const Instruction& instr);
     void vxor       (const Instruction& instr);
     // G_13

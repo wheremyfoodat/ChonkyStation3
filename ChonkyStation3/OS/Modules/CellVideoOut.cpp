@@ -105,11 +105,10 @@ u64 CellVideoOut::cellVideoOutGetResolution() {
     CellVideoOutResolutionLE res_;
     if (resolutions.find(res_id) == resolutions.end()) {
         logNoPrefix(" WARNING: Unknown resolution ID (returning 720p)");
-        //res_id = CELL_VIDEO_OUT_RESOLUTION_720;
-        //res_.width = 1280;
-        //res_.height = 720;
-        res_.width = 0;
-        res_.height = 0;
+        res_.width = 1280;
+        res_.height = 720;
+        //res_.width = 0;
+        //res_.height = 0;
     } else 
         res_ = resolutions[res_id];
     logNoPrefix(" [resolution: %dx%d]\n", res_.width, res_.height);

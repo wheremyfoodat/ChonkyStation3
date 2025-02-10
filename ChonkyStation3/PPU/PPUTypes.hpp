@@ -372,7 +372,7 @@ enum G_04Opcodes {
     VSUBUHM         = 0x440,
     VAVGUH          = 0x442,
     VANDC           = 0x444,    // Vector Logical AND with Complement
-    VMINFP          = 0x44a,
+    VMINFP          = 0x44a,    // Vector Minimum Floating-Point
     VSRO            = 0x44c,
     VSUBUWM         = 0x480,
     VAVGUW          = 0x482,

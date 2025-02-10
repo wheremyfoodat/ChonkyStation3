@@ -17,6 +17,7 @@ u64 SysThread::sysPPUThreadCreate() {
     // HACK: sleep spu threads
     if (thread->name == "spu_printf_handler"
         || thread->name == "_SPU_printf_server"
+        || thread->name == "SpuPrintfHandler"
         || thread->name == "soundmain"
         || thread->name == "SNKTrophy_Event_Thread"
         || thread->name == "EE AudioLoop"

@@ -71,6 +71,7 @@ void PPUInterpreter::step() {
             case VCTSXS:    vctsxs(instr);      break;
             case VAND:      vand(instr);        break;
             case VANDC:     vandc(instr);       break;
+            case VMINFP:    vminfp(instr);      break;
             case VOR:       vor(instr);         break;
             case VXOR:      vxor(instr);        break;
 
@@ -807,6 +808,13 @@ void PPUInterpreter::vand(const Instruction& instr) {
 void PPUInterpreter::vandc(const Instruction& instr) {
     state.vrs[instr.vd].dw[0] = state.vrs[instr.va].dw[0] & ~state.vrs[instr.vb].dw[0];
     state.vrs[instr.vd].dw[1] = state.vrs[instr.va].dw[1] & ~state.vrs[instr.vb].dw[1];
+}
+
+void PPUInterpreter::vminfp(const Instruction& instr) {
+    state.vrs[instr.vd].f[0] = (state.vrs[instr.va].f[0] < state.vrs[instr.vb].f[0]) ? state.vrs[instr.va].f[0] : state.vrs[instr.vb].f[0];
+    state.vrs[instr.vd].f[1] = (state.vrs[instr.va].f[1] < state.vrs[instr.vb].f[1]) ? state.vrs[instr.va].f[1] : state.vrs[instr.vb].f[1];
+    state.vrs[instr.vd].f[2] = (state.vrs[instr.va].f[2] < state.vrs[instr.vb].f[2]) ? state.vrs[instr.va].f[2] : state.vrs[instr.vb].f[2];
+    state.vrs[instr.vd].f[3] = (state.vrs[instr.va].f[3] < state.vrs[instr.vb].f[3]) ? state.vrs[instr.va].f[3] : state.vrs[instr.vb].f[3];
 }
 
 void PPUInterpreter::vor(const Instruction& instr) {

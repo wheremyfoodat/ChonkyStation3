@@ -202,6 +202,9 @@ void RSX::runCommandList() {
         if (cmd & 0x00000002) { // call
             Helpers::panic("rsx: call\n");
         }
+        if ((cmd & 0xffff0003) == 0x00020000) {
+            Helpers::panic("rsx: return\n");
+        }
 
         std::vector<u32> args;
         for (int i = 0; i < argc; i++)
@@ -357,6 +360,7 @@ void RSX::runCommandList() {
 
                 log("Draw Arrays: first: %d count: %d\n", first, count);
                 getVertices(count, vtx_buf, first);
+                break;
             }
             
             

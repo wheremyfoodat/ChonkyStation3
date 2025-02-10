@@ -60,6 +60,8 @@ u64 CellPngDec::cellPngDecDecodeData() {
 
 u64 CellPngDec::cellPngDecClose() {
     log("cellPngDecClose()\n");
+
+    fs::remove(curr_file);
     return Result::CELL_OK;
 }
 
