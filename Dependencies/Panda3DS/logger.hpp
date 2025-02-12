@@ -38,6 +38,7 @@ public:
 //#define false true
 
 // Modules
+static Logger cellKb            = Logger<true> ("[Module ][cellKb        ] ");
 static Logger cellPad           = Logger<true> ("[Module ][cellPad       ] ");
 static Logger cellSaveData      = Logger<true> ("[Module ][cellSaveData  ] ");
 static Logger sceNpTrophy       = Logger<true> ("[Module ][sceNpTrophy   ] ");
@@ -69,8 +70,8 @@ static Logger tty               = Logger<1>    ();
 
 // RSX
 static Logger rsx               = Logger<true> ("[RSX    ][Command       ] ");
-static Logger vertex_shader     = Logger<false>("[Shader ][Vertex        ] ");
-static Logger fragment_shader   = Logger<false>("[Shader ][Fragment      ] ");
+static Logger vertex_shader     = Logger<true> ("[Shader ][Vertex        ] ");
+static Logger fragment_shader   = Logger<true> ("[Shader ][Fragment      ] ");
 static Logger rsx_cache         = Logger<true> ("[RSX    ][Cache         ] ");
 
 // Loader

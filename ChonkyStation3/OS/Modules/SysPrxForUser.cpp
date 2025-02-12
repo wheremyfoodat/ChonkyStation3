@@ -27,8 +27,7 @@ u64 SysPrxForUser::sysStrlen() {
 u64 SysPrxForUser::sysGetSystemTime() {
     log("sysGetSystemTime()\n");
 
-    // TODO
-    return 0;
+    return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
 u64 SysPrxForUser::sysProcess_At_ExitSpawn() {
@@ -44,6 +43,46 @@ u64 SysPrxForUser::sysSpinlockInitialize() {
 
     ps3->mem.write<u32>(ptr, 0);
     return Result::CELL_OK;
+}
+
+u64 SysPrxForUser::sysStrcat() {
+    const u32 dst = ARG0;
+    const u32 src = ARG1;
+    log("sysStrcat(dst: 0x%08x, src: 0x%08x)\n", dst, src);
+
+    u32 str_start = dst;
+    while (*ps3->mem.getPtr(str_start))
+        str_start++;
+
+    for (int i = 0;; i++) {
+        if (!(ps3->mem.getPtr(str_start)[i] = ps3->mem.getPtr(src)[i]))
+        {
+            return dst;
+        }
+    }
+
+    return dst;
+}
+
+u64 SysPrxForUser::sysStrncat() {
+    const u32 dst = ARG0;
+    const u32 src = ARG1;
+    const u32 max = ARG2;
+    log("sysStrcat(dst: 0x%08x, src: 0x%08x, max: %d)\n", dst, src, max);
+
+    u32 str_start = dst;
+    while (*ps3->mem.getPtr(str_start))
+        str_start++;
+
+    for (int i = 0; i < max; i++) {
+        if (!(ps3->mem.getPtr(str_start)[i] = ps3->mem.getPtr(src)[i]))
+        {
+            return dst;
+        }
+    }
+
+    ps3->mem.getPtr(str_start)[max] = '\0';
+    return dst;
 }
 
 u64 SysPrxForUser::sysStrcpy() {

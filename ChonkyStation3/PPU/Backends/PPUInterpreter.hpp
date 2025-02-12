@@ -79,10 +79,12 @@ public:
     void vadduwm    (const Instruction& instr);
     void vcmpequw   (const Instruction& instr);
     void vmrghw     (const Instruction& instr);
+    void vcmpeqfp   (const Instruction& instr);
     void vrefp      (const Instruction& instr);
     void vrsqrtefp  (const Instruction& instr);
     void vslw       (const Instruction& instr);
     void vmrglw     (const Instruction& instr);
+    void vcmpgefp   (const Instruction& instr);
     void vcmpgtuw   (const Instruction& instr);
     void vspltw     (const Instruction& instr);
     void vcmpgtfp   (const Instruction& instr);
@@ -90,6 +92,7 @@ public:
     void vspltisw   (const Instruction& instr);
     void vctsxs     (const Instruction& instr);
     void vand       (const Instruction& instr);
+    void vmaxfp     (const Instruction& instr);
     void vandc      (const Instruction& instr);
     void vminfp     (const Instruction& instr);
     void vor        (const Instruction& instr);
@@ -97,6 +100,8 @@ public:
     // G_13
     void mcrf       (const Instruction& instr);
     void bclr       (const Instruction& instr);
+    void crnor      (const Instruction& instr);
+    void crandc     (const Instruction& instr);
     void crnand     (const Instruction& instr);
     void crorc      (const Instruction& instr);
     void cror       (const Instruction& instr);
@@ -166,6 +171,7 @@ public:
     void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);
     void stfsx      (const Instruction& instr);
+    void stfdx      (const Instruction& instr);
     void lhbrx      (const Instruction& instr);
     void sraw       (const Instruction& instr);
     void srawi      (const Instruction& instr);
@@ -188,6 +194,7 @@ public:
     void fmsubs     (const Instruction& instr);
     void fmadds     (const Instruction& instr);
     void fnmsubs    (const Instruction& instr);
+    void fnmadds    (const Instruction& instr);
     // G_3E
     void std        (const Instruction& instr);
     void stdu       (const Instruction& instr);

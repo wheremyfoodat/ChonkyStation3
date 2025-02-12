@@ -54,6 +54,7 @@ public:
         BEField<u32> device_type[CELL_PAD_MAX_PORT_NUM];
     };
 
+    u64 cellPadInit();
     u64 cellPadGetData();
     u64 cellPadGetInfo2();
 

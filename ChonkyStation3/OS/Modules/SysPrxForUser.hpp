@@ -6,6 +6,8 @@
 
 #include <CellTypes.hpp>
 
+#include <chrono>
+
 
 // Circular dependency
 class PlayStation3;
@@ -26,6 +28,8 @@ public:
     u64 sysStrcpy();
     u64 sysSpinlockLock();
     u64 sysSpinlockUnlock();
+    u64 sysStrcat();
+    u64 sysStrncat();
     u64 sysMemset();
     u64 sysMemcpy();
     u64 sysMemcmp();

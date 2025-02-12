@@ -33,6 +33,7 @@ public:
     u64 seek(u32 file_id, s32 offs, u32 mode);
     u64 getFileSize(u32 file_id);
     u64 getFileSize(fs::path path);
+    bool isDirectory(u32 file_id);
     bool isDirectory(fs::path path);
     bool exists(fs::path path);
     File& getFileFromID(u32 id);

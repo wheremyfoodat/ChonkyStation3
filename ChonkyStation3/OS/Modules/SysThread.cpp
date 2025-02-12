@@ -14,16 +14,22 @@ u64 SysThread::sysPPUThreadCreate() {
 
     const std::string name = Helpers::readString(ps3->mem.getPtr(thread_name_ptr));
     Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, (const u8*)name.c_str(), ps3->thread_manager.tls_vaddr, ps3->thread_manager.tls_filesize, ps3->thread_manager.tls_memsize);
-    // HACK: sleep spu threads
+    // HACK: sleep SPU / audio threads
     if (thread->name == "spu_printf_handler"
         || thread->name == "_SPU_printf_server"
         || thread->name == "SpuPrintfHandler"
         || thread->name == "soundmain"
         || thread->name == "SNKTrophy_Event_Thread"
         || thread->name == "EE AudioLoop"
+        || thread->name == "FMOD BGM status query thread"
+        || thread->name == "FMOD libAudio event receive thread"
+        || thread->name == "FMOD stream thread"
+        || thread->name.contains("SpursHdlr")
        )
         thread->status = Thread::THREAD_STATUS::Sleeping;
 
+    // TODO: For some reason rescheduling after creating a new thread breaks the Arkedo games (black screen)
+    //thread->reschedule();
     ps3->mem.write<u64>(thread_id_ptr, thread->id);
     return Result::CELL_OK;
 }

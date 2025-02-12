@@ -278,7 +278,7 @@ enum G_04Opcodes {
     VCMPEQUW_       = 0x486,
     VMRGHW          = 0x8c,     // Vector Merge High Word
     VPKUHUS         = 0x8e,
-    VCMPEQFP        = 0x0c6,
+    VCMPEQFP        = 0x0c6,    // Vector Compare Equal-to-Floating Point
     VCMPEQFP_       = 0x4c6,
     VPKUWUS         = 0xce,
     VMAXSB          = 0x102,
@@ -300,7 +300,7 @@ enum G_04Opcodes {
     VMRGLW          = 0x18c,    // Vector Merge Low Word
     VPKSHSS         = 0x18e,
     VSL             = 0x1c4,
-    VCMPGEFP        = 0x1c6,
+    VCMPGEFP        = 0x1c6,    // Vector Compare Greater-Than-or-Equal-to Floating-Point
     VCMPGEFP_       = 0x5c6,
     VLOGEFP         = 0x1ca,
     VPKSWSS         = 0x1ce,
@@ -367,7 +367,7 @@ enum G_04Opcodes {
     VSUBUBM         = 0x400,
     VAVGUB          = 0x402,
     VAND            = 0x404,    // Vector AND
-    VMAXFP          = 0x40a,
+    VMAXFP          = 0x40a,    // Vector Maximum Floating-Point
     VSLO            = 0x40c,
     VSUBUHM         = 0x440,
     VAVGUH          = 0x442,
@@ -505,6 +505,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     LFDX    = 0x257,
     LFDUX   = 0x277,
     STFSX   = 0x297,
+    STFDX   = 0x2d7,
     LHBRX   = 0x316,
     SRAW    = 0x318,
     SRAD    = 0x31A,

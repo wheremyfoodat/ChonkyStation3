@@ -85,6 +85,8 @@ void RSX::compileProgram() {
         // Program wasn't cached, link it and add it to the cache
         OpenGL::Program new_program;
         new_program.create({ vertex, fragment });
+        // Texture samplers
+        glUniform1i(glGetUniformLocation(new_program.handle(), "tex"), 0);
         cache.cacheProgram(hash_program, new_program);
         program = new_program;
     }
@@ -94,7 +96,19 @@ void RSX::setupVAO() {
     for (auto& binding : vertex_array.bindings) {
         u32 offs_in_buf = binding.offset - vertex_array.getBase();
         // Setup VAO attribute
-        vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
+        switch (binding.type) {
+        case 2:
+            vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
+            break;
+        case 4:
+            vao.setAttributeFloat<GLubyte>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, true);
+            break;
+        case 5:
+            vao.setAttributeFloat<GLshort>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
+            break;
+        default:
+            Helpers::panic("Unimplemented vertex attribute type %d\n", binding.type);
+        }
         vao.enableAttribute(binding.index);
     }
 }
@@ -106,12 +120,30 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
     for (auto& binding : vertex_array.bindings) {
         u32 offs = binding.offset;
         u32 offs_in_buf = binding.offset - vertex_array.getBase();
+        const auto size = binding.sizeOfComponent();
 
         // Collect vertex data
         for (int i = start; i < start + n_vertices; i++) {
             for (int j = 0; j < binding.size; j++) {
-                u32 x = ps3->mem.read<u32>(offs + j * 4);
-                *(float*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * 4] = reinterpret_cast<float&>(x);
+                switch (binding.type) {
+                case 2: {
+                    u32 x = ps3->mem.read<u32>(offs + j * size);
+                    *(float*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = reinterpret_cast<float&>(x);
+                    break;
+                }
+                case 4: {
+                    u8 x = ps3->mem.read<u8>(offs + j * size);
+                    vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
+                    break;
+                }
+                case 5: {
+                    u16 x = ps3->mem.read<u16>(offs + j * size);
+                    *(u16*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
+                    break;
+                }
+                default:
+                    Helpers::panic("Unimplemented vertex attribute type %d\n", binding.type);
+                }
             }
             //log("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
             offs += binding.stride;
@@ -142,8 +174,9 @@ void RSX::uploadFragmentUniforms() {
 GLuint RSX::getTextureInternalFormat(u8 fmt) {
     switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
 
-    case CELL_GCM_TEXTURE_B8:   return GL_RED;
+    case CELL_GCM_TEXTURE_B8:       return GL_RED;
     case CELL_GCM_TEXTURE_A8R8G8B8: return GL_RGBA;
+    case CELL_GCM_TEXTURE_D8R8G8B8: return GL_BGRA;
 
     default:
         Helpers::panic("Unimplemented texture format 0x%02x (0x%02x)\n", fmt, fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN));
@@ -153,8 +186,9 @@ GLuint RSX::getTextureInternalFormat(u8 fmt) {
 GLuint RSX::getTexturePixelFormat(u8 fmt) {
     switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
 
-    case CELL_GCM_TEXTURE_B8:   return GL_RED;
+    case CELL_GCM_TEXTURE_B8:       return GL_RED;
     case CELL_GCM_TEXTURE_A8R8G8B8: return GL_RGBA;
+    case CELL_GCM_TEXTURE_D8R8G8B8: return GL_BGRA;
 
     default:
         Helpers::panic("Unimplemented texture format 0x%02x (0x%02x)\n", fmt, fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN));
@@ -256,6 +290,8 @@ void RSX::runCommandList() {
                 blend_dfactor_rgb = args[1] & 0xffff;
                 blend_dfactor_a = args[1] >> 16;
             }
+
+            glBlendFuncSeparate(blend_sfactor_rgb, blend_dfactor_rgb, blend_sfactor_a, blend_dfactor_a);
             break;
         }
 
@@ -303,7 +339,8 @@ void RSX::runCommandList() {
             const u8 location = args[0] >> 31;
             curr_binding.offset = offsetAndLocationToAddress(offset, location);
             log("Vertex attribute %d: offset: 0x%08x\n", curr_binding.index, curr_binding.offset);
-            vertex_array.bindings.push_back(curr_binding);
+            if (curr_binding.size)  // size == 0 means binding is disabled
+                vertex_array.bindings.push_back(curr_binding);
             break;
         }
 
@@ -334,6 +371,10 @@ void RSX::runCommandList() {
         case NV4097_SET_BEGIN_END: {
             primitive = args[0];
             log("Primitive: 0x%0x\n", primitive);
+
+            if (primitive == 0) {   // End
+                vertex_array.bindings.clear();
+            }
             break;
         }
 
@@ -344,12 +385,6 @@ void RSX::runCommandList() {
             setupVAO();
             uploadVertexConstants();
             uploadFragmentUniforms();
-
-            // Texture samplers
-            glUniform1i(glGetUniformLocation(program.handle(), "tex"), 0);
-
-            // Blending
-            glBlendFuncSeparate(blend_sfactor_rgb, blend_dfactor_rgb, blend_sfactor_a, blend_dfactor_a);
 
             std::vector<u8> vtx_buf;
             int n_vertices = 0;
@@ -362,8 +397,7 @@ void RSX::runCommandList() {
                 getVertices(count, vtx_buf, first);
                 break;
             }
-            
-            
+                        
             // Hack for quads
             if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
                 //if (n_vertices > 4) Helpers::panic("more than 4 vertices\n");
@@ -376,7 +410,6 @@ void RSX::runCommandList() {
                 glDrawArrays(getPrimitive(primitive), 0, n_vertices);
             }
 
-            vertex_array.bindings.clear();
             break;
         }
 
@@ -424,15 +457,11 @@ void RSX::runCommandList() {
             uploadVertexConstants();
             uploadFragmentUniforms();
 
-            // Texture samplers
-            glUniform1i(glGetUniformLocation(program.handle(), "tex"), 0);
-
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
             glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
             glDrawElements(getPrimitive(primitive), indices.size(), GL_UNSIGNED_INT, 0);
 
-            vertex_array.bindings.clear();
             break;
         }
 

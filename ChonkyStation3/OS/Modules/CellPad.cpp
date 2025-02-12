@@ -2,6 +2,13 @@
 #include "PlayStation3.hpp"
 
 
+u64 CellPad::cellPadInit() {
+    const u32 max_connect = ARG0;
+    log("cellPadInit(max_connect: %d)\n", max_connect);
+
+    return Result::CELL_OK;
+}
+
 u64 CellPad::cellPadGetData() {
     const u32 port_num = ARG0;
     const u32 data_ptr = ARG1;
@@ -33,6 +40,7 @@ u64 CellPad::cellPadGetInfo2() {
     info->port_setting[0] = 0;
     info->device_capability[0] = 1;
     info->device_type[0] = 0;   // Standard
+    //ps3->ppu->should_log = true;
 
     return Result::CELL_OK;
 }

@@ -14,6 +14,11 @@ u64 CellGcmSys::cellGcmGetTiledPitchSize() {
     return 0;
 }
 
+u64 CellGcmSys::cellGcmGetDisplayInfo() {
+    log("cellGcmGetDisplayInfo()\n");
+    return buffer_info_addr;
+}
+
 u64 CellGcmSys::cellGcmInitBody() {
     const u32 ctx_ptr = ARG0;
     const u32 cmd_size = ARG1;
@@ -53,6 +58,10 @@ u64 CellGcmSys::cellGcmInitBody() {
     ctrl->put = 0;
     ctrl->get = 0;
     ctrl->ref = -1;
+
+    // Allocate display buffer info
+    buffer_info_addr = ps3->mem.alloc(sizeof(CellGcmDisplayInfo) * 8)->vaddr;
+    std::memset(ps3->mem.getPtr(buffer_info_addr), 0, sizeof(CellGcmDisplayInfo) * 8);
     
     // Memory watchpoint to tell the RSX to check if there are commands to run when put is written
     ps3->mem.watchpoints_w[ctrl_addr] = std::bind(&RSX::runCommandList, &ps3->rsx);
@@ -180,7 +189,7 @@ u64 CellGcmSys::cellGcmMapMainMemory() {
     //ps3->mem.mmap(ea, ps3->mem.translateAddr(gcm_config.io_addr), size);
     main_mem_base = ea;
     main_mem_size = size;
-    ps3->mem.write<u32>(offs_ptr, 0x0);
+    ps3->mem.write<u32>(offs_ptr, ea - gcm_config.io_addr);
 
     return Result::CELL_OK;
 }
@@ -200,6 +209,12 @@ u64 CellGcmSys::cellGcmSetDisplayBuffer() {
     const u32 width = ARG3;
     const u32 height = ARG4;
     log("cellGcmSetDisplayBuffer(buf_id: %d, offs: 0x%08x, pitch: %d, width: %d, height: %d)\n", buf_id, offs, pitch, width, height);
+    Helpers::debugAssert(buf_id < 8, "cellGcmSetDisplayBuffer: invalid buf_id (%d)\n", buf_id);
+
+    CellGcmDisplayInfo* info = (CellGcmDisplayInfo*)ps3->mem.getPtr(buffer_info_addr + sizeof(CellGcmDisplayInfo) * buf_id);
+    info->width = width;
+    info->height = height;
+    info->pitch = pitch;
 
     return Result::CELL_OK;
 }

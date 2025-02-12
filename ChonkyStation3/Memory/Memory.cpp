@@ -49,9 +49,12 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
     
     // Fastmem
-    const u64 page = entry->vaddr >> PAGE_SHIFT;
-    u8* ptr = getPtrPhys(paddr);
-    mem_manager.markAsFastMem(page, ptr, true, true);
+    for (u64 page_addr = entry->vaddr; page_addr < entry->vaddr + entry->size; page_addr += PAGE_SIZE) {
+        const u64 page = page_addr >> PAGE_SHIFT;
+        u8* ptr = getPtrPhys(paddr);
+        mem_manager.markAsFastMem(page, ptr, true, true);
+        paddr += PAGE_SIZE;
+    }
 
     log("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
     return entry;

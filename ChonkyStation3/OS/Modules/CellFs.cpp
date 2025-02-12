@@ -6,7 +6,25 @@ u64 CellFs::cellFsClose() {
     const u32 file_id = ARG0;
     log("cellFsClose(file_id: %d)\n", file_id);
 
+    if ((s32)file_id < 0) return Result::CELL_BADF;
     ps3->fs.close(file_id);
+    return Result::CELL_OK;
+}
+
+u64 CellFs::cellFsOpendir() {
+    const u32 path_ptr = ARG0;
+    const u32 file_id_ptr = ARG1;
+    const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
+    log("cellFsOpendir(path_ptr: 0x%08x, file_id_ptr: 0x%08x) [path: %s]\n", path_ptr, file_id_ptr, path.c_str());
+
+    if (path == ".") return CELL_ENOENT;    // TODO: why?
+
+    const u32 file_id = ps3->fs.open(path);
+    ps3->mem.write<u32>(file_id_ptr, file_id);
+
+    if (file_id == 0) {
+        return Result::CELL_BADF;   // Is this the right error?
+    }
     return Result::CELL_OK;
 }
 
@@ -20,6 +38,29 @@ u64 CellFs::cellFsRead() {
     const u64 bytes_read = ps3->fs.read(file_id, ps3->mem.getPtr(buf), size);
     ps3->mem.write<u64>(bytes_read_ptr, bytes_read);
 
+    return Result::CELL_OK;
+}
+
+u64 CellFs::cellFsReaddir() {
+    const u32 file_id = ARG0;
+    const u32 dirent_ptr = ARG1;
+    const u32 bytes_read_ptr = ARG2;    // bytes_read is u64
+    log("cellFsReaddir(file_id: %d, dirent_ptr: 0x%08x, bytes_read_ptr: 0x%08x)\n", file_id, dirent_ptr, bytes_read_ptr);
+
+    CellFsDirent* dirent = (CellFsDirent*)ps3->mem.getPtr(dirent_ptr);
+    const std::string filename = ps3->fs.getFileFromID(file_id).path.filename().generic_string();
+
+    dirent->type = ps3->fs.isDirectory(file_id) ? CELL_FS_TYPE_DIRECTORY : CELL_FS_TYPE_REGULAR;
+    std::memset(dirent->name, 0, 256);
+    std::memcpy(dirent->name, filename.c_str(), filename.length());
+    dirent->namelen = filename.length();
+
+    // TODO: stub
+    dirent->type = 0;
+    dirent->namelen = 0;
+    dirent->name[0] = '\0';
+    ps3->mem.write<u64>(bytes_read_ptr, 0);
+    //ps3->mem.write<u64>(bytes_read_ptr, sizeof(CellFsDirent));
     return Result::CELL_OK;
 }
 
@@ -80,6 +121,24 @@ u64 CellFs::cellFsLseek() {
     const u64 pos = ps3->fs.seek(file_id, offs, seek_mode);
     ps3->mem.write<u64>(pos_ptr, pos);
 
+    return Result::CELL_OK;
+}
+
+u64 CellFs::cellFsSdataOpen() {
+    const u32 path_ptr = ARG0;
+    const s32 flags = ARG1;
+    const u32 file_id_ptr = ARG2;
+    const u32 arg_ptr = ARG3;
+    const u64 size = ARG4;
+    const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
+    log("cellFsSdataOpen(path_ptr: 0x%08x, flags: %d, file_id_ptr: 0x%08x, arg_ptr: 0x%08x, size: %d) [path: %s]\n", path_ptr, flags, file_id_ptr, arg_ptr, size, path.c_str());
+
+    const u32 file_id = ps3->fs.open(path);
+    ps3->mem.write<u32>(file_id_ptr, file_id);
+
+    if (file_id == 0) {
+        Helpers::panic("cellFsSdataOpen: could not find file %s\n", path.c_str());
+    }
     return Result::CELL_OK;
 }
 

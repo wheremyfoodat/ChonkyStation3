@@ -12,8 +12,6 @@ void Filesystem::mount(Filesystem::Device device, fs::path path) {
 }
 
 u32 Filesystem::open(fs::path path) {
-    // TODO: There are probably going to be instances where opening a file that doesn't exist is supposed to happen.
-    // For now if this happens it likely means something is wrong, so just crash.
     const fs::path host_path = ps3->fs.guestPathToHost(path);
     if (!fs::exists(host_path)) {
         //Helpers::panic("Tried to open non-existing file %s\n", path.generic_string().c_str());
@@ -25,7 +23,6 @@ u32 Filesystem::open(fs::path path) {
     FILE* file = std::fopen(host_path.generic_string().c_str(), "rb");
     open_files[new_file_id] = { file, host_path };
     log("Opened file %s\n", host_path.generic_string().c_str());
-
     return new_file_id;
 }
 
@@ -53,6 +50,11 @@ u64 Filesystem::getFileSize(u32 file_id) {
 
 u64 Filesystem::getFileSize(fs::path path) {
     return fs::file_size(guestPathToHost(path));
+}
+
+bool Filesystem::isDirectory(u32 file_id) {
+    auto file = getFileFromID(file_id);
+    return fs::is_directory(file.path);
 }
 
 bool Filesystem::isDirectory(fs::path path) {

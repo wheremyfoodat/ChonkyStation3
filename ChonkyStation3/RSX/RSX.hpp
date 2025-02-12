@@ -90,6 +90,18 @@ public:
             u8 size;
             u32 offset;
             u8 type;
+
+            size_t sizeOfComponent() {
+                size_t size;
+                switch (type) {
+                case 2: size = sizeof(float);   break;
+                case 4: size = sizeof(u8);      break;
+                case 5: size = sizeof(s16);     break;
+                default:
+                    Helpers::panic("Tried to get size of unimplemented vertex type %d\n", type);
+                }
+                return size;
+            }
         };
         std::vector<AttributeBinding> bindings;
         
@@ -105,7 +117,7 @@ public:
         // Returns size of 1 vertex
         u32 size() {
             u32 highest = 0;
-            AttributeBinding* highest_binding;
+            AttributeBinding* highest_binding = nullptr;
             for (auto& binding : bindings) {
                 if (binding.offset > highest) {
                     highest = binding.offset;
@@ -113,6 +125,10 @@ public:
                 }
             }
 
+            if (!highest_binding) {
+                printf("WARNING: VERTEX ARRAY WITH NO ATTRIBUTE BINDINGS!\n");
+                return 0;
+            }
             return highest_binding->offset - getBase() + highest_binding->stride;
         }
     };

@@ -53,11 +53,27 @@ public:
         CELL_FS_S_IXOTH = 0000001,	// X for other
     };
 
+    enum CellFsDirentType : u8 {
+        CELL_FS_TYPE_UNKNOWN = 0,
+        CELL_FS_TYPE_DIRECTORY = 1,
+        CELL_FS_TYPE_REGULAR = 2,
+        CELL_FS_TYPE_SYMLINK = 3,
+    };
+
+    struct CellFsDirent {
+        u8 type;
+        u8 namelen;
+        char name[256];
+    };
+
     u64 cellFsClose();
+    u64 cellFsOpendir();
     u64 cellFsRead();
+    u64 cellFsReaddir();
     u64 cellFsOpen();
     u64 cellFsStat();
     u64 cellFsLseek();
+    u64 cellFsSdataOpen();
     u64 cellFsFstat();
 
 private:

@@ -25,6 +25,7 @@
 #include <Modules/SceNpTrophy.hpp>
 #include <Modules/CellSaveData.hpp>
 #include <Modules/CellPad.hpp>
+#include <Modules/CellKb.hpp>
 
 
 // Circular dependency
@@ -34,7 +35,7 @@ class ModuleManager {
 public:
     ModuleManager(PlayStation3* ps3) :  ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3),
                                         cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3), sceNpTrophy(ps3),
-                                        cellSaveData(ps3), cellPad(ps3) {}
+                                        cellSaveData(ps3), cellPad(ps3), cellKb(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -56,6 +57,8 @@ public:
         { 0x8c2bb498, { "sysSpinlockInitialize",                            std::bind(&SysPrxForUser::sysSpinlockInitialize, &sysPrxForUser) }},
         { 0x99c88692, { "_sys_strcpy",                                      std::bind(&SysPrxForUser::sysStrcpy, &sysPrxForUser) }},
         { 0xa285139d, { "sysSpinlockLock",                                  std::bind(&SysPrxForUser::sysSpinlockLock, &sysPrxForUser) }},
+        { 0x052d29a6, { "_sys_strcat",                                      std::bind(&SysPrxForUser::sysStrcat, &sysPrxForUser) }},
+        { 0x996f7cf8, { "_sys_strncat",                                     std::bind(&SysPrxForUser::sysStrncat, &sysPrxForUser) }},
         { 0x68b9b011, { "_sys_memset",                                      std::bind(&SysPrxForUser::sysMemset, &sysPrxForUser) }},
         { 0x6bf66ea7, { "_sys_memcpy",                                      std::bind(&SysPrxForUser::sysMemcpy, &sysPrxForUser) }},
         { 0xfb5db080, { "_sys_memcmp",                                      std::bind(&SysPrxForUser::sysMemcmp, &sysPrxForUser) }},
@@ -77,6 +80,7 @@ public:
         { 0xdc578057, { "sysMMapperMapMemory",                              std::bind(&SysMMapper::sysMMapperMapMemory, &sysMMapper) }},
 
         { 0x055bd74d, { "cellGcmGetTiledPitchSize",                         std::bind(&CellGcmSys::cellGcmGetTiledPitchSize, &cellGcmSys) }},
+        { 0x0e6b0dae, { "cellGcmGetDisplayInfo",                            std::bind(&CellGcmSys::cellGcmGetDisplayInfo, &cellGcmSys) }},
         { 0x15bae46b, { "cellGcmInitBody",                                  std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
         { 0x21397818, { " _cellGcmSetFlipCommand",                          std::bind(&CellGcmSys::_cellGcmSetFlipCommand, &cellGcmSys) }},
         { 0x21ac3697, { "cellGcmAddressToOffset",                           std::bind(&CellGcmSys::cellGcmAddressToOffset, &cellGcmSys) }},
@@ -179,10 +183,13 @@ public:
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                            std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
 
         { 0x2cb51f0d, { "cellFsClose",                                      std::bind(&CellFs::cellFsClose, &cellFs) }},
+        { 0x3f61245c, { "cellFsOpendir",                                    std::bind(&CellFs::cellFsOpendir, &cellFs) }},
         { 0x4d5ff8e2, { "cellFsRead",                                       std::bind(&CellFs::cellFsRead, &cellFs) }},
+        { 0x5c74903d, { "cellFsReaddir",                                    std::bind(&CellFs::cellFsReaddir, &cellFs) }},
         { 0x718bf5f8, { "cellFsOpen",                                       std::bind(&CellFs::cellFsOpen, &cellFs) }},
         { 0x7de6dced, { "cellFsStat",                                       std::bind(&CellFs::cellFsStat, &cellFs) }},
         { 0xa397d042, { "cellFsLseek",                                      std::bind(&CellFs::cellFsLseek, &cellFs) }},
+        { 0xb1840b53, { "cellFsSdataOpen",                                  std::bind(&CellFs::cellFsSdataOpen, &cellFs) }},
         { 0xef3efa34, { "cellFsFstat",                                      std::bind(&CellFs::cellFsFstat, &cellFs) }},
 
         { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
@@ -192,11 +199,14 @@ public:
         { 0xcd7bc431, { "cellAudioPortOpen",                                std::bind(&ModuleManager::stub, this) }},
         { 0xf4e3caa0, { "cellAudioOutGetState",                             std::bind(&ModuleManager::stub, this) }},
 
-        { 0x1cf98800, { "cellPadInit",                                      std::bind(&ModuleManager::stub, this) }},
+        { 0x1cf98800, { "cellPadInit",                                      std::bind(&CellPad::cellPadInit, &cellPad) }},
         { 0x578e3c98, { "cellPadSetPortSetting",                            std::bind(&ModuleManager::stub, this) }},
         { 0x8b72cda1, { "cellPadGetData",                                   std::bind(&CellPad::cellPadGetData, &cellPad)}},
         { 0xa703a51d, { "cellPadGetInfo2",                                  std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
         { 0x3aaad464, { "cellPadGetInfo",                                   std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},   // TODO: No idea if cellPadGetInfo is the same as cellPadGetInfo2?
+
+        { 0x2f1774d5, { "cellKbGetInfo",                                    std::bind(&CellKb::cellKbGetInfo, &cellKb) }},
+        { 0xff0a21b7, { "cellKbRead",                                       std::bind(&CellKb::cellKbRead, &cellKb) }},
 
         { 0x2ecd48ed, { "sceNpDrmVerifyUpgradeLicense",                     std::bind(&ModuleManager::stub, this) }},
         { 0x32cf311f, { "sceNpScoreInit",                                   std::bind(&ModuleManager::stub, this) }},
@@ -237,8 +247,11 @@ public:
         
         { 0xda0eb71a, { "sysLwcondCreate",                                  std::bind(&ModuleManager::stub, this) } },
 
+        { 0x1f71ecbe, { "cellKbGetConfiguration",                           std::bind(&ModuleManager::stub, this) } },
         { 0x433f6ec0, { "cellKbInit",                                       std::bind(&ModuleManager::stub, this) } },
         { 0x4ab1fa77, { "cellKbCnvRawCode",                                 std::bind(&ModuleManager::stub, this) } },
+        { 0xa5f85e4d, { "cellKbSetCodeType",                                std::bind(&ModuleManager::stub, this) } },
+        { 0xdeefdfa7, { "cellKbSetReadMode",                                std::bind(&ModuleManager::stub, this) } },
         
         { 0x139a9e9b, { "sysNetInitializeNetworkEx",                        std::bind(&ModuleManager::stub, this) } },
 
@@ -267,6 +280,9 @@ public:
         { 0xd0e766fe, { "cellUsbdInit",                                     std::bind(&ModuleManager::stub, this) } },
         
         { 0x45fe2fce, { "_sys_spu_printf_initialize",                       std::bind(&ModuleManager::stub, this) } },
+        { 0xebe5f72f, { "sys_spu_image_import",                             std::bind(&ModuleManager::stub, this) } },
+
+        { 0xe0998dbf, { "sys_prx_get_module_id_by_name",                    std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);
@@ -289,6 +305,7 @@ public:
     SceNpTrophy sceNpTrophy;
     CellSaveData cellSaveData;
     CellPad cellPad;
+    CellKb cellKb;
 
     u64 stub();
 

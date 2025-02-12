@@ -41,6 +41,13 @@ public:
         BEField<u32> ref;
     };
 
+    struct CellGcmDisplayInfo {
+        BEField<u32> offset;
+        BEField<u32> pitch;
+        BEField<u32> width;
+        BEField<u32> height;
+    };
+
     static constexpr u32 tiled_pitches[] = {
         0x00000000, 0x00000200, 0x00000300, 0x00000400,
         0x00000500, 0x00000600, 0x00000700, 0x00000800,
@@ -63,10 +70,12 @@ public:
     u32 main_mem_size = 0;
     u32 dma_ctrl_addr = 0;
     u32 label_addr = 0;
+    u32 buffer_info_addr = 0;
     u32 flip = 0;
     u32 flip_callback = 0;
 
     u64 cellGcmGetTiledPitchSize();
+    u64 cellGcmGetDisplayInfo();
     u64 cellGcmInitBody();
     u64 _cellGcmSetFlipCommand();
     u64 cellGcmAddressToOffset();
