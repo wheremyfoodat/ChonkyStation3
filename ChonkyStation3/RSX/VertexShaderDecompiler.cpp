@@ -45,22 +45,19 @@ vec4 r[16];
         case RSXVertex::VECTOR::MOV: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}({});\n", dest(instr), mask_str, type, source(src0, instr));
+            main += std::format("{}{} = {}{};\n", dest(instr), mask_str, source(src0, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::MUL: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}({} * {});\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            main += std::format("{}{} = ({} * {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::MAD: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(({} * {}) + {});\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr), source(src2, instr));
+            main += std::format("{}{} = (({} * {}) + {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), source(src2, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::DP3: {

@@ -182,6 +182,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
     case 818:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsLseek();  break;
+    case 872:   todo("sys_ss_get_open_psid()"); break;
     case 988:   ps3->ppu->state.gprs[3] = Result::CELL_OK;  break;
 
     default:

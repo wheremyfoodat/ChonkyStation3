@@ -76,6 +76,7 @@ void Thread::finalizeArgsAndEnv() {
     if (state.gprs[1] & 0xf)
         Helpers::panic("Bad stack alignment after arg and env setup: 0x%08x\n", state.gprs[1]);
 
+    state.gprs[1] -= 0x70;
     printf("sp for thread \"%s\": 0x%08x\n", name.c_str(), (u32)state.gprs[1]);
 }
 
