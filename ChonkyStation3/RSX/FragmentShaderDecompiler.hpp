@@ -64,8 +64,8 @@ public:
 
     const std::string input_names[15] = {
         "fs_wpos",
-        "fs_diff_color",
-        "fs_spec_color",
+        "fs_col0",
+        "fs_col1",
         "fs_fog",
         "fs_tex0",
         "fs_tex1",
