@@ -64,20 +64,43 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 }
 
 void PlayStation3::run() {
-    skipped_cycles = 0;
-    while (cycle_count < CPU_FREQ) {
-        while (curr_block_cycles++ < 2048) {
-            step();
-            if (force_scheduler_update) {
-                force_scheduler_update = false;
-                break;
+    try {
+        skipped_cycles = 0;
+        static constexpr int reschedule_every_n_blocks = 512;
+        int curr_block = 0;
+
+        while (cycle_count < CPU_FREQ) {
+            while (curr_block_cycles++ < 2048) {
+                step();
+                if (force_scheduler_update) {
+                    force_scheduler_update = false;
+                    break;
+                }
+            }
+            cycle_count += curr_block_cycles;
+            scheduler.tick(curr_block_cycles);
+            curr_block_cycles = 0;
+            curr_block++;
+            if (curr_block >= reschedule_every_n_blocks) {
+                curr_block = 0;
+                thread_manager.reschedule();
             }
         }
-        cycle_count += curr_block_cycles;
-        scheduler.tick(curr_block_cycles);
-        curr_block_cycles = 0;
+        cycle_count = 0;
     }
-    cycle_count = 0;
+    catch (std::exception e) {
+        ppu->printState();
+
+        const std::string error = e.what();
+        printf("FATAL: %s\n", e.what());
+        printf("The crash happened at the following instruction:\n");
+        PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
+
+#ifdef CHONKYSTATION3_USER_BUILD
+        crash_analyzer.analyzeCrash(error);
+#endif
+        std::exit(0);
+    }
 }
 
 void PlayStation3::step() {

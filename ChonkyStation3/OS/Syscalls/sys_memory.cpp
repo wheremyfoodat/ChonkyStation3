@@ -2,9 +2,9 @@
 #include "PlayStation3.hpp"
 
 
-MAKE_LOG_FUNCTION(log, sysMemory);
+MAKE_LOG_FUNCTION(log, sys_memory);
 
-u64 Syscall::sysMemoryAllocate() {
+u64 Syscall::sys_memory_allocate() {
     const u32 size = ARG0;
     const u32 flags = ARG1;
     const u32 alloc_ptr = ARG2;
@@ -16,7 +16,7 @@ u64 Syscall::sysMemoryAllocate() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysMemoryGetUserMemorySize() {
+u64 Syscall::sys_memory_get_user_memory_size() {
     const u64 mem_info_ptr = ARG0;
     const auto available_mem = ps3->mem.ram.getAvailableMem();
     ps3->mem.write<u32>(mem_info_ptr, RAM_SIZE);

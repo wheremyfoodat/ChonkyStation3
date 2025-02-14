@@ -2,14 +2,14 @@
 #include "PlayStation3.hpp"
 
 
-MAKE_LOG_FUNCTION(log, sysSemaphore_sc);
+MAKE_LOG_FUNCTION(log, sys_semaphore);
 
-u64 Syscall::sysSemaphoreCreate() {
+u64 Syscall::sys_semaphore_create() {
     const u32 sema_id_ptr = ARG0;
     const u32 sema_attr_ptr = ARG1;
     const u32 initial_val = ARG2;
     const u32 max_val = ARG3;
-    log("sysSemaphoreCreate(sema_id_ptr: 0x%08x, sema_attr_ptr: 0x%08x, initial_val: %d, max_val: %d)\n", sema_id_ptr, sema_attr_ptr, initial_val, max_val);
+    log("sys_semaphore_create(sema_id_ptr: 0x%08x, sema_attr_ptr: 0x%08x, initial_val: %d, max_val: %d)\n", sema_id_ptr, sema_attr_ptr, initial_val, max_val);
 
     Lv2Semaphore* sema = ps3->lv2_obj.create<Lv2Semaphore>();
     sema->val = initial_val;
@@ -19,24 +19,24 @@ u64 Syscall::sysSemaphoreCreate() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysSemaphoreWait() {
+u64 Syscall::sys_semaphore_wait() {
     const u32 sema_id = ARG0;
     const u64 timeout = ARG1;
-    log("sysSemaphoreWait(sema_id: %d, timeout: %lld)\n", sema_id, timeout);
+    log("sys_semaphore_wait(sema_id: %d, timeout: %lld)\n", sema_id, timeout);
 
     Lv2Semaphore* sema = ps3->lv2_obj.get<Lv2Semaphore>(sema_id);
-    sema->wait();
+    sema->wait(ps3);
 
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysSemaphorePost() {
+u64 Syscall::sys_semaphore_post() {
     const u32 sema_id = ARG0;
     const u32 val = ARG1;
-    log("sysSemaphorePost(sema_id: %d, val: %d)\n", sema_id, val);
+    log("sys_semaphore_post(sema_id: %d, val: %d)\n", sema_id, val);
 
     Lv2Semaphore* sema = ps3->lv2_obj.get<Lv2Semaphore>(sema_id);
-    sema->post(val);
+    sema->post(ps3, val);
 
     return Result::CELL_OK;
 }

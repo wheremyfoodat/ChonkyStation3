@@ -6,6 +6,24 @@ void CellGame::setContentPath(fs::path path) {
     content_path = path.generic_string();
 }
 
+u64 CellGame::cellGameGetParamString() {
+    const u32 id = ARG0;
+    const u32 buf_ptr = ARG1;
+    const u32 buf_size = ARG2;
+    log("cellGameGetParamString(id: %d, buf_ptr: 0x%08x, buf_size: %d)", id, buf_ptr, buf_size);
+
+    if (ps3->curr_game.sfo.strings.contains(id_to_param[id])) {
+        auto str = ps3->curr_game.sfo.strings[id_to_param[id]];
+        str += u8'\0';  // Just to be safe
+        logNoPrefix(" [string: %s]\n", str.c_str());
+        std::strncpy((char*)ps3->mem.getPtr(buf_ptr), (char*)str.c_str(), buf_size);
+    }
+    else
+        Helpers::panic("\ncellGameGetParamString: SFO doesn't contain param id %d\n", id);
+
+    return Result::CELL_OK;
+}
+
 u64 CellGame::cellGameContentPermit() {
     const u32 content_info_dir_ptr = ARG0;
     const u32 user_dir_ptr = ARG1;
@@ -26,6 +44,14 @@ u64 CellGame::cellGameContentErrorDialog() {
     log("cellGameContentErrorDialog(type: 0x%08x, need_space_kb: %d, dir_name_ptr: 0x%08x)\n", type, need_space_kb, dir_name_ptr);
 
     return Result::CELL_OK;
+}
+
+u64 CellGame::cellGamePatchCheck() {
+    const u32 size_ptr = ARG0;
+    const u32 reserved = ARG1;
+    log("cellGamePatchCheck(size_ptr: 0x%08x, reserved: 0x%08x) STUBBED\n", size_ptr, reserved);
+
+    return CELL_GAME_ERROR_NOTPATCH;
 }
 
 u64 CellGame::cellGameBootCheck() {

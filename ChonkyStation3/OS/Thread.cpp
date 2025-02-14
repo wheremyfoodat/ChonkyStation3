@@ -7,6 +7,10 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 id, u32 t
     const u32 real_entry = mgr->ps3->mem.read<u32>(entry);
     this->id = id;
     this->name = Helpers::readString(name);
+
+    // TODO: stack size should also be aligned to 0x1000 byte boundary
+    if (stack_size < 0x1000) stack_size = 0x1000;
+
     stack = mgr->allocateStack(stack_size);
     this->stack_size = stack_size;
 

@@ -25,7 +25,7 @@ GameLoader::GameLoader(PlayStation3* ps3) : ps3(ps3) {
                     const auto title = std::string(reinterpret_cast<const char*>(sfo.strings["TITLE"].c_str()));    // Convert u8string to string
                     const auto id = std::string(reinterpret_cast<const char*>(sfo.strings["TITLE_ID"].c_str()));
                     const fs::path content_path = "/dev_hdd0/game" / i.path().filename();
-                    games.push_back({ title, id, content_path });
+                    games.push_back({ title, id, content_path, sfo });
                 }
             }
         }

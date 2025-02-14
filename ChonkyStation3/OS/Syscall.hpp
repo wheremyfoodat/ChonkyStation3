@@ -25,36 +25,47 @@ public:
     void doSyscall(bool decrement_pc_if_module_call = false);
 
     void todo(std::string name);
-    // sysMMapper
-    u64 sysMMapperAllocateAddress();
-    u64 sysMMapperSearchAndMapMemory();
+    // sys_mmapper
+    u64 sys_mmapper_allocate_address();
+    u64 sys_mmapper_search_and_map();
 
-    // sysMemory
-    u64 sysMemoryAllocate();
-    u64 sysMemoryGetUserMemorySize();
+    // sys_memory
+    u64 sys_memory_allocate();
+    u64 sys_memory_get_user_memory_size();
 
-    // sysTimer
-    u64 sysTimerUsleep();
-    u64 sysTimerSleep();
+    // sys_timer
+    u64 sys_timer_usleep();
+    u64 sys_timer_sleep();
 
-    // sysEvent
-    u64 sysEventQueueCreate();
-    u64 sysEventQueueReceive();
-    u64 sysEventPortCreate();
-    u64 sysEventPortConnectLocal();
+    // sys_event
+    u64 sys_event_queue_create();
+    u64 sys_event_queue_receive();
+    u64 sys_event_port_create();
+    u64 sys_event_port_connect_local();
 
-    // sysSemaphore
-    u64 sysSemaphoreCreate();
-    u64 sysSemaphoreWait();
-    u64 sysSemaphorePost();
+    // sys_semaphore
+    u64 sys_semaphore_create();
+    u64 sys_semaphore_wait();
+    u64 sys_semaphore_post();
 
-    // sysMutex
-    u64 sysMutexCreate();
-    u64 sysMutexLock();
-    u64 sysMutexUnlock();
+    // sys_mutex
+    u64 sys_mutex_create();
+    u64 sys_mutex_lock();
+    u64 sys_mutex_unlock();
 
-    // sysCond
-    u64 sysCondCreate();
+    // sys_cond
+    u64 sys_cond_create();
+
+    // sys_spu
+    u64 _sys_spu_image_import();
+
+    // Move to appropriate SPU files once I implement sys_spu
+    struct SysSpuImage {
+        BEField<u32> type;
+        BEField<u32> entry_point;
+        BEField<u32> segs_ptr;
+        BEField<u32> n_segs;
+    };
 
     // Temporary until I move the FS syscalls to their own file
     enum CELL_FS_S : u32 {

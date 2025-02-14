@@ -7,8 +7,7 @@ class PlayStation3;
 
 class Lv2Object {
 public:
-    Lv2Object(PlayStation3* ps3, u64 handle) : ps3(ps3), handle(handle) {}
-    PlayStation3* ps3;
+    Lv2Object(u64 handle) : handle(handle) {}
     u64 handle;
 
     template<typename T>

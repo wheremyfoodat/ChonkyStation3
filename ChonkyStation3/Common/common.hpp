@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <format>
 #include <string>
 #include <vector>
 #include <filesystem>
@@ -36,15 +37,19 @@ static constexpr u64 CPU_FREQ = 3200000000;
 namespace Helpers {
 template <class... Args>
 [[noreturn]] static void panic(const char* fmt, Args&&... args) {
-    std::printf(fmt, args...);
-    std::exit(0);
+    std::string error;
+    error.resize(512_KB);
+    std::sprintf(error.data(), fmt, args...);
+    throw std::runtime_error(error);
 }
 
 template <class... Args>
 static void debugAssert(bool cond, const char* fmt, Args&&... args) {
     if (!cond) [[unlikely]] {
-        std::printf(fmt, args...);
-        std::exit(0);
+        std::string error;
+        error.resize(512_KB);
+        std::sprintf(error.data(), fmt, args...);
+        throw std::runtime_error(error);
     }
 }
 

@@ -69,6 +69,14 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     label_addr = dma_ctrl_addr + 2_MB;
 
+    // Initialize offset table
+    // The io_addr table has 3072 entries; the ea_addr table has 256 entries unless we are emulating a 512MB RSX unit.
+    static constexpr size_t table_size = (3072 + 512) * sizeof(u16);
+    const u32 offset_table_addr = ps3->mem.alloc(table_size)->vaddr;
+    io_table_ptr = offset_table_addr;
+    ea_table_ptr = offset_table_addr + 3072 * sizeof(u16);
+    std::memset(ps3->mem.getPtr(offset_table_addr), 0, table_size); // The table is initialized to all FFs
+
     return Result::CELL_OK;
 }
 
@@ -111,7 +119,10 @@ u64 CellGcmSys::cellGcmGetOffsetTable() {
     const u32 table_ptr = ARG0;
     log("cellGcmGetOffsetTable(table_ptr: 0x%08x)\n", table_ptr);
 
-    // TODO
+    CellGcmOffsetTable* table = (CellGcmOffsetTable*)ps3->mem.getPtr(table_ptr);
+    table->ea_addr_ptr = ea_table_ptr;
+    table->io_addr_ptr = io_table_ptr;
+
     return Result::CELL_OK;
 }
 

@@ -20,6 +20,7 @@ public:
         std::string title;
         std::string id;
         fs::path content_path;
+        SFOLoader::SFOData sfo;
     };
     std::vector<InstalledGame> games;
 

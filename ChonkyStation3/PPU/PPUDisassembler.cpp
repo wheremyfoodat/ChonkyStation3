@@ -53,7 +53,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
     }
     case PPUTypes::Instructions::LWZ:       printf("0x%016llx | lwz        r%d, %d(r%d)			; r%d <- [0x%08llx]\n", state.pc, (u8)instr.rt, (s32)(s16)instr.d, (u8)instr.ra, (u8)instr.rt, (instr.ra == 0) ? (s32)(s16)instr.d : state.gprs[instr.ra] + (s32)(s16)instr.d); break;
     case PPUTypes::Instructions::STW:       printf("0x%016llx | stw        r%d, %d(r%d)			; [0x%08llx] <- r%d\n", state.pc, (u8)instr.rs, (s32)(s16)instr.d, (u8)instr.ra, (instr.ra == 0) ? (s32)(s16)instr.d : state.gprs[instr.ra] + (s32)(s16)instr.d, (u8)instr.rs); break;
-    case PPUTypes::Instructions::LHZ:       printf("0x%016llx | lhz        r%d, %d(r%d)			; r%d <- [0x%08llx] = 0x%08x\n", state.pc, (u8)instr.rt, (s32)(s16)instr.d, (u8)instr.ra, (u8)instr.rt, (instr.ra == 0) ? (s32)(s16)instr.d : state.gprs[instr.ra] + (s32)(s16)instr.d, mem->read<u32>((instr.ra == 0) ? (s32)(s16)instr.d : state.gprs[instr.ra] + (s32)(s16)instr.d)); break;
+    case PPUTypes::Instructions::LHZ:       printf("0x%016llx | lhz        r%d, %d(r%d)			; r%d <- [0x%08llx]\n", state.pc, (u8)instr.rt, (s32)(s16)instr.d, (u8)instr.ra, (u8)instr.rt, (instr.ra == 0) ? (s32)(s16)instr.d : state.gprs[instr.ra] + (s32)(s16)instr.d); break;
     case PPUTypes::Instructions::G_3A: {
         switch (instr.g_3a_field) {
 

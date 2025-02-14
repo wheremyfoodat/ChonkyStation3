@@ -48,6 +48,11 @@ public:
         BEField<u32> height;
     };
 
+    struct CellGcmOffsetTable {
+        BEField<u32> io_addr_ptr;
+        BEField<u32> ea_addr_ptr;
+    };
+
     static constexpr u32 tiled_pitches[] = {
         0x00000000, 0x00000200, 0x00000300, 0x00000400,
         0x00000500, 0x00000600, 0x00000700, 0x00000800,
@@ -69,6 +74,8 @@ public:
     u32 main_mem_base = 0;
     u32 main_mem_size = 0;
     u32 dma_ctrl_addr = 0;
+    u32 io_table_ptr = 0;
+    u32 ea_table_ptr = 0;
     u32 label_addr = 0;
     u32 buffer_info_addr = 0;
     u32 flip = 0;

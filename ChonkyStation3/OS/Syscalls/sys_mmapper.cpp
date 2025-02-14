@@ -2,11 +2,11 @@
 #include "PlayStation3.hpp"
 
 
-MAKE_LOG_FUNCTION(log, sysMMapper_sc);
+MAKE_LOG_FUNCTION(log, sys_mmapper);
 
-static u32 next_address_alloc = RAM_START;
+static u32 next_address_alloc = 0x30000000; // TODO: store this addr somewhere instead of hardcoding it
 
-u64 Syscall::sysMMapperAllocateAddress() {
+u64 Syscall::sys_mmapper_allocate_address() {
     const u64 size = ARG0;
     const u64 flags = ARG1;
     const u64 alignment = ARG2;
@@ -21,7 +21,7 @@ u64 Syscall::sysMMapperAllocateAddress() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysMMapperSearchAndMapMemory() {
+u64 Syscall::sys_mmapper_search_and_map() {
     const u32 start_addr = ARG0;
     const u32 handle = ARG1;
     const u64 flags = ARG2;

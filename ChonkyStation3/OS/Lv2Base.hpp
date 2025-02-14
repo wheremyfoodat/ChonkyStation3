@@ -13,5 +13,4 @@ public:
     Lv2Object* obj;
 
     u64 handle();
-    PlayStation3* ps3();
 };

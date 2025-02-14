@@ -20,6 +20,7 @@
 #include <Syscall.hpp>
 #include <Scheduler.hpp>
 #include <Filesystem.hpp>
+#include <CrashAnalyzer.hpp>
 
 
 class PlayStation3 {
@@ -38,7 +39,8 @@ public:
     ElfSymbolParser elf_parser;
     Scheduler scheduler;
     Filesystem fs;
-
+    
+    CrashAnalyzer crash_analyzer;
     GameLoader::InstalledGame curr_game;
 
     u64 cycle_count = 0;

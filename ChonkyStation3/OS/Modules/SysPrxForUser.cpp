@@ -45,6 +45,12 @@ u64 SysPrxForUser::sysSpinlockInitialize() {
     return Result::CELL_OK;
 }
 
+u64 SysPrxForUser::sysProcessIsStack() {
+    const u32 addr = ARG0;
+    log("sys_process_is_stack(addr: 0x%08x)\n");
+    return (addr >> 28) == (STACK_REGION_START >> 28);
+}
+
 u64 SysPrxForUser::sysStrcat() {
     const u32 dst = ARG0;
     const u32 src = ARG1;
@@ -145,4 +151,19 @@ u64 SysPrxForUser::sysMemcmp() {
     log("sysMemcmp(dst: 0x%08x, src: 0x%08x, size: 0x%08x)\n", buf1, buf2, size);
 
     return std::memcmp(ps3->mem.getPtr(buf1), ps3->mem.getPtr(buf2), size);
+}
+
+u64 SysPrxForUser::sys_spu_image_import() {
+    const u32 image_ptr = ARG0;
+    const u32 src = ARG1;
+    const u32 type = ARG2;
+    log("sys_spu_image_import(image_ptr: 0x%08x, src: 0x%08x, type: 0x%08x) STUBBED\n", image_ptr, src, type);
+
+    Syscall::SysSpuImage* image = (Syscall::SysSpuImage*)ps3->mem.getPtr(image_ptr);
+    image->type = type;
+    image->segs_ptr = 0xfdeadb00;
+    image->n_segs = 0;
+    image->entry_point = 0xfdeadb01;
+
+    return Result::CELL_OK;
 }

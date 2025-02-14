@@ -2,9 +2,9 @@
 #include "PlayStation3.hpp"
 
 
-MAKE_LOG_FUNCTION(log, sysEvent);
+MAKE_LOG_FUNCTION(log, sys_event);
 
-u64 Syscall::sysEventQueueCreate() {
+u64 Syscall::sys_event_queue_create() {
     const u32 queue_id_ptr = ARG0;
     const u32 attr_ptr = ARG1;
     const u64 ipc_key = ARG2;
@@ -15,12 +15,12 @@ u64 Syscall::sysEventQueueCreate() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysEventQueueReceive() {
-    unimpl("sys_event_queue_receive() UNIMLPEMENTED\n");
+u64 Syscall::sys_event_queue_receive() {
+    unimpl("sys_event_queue_receive() STUBBED\n");
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysEventPortCreate() {
+u64 Syscall::sys_event_port_create() {
     const u32 port_id_ptr = ARG0;
     const s32 port_type = ARG1;
     const u64 name = ARG2;
@@ -30,7 +30,7 @@ u64 Syscall::sysEventPortCreate() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysEventPortConnectLocal() {
+u64 Syscall::sys_event_port_connect_local() {
     const u32 port_id = ARG0;
     const u32 queue_id = ARG1;
     log("sys_event_port_connect_local(port_id: %d, queue_id: %d) STUBBED\n", port_id, queue_id);

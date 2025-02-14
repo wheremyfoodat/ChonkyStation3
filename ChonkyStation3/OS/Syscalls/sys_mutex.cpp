@@ -2,9 +2,9 @@
 #include "PlayStation3.hpp"
 
 
-MAKE_LOG_FUNCTION(log, sysMutex_sc);
+MAKE_LOG_FUNCTION(log, sys_mutex);
 
-u64 Syscall::sysMutexCreate() {
+u64 Syscall::sys_mutex_create() {
     const u32 mutex_id_ptr = ARG0;
     const u32 attr_ptr = ARG1;
     log("sys_mutex_create(mutex_id_ptr: 0x%08x, attr_ptr: 0x%08x)\n", mutex_id_ptr, attr_ptr);
@@ -15,7 +15,7 @@ u64 Syscall::sysMutexCreate() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysMutexLock() {
+u64 Syscall::sys_mutex_lock() {
     const u32 mutex_id = ARG0;
     const u64 timeout = ARG1;
     log("sys_mutex_lock(mutex_idx: %d, timeout: %d)\n", mutex_id, timeout);
@@ -32,7 +32,7 @@ u64 Syscall::sysMutexLock() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sysMutexUnlock() {
+u64 Syscall::sys_mutex_unlock() {
     const u32 mutex_id = ARG0;
     log("sys_mutex_unlock(mutex_id: %d)\n", mutex_id);
 

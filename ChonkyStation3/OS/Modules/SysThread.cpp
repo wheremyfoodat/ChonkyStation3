@@ -21,9 +21,10 @@ u64 SysThread::sysPPUThreadCreate() {
         || thread->name == "soundmain"
         || thread->name == "SNKTrophy_Event_Thread"
         || thread->name == "EE AudioLoop"
-        || thread->name == "FMOD BGM status query thread"
-        || thread->name == "FMOD libAudio event receive thread"
-        || thread->name == "FMOD stream thread"
+        //|| thread->name == "FMOD BGM status query thread"
+        //|| thread->name == "FMOD libAudio event receive thread"
+        //|| thread->name == "FMOD stream thread"
+        || thread->name == "SPURS SystemWorkload Serv"
         || thread->name.contains("SpursHdlr")
        )
         thread->status = Thread::THREAD_STATUS::Sleeping;

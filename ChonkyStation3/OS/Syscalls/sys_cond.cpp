@@ -2,9 +2,9 @@
 #include "PlayStation3.hpp"
 
 
-MAKE_LOG_FUNCTION(log, sysCond_sc);
+MAKE_LOG_FUNCTION(log, sys_cond);
 
-u64 Syscall::sysCondCreate() {
+u64 Syscall::sys_cond_create() {
     const u32 cond_id_ptr = ARG0;
     const u32 mutex_id = ARG1;
     const u32 cond_attr_ptr = ARG2;

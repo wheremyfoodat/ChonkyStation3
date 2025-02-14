@@ -2,7 +2,10 @@
 
 #include <common.hpp>
 
+#include <queue>
+
 #include <Lv2Base.hpp>
+#include <Thread.hpp>
 
 
 class Lv2Semaphore : public virtual Lv2Base {
@@ -12,6 +15,8 @@ public:
     u32 val = 0;
     u32 max_val = 0;
 
-    void post(u32 val);
-    void wait();
+    std::queue<u64> wait_list;
+
+    void post(PlayStation3* ps3, u32 val);
+    void wait(PlayStation3* ps3);
 };

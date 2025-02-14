@@ -47,19 +47,18 @@ void ThreadManager::reschedule() {
     bool found_thread = false;
     //printf("Rescheduling...\n");
 
+    int curr_thread = 0;
+    while (threads[curr_thread].id != getCurrentThread()->id) curr_thread++;
+
     do {
-        for (auto& i : threads) {
-            //printf("Thread %s (%d): %s", i.name.c_str(), i.id, Thread::threadStatusToString(i.status).c_str());
-            if (i.status == Thread::THREAD_STATUS::Running) {
+        for (int i = 0; i < threads.size(); i++) {
+            Thread& t = threads[(curr_thread + 1 + i) % threads.size()];    // +1 because we want to begin searching from the thread after the current thread
+            //printf("Thread %s (%d): %s", t.name.c_str(), t.id, Thread::threadStatusToString(t.status).c_str());
+            if (t.status == Thread::THREAD_STATUS::Running) {
                 found_thread = true;
-                if (i.id != getCurrentThread()->id) {   // Prefer switching to a thread different from the current one - if none is found, this function does nothing
-                    //printf(" (switching to this thread)\n");
-                    contextSwitch(i);
-                    break;
-                }
-                else {
-                    //printf(" (current thread)");
-                }
+                //printf(" (switching to this thread)\n");
+                contextSwitch(t);
+                break;
             }
             //printf("\n");
         }
@@ -67,6 +66,8 @@ void ThreadManager::reschedule() {
         if (!found_thread)
             ps3->skipToNextEvent(); // Will panic if there are no events
     } while (!found_thread);
+
+    //if (getCurrentThread()->name == "FMOD stream thread") ps3->ppu->should_log = true;
 }
 
 Thread* ThreadManager::getCurrentThread() {

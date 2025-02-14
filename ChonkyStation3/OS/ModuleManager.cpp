@@ -29,6 +29,9 @@ void ModuleManager::lle(u32 nid) {
     //ps3->ppu->state.gprs[2] = exports.funcs[nid].toc;
 
     log("%s\n", getImportName(nid).c_str());
+
+    //if (getImportName(nid) == "cellSpursGetWorkloadFlag")
+    //    ps3->ppu->should_log = true;
 }
 
 void ModuleManager::registerImport(u32 addr, u32 nid) {

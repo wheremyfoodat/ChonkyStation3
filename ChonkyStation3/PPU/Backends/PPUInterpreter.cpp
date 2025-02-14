@@ -4,6 +4,8 @@
 
 //#define PRINT_DEBUG_SYMBOLS
 //#define TRACK_CALL_STACK
+#define TRACK_STATE
+//#define ENABLE_CONDITIONAL_TRACE_LOG
 
 PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
     // Generate a rotation mask array - this code is adapted from RPCS3
@@ -34,6 +36,17 @@ void PPUInterpreter::printFunctionCall() {
 void PPUInterpreter::step() {
     const u32 instr_raw = mem.read<u32>(state.pc);
     const Instruction instr = { .raw = instr_raw };
+
+#ifndef CHONKYSTATION3_USER_BUILD
+
+#ifdef ENABLE_CONDITIONAL_TRACE_LOG 
+    if (should_log) PPUDisassembler::disasm(state, instr, &mem);
+#endif
+#ifdef TRACK_STATE
+    ps3->crash_analyzer.saveState({ state, instr });
+#endif
+
+#endif
 
     switch (instr.opc) {
     

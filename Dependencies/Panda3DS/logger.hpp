@@ -34,8 +34,12 @@ public:
 
 // Our loggers here. Enable/disable by toggling the template param
 
+#ifdef CHONKYSTATION3_USER_BUILD
 #define true false
-//#define false true
+#else
+//#define true false
+#define false true
+#endif
 
 // Modules
 static Logger cellKb            = Logger<true> ("[Module ][cellKb        ] ");
@@ -58,13 +62,14 @@ static Logger sysPrxForUser     = Logger<false>("[Module ][sysPrxForUser ] ");
 static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
 
 // Syscalls
-static Logger sysSemaphore_sc   = Logger<true> ("[Syscall][sysSemaphore  ] ");
-static Logger sysCond_sc        = Logger<true> ("[Syscall][sysCond       ] ");
-static Logger sysMutex_sc       = Logger<true> ("[Syscall][sysMutex      ] ");
-static Logger sysEvent          = Logger<true> ("[Syscall][sysEvent      ] ");
-static Logger sysMemory         = Logger<true> ("[Syscall][sysMemory     ] ");
-static Logger sysMMapper_sc     = Logger<true> ("[Syscall][sysMMapper    ] ");
-static Logger sysTimer          = Logger<false>("[Syscall][sysTimer      ] ");
+static Logger sys_spu           = Logger<true> ("[Syscall][sys_spu       ] ");
+static Logger sys_semaphore     = Logger<true> ("[Syscall][sys_semaphore ] ");
+static Logger sys_cond          = Logger<true> ("[Syscall][sys_cond      ] ");
+static Logger sys_mutex         = Logger<true> ("[Syscall][sys_mutex     ] ");
+static Logger sys_event         = Logger<true> ("[Syscall][sys_event     ] ");
+static Logger sys_memory        = Logger<true> ("[Syscall][sys_memory    ] ");
+static Logger sys_mmapper       = Logger<true> ("[Syscall][sys_mmapper   ] ");
+static Logger sys_timer         = Logger<false>("[Syscall][sys_timer     ] ");
 static Logger misc_sc           = Logger<false>("[Syscall][Misc          ] ");
 static Logger tty               = Logger<1>    ();
 
