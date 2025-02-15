@@ -26,7 +26,7 @@ public:
     PlayStation3* ps3;
     MAKE_LOG_FUNCTION(log, rsx);
 
-    u16* ea_table = nullptr;
+    u32 ea_table = 0;
     void setEaTableAddr(u32 addr);
 
     void runCommandList();

@@ -14,6 +14,7 @@ public:
         // Avoid reallocations
         // My code relies on this... I know it's bad. I pass pointers to Thread objects to the scheduler, if we reallocate
         // the pointers will become invalid
+        // TODO: definitely find a better way to do this
         threads.reserve(128);   // More than enough
     }
     PlayStation3* ps3;
@@ -27,7 +28,6 @@ public:
     u64 current_thread_id;
 
     u64 allocateStack(u64 stack_size);
-    void mapStack(Thread& thread);
 
     void setTLS(u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize);
     u32 allocTLS(u32 size);

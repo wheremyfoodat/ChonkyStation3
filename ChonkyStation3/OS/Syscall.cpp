@@ -60,6 +60,12 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
     case 30:    todo("_sys_process_get_paramsfo()");    break;
+    case 43: {
+        log_misc("sys_ppu_thread_yield() STUBBED\n");
+        ps3->thread_manager.getCurrentThread()->reschedule();
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        break;
+    }
     case 47:    todo("sys_ppu_thread_set_priority()");  break;
     case 48: {
         log_misc("sys_ppu_thread_get_priority() STUBBED\n");
@@ -69,6 +75,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
     case 82:    todo("sys_event_flag_create()");                            break;
     case 90:    ps3->ppu->state.gprs[3] = sys_semaphore_create();           break;
+    case 91:    todo("sys_semaphore_destroy()");                            break;
     case 92:    ps3->ppu->state.gprs[3] = sys_semaphore_wait();             break;
     case 94:    ps3->ppu->state.gprs[3] = sys_semaphore_post();             break;
     case 95:    todo("_sys_lwmutex_create()");                              break;
@@ -93,7 +100,13 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 136:   ps3->ppu->state.gprs[3] = sys_event_port_connect_local();   break;
     case 141:   ps3->ppu->state.gprs[3] = sys_timer_usleep();               break;
     case 142:   ps3->ppu->state.gprs[3] = sys_timer_sleep();                break;
-    case 144:   todo("sys_time_get_timezone()");                            break;
+    case 144: {
+        log_misc("sys_time_get_timezone()\n");
+        ps3->mem.write<u32>(ARG0, 60);  // timezone (60 == UTC+1 I think)
+        ps3->mem.write<u32>(ARG1, 0);   // summertime
+        ps3->ppu->state.gprs[3] = Result::CELL_OK;
+        break;
+    }
     case 145: {
         log_misc("sysTimeGetCurrentTime() STUBBED\n");
         ps3->mem.write<u64>(ARG0, 1000);

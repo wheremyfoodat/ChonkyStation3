@@ -66,7 +66,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 void PlayStation3::run() {
     try {
         skipped_cycles = 0;
-        static constexpr int reschedule_every_n_blocks = 512;
+        static constexpr int reschedule_every_n_blocks = 128;
         int curr_block = 0;
 
         while (cycle_count < CPU_FREQ) {
@@ -89,12 +89,12 @@ void PlayStation3::run() {
         cycle_count = 0;
     }
     catch (std::exception e) {
-        //ppu->printState();
+        ppu->printState();
 
         const std::string error = e.what();
         printf("FATAL: %s\n", e.what());
         
-#ifdef CHONKYSTATION3_USER_BUILD
+#ifndef CHONKYSTATION3_USER_BUILD
         //printf("The crash happened at the following instruction:\n");
         //PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
         //crash_analyzer.analyzeCrash(error);

@@ -76,6 +76,8 @@ struct State {
         xer.ov = other.xer.ov;
         xer.so = other.xer.so;
         cr.raw = other.cr.raw;
+        ctr = other.ctr;
+        vrsave = other.vrsave;
         return *this;
     }
 };
@@ -324,7 +326,7 @@ enum G_04Opcodes {
     VUPKHSH         = 0x24e,
     VADDUWS         = 0x280,
     VMINUW          = 0x282,
-    VSRW            = 0x284,
+    VSRW            = 0x284,    // Vector Shift Right Word
     VCMPGTUW        = 0x286,    // Vector Compare Greater-Than Unsigned Word
     VCMPGTUW_       = 0x686,
     VRFIP           = 0x28a,
@@ -374,7 +376,7 @@ enum G_04Opcodes {
     VANDC           = 0x444,    // Vector Logical AND with Complement
     VMINFP          = 0x44a,    // Vector Minimum Floating-Point
     VSRO            = 0x44c,
-    VSUBUWM         = 0x480,
+    VSUBUWM         = 0x480,    // Vector Subtract Word Modulo
     VAVGUW          = 0x482,
     VOR             = 0x484,    // Vector OR
     VXOR            = 0x4c4,    // Vector XOR

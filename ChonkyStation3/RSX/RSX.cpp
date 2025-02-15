@@ -40,12 +40,12 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
 
 void RSX::setEaTableAddr(u32 addr) {
     log("Set offset table addr: 0x%08x\n", addr);
-    ea_table = (u16*)ps3->mem.getPtr(addr);
+    ea_table = addr;
 }
 
 u32 RSX::fetch32() {
     const u32 addr = gcm.ctrl->get;
-    u32 data = ps3->mem.read<u32>(((u32)ea_table[addr >> 20] << 20) | (addr & 0xfffff));
+    u32 data = ps3->mem.read<u32>(((u32)ps3->mem.read<u16>(ea_table + ((addr >> 20) * 2)) << 20) | (addr & 0xfffff));
     gcm.ctrl->get = gcm.ctrl->get + 4;  // Didn't overload += in BEField
     return data;
 }

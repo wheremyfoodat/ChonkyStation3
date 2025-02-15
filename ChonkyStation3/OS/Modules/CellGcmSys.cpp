@@ -87,26 +87,21 @@ u64 CellGcmSys::cellGcmInitBody() {
 
 // Maps a 1MB page from main memory to IO address space 
 void CellGcmSys::mapEaIo(u32 ea, u32 io) {
-    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
-    u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
-
-    ea_table[io >> 20] = ea >> 20;
-    io_table[ea >> 20] = io >> 20;
+    ps3->mem.write<u16>(ea_table_ptr + ((io >> 20) * 2), ea >> 20);
+    ps3->mem.write<u16>(io_table_ptr + ((ea >> 20) * 2), io >> 20);
 
     log("Mapped addr 0x%08x to IO offset 0x%08x\n", ea, io);
 }
 
 // Unmaps a 1MB page from main memory from IO address space 
 void CellGcmSys::unmapEaIo(u32 ea, u32 io) {
-    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
-    u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
-
-    ea_table[io >> 20] = 0xffff;
-    io_table[ea >> 20] = 0xffff;
+    ps3->mem.write<u16>(ea_table_ptr + ((io >> 20) * 2), 0xffff);
+    ps3->mem.write<u16>(io_table_ptr + ((ea >> 20) * 2), 0xffff);
 
     log("Unmapped addr 0x%08x from IO offset 0x%08x\n", ea, io);
 }
 
+// TODO: This is broken, need to go through the read/write functions instead of using raw pointers due to endianness
 void CellGcmSys::printOffsetTable() {
     u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
     u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
@@ -138,8 +133,7 @@ void CellGcmSys::printOffsetTable() {
 
 // Returns whether the given offset in IO memory is mapped to an address in main memory
 bool CellGcmSys::isIoOffsMapped(u32 io) {
-    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
-    return ea_table[io >> 20] != 0xffff;
+    return ps3->mem.read<u16>(ea_table_ptr + ((io >> 20) * 2)) != 0xffff;
 }
 
 u64 CellGcmSys::_cellGcmSetFlipCommand() {
@@ -160,7 +154,7 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     // Check if it's mapped to IO
     else {
         u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
-        const u32 page = io_table[addr >> 20];
+        const u32 page = ps3->mem.read<u16>(io_table_ptr + ((addr >> 20) * 2));
         if (page != 0xffff)
             offs = (page << 20) | (addr & 0xfffff);
         else {

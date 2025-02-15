@@ -8,7 +8,6 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, const u8
     // current_thread to point to this thread and initialize ppu
     if (is_start_thread) {
         current_thread_id = threads.back().id;
-        mapStack(threads.back());
 
         // argc and argv
         auto data = ps3->mem.alloc(1_MB);
@@ -38,9 +37,7 @@ void ThreadManager::contextSwitch(Thread& thread) {
     printf("Switched from thread %s to thread %s\n", current_thread->name.c_str(), thread.name.c_str());
     current_thread->state = ps3->ppu->state;
     ps3->ppu->state = thread.state;
-    
     current_thread_id = thread.id;
-    mapStack(thread);
 }
 
 void ThreadManager::reschedule() {
@@ -84,13 +81,7 @@ Thread* ThreadManager::getThreadByID(u32 id) {
 }
 
 u64 ThreadManager::allocateStack(u64 stack_size) {
-    return ps3->mem.ram.allocPhys(stack_size)->start;
-}
-
-void ThreadManager::mapStack(Thread& thread) {
-    // Unmap current stack region
-    ps3->mem.ram.unmap(STACK_REGION_START);
-    ps3->mem.ram.mmap(STACK_REGION_START, thread.stack, thread.stack_size);
+    return ps3->mem.stack.alloc(stack_size)->vaddr;
 }
 
 void ThreadManager::setTLS(u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize) {

@@ -79,9 +79,10 @@ public:
 
     // I don't explicitly check anywhere, but it is assumed that memory regions don't overlap.
     // Just be careful when creating them
-    MemoryRegion ram = MemoryRegion(RAM_START, RAM_SIZE, *this);
-    MemoryRegion rsx = MemoryRegion(RSX_VIDEO_MEM_START, RSX_VIDEO_MEM_SIZE, *this);
-    std::vector<MemoryRegion*> regions = { &ram, &rsx };
+    MemoryRegion ram    = MemoryRegion(RAM_START,           RAM_SIZE,           *this);
+    MemoryRegion rsx    = MemoryRegion(RSX_VIDEO_MEM_START, RSX_VIDEO_MEM_SIZE, *this);
+    MemoryRegion stack  = MemoryRegion(STACK_REGION_START,  STACK_REGION_SIZE,  *this);
+    std::vector<MemoryRegion*> regions = { &ram, &rsx, &stack };
 
     std::pair<u64, u8*> addrToOffsetInMemory(u64 vaddr);
     u8* getPtr(u64 vaddr);

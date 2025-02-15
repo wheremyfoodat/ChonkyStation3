@@ -85,6 +85,7 @@ public:
     void vslw       (const Instruction& instr);
     void vmrglw     (const Instruction& instr);
     void vcmpgefp   (const Instruction& instr);
+    void vsrw       (const Instruction& instr);
     void vcmpgtuw   (const Instruction& instr);
     void vspltw     (const Instruction& instr);
     void vcmpgtfp   (const Instruction& instr);
@@ -95,6 +96,7 @@ public:
     void vmaxfp     (const Instruction& instr);
     void vandc      (const Instruction& instr);
     void vminfp     (const Instruction& instr);
+    void vsubuwm    (const Instruction& instr);
     void vor        (const Instruction& instr);
     void vxor       (const Instruction& instr);
     // G_13
@@ -158,6 +160,7 @@ public:
     void mfspr      (const Instruction& instr);
     void mftb       (const Instruction& instr);
     void sthx       (const Instruction& instr);
+    void orc        (const Instruction& instr);
     void or_        (const Instruction& instr);
     void divdu      (const Instruction& instr);
     void divwu      (const Instruction& instr);
