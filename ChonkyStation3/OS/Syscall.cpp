@@ -60,6 +60,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
     case 30:    todo("_sys_process_get_paramsfo()");    break;
+    case 47:    todo("sys_ppu_thread_set_priority()");  break;
     case 48: {
         log_misc("sys_ppu_thread_get_priority() STUBBED\n");
         ps3->mem.write<u32>(ARG1, 1);
@@ -81,6 +82,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 105:   ps3->ppu->state.gprs[3] = sys_cond_create();                break;
     case 106:   todo("sys_cond_destroy()");                                 break;
     case 109:   todo("sys_cond_signal_all()");                              break;
+    case 114:   ps3->ppu->state.gprs[3] = sys_semaphore_get_value();        break;
     case 120:   todo("sys_rwlock_create()");                                break;
     case 124:   todo("sys_rwlock_runlock()");                               break;
     case 125:   todo("sys_rwlock_wlock()");                                 break;

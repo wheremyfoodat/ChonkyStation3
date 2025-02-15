@@ -14,7 +14,7 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     vbo.bind();
     glGenBuffers(1, &ibo);
     glGenBuffers(1, &quad_ibo);
-    //OpenGL::enableDepth();
+
     OpenGL::setDepthFunc(OpenGL::DepthFunc::Less);
     OpenGL::disableScissor();
     OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
@@ -38,8 +38,14 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     last_tex.height = 0;
 }
 
+void RSX::setEaTableAddr(u32 addr) {
+    log("Set offset table addr: 0x%08x\n", addr);
+    ea_table = (u16*)ps3->mem.getPtr(addr);
+}
+
 u32 RSX::fetch32() {
-    u32 data = ps3->mem.read<u32>(gcm.gcm_config.io_addr + gcm.ctrl->get);
+    const u32 addr = gcm.ctrl->get;
+    u32 data = ps3->mem.read<u32>(((u32)ea_table[addr >> 20] << 20) | (addr & 0xfffff));
     gcm.ctrl->get = gcm.ctrl->get + 4;  // Didn't overload += in BEField
     return data;
 }

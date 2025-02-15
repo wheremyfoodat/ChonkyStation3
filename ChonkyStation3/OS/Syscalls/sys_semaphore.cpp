@@ -40,3 +40,14 @@ u64 Syscall::sys_semaphore_post() {
 
     return Result::CELL_OK;
 }
+
+u64 Syscall::sys_semaphore_get_value() {
+    const u32 sema_id = ARG0;
+    const u32 val_ptr = ARG1;
+    log("sys_semaphore_get_value(sema_id: %d, val_ptr: 0x%08x)\n", sema_id, val_ptr);
+
+    Lv2Semaphore* sema = ps3->lv2_obj.get<Lv2Semaphore>(sema_id);
+    ps3->mem.write<u32>(val_ptr, sema->val);
+
+    return Result::CELL_OK;
+}

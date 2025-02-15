@@ -71,15 +71,19 @@ public:
     CellGcmControl* ctrl;
 
     CellGcmConfig gcm_config;
-    u32 main_mem_base = 0;
-    u32 main_mem_size = 0;
     u32 dma_ctrl_addr = 0;
     u32 io_table_ptr = 0;
     u32 ea_table_ptr = 0;
+    u32 mapping_sizes[4096] = {0};
     u32 label_addr = 0;
     u32 buffer_info_addr = 0;
     u32 flip = 0;
     u32 flip_callback = 0;
+
+    void mapEaIo(u32 ea, u32 io);
+    void unmapEaIo(u32 ea, u32 io);
+    bool isIoOffsMapped(u32 io);
+    void printOffsetTable();
 
     u64 cellGcmGetTiledPitchSize();
     u64 cellGcmGetDisplayInfo();

@@ -66,8 +66,6 @@ void ThreadManager::reschedule() {
         if (!found_thread)
             ps3->skipToNextEvent(); // Will panic if there are no events
     } while (!found_thread);
-
-    //if (getCurrentThread()->name == "FMOD stream thread") ps3->ppu->should_log = true;
 }
 
 Thread* ThreadManager::getCurrentThread() {

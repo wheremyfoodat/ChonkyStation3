@@ -75,9 +75,71 @@ u64 CellGcmSys::cellGcmInitBody() {
     const u32 offset_table_addr = ps3->mem.alloc(table_size)->vaddr;
     io_table_ptr = offset_table_addr;
     ea_table_ptr = offset_table_addr + 3072 * sizeof(u16);
-    std::memset(ps3->mem.getPtr(offset_table_addr), 0, table_size); // The table is initialized to all FFs
+    std::memset(ps3->mem.getPtr(offset_table_addr), 0xff, table_size); // The table is initialized to all FFs
+
+    for (u32 i = 0; i < (gcm_config.io_size >> 20); i++)
+        mapEaIo(gcm_config.io_addr + (i << 20), i << 20);
+
+    ps3->rsx.setEaTableAddr(ea_table_ptr);
 
     return Result::CELL_OK;
+}
+
+// Maps a 1MB page from main memory to IO address space 
+void CellGcmSys::mapEaIo(u32 ea, u32 io) {
+    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
+    u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
+
+    ea_table[io >> 20] = ea >> 20;
+    io_table[ea >> 20] = io >> 20;
+
+    log("Mapped addr 0x%08x to IO offset 0x%08x\n", ea, io);
+}
+
+// Unmaps a 1MB page from main memory from IO address space 
+void CellGcmSys::unmapEaIo(u32 ea, u32 io) {
+    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
+    u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
+
+    ea_table[io >> 20] = 0xffff;
+    io_table[ea >> 20] = 0xffff;
+
+    log("Unmapped addr 0x%08x from IO offset 0x%08x\n", ea, io);
+}
+
+void CellGcmSys::printOffsetTable() {
+    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
+    u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
+
+    bool logged_once = false;
+    log("Offset table (ea -> io):");
+    for (u32 i = 0; i < 3072; i++) {
+        if (io_table[i] != 0xffff) {
+            logged_once = true;
+            logNoPrefix("\n");
+            log("0x%08x -> 0x%08x", i << 20, io_table[i] << 20);
+        }
+    }
+    if (!logged_once) printf(" [empty]");
+    printf("\n");
+
+    logged_once = false;
+    log("Offset table (io -> ea):");
+    for (u32 i = 0; i < 256; i++) {
+        if (ea_table[i] != 0xffff) {
+            logged_once = true;
+            logNoPrefix("\n");
+            log("0x%08x -> 0x%08x", i << 20, ea_table[i] << 20);
+        }
+    }
+    if (!logged_once) printf(" [empty]");
+    printf("\n");
+}
+
+// Returns whether the given offset in IO memory is mapped to an address in main memory
+bool CellGcmSys::isIoOffsMapped(u32 io) {
+    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
+    return ea_table[io >> 20] != 0xffff;
 }
 
 u64 CellGcmSys::_cellGcmSetFlipCommand() {
@@ -95,18 +157,17 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     if (Helpers::inRange<u32>(addr, gcm_config.local_addr, gcm_config.local_addr + gcm_config.local_size - 1)) {
         offs = addr - gcm_config.local_addr;
     }
-    // Check if it's in the IO region
-    else if (Helpers::inRange<u32>(addr, gcm_config.io_addr, gcm_config.io_addr + gcm_config.io_size - 1)) {
-        offs = addr - gcm_config.io_addr;
-    }
-    // Check if it's in the main memory area mapped to IO region
-    else if (Helpers::inRange<u32>(addr, main_mem_base, main_mem_base + main_mem_size - 1)) {
-        offs = addr - main_mem_base;
-    }
+    // Check if it's mapped to IO
     else {
-        Helpers::panic("\ncellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
-        ps3->mem.write<u32>(offs_ptr, 0);
-        return 0x802100ff;  // CELL_GCM_ERROR_FAILURE
+        u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
+        const u32 page = io_table[addr >> 20];
+        if (page != 0xffff)
+            offs = (page << 20) | (addr & 0xfffff);
+        else {
+            Helpers::panic("\ncellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
+            ps3->mem.write<u32>(offs_ptr, 0);
+            return 0x802100ff;  // CELL_GCM_ERROR_FAILURE
+        }
     }
 
     logNoPrefix(" [offs: 0x%08x]\n", offs);
@@ -154,7 +215,13 @@ u64 CellGcmSys::cellGcmMapEaIoAddressWithFlags() {
     const u32 flags = ARG3;
     log("cellGcmMapEaIoAddressWithFlags(ea: 0x%08x, io: 0x%08x, size: 0x%08x, flags: 0x%08x)\n", ea, io, size, flags);
 
-    // TODO
+    const u32 n_pages = size >> 20;
+    log("Mapping %d pages\n", n_pages);
+    for (u32 i = 0; i < n_pages; i++)
+        mapEaIo(ea + (i << 20), io + (i << 20));
+    mapping_sizes[io >> 20] = n_pages;
+
+    //printOffsetTable();
     return Result::CELL_OK;
 }
 
@@ -189,18 +256,33 @@ u64 CellGcmSys::cellGcmBindZcull() {
     return Result::CELL_OK;
 }
 
-bool mapped = false;
 u64 CellGcmSys::cellGcmMapMainMemory() {
     const u32 ea = ARG0;
     const u32 size = ARG1;
     const u32 offs_ptr = ARG2;
     log("cellGcmMapMainMemory(ea: 0x%08x, size: 0x%08x, offs_ptr: 0x%08x)\n", ea, size, offs_ptr);
 
-    // This is a stub, will break if this function is called more than once with different addresses
-    //ps3->mem.mmap(ea, ps3->mem.translateAddr(gcm_config.io_addr), size);
-    main_mem_base = ea;
-    main_mem_size = size;
-    ps3->mem.write<u32>(offs_ptr, ea - gcm_config.io_addr);
+    // Find an area big enough to allocate enough pages to fit size bytes
+    int free_pages = 0;
+    u32 offs;
+    for (offs = 0; offs < (RAM_SIZE >> 20); offs++) {
+        if (!isIoOffsMapped(offs << 20))
+            free_pages++;
+        else
+            free_pages = 0;
+
+        if (free_pages == (size >> 20)) {
+            offs -= free_pages - 1;
+            const u32 n_pages = size >> 20;
+            log("Mapping %d pages\n", n_pages);
+            for (u32 i = 0; i < n_pages; i++)
+                mapEaIo(ea + (i << 20), (offs + i) << 20);
+            mapping_sizes[offs] = n_pages;
+            break;
+        }
+    }
+    //printOffsetTable();
+    ps3->mem.write<u32>(offs_ptr, offs << 20);
 
     return Result::CELL_OK;
 }
@@ -278,10 +360,20 @@ u64 CellGcmSys::cellGcmInitDefaultFifoMode() {
 }
 
 u64 CellGcmSys::cellGcmUnmapIoAddress() {
-    const u32 io_addr = ARG0;
-    log("cellGcmUnmapIoAddress(io_addr: 0x%08x)\n", io_addr);
+    const u32 io = ARG0;
+    log("cellGcmUnmapIoAddress(io: 0x%08x)\n", io);
 
-    // TODO
+    u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
+    u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
+    const u32 ea = ea_table[io >> 20];
+    const u32 n_pages = mapping_sizes[io >> 20];
+
+    log("Unmapping %d pages\n", n_pages);
+    for (u32 i = 0; i < n_pages; i++)
+        unmapEaIo((ea + i) << 20, io + (i << 20));
+    mapping_sizes[io >> 20] = 0;
+
+    //printOffsetTable();
     return Result::CELL_OK;
 }
 

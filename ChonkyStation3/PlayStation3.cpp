@@ -89,15 +89,15 @@ void PlayStation3::run() {
         cycle_count = 0;
     }
     catch (std::exception e) {
-        ppu->printState();
+        //ppu->printState();
 
         const std::string error = e.what();
         printf("FATAL: %s\n", e.what());
-        printf("The crash happened at the following instruction:\n");
-        PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
-
+        
 #ifdef CHONKYSTATION3_USER_BUILD
-        crash_analyzer.analyzeCrash(error);
+        //printf("The crash happened at the following instruction:\n");
+        //PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
+        //crash_analyzer.analyzeCrash(error);
 #endif
         std::exit(0);
     }
