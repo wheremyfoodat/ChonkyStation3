@@ -47,14 +47,14 @@ u64 SysPrxForUser::sysSpinlockInitialize() {
 
 u64 SysPrxForUser::sysProcessIsStack() {
     const u32 addr = ARG0;
-    log("sys_process_is_stack(addr: 0x%08x)\n");
+    log("sys_process_is_stack(addr: 0x%08x)\n", addr);
     return (addr >> 28) == (STACK_REGION_START >> 28);
 }
 
 u64 SysPrxForUser::sysStrcat() {
     const u32 dst = ARG0;
     const u32 src = ARG1;
-    log("sysStrcat(dst: 0x%08x, src: 0x%08x)\n", dst, src);
+    log("_sys_strcat(dst: 0x%08x, src: 0x%08x)\n", dst, src);
 
     u32 str_start = dst;
     while (*ps3->mem.getPtr(str_start))
@@ -94,10 +94,20 @@ u64 SysPrxForUser::sysStrncat() {
 u64 SysPrxForUser::sysStrcpy() {
     const u32 dst = ARG0;
     const u32 src = ARG1;
-    log("sysStrcpy(dst: 0x%08x, src: 0x%08x)", dst, src);
+    log("_sys_strcpy(dst: 0x%08x, src: 0x%08x)", dst, src);
 
     std::strcpy((char*)ps3->mem.getPtr(dst), (char*)ps3->mem.getPtr(src));
     logNoPrefix(" [copied str: \"%s\"]\n", ps3->mem.getPtr(dst));
+    return dst;
+}
+
+u64 SysPrxForUser::sysStrncpy() {
+    const u32 dst = ARG0;
+    const u32 src = ARG1;
+    const s32 len = ARG2;
+    log("_sys_strncpy(dst: 0x%08x, src: 0x%08x, len: %d)\n", dst, src, len);
+
+    std::strncpy((char*)ps3->mem.getPtr(dst), (char*)ps3->mem.getPtr(src), len);
     return dst;
 }
 
@@ -128,7 +138,7 @@ u64 SysPrxForUser::sysMemset() {
     const u32 dst = ARG0;
     const u32 val = ARG1;
     const u32 size = ARG2;
-    log("sysMemset(dst: 0x%08x, val: 0x%08x, size: 0x%08x)\n", dst, val, size);
+    log("_sys_memset(dst: 0x%08x, val: 0x%08x, size: 0x%08x)\n", dst, val, size);
 
     std::memset(ps3->mem.getPtr(dst), val, size);
     return Result::CELL_OK;
@@ -138,7 +148,7 @@ u64 SysPrxForUser::sysMemcpy() {
     const u32 dst = ARG0;
     const u32 src = ARG1;
     const u32 size = ARG2;
-    log("sysMemcpy(dst: 0x%08x, src: 0x%08x, size: 0x%08x)\n", dst, src, size);
+    log("_sys_memcpy(dst: 0x%08x, src: 0x%08x, size: 0x%08x)\n", dst, src, size);
 
     std::memcpy(ps3->mem.getPtr(dst), ps3->mem.getPtr(src), size);
     return Result::CELL_OK;
@@ -148,7 +158,7 @@ u64 SysPrxForUser::sysMemcmp() {
     const u32 buf1 = ARG0;
     const u32 buf2 = ARG1;
     const u32 size = ARG2;
-    log("sysMemcmp(dst: 0x%08x, src: 0x%08x, size: 0x%08x)\n", buf1, buf2, size);
+    log("_sys_memcmp(dst: 0x%08x, src: 0x%08x, size: 0x%08x)\n", buf1, buf2, size);
 
     return std::memcmp(ps3->mem.getPtr(buf1), ps3->mem.getPtr(buf2), size);
 }

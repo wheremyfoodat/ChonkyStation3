@@ -54,6 +54,27 @@ u64 CellGame::cellGamePatchCheck() {
     return CELL_GAME_ERROR_NOTPATCH;
 }
 
+u64 CellGame::cellGameDataCheck() {
+    const u32 type = ARG0;
+    const u32 dir_ptr = ARG1;
+    const u32 size_ptr = ARG2;
+    log("cellGameDataCheck(type: 0x%08x, dir_ptr: 0x%08x, size_ptr: 0x%08x)", type, dir_ptr, size_ptr);
+
+    if (!dir_ptr) {
+        logNoPrefix("\n");
+        Helpers::panic("cellGameDataCheck(): dir_ptr is null\n");
+    }
+    const std::string dir = Helpers::readString(ps3->mem.getPtr(dir_ptr));
+    logNoPrefix(" [dir: %s]\n", dir.c_str());
+
+    // TODO: size
+    const fs::path sfo_path = "/dev_hdd0/game" / fs::path(dir) / "PARAM.SFO";
+    if (!ps3->fs.exists(sfo_path))
+        return CELL_GAME_RET_NONE;
+
+    return Result::CELL_OK;
+}
+
 u64 CellGame::cellGameBootCheck() {
     const u32 type_ptr = ARG0;
     const u32 attrib_ptr = ARG1;

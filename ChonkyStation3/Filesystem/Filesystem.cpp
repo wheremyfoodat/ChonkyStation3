@@ -3,12 +3,14 @@
 
 
 void Filesystem::mount(Filesystem::Device device, fs::path path) {
-    if (!fs::exists(path)) {
-        Helpers::panic("Mount point %s for device %s does not exist\n", path.generic_string().c_str(), deviceToString(device).c_str());
-    }
-
     mounted_devices[device] = path;
     log("Mounted device %s at %s\n", deviceToString(device).c_str(), path.generic_string().c_str());
+}
+
+void Filesystem::initialize() {
+    // Create mount point directories if they don't exist
+    for (auto& i : mounted_devices)
+        fs::create_directories(i.second);
 }
 
 u32 Filesystem::open(fs::path path) {

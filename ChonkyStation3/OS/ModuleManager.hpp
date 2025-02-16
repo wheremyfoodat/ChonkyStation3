@@ -60,6 +60,7 @@ public:
         { 0x4f7172c9, { "sys_process_is_stack",                             std::bind(&SysPrxForUser::sysProcessIsStack, &sysPrxForUser) }},
         { 0x052d29a6, { "_sys_strcat",                                      std::bind(&SysPrxForUser::sysStrcat, &sysPrxForUser) }},
         { 0x996f7cf8, { "_sys_strncat",                                     std::bind(&SysPrxForUser::sysStrncat, &sysPrxForUser) }},
+        { 0xd3039d4d, { "_sys_strncpy",                                     std::bind(&SysPrxForUser::sysStrncpy, &sysPrxForUser) }},
         { 0x68b9b011, { "_sys_memset",                                      std::bind(&SysPrxForUser::sysMemset, &sysPrxForUser) }},
         { 0x6bf66ea7, { "_sys_memcpy",                                      std::bind(&SysPrxForUser::sysMemcpy, &sysPrxForUser) }},
         { 0xfb5db080, { "_sys_memcmp",                                      std::bind(&SysPrxForUser::sysMemcmp, &sysPrxForUser) }},
@@ -149,6 +150,7 @@ public:
         { 0x70acec67, { "cellGameContentPermit",                            std::bind(&CellGame::cellGameContentPermit, &cellGame) }},
         { 0xb0a1f8c6, { "cellGameContentErrorDialog",                       std::bind(&CellGame::cellGameContentErrorDialog, &cellGame) }},
         { 0xce4374f6, { "cellGamePatchCheck",                               std::bind(&CellGame::cellGamePatchCheck, &cellGame) }},
+        { 0xdb9819f3, { "cellGameDataCheck",                                std::bind(&CellGame::cellGameDataCheck, &cellGame) }},
         { 0xf52639ea, { "cellGameBootCheck",                                std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
 
         { 0x011ee38b, { "_cellSpursLFQueueInitialize",                      std::bind(&CellSpurs::_cellSpursLFQueueInitialize, &cellSpurs) }},

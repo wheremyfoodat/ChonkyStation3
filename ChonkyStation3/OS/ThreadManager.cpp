@@ -34,7 +34,7 @@ void ThreadManager::contextSwitch(Thread& thread) {
     Thread* current_thread = getCurrentThread();
     if (current_thread->id == thread.id) return;
 
-    printf("Switched from thread %s to thread %s\n", current_thread->name.c_str(), thread.name.c_str());
+    //printf("Switched from thread %s to thread %s\n", current_thread->name.c_str(), thread.name.c_str());
     current_thread->state = ps3->ppu->state;
     ps3->ppu->state = thread.state;
     current_thread_id = thread.id;

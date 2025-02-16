@@ -27,6 +27,7 @@ public:
     };
     
     void mount(Device device, fs::path path);
+    void initialize();
     u32 open(fs::path path);
     void close(u32 file_id);
     u64 read(u32 file_id, u8* buf, u64 size);

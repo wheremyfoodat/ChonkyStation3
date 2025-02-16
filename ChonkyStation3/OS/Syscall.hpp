@@ -59,6 +59,7 @@ public:
 
     // sys_spu
     u64 _sys_spu_image_import();
+    u64 sys_spu_thread_group_connect_event_all_threads();
 
     // Move to appropriate SPU files once I implement sys_spu
     struct SysSpuImage {

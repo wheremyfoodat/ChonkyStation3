@@ -16,6 +16,8 @@ using namespace CellTypes;
 
 static constexpr u64 CELL_GAME_ERROR_NOTPATCH = 0x8002cb27;
 static constexpr u64 CELL_DISCGAME_ERROR_NOT_DISCBOOT = 0x8002bd02;
+static constexpr u64 CELL_GAME_RET_NONE = 2;
+static constexpr u64 CELL_GAME_ERROR_PARAM = 0x8002cb07;
 
 class CellGame {
 public:
@@ -107,6 +109,7 @@ public:
     u64 cellGameContentPermit();
     u64 cellGameContentErrorDialog();
     u64 cellGamePatchCheck();
+    u64 cellGameDataCheck();
     u64 cellGameBootCheck();
 
     u64 cellDiscGameGetBootDiscInfo();

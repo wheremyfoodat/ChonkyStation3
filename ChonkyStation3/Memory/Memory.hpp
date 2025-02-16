@@ -20,6 +20,9 @@ public:
         this->virtual_base = virtual_base;
         this->size = size;
         mem = new u8[size];
+        // TODO: Figure out if games actually rely on uninitialized memory being initialized to 0.
+        // RPCS3 does initialize it to 0
+        std::memset(mem, 0, size);
     }
 
     MAKE_LOG_FUNCTION(log, memory);

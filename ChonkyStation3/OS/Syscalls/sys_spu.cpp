@@ -13,3 +13,14 @@ u64 Syscall::_sys_spu_image_import() {
 
     return Result::CELL_OK;
 }
+
+u64 Syscall::sys_spu_thread_group_connect_event_all_threads() {
+    const u32 id = ARG0;
+    const u32 eq = ARG1;
+    const u64 req = ARG2;
+    const u32 spup_ptr = ARG3;  // spup is u8
+    log("sys_spu_thread_group_connect_event_all_threads(id: %d, eq: %d, req: %d, spup_ptr: 0x%08x) UNIMPLEMENTED\n", id, eq, req, spup_ptr);
+
+    ps3->mem.write<u8>(spup_ptr, 0);
+    return Result::CELL_OK;
+}

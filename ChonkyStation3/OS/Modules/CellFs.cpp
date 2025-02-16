@@ -74,11 +74,12 @@ u64 CellFs::cellFsOpen() {
     log("cellFsOpen(path_ptr: 0x%08x, flags: %d, file_id_ptr: 0x%08x, arg_ptr: 0x%08x, size: %d) [path: %s]\n", path_ptr, flags, file_id_ptr, arg_ptr, size, path.c_str());
 
     const u32 file_id = ps3->fs.open(path);
-    ps3->mem.write<u32>(file_id_ptr, file_id);
 
     if (file_id == 0) {
-        return Result::CELL_BADF;   // Is this the right error?
+        return Result::CELL_ENOENT;
     }
+
+    ps3->mem.write<u32>(file_id_ptr, file_id);
     return Result::CELL_OK;
 }
 

@@ -8,6 +8,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     fs.mount(Filesystem::Device::DEV_FLASH, "./Filesystem/dev_flash/");
     fs.mount(Filesystem::Device::DEV_HDD0, "./Filesystem/dev_hdd0/");
     fs.mount(Filesystem::Device::APP_HOME, "./Filesystem/app_home/");
+    fs.initialize();
 
     fs::path elf_path;
     std::string elf_path_encrypted;

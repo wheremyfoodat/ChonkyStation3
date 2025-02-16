@@ -31,6 +31,7 @@ public:
     u64 sysProcessIsStack();
     u64 sysStrcat();
     u64 sysStrncat();
+    u64 sysStrncpy();
     u64 sysMemset();
     u64 sysMemcpy();
     u64 sysMemcmp();
