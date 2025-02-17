@@ -11,6 +11,7 @@
 #include <Modules/SysPrxForUser.hpp>
 #include <Modules/SysThread.hpp>
 #include <Modules/SysLwMutex.hpp>
+#include <Modules/SysLwCond.hpp>
 #include <Modules/SysMMapper.hpp>
 #include <Modules/CellGcmSys.hpp>
 #include <Modules/CellVideoOut.hpp>
@@ -33,7 +34,7 @@ class PlayStation3;
 
 class ModuleManager {
 public:
-    ModuleManager(PlayStation3* ps3) :  ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3),
+    ModuleManager(PlayStation3* ps3) :  ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysLwCond(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3),
                                         cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3), sceNpTrophy(ps3),
                                         cellSaveData(ps3), cellPad(ps3), cellKb(ps3) {}
     PlayStation3* ps3;
@@ -58,6 +59,7 @@ public:
         { 0x99c88692, { "_sys_strcpy",                                      std::bind(&SysPrxForUser::sysStrcpy, &sysPrxForUser) }},
         { 0xa285139d, { "sysSpinlockLock",                                  std::bind(&SysPrxForUser::sysSpinlockLock, &sysPrxForUser) }},
         { 0x4f7172c9, { "sys_process_is_stack",                             std::bind(&SysPrxForUser::sysProcessIsStack, &sysPrxForUser) }},
+        { 0x9f04f7af, { "_sys_printf",                                      std::bind(&SysPrxForUser::sysPrintf, &sysPrxForUser) }},
         { 0x052d29a6, { "_sys_strcat",                                      std::bind(&SysPrxForUser::sysStrcat, &sysPrxForUser) }},
         { 0x996f7cf8, { "_sys_strncat",                                     std::bind(&SysPrxForUser::sysStrncat, &sysPrxForUser) }},
         { 0xd3039d4d, { "_sys_strncpy",                                     std::bind(&SysPrxForUser::sysStrncpy, &sysPrxForUser) }},
@@ -91,6 +93,7 @@ public:
         { 0x4ae8d215, { "cellGcmSetFlipMode",                               std::bind(&CellGcmSys::cellGcmSetFlipMode, &cellGcmSys) }},
         { 0x51c9d62b, { "cellGcmSetDebugOutputLevel",                       std::bind(&CellGcmSys::cellGcmSetDebugOutputLevel, &cellGcmSys) }},
         { 0x626e8518, { "cellGcmMapEaIoAddressWithFlags",                   std::bind(&CellGcmSys::cellGcmMapEaIoAddressWithFlags, &cellGcmSys) }},
+        { 0x63441cb4, { "cellGcmMapEaIoAddress",                            std::bind(&CellGcmSys::cellGcmMapEaIoAddress, &cellGcmSys) }},
         { 0x72a577ce, { "cellGcmGetFlipStatus",                             std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
         { 0x983fb9aa, { "cellGcmSetWaitFlip",                               std::bind(&CellGcmSys::cellGcmSetWaitFlip, &cellGcmSys) }},
         { 0x9dc04436, { "cellGcmBindZcull",                                 std::bind(&CellGcmSys::cellGcmBindZcull, &cellGcmSys) }},
@@ -103,6 +106,7 @@ public:
         { 0xbc982946, { "cellGcmSetDefaultCommandBuffer",                   std::bind(&CellGcmSys::cellGcmSetDefaultCommandBuffer, &cellGcmSys) }},
         { 0xbd100dbc, { "cellGcmSetTileInfo",                               std::bind(&CellGcmSys::cellGcmSetTileInfo, &cellGcmSys) }},
         { 0xcaabd992, { "cellGcmInitDefaultFifoMode",                       std::bind(&CellGcmSys::cellGcmInitDefaultFifoMode, &cellGcmSys) }},
+        { 0xd01b570d, { "cellGcmSetGraphicsHandler",                        std::bind(&CellGcmSys::cellGcmSetGraphicsHandler, &cellGcmSys) }},
         { 0xdb23e867, { "cellGcmUnmapIoAddress",                            std::bind(&CellGcmSys::cellGcmUnmapIoAddress, &cellGcmSys) }},
         { 0xdc09357e, { "cellGcmSetFlip",                                   std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
         { 0xe315a0b2, { "cellGcmGetConfiguration",                          std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
@@ -149,6 +153,7 @@ public:
         { 0x3a5d726a, { "cellGameGetParamString",                           std::bind(&CellGame::cellGameGetParamString, &cellGame) }},
         { 0x70acec67, { "cellGameContentPermit",                            std::bind(&CellGame::cellGameContentPermit, &cellGame) }},
         { 0xb0a1f8c6, { "cellGameContentErrorDialog",                       std::bind(&CellGame::cellGameContentErrorDialog, &cellGame) }},
+        { 0xb7a45caf, { "cellGameGetParamInt",                              std::bind(&CellGame::cellGameGetParamInt, &cellGame) }},
         { 0xce4374f6, { "cellGamePatchCheck",                               std::bind(&CellGame::cellGamePatchCheck, &cellGame) }},
         { 0xdb9819f3, { "cellGameDataCheck",                                std::bind(&CellGame::cellGameDataCheck, &cellGame) }},
         { 0xf52639ea, { "cellGameBootCheck",                                std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
@@ -185,7 +190,9 @@ public:
         { 0xd2e23fa9, { "cellSpursSetExceptionEventHandler",                std::bind(&CellSpurs::cellSpursSetExceptionEventHandler, &cellSpurs) }},
         { 0xefeb2679, { "_cellSpursWorkloadAttributeInitialize",            std::bind(&CellSpurs::_cellSpursWorkloadAttributeInitialize, &cellSpurs) }},
 
+        { 0x2cce9cf5, { "cellRtcGetCurrentClockLocalTime",                  std::bind(&CellRtc::cellRtcGetCurrentClockLocalTime, &cellRtc) }},
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                            std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
+        { 0xcb90c761, { "cellRtcGetTime_t",                                 std::bind(&CellRtc::cellRtcGetTime_t, &cellRtc) }},
 
         { 0x2cb51f0d, { "cellFsClose",                                      std::bind(&CellFs::cellFsClose, &cellFs) }},
         { 0x3f61245c, { "cellFsOpendir",                                    std::bind(&CellFs::cellFsOpendir, &cellFs) }},
@@ -250,7 +257,10 @@ public:
         { 0x8b7ed64b, { "cellSaveDataAutoSave2",                            std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                            std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
         
-        { 0xda0eb71a, { "sysLwcondCreate",                                  std::bind(&ModuleManager::stub, this) } },
+        { 0x2a6d9d51, { "sysLwCondWait",                                    std::bind(&SysLwCond::sysLwCondWait, &sysLwCond) } },
+        { 0xda0eb71a, { "sysLwCondCreate",                                  std::bind(&SysLwCond::sysLwCondCreate, &sysLwCond) } },
+        { 0xe9a1bd84, { "sysLwCondSignalAll",                               std::bind(&SysLwCond::sysLwCondSignalAll, &sysLwCond) } },
+        { 0xef87a695, { "sysLwCondSignal",                                  std::bind(&SysLwCond::sysLwCondSignal, &sysLwCond) } },
 
         { 0x1f71ecbe, { "cellKbGetConfiguration",                           std::bind(&ModuleManager::stub, this) } },
         { 0x433f6ec0, { "cellKbInit",                                       std::bind(&ModuleManager::stub, this) } },
@@ -288,6 +298,8 @@ public:
         { 0xebe5f72f, { "sys_spu_image_import",                             std::bind(&SysPrxForUser::sys_spu_image_import, &sysPrxForUser) } },
 
         { 0xe0998dbf, { "sys_prx_get_module_id_by_name",                    std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x05893e7c, { "cellUserTraceRegister",                            std::bind(&ModuleManager::stub, this) } },
     };
 
     std::string getImportName(const u32 nid);
@@ -296,6 +308,7 @@ public:
     SysPrxForUser sysPrxForUser;
     SysThread sysThread;
     SysLwMutex sysLwMutex;
+    SysLwCond sysLwCond;
     SysMMapper sysMMapper;
     CellGcmSys cellGcmSys;
     CellVideoOut cellVideoOut;

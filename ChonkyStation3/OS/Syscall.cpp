@@ -69,7 +69,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 47:    todo("sys_ppu_thread_set_priority()");  break;
     case 48: {
         log_misc("sys_ppu_thread_get_priority() STUBBED\n");
-        ps3->mem.write<u32>(ARG1, 1);
+        ps3->mem.write<u32>(ARG1, ps3->thread_manager.getCurrentThread()->prio);
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
@@ -88,7 +88,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 104:   ps3->ppu->state.gprs[3] = sys_mutex_unlock();               break;
     case 105:   ps3->ppu->state.gprs[3] = sys_cond_create();                break;
     case 106:   todo("sys_cond_destroy()");                                 break;
-    case 109:   todo("sys_cond_signal_all()");                              break;
+    //case 109:   todo("sys_cond_signal_all()");                              break;
     case 114:   ps3->ppu->state.gprs[3] = sys_semaphore_get_value();        break;
     case 120:   todo("sys_rwlock_create()");                                break;
     case 124:   todo("sys_rwlock_runlock()");                               break;
@@ -115,7 +115,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
     case 147: {
-        log_misc("sys_time_get_timebase_frequency() UNIMPLEMENTED\n");
+        log_misc("sys_time_get_timebase_frequency()\n");
         ps3->ppu->state.gprs[3] = 80000000ull;
         break;
     }
@@ -125,7 +125,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 172:   todo("sys_spu_thread_initialize()");                                            break;
     case 173:   todo("sys_spu_thread_group_start()");                                           break;
     case 174:   todo("sys_spu_thread_group_suspend()");                                         break;
-    case 178:   todo("sys_spu_thread_group_join()");                                            break;
+    case 178:   ps3->ppu->state.gprs[3] = sys_spu_thread_group_join();                          break;
     case 182:   todo("sys_spu_thread_read_ls()");                                               break;
     case 185:   todo("sys_spu_thread_group_connect_event()");                                   break;
     case 190:   todo("sys_spu_thread_write_spu_mb()");                                          break;

@@ -17,6 +17,7 @@ public:
     enum class Device {
         DEV_FLASH,
         DEV_HDD0,
+        DEV_HDD1,
         APP_HOME,
         INVALID
     };

@@ -13,9 +13,9 @@ u64 CellSysutil::cellSysutilCheckCallback() {
 
     for (int i = 0; i < 3; i++) {
         if (callbacks[i].func_ptr) {
-            //log("Running callback func %d @ 0x%08x\n", i, callbacks[i].func_ptr);
-            //ps3->ppu->state.gprs[3] = callbacks[i].userdata_ptr;
-            //ps3->ppu->runFunc(callbacks[i].func_ptr);
+            log("Running callback func %d @ 0x%08x\n", i, callbacks[i].func_ptr);
+            ps3->ppu->state.gprs[3] = callbacks[i].userdata_ptr;
+            ps3->ppu->runFunc(ps3->mem.read<u32>(callbacks[i].func_ptr), ps3->mem.read<u32>(callbacks[i].func_ptr + 4));
             //log("Done\n");
         }
     }
@@ -88,7 +88,7 @@ u64 CellSysutil::cellSysutilRegisterCallback() {
     log("cellSysUtilRegisterCallback(slot: %d, func_ptr: 0x%08x, userdata_ptr: 0x%08x)\n", slot, func_ptr, userdata_ptr);
     Helpers::debugAssert(slot < 4, "cellSysutilRegisterCallback(): slot is not in range 0-3\n");
 
-    callbacks[slot] = { ps3->mem.read<u32>(func_ptr), userdata_ptr };
+    callbacks[slot] = { func_ptr, userdata_ptr };
 
     return Result::CELL_OK;
 }

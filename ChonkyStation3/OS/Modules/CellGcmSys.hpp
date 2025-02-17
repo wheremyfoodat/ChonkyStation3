@@ -95,6 +95,7 @@ public:
     u64 cellGcmSetFlipMode();
     u64 cellGcmSetDebugOutputLevel();
     u64 cellGcmMapEaIoAddressWithFlags();
+    u64 cellGcmMapEaIoAddress();
     u64 cellGcmGetFlipStatus();
     u64 cellGcmSetWaitFlip();
     u64 cellGcmBindZcull();
@@ -107,6 +108,7 @@ public:
     u64 cellGcmSetDefaultCommandBuffer();
     u64 cellGcmSetTileInfo();
     u64 cellGcmInitDefaultFifoMode();
+    u64 cellGcmSetGraphicsHandler();
     u64 cellGcmUnmapIoAddress();
     u64 cellGcmSetFlip();
     u64 cellGcmGetConfiguration();

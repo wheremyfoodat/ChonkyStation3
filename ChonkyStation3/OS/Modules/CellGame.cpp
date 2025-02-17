@@ -46,6 +46,22 @@ u64 CellGame::cellGameContentErrorDialog() {
     return Result::CELL_OK;
 }
 
+u64 CellGame::cellGameGetParamInt() {
+    const u32 id = ARG0;
+    const u32 val_ptr = ARG1;
+    log("cellGameGetParamInt(id: %d, val_ptr: 0x%08x)\n", id, val_ptr);
+
+    if (ps3->curr_game.sfo.ints.contains(id_to_param[id])) {
+        u32 val = ps3->curr_game.sfo.ints[id_to_param[id]];
+        ps3->mem.write<u32>(val_ptr, val);
+        logNoPrefix(" [int: %d]\n", val);
+    }
+    else
+        Helpers::panic("\ncellGameGetParamString: SFO doesn't contain param id %d\n", id);
+
+    return Result::CELL_OK;
+}
+
 u64 CellGame::cellGamePatchCheck() {
     const u32 size_ptr = ARG0;
     const u32 reserved = ARG1;

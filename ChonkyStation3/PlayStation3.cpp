@@ -7,6 +7,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     // Initialize filesystem
     fs.mount(Filesystem::Device::DEV_FLASH, "./Filesystem/dev_flash/");
     fs.mount(Filesystem::Device::DEV_HDD0, "./Filesystem/dev_hdd0/");
+    fs.mount(Filesystem::Device::DEV_HDD1, "./Filesystem/dev_hdd1/");
     fs.mount(Filesystem::Device::APP_HOME, "./Filesystem/app_home/");
     fs.initialize();
 
@@ -54,7 +55,8 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     // Create main thread
     thread_manager.setTLS(elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize);
     elf_path_encrypted += '\0';
-    Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true, elf_path_encrypted);
+    // TODO: Should the main thread have priority 0?
+    Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, 0, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true, elf_path_encrypted);
     ppu->state.gprs[12] = proc_param.malloc_pagesize;
 
     // Load PRXs required by the ELF
@@ -67,7 +69,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 void PlayStation3::run() {
     try {
         skipped_cycles = 0;
-        static constexpr int reschedule_every_n_blocks = 128;
+        static constexpr int reschedule_every_n_blocks = 256;
         int curr_block = 0;
 
         while (cycle_count < CPU_FREQ) {
@@ -113,7 +115,7 @@ void PlayStation3::flip() {
     if (module_manager.cellGcmSys.flip_callback) {
         u32 old_r3 = ppu->state.gprs[3];
         ppu->state.gprs[3] = 1; // Callback function is always called with 1 as first argument
-        ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.flip_callback));
+        //ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.flip_callback), mem.read<u32>(module_manager.cellGcmSys.flip_callback + 4));
         ppu->state.gprs[3] = old_r3;
     }
 }

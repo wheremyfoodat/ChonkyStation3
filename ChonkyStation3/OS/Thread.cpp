@@ -3,10 +3,11 @@
 #include "PlayStation3.hpp"
 
 
-Thread::Thread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 id, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, ThreadManager* mgr) : mgr(mgr) {
+Thread::Thread(u64 entry, u64 stack_size, u64 arg, s32 prio, const u8* name, u32 id, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, ThreadManager* mgr) : mgr(mgr) {
     const u32 real_entry = mgr->ps3->mem.read<u32>(entry);
     this->id = id;
     this->name = Helpers::readString(name);
+    this->prio = prio;
 
     // TODO: stack size should also be aligned to 0x1000 byte boundary
     if (stack_size < 0x1000) stack_size = 0x1000;
@@ -96,6 +97,7 @@ void Thread::sleep(u64 us) {
     mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), mgr->ps3->curr_block_cycles + cycles, "thread wakeup");
     status = THREAD_STATUS::Sleeping;
     reschedule();
+    mgr->setAllHighPriority();
     log("Sleeping thread %d for %d us\n", id, us);
 }
 
@@ -109,13 +111,13 @@ void Thread::sleepForCycles(u64 cycles) {
 void Thread::wait() {
     status = THREAD_STATUS::Waiting;
     reschedule();
-    log("Thread %d is waiting\n", id);
+    log("Thread %d \"%s\" is waiting\n", id, name.c_str());
 }
 
 void Thread::wakeUp() {
     status = THREAD_STATUS::Running;
     reschedule();
-    log("Woke up thread %d\n", id);
+    log("Woke up thread %d \"%s\"\n", id, name.c_str());
 }
 
 void Thread::exit() {

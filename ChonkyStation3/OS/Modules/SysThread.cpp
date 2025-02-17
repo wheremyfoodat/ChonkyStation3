@@ -16,7 +16,7 @@ u64 SysThread::sysPPUThreadCreate() {
     if (thread_name_ptr)
         name = Helpers::readString(ps3->mem.getPtr(thread_name_ptr));
     
-    Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, (const u8*)name.c_str(), ps3->thread_manager.tls_vaddr, ps3->thread_manager.tls_filesize, ps3->thread_manager.tls_memsize);
+    Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, prio, (const u8*)name.c_str(), ps3->thread_manager.tls_vaddr, ps3->thread_manager.tls_filesize, ps3->thread_manager.tls_memsize);
     // HACK: sleep SPU / audio threads
     if (thread->name == "spu_printf_handler"
         || thread->name == "_SPU_printf_server"
@@ -27,8 +27,8 @@ u64 SysThread::sysPPUThreadCreate() {
         //|| thread->name == "FMOD BGM status query thread"
         //|| thread->name == "FMOD libAudio event receive thread"
         //|| thread->name == "FMOD stream thread"
-        || thread->name == "SPURS SystemWorkload Serv"
-        || thread->name.contains("SpursHdlr")
+        //|| thread->name == "SPURS SystemWorkload Serv"
+        //|| thread->name.contains("SpursHdlr")
        )
         thread->status = Thread::THREAD_STATUS::Sleeping;
 

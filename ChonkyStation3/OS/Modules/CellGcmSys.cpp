@@ -219,6 +219,21 @@ u64 CellGcmSys::cellGcmMapEaIoAddressWithFlags() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmMapEaIoAddress() {
+    const u32 ea = ARG0;
+    const u32 io = ARG1;
+    const u32 size = ARG2;
+    log("cellGcmMapEaIoAddress(ea: 0x%08x, io: 0x%08x, size: 0x%08x)\n", ea, io, size);
+
+    const u32 n_pages = size >> 20;
+    log("Mapping %d pages\n", n_pages);
+    for (u32 i = 0; i < n_pages; i++)
+        mapEaIo(ea + (i << 20), io + (i << 20));
+    mapping_sizes[io >> 20] = n_pages;
+
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmGetFlipStatus() {
     log("cellGcmGetFlipStatus()\n");
 
@@ -348,6 +363,13 @@ u64 CellGcmSys::cellGcmSetTileInfo() {
 u64 CellGcmSys::cellGcmInitDefaultFifoMode() {
     const s32 mode = ARG0;
     log("cellGcmInitDefaultFifoMode(mode: %d)\n", mode);
+
+    // TODO
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetGraphicsHandler() {
+    log("cellGcmSetGraphicsHandler() UNIMPLEMENTED\n");
 
     // TODO
     return Result::CELL_OK;

@@ -29,6 +29,7 @@ public:
     u64 sysSpinlockLock();
     u64 sysSpinlockUnlock();
     u64 sysProcessIsStack();
+    u64 sysPrintf();
     u64 sysStrcat();
     u64 sysStrncat();
     u64 sysStrncpy();

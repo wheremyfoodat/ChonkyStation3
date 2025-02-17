@@ -17,6 +17,10 @@ u64 Syscall::sys_event_queue_create() {
 
 u64 Syscall::sys_event_queue_receive() {
     unimpl("sys_event_queue_receive() STUBBED\n");
+    if (ps3->thread_manager.getCurrentThread()->name.contains("SPURS") || ps3->thread_manager.getCurrentThread()->name.contains("Spurs")) {
+        ps3->thread_manager.getCurrentThread()->status = Thread::THREAD_STATUS::Sleeping;
+        ps3->thread_manager.getCurrentThread()->reschedule();
+    }
     return Result::CELL_OK;
 }
 

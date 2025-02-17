@@ -19,11 +19,12 @@ public:
     }
     PlayStation3* ps3;
 
-    Thread* createThread(u64 entry, u64 stack_size, u64 arg, const u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread = false, std::string executable_path = "");
+    Thread* createThread(u64 entry, u64 stack_size, u64 arg, s32 prio, const u8* name, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, bool is_start_thread = false, std::string executable_path = "");
     void contextSwitch(Thread& thread);
     Thread* getCurrentThread();
     Thread* getThreadByID(u32 id);
     void reschedule();
+    void setAllHighPriority();
     std::vector<Thread> threads;
     u64 current_thread_id;
 

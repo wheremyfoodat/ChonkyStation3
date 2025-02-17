@@ -51,6 +51,13 @@ u64 SysPrxForUser::sysProcessIsStack() {
     return (addr >> 28) == (STACK_REGION_START >> 28);
 }
 
+u64 SysPrxForUser::sysPrintf() {
+    const u32 fmt_ptr = ARG0;
+    const auto fmt = Helpers::readString(ps3->mem.getPtr(fmt_ptr));
+    printf(fmt.c_str(), ARG1, ps3->mem.getPtr(ARG2), ARG3, ps3->mem.getPtr(ARG4), ARG5);
+    return Result::CELL_OK;
+}
+
 u64 SysPrxForUser::sysStrcat() {
     const u32 dst = ARG0;
     const u32 src = ARG1;

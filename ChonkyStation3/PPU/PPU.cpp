@@ -7,7 +7,7 @@ void PPU::step() {
 
 void PPU::runFunc(u32 addr, u32 toc, bool save_all_state) {
     const PPUTypes::State old_state = state;
-    const u64 ret_val = 0xFFFF1000FFFF1000; // Random value - we check that pc == this to know that the function returned
+    const u64 ret_val = 0xFFFF1234FFFF1234; // Random value - we check that pc == this to know that the function returned
     state.lr = ret_val;
     state.pc = addr;
     if (toc) state.gprs[2] = toc;

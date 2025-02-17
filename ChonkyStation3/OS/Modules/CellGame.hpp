@@ -108,6 +108,7 @@ public:
     u64 cellGameGetParamString();
     u64 cellGameContentPermit();
     u64 cellGameContentErrorDialog();
+    u64 cellGameGetParamInt();
     u64 cellGamePatchCheck();
     u64 cellGameDataCheck();
     u64 cellGameBootCheck();

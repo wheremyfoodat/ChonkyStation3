@@ -14,6 +14,15 @@ u64 Syscall::_sys_spu_image_import() {
     return Result::CELL_OK;
 }
 
+u64 Syscall::sys_spu_thread_group_join() {
+    log("sys_spu_thread_group_join() UNIMPLEMENTED\n");
+
+    ps3->thread_manager.getCurrentThread()->status = Thread::THREAD_STATUS::Sleeping;
+    ps3->thread_manager.getCurrentThread()->reschedule();
+
+    return Result::CELL_OK;
+}
+
 u64 Syscall::sys_spu_thread_group_connect_event_all_threads() {
     const u32 id = ARG0;
     const u32 eq = ARG1;

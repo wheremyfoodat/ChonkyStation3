@@ -5,6 +5,7 @@
 #include <BEField.hpp>
 
 #include <CellTypes.hpp>
+#include <Lv2Objects/Lv2Mutex.hpp>
 
 
 // Circular dependency
