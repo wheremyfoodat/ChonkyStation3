@@ -7,18 +7,33 @@ u64 CellRtc::cellRtcGetCurrentClockLocalTime() {
     log("cellRtcGetCurrentClockLocalTime(clock_ptr: 0x%08x)\n");
 
     CellRtcDateTime* clock = (CellRtcDateTime*)ps3->mem.getPtr(clock_ptr);
-    const auto time = std::chrono::system_clock::now();
-    const auto local_time = std::chrono::zoned_time(std::chrono::current_zone(), std::chrono::system_clock::now()).get_local_time();
-    const auto days = std::chrono::floor<std::chrono::days>(local_time);
-    const std::chrono::year_month_day ymd(days);
-    const std::chrono::hh_mm_ss hms(std::chrono::floor<std::chrono::milliseconds>(local_time - days));
-    clock->day = (u32)ymd.day();
-    clock->month = (u32)ymd.month();
-    clock->year = (s32)ymd.year();
-    clock->hour = hms.hours().count();
-    clock->minute = hms.minutes().count();
-    clock->second = hms.seconds().count();
-    clock->microsecond = 0; // TODO
+    
+    const auto now = std::chrono::system_clock::now();
+    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+
+    // Convert to local time
+    std::tm local_tm;
+#ifdef _MSC_VER
+    localtime_s(&local_tm, &now_time);
+#else
+    localtime_r(&now_time, &local_tm);
+#endif
+
+    const int year      = local_tm.tm_year + 1900;
+    const int month     = local_tm.tm_mon  + 1;
+    const int day       = local_tm.tm_mday;
+    const int hour      = local_tm.tm_hour;
+    const int minute    = local_tm.tm_min;
+    const int second    = local_tm.tm_sec;
+    const auto us       = (std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000000).count();
+
+    clock->day = day;
+    clock->month = month;
+    clock->year = year;
+    clock->hour = hour;
+    clock->minute = minute;
+    clock->second = second;
+    clock->microsecond = us;
 
     log("Time is %d/%d/%d %d:%d:%d:%d\n", (u32)clock->day, (u32)clock->month, (u32)clock->year, (u32)clock->hour, (u32)clock->minute, (u32)clock->second, (u32)clock->microsecond);
     return Result::CELL_OK;

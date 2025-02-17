@@ -54,7 +54,7 @@ u64 SysPrxForUser::sysProcessIsStack() {
 u64 SysPrxForUser::sysPrintf() {
     const u32 fmt_ptr = ARG0;
     const auto fmt = Helpers::readString(ps3->mem.getPtr(fmt_ptr));
-    printf(fmt.c_str(), ARG1, ps3->mem.getPtr(ARG2), ARG3, ps3->mem.getPtr(ARG4), ARG5);
+    printf("%s", fmt.c_str());
     return Result::CELL_OK;
 }
 
