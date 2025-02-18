@@ -3,6 +3,14 @@
 
 
 RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fragment_shader_decompiler(ps3) {
+    std::memset(constants, 0, 512 * 4);
+    last_tex.addr = 0;
+    last_tex.format = 0;
+    last_tex.width = 0;
+    last_tex.height = 0;
+}
+
+void RSX::initGL() {
     OpenGL::setViewport(1280, 720);     // TODO: Get resolution from cellVideoOut
     OpenGL::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     OpenGL::clearColor();
@@ -20,8 +28,6 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
     OpenGL::setBlendEquation(OpenGL::BlendEquation::Add);
 
-    std::memset(constants, 0, 512 * 4);
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
     quad_index_array.push_back(0);
     quad_index_array.push_back(1);
@@ -31,11 +37,6 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     quad_index_array.push_back(0);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-    last_tex.addr = 0;
-    last_tex.format = 0;
-    last_tex.width = 0;
-    last_tex.height = 0;
 }
 
 void RSX::setEaTableAddr(u32 addr) {

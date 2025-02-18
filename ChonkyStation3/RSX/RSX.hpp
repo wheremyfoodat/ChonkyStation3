@@ -18,6 +18,8 @@ class PlayStation3;
 class RSX {
 public:
     RSX(PlayStation3* ps3);
+    void initGL();  // TODO: decouple the OpenGL backend from the RSX core
+    
     CellGcmSys& gcm;
     VertexShaderDecompiler vertex_shader_decompiler;
     FragmentShaderDecompiler fragment_shader_decompiler;

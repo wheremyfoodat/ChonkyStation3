@@ -25,7 +25,7 @@
 
 class PlayStation3 {
 public:
-    PlayStation3(const fs::path& executable);
+    PlayStation3(const fs::path& executable = "");
     Memory mem = Memory();
     PPU* ppu;
     RSX rsx;
@@ -42,12 +42,16 @@ public:
     
     CrashAnalyzer crash_analyzer;
     GameLoader::InstalledGame curr_game;
+    fs::path elf_path;
+    std::string elf_path_encrypted;
 
     u64 cycle_count = 0;
     u64 curr_block_cycles = 0;
     u64 skipped_cycles = 0;
     bool force_scheduler_update = false;
 
+    void gameSelector();
+    void init();
     void run();
     void step();
     void flip();

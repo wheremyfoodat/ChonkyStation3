@@ -11,43 +11,44 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     fs.mount(Filesystem::Device::APP_HOME, "./Filesystem/app_home/");
     fs.initialize();
 
-    fs::path elf_path;
-    std::string elf_path_encrypted;
-    // An executable was passed as CLI argument, run it directly
+    // An executable was passed as CLI argument
     if (!(executable.generic_string() == "")) {
         elf_path = executable;
     }
-    else {
-        // Find installed games
-        GameLoader game_loader = GameLoader(this);  // Requires dev_hdd0 to be mounted
-        // Print games
-        printf("Found %lld installed games:\n", game_loader.games.size());
-        for (int i = 0; i < game_loader.games.size(); i++) {
-            printf("%s\n", std::format("[{:>3d}] {} | {:<40s} | {:<40s}", i, game_loader.games[i].id, game_loader.games[i].title, game_loader.games[i].content_path.generic_string()).c_str());
-        }
-        // Ask the user what game to run
-        int idx;
-        printf("Enter game to run (index): ");
-        std::cin >> idx;
-        while (idx < 0 || idx >= game_loader.games.size()) {
-            printf("Invalid index. Retry: ");
-            std::cin >> idx;
-        }
+}
 
-        curr_game = game_loader.games[idx];
-        // Tell cellGame the path of the game's contents
-        module_manager.cellGame.setContentPath(game_loader.games[idx].content_path);
-        // Get path of EBOOT.elf
-        elf_path = fs.guestPathToHost(game_loader.games[idx].content_path / "USRDIR/EBOOT.elf");
-        elf_path_encrypted = (game_loader.games[idx].content_path / "USRDIR/EBOOT.BIN").generic_string();
+void PlayStation3::gameSelector() {
+    // Find installed games
+    GameLoader game_loader = GameLoader(this);  // Requires dev_hdd0 to be mounted
+    // Print games
+    printf("Found %lld installed games:\n", game_loader.games.size());
+    for (int i = 0; i < game_loader.games.size(); i++) {
+        printf("%s\n", std::format("[{:>3d}] {} | {:<40s} | {:<40s}", i, game_loader.games[i].id, game_loader.games[i].title, game_loader.games[i].content_path.generic_string()).c_str());
     }
-    
+    // Ask the user what game to run
+    int idx;
+    printf("Enter game to run (index): ");
+    std::cin >> idx;
+    while (idx < 0 || idx >= game_loader.games.size()) {
+        printf("Invalid index. Retry: ");
+        std::cin >> idx;
+    }
+
+    curr_game = game_loader.games[idx];
+    // Tell cellGame the path of the game's contents
+    module_manager.cellGame.setContentPath(game_loader.games[idx].content_path);
+    // Get path of EBOOT.elf
+    elf_path = fs.guestPathToHost(game_loader.games[idx].content_path / "USRDIR/EBOOT.elf");
+    elf_path_encrypted = (game_loader.games[idx].content_path / "USRDIR/EBOOT.BIN").generic_string();
+}
+
+void PlayStation3::init() {
     // Load ELF file
     ELFLoader elf = ELFLoader(this, mem);
     std::unordered_map<u32, u32> imports = {};
     ELFLoader::PROCParam proc_param;
     auto entry = elf.load(elf_path, imports, proc_param, module_manager);
-    
+
     // Register ELF module imports in module manager
     for (auto& i : imports)
         module_manager.registerImport(i.first, i.second);
@@ -61,7 +62,7 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 
     // Load PRXs required by the ELF
     prx_manager.loadModulesRecursively();
-    
+
     // Initialize libraries (must be done after creating main thread)
     prx_manager.initializeLibraries();
 }

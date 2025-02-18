@@ -26,7 +26,7 @@ public:
         std::ifstream file(path, std::ios::binary);
 
         if (!reader.load(file)) {
-            printf("ELF Symbol parser failed to load file");
+            //printf("ELF Symbol parser failed to load file");
             return;
         }
 
