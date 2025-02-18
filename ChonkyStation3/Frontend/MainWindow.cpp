@@ -9,9 +9,9 @@ MainWindow::MainWindow() : QMainWindow() {
     // Setup menubar buttons
     connect(ui.actionOpen_ELF, &QAction::triggered, this, &MainWindow::launchELF);
 
-    show();
-    resize(640, 480);
+    resize(1280, 720);
     setWindowTitle("ChonkyStation3");
+    show();
 }
 
 int MainWindow::run(int argc, char** argv) {
@@ -25,7 +25,6 @@ void MainWindow::launchELF() {
     if (path = tinyfd_openFileDialog("Select a Playstation 3 ELF", "", 1, filters, "ELF File", false)) {
         ps3->elf_path = path;
         ps3->init();
+        game_thread = std::thread(&GameWindow::run, &game_window, ps3);
     }
-
-    game_thread = std::thread(&GameWindow::run, &game_window, ps3);
 }
