@@ -13,9 +13,9 @@ u64 CellSysutil::cellSysutilCheckCallback() {
 
     for (int i = 0; i < 3; i++) {
         if (callbacks[i].func_ptr) {
-            log("Running callback func %d @ 0x%08x\n", i, callbacks[i].func_ptr);
-            ps3->ppu->state.gprs[3] = callbacks[i].userdata_ptr;
-            ps3->ppu->runFunc(ps3->mem.read<u32>(callbacks[i].func_ptr), ps3->mem.read<u32>(callbacks[i].func_ptr + 4));
+            //log("Running callback func %d @ 0x%08x\n", i, callbacks[i].func_ptr);
+            //ps3->ppu->state.gprs[3] = callbacks[i].userdata_ptr;
+            //ps3->ppu->runFunc(ps3->mem.read<u32>(callbacks[i].func_ptr), ps3->mem.read<u32>(callbacks[i].func_ptr + 4));
             //log("Done\n");
         }
     }

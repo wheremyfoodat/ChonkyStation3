@@ -6,7 +6,7 @@ u64 CellFs::cellFsClose() {
     const u32 file_id = ARG0;
     log("cellFsClose(file_id: %d)\n", file_id);
 
-    if ((s32)file_id < 0) return Result::CELL_BADF;
+    if ((s32)file_id <= 0) return Result::CELL_BADF;
     ps3->fs.close(file_id);
     return Result::CELL_OK;
 }
@@ -18,12 +18,14 @@ u64 CellFs::cellFsOpendir() {
     log("cellFsOpendir(path_ptr: 0x%08x, file_id_ptr: 0x%08x) [path: %s]\n", path_ptr, file_id_ptr, path.c_str());
 
     if (path == ".") return CELL_ENOENT;    // TODO: why?
+    if (path == "/http-cache/") return CELL_ENOTMOUNTED;
+    if (path == "") return CELL_ENOENT; // TLOU does this - it's meant to happen
 
     const u32 file_id = ps3->fs.open(path);
     ps3->mem.write<u32>(file_id_ptr, file_id);
 
     if (file_id == 0) {
-        return Result::CELL_BADF;   // Is this the right error?
+        return Result::CELL_ENOENT;
     }
     return Result::CELL_OK;
 }
@@ -143,6 +145,17 @@ u64 CellFs::cellFsSdataOpen() {
     return Result::CELL_OK;
 }
 
+u64 CellFs::cellFsMkdir() {
+    const u32 path_ptr = ARG0;
+    const s32 mode = ARG1;
+    const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
+    log("cellFsMkdir(path_ptr: 0x%08x, mode: %d) [path: %s]\n", path_ptr, mode, path.c_str());
+
+    // TODO
+    Helpers::debugAssert(path == "", "TODO: cellFsMkdir");
+    return Result::CELL_ENOENT;
+}
+
 u64 CellFs::cellFsFstat() {
     const u32 file_id = ARG0;
     const u32 stat_ptr = ARG1;
@@ -158,5 +171,14 @@ u64 CellFs::cellFsFstat() {
     stat->size = ps3->fs.getFileSize(file_id);
     stat->blksize = 512;
 
+    return Result::CELL_OK;
+}
+
+u64 CellFs::cellFsClosedir() {
+    const u32 file_id = ARG0;
+    log("cellFsClosedir(file_id: %d)\n", file_id);
+
+    if ((s32)file_id <= 0) return Result::CELL_BADF;
+    ps3->fs.close(file_id);
     return Result::CELL_OK;
 }

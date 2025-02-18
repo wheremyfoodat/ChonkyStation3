@@ -16,11 +16,20 @@ u64 Syscall::sys_event_queue_create() {
 }
 
 u64 Syscall::sys_event_queue_receive() {
-    unimpl("sys_event_queue_receive() STUBBED\n");
+    const u32 queue_id = ARG0;
+    const u32 event_ptr = ARG1;
+    const u64 timeout = ARG2;
+    unimpl("sys_event_queue_receive(queue_id: %d, event_ptr: 0x%08x, timeout: %d) STUBBED\n", queue_id, event_ptr, timeout );
     if (ps3->thread_manager.getCurrentThread()->name.contains("SPURS") || ps3->thread_manager.getCurrentThread()->name.contains("Spurs")) {
         ps3->thread_manager.getCurrentThread()->status = Thread::THREAD_STATUS::Sleeping;
         ps3->thread_manager.getCurrentThread()->reschedule();
     }
+
+    ps3->ppu->state.gprs[4] = 0;
+    ps3->ppu->state.gprs[5] = 0;
+    ps3->ppu->state.gprs[6] = 0;
+    ps3->ppu->state.gprs[7] = 0;
+
     return Result::CELL_OK;
 }
 

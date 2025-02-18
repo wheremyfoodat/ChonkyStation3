@@ -94,6 +94,12 @@ u64 CellSpurs::cellSpursCreateTaskset2() {
     return Result::CELL_OK;
 }
 
+u64 CellSpurs::cellSpursEventFlagClear() {
+    log("cellSpursEventFlagClear() UNIMPLEMENTED\n");
+    
+    return Result::CELL_OK;
+}
+
 u64 CellSpurs::cellSpursCreateTaskset() {
     const u32 spurs_ptr = ARG0;
     const u32 taskset_ptr = ARG1;
@@ -146,6 +152,12 @@ u64 CellSpurs::cellSpursEventFlagAttachLv2EventQueue() {
     const u32 event_flag_ptr = ARG0;
     log("cellSpursEventFlagAttachLv2EventQueue(event_flag_ptr: 0x%08x) UNIMPLEMENTED\n", event_flag_ptr);
 
+    return Result::CELL_OK;
+}
+
+u64 CellSpurs::_cellSpursLFQueuePushBody() {
+    log("_cellSpursLFQueuePushBody() UNIMPLEMENTED\n");
+    
     return Result::CELL_OK;
 }
 

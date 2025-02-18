@@ -74,7 +74,9 @@ public:
     u64 cellFsStat();
     u64 cellFsLseek();
     u64 cellFsSdataOpen();
+    u64 cellFsMkdir();
     u64 cellFsFstat();
+    u64 cellFsClosedir();
 
 private:
     MAKE_LOG_FUNCTION(log, cellFs);

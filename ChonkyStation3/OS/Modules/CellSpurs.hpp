@@ -53,11 +53,13 @@ public:
     u64 cellSpursInitializeWithAttribute2();
     u64 cellSpursWorkloadAttributeSetName();
     u64 cellSpursCreateTaskset2();
+    u64 cellSpursEventFlagClear();
     u64 cellSpursCreateTaskset();
     u64 _cellSpursEventFlagInitialize();
     u64 cellSpursTasksetAttributeSetName();
     u64 cellSpursAttributeSetMemoryContainerForSpuThread();
     u64 cellSpursEventFlagAttachLv2EventQueue();
+    u64 _cellSpursLFQueuePushBody();
     u64 _cellSpursAttributeInitialize();
     u64 cellSpursAttributeEnableSystemWorkload();
     u64 _cellSpursWorkloadFlagReceiver();

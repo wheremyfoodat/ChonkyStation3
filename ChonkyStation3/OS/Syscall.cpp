@@ -108,9 +108,10 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
     case 145: {
-        log_misc("sysTimeGetCurrentTime() STUBBED\n");
-        ps3->mem.write<u64>(ARG0, 1000);
-        ps3->mem.write<u64>(ARG1, 1000);
+        log_misc("sys_time_get_current_time()\n");
+        const auto time = std::chrono::system_clock::now().time_since_epoch();
+        ps3->mem.write<u64>(ARG0, std::chrono::floor<std::chrono::seconds>(time).count());
+        ps3->mem.write<u64>(ARG1, std::chrono::floor<std::chrono::nanoseconds>(time).count());
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }

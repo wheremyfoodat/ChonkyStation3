@@ -99,7 +99,7 @@ union Instruction {
     BitField<1,  10, u32> g_13_field;
     BitField<1,  10, u32> g_1f_field;   // g_13_field == g_1f_field
     BitField<1,  10, u32> g_3f_field;   // g_13_field == g_3f_field
-    BitField<2,  3,  u32> g_1e_field;
+    BitField<1,  4,  u32> g_1e_field;
     BitField<2,  14, u32> ds;
     BitField<2,  14, u32> bd;           // ds == bd
     BitField<2,  24, u32> li;
@@ -381,7 +381,7 @@ enum G_04Opcodes {
     VOR             = 0x484,    // Vector OR
     VXOR            = 0x4c4,    // Vector XOR
     VAVGSB          = 0x502,
-    VNOR            = 0x504,
+    VNOR            = 0x504,    // Vector NOR
     VAVGSH          = 0x542,
     VSUBCUW         = 0x580,
     VAVGSW          = 0x582,
@@ -415,11 +415,17 @@ enum G_13Opcodes {      // Field 21 - 30
     BCCTR   = 0x210,
 };
 
-enum G_1EOpcodes {      // Field 27 - 29
-    RLDICL  = 0x00,     // Rotate Left Doubleword Immediate then Clear Left
-    RLDICR  = 0x01,
-    RLDIC   = 0x02,
-    RLDIMI  = 0x03,
+enum G_1EOpcodes {      // Field 27 - 30
+    RLDICL  = 0x00,
+    RLDICL_ = 0x01,
+    RLDICR  = 0x02,
+    RLDICR_ = 0x03,
+    RLDIC   = 0x04,
+    RLDIC_  = 0x05,
+    RLDIMI  = 0x06,
+    RLDIMI_ = 0x07,
+    RLDCL   = 0x08,
+    RLDCR   = 0x09,
 };
 
 enum G_1FOpcodes {      // Field 21 - 30

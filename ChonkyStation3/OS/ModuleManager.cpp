@@ -22,9 +22,9 @@ void ModuleManager::lle(u32 nid) {
     ps3->mem.watchpoints_r[ps3->ppu->state.lr + 4] = std::bind(&ModuleManager::printReturnValue, this);
     ps3->mem.markAsSlowMem((ps3->ppu->state.lr + 4) >> PAGE_SHIFT, true, false);
     last_lle_nid = nid;
-    ps3->ppu->runFunc(ps3->mem.read<u32>(exports.funcs[nid].addr), ps3->mem.read<u32>(exports.funcs[nid].addr + 4), false);
 
-    log("%s\n", getImportName(nid).c_str());
+    log("%s @ 0x%08x\n", getImportName(nid).c_str(), (u32)ps3->ppu->state.lr);
+    ps3->ppu->runFunc(ps3->mem.read<u32>(exports.funcs[nid].addr), ps3->mem.read<u32>(exports.funcs[nid].addr + 4), false);
 }
 
 void ModuleManager::registerImport(u32 addr, u32 nid) {

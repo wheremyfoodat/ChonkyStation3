@@ -98,6 +98,7 @@ public:
     void vminfp     (const Instruction& instr);
     void vsubuwm    (const Instruction& instr);
     void vor        (const Instruction& instr);
+    void vnor       (const Instruction& instr);
     void vxor       (const Instruction& instr);
     // G_13
     void mcrf       (const Instruction& instr);
@@ -113,6 +114,7 @@ public:
     void rldicr     (const Instruction& instr);
     void rldic      (const Instruction& instr);
     void rldimi     (const Instruction& instr);
+    void rldcl      (const Instruction& instr);
     // G_1F
     void cmp        (const Instruction& instr);
     void lvsl       (const Instruction& instr);
@@ -169,6 +171,7 @@ public:
     void divd       (const Instruction& instr);
     void divw       (const Instruction& instr);
     void lvlx       (const Instruction& instr);
+    void lwbrx      (const Instruction& instr);
     void lfsx       (const Instruction& instr);
     void srw        (const Instruction& instr);
     void srd        (const Instruction& instr);

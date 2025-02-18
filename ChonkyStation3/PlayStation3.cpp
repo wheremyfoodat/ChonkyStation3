@@ -98,6 +98,8 @@ void PlayStation3::run() {
         printf("FATAL: %s\n", e.what());
         
 #ifndef CHONKYSTATION3_USER_BUILD
+        ((PPUInterpreter*)ppu)->printCallStack();
+
         //printf("The crash happened at the following instruction:\n");
         //PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
         //crash_analyzer.analyzeCrash(error);

@@ -91,6 +91,7 @@ void PPUInterpreter::step() {
             case VMINFP:    vminfp(instr);      break;
             case VSUBUWM:   vsubuwm(instr);     break;
             case VOR:       vor(instr);         break;
+            case VNOR:      vnor(instr);         break;
             case VXOR:      vxor(instr);        break;
 
             default:
@@ -140,10 +141,15 @@ void PPUInterpreter::step() {
     case G_1E: {
         switch (instr.g_1e_field) {
 
-        case RLDICL: rldicl(instr); break;
-        case RLDICR: rldicr(instr); break;
-        case RLDIC:  rldic(instr);  break;
-        case RLDIMI: rldimi(instr); break;
+        case RLDICL_:
+        case RLDICL:    rldicl(instr);  break;
+        case RLDICR_:
+        case RLDICR:    rldicr(instr);  break;
+        case RLDIC_:
+        case RLDIC:     rldic(instr);   break;
+        case RLDIMI_:
+        case RLDIMI:    rldimi(instr);  break;
+        case RLDCL:     rldcl(instr);   break;
 
         default:
             Helpers::panic("Unimplemented G_1E instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_1e_field, (u32)instr.g_1e_field, instr.raw);
@@ -209,6 +215,7 @@ void PPUInterpreter::step() {
         case DIVD:      divd(instr);    break;
         case DIVW:      divw(instr);    break;
         case LVLX:      lvlx(instr);    break;
+        case LWBRX:     lwbrx(instr);   break;
         case LFSX:      lfsx(instr);    break;
         case SRW:       srw(instr);     break;
         case SRD:       srd(instr);     break;
@@ -904,6 +911,11 @@ void PPUInterpreter::vor(const Instruction& instr) {
     state.vrs[instr.vd].dw[1] = state.vrs[instr.va].dw[1] | state.vrs[instr.vb].dw[1];
 }
 
+void PPUInterpreter::vnor(const Instruction& instr) {
+    state.vrs[instr.vd].dw[0] = ~(state.vrs[instr.va].dw[0] | state.vrs[instr.vb].dw[0]);
+    state.vrs[instr.vd].dw[1] = ~(state.vrs[instr.va].dw[1] | state.vrs[instr.vb].dw[1]);
+}
+
 void PPUInterpreter::vxor(const Instruction& instr) {
     state.vrs[instr.vd].dw[0] = state.vrs[instr.va].dw[0] ^ state.vrs[instr.vb].dw[0];
     state.vrs[instr.vd].dw[1] = state.vrs[instr.va].dw[1] ^ state.vrs[instr.vb].dw[1];
@@ -1020,6 +1032,15 @@ void PPUInterpreter::rldimi(const Instruction& instr) {
     const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
     const auto mask = rotation_mask[mb][63 - sh];
     state.gprs[instr.ra] = (state.gprs[instr.ra] & ~mask) | (std::rotl<u64>(state.gprs[instr.rs], sh) & mask);
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
+}
+
+void PPUInterpreter::rldcl(const Instruction& instr) {
+    const auto sh = state.gprs[instr.rb] & 0x3f;
+    const auto mb = ((instr.mb_6 & 1) << 5) | (instr.mb_6 >> 1);
+    const auto mask = rotation_mask[mb][63];
+    state.gprs[instr.ra] = std::rotl<u64>(state.gprs[instr.rs], sh) & mask;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
@@ -1459,6 +1480,10 @@ void PPUInterpreter::lvlx(const Instruction& instr) {
         state.vrs[instr.vd].b[15 - i] = ps3->mem.read<u8>(addr + i);
 }
 
+void PPUInterpreter::lwbrx(const Instruction& instr) {
+    state.gprs[instr.rt] = *(u32*)ps3->mem.getPtr(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
+}
+
 void PPUInterpreter::lfsx(const Instruction& instr) {
     u32 v = mem.read<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
     state.fprs[instr.frt] = reinterpret_cast<float&>(v);
@@ -1498,8 +1523,12 @@ void PPUInterpreter::lhbrx(const Instruction& instr) {
 
 void PPUInterpreter::sraw(const Instruction& instr) {
     const u32 shift = state.gprs[instr.rb] & 0x7f;
-    Helpers::debugAssert(shift <= 32, "sraw: shift > 31");
-    state.gprs[instr.ra] = (s32)state.gprs[instr.rs] >> shift;
+    //Helpers::debugAssert(shift <= 32, "sraw: shift > 31");
+    // TODO: XER
+    if (shift > 31)
+        state.gprs[instr.ra] = ((s32)state.gprs[instr.rs] < 0) ? -1 : 0;
+    else
+        state.gprs[instr.ra] = (s32)state.gprs[instr.rs] >> shift;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }

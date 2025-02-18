@@ -27,6 +27,7 @@
 #include <Modules/CellSaveData.hpp>
 #include <Modules/CellPad.hpp>
 #include <Modules/CellKb.hpp>
+#include <Modules/CellSsl.hpp>
 
 
 // Circular dependency
@@ -36,7 +37,7 @@ class ModuleManager {
 public:
     ModuleManager(PlayStation3* ps3) :  ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysLwCond(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3),
                                         cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3), sceNpTrophy(ps3),
-                                        cellSaveData(ps3), cellPad(ps3), cellKb(ps3) {}
+                                        cellSaveData(ps3), cellPad(ps3), cellKb(ps3), cellSsl(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -169,11 +170,13 @@ public:
         { 0x30aa96c4, { "cellSpursInitializeWithAttribute2",                std::bind(&CellSpurs::cellSpursInitializeWithAttribute2, &cellSpurs) }},
         { 0x4a5eab63, { "cellSpursWorkloadAttributeSetName",                std::bind(&CellSpurs::cellSpursWorkloadAttributeSetName, &cellSpurs) }},
         { 0x4a6465e3, { "cellSpursCreateTaskset2",                          std::bind(&CellSpurs::cellSpursCreateTaskset2, &cellSpurs) }},
+        { 0x4ac7bae4, { "cellSpursEventFlagClear",                          std::bind(&CellSpurs::cellSpursEventFlagClear, &cellSpurs) }},
         { 0x52cc6c82, { "cellSpursCreateTaskset",                           std::bind(&CellSpurs::cellSpursCreateTaskset, &cellSpurs) }},
         { 0x5ef96465, { "_cellSpursEventFlagInitialize",                    std::bind(&CellSpurs::_cellSpursEventFlagInitialize, &cellSpurs) }},
         { 0x652b70e2, { "cellSpursTasksetAttributeSetName",                 std::bind(&CellSpurs::cellSpursTasksetAttributeSetName, &cellSpurs) }},
         { 0x82275c1c, { "cellSpursAttributeSetMemoryContainerForSpuThread", std::bind(&CellSpurs::cellSpursAttributeSetMemoryContainerForSpuThread, &cellSpurs) }},
         { 0x87630976, { "cellSpursEventFlagAttachLv2EventQueue",            std::bind(&CellSpurs::cellSpursEventFlagAttachLv2EventQueue, &cellSpurs) }},
+        { 0x8a85674d, { "_cellSpursLFQueuePushBody",                        std::bind(&CellSpurs::_cellSpursLFQueuePushBody, &cellSpurs) }},
         { 0x95180230, { "_cellSpursAttributeInitialize",                    std::bind(&CellSpurs::_cellSpursAttributeInitialize, &cellSpurs) }},
         { 0x9dcbcb5d, { "cellSpursAttributeEnableSystemWorkload",           std::bind(&CellSpurs::cellSpursAttributeEnableSystemWorkload, &cellSpurs) }},
         { 0xa73bf47e, { "_cellSpursWorkloadFlagReceiver",                   std::bind(&CellSpurs::_cellSpursWorkloadFlagReceiver, &cellSpurs) }},
@@ -202,7 +205,9 @@ public:
         { 0x7de6dced, { "cellFsStat",                                       std::bind(&CellFs::cellFsStat, &cellFs) }},
         { 0xa397d042, { "cellFsLseek",                                      std::bind(&CellFs::cellFsLseek, &cellFs) }},
         { 0xb1840b53, { "cellFsSdataOpen",                                  std::bind(&CellFs::cellFsSdataOpen, &cellFs) }},
+        { 0xba901fe6, { "cellFsMkdir",                                      std::bind(&CellFs::cellFsMkdir, &cellFs) }},
         { 0xef3efa34, { "cellFsFstat",                                      std::bind(&CellFs::cellFsFstat, &cellFs) }},
+        { 0xff42dcc3, { "cellFsClosedir",                                   std::bind(&CellFs::cellFsClosedir, &cellFs) }},
 
         { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
         { 0x4692ab35, { "cellAudioOutConfigure",                            std::bind(&ModuleManager::stub, this) }},
@@ -294,10 +299,14 @@ public:
         { 0x5c832bd7, { "cellUsbdSetThreadPriority2",                       std::bind(&ModuleManager::stub, this) } },
         { 0xd0e766fe, { "cellUsbdInit",                                     std::bind(&ModuleManager::stub, this) } },
         
+        { 0x571afaca, { "cellSslCertificateLoader",                         std::bind(&CellSsl::cellSslCertificateLoader, &cellSsl) } },
+        
         { 0x45fe2fce, { "_sys_spu_printf_initialize",                       std::bind(&ModuleManager::stub, this) } },
         { 0xebe5f72f, { "sys_spu_image_import",                             std::bind(&SysPrxForUser::sys_spu_image_import, &sysPrxForUser) } },
 
         { 0xe0998dbf, { "sys_prx_get_module_id_by_name",                    std::bind(&ModuleManager::stub, this) } },
+        
+        { 0xb48636c4, { "sys_net_show_ifconfig",                            std::bind(&ModuleManager::stub, this) } },
         
         { 0x05893e7c, { "cellUserTraceRegister",                            std::bind(&ModuleManager::stub, this) } },
     };
@@ -324,6 +333,7 @@ public:
     CellSaveData cellSaveData;
     CellPad cellPad;
     CellKb cellKb;
+    CellSsl cellSsl;
 
     u64 stub();
 
