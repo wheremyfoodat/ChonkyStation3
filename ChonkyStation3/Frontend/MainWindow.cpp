@@ -30,7 +30,7 @@ MainWindow::MainWindow() : QMainWindow() {
     ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.tableWidget->setHorizontalHeaderLabels(QStringList({ "Icon", "Title", "ID", "Version"}));
 
-    connect(ui.tableWidget, &QTableWidget::cellDoubleClicked, this, [=, this](int row, int column) {
+    connect(ui.tableWidget, &QTableWidget::cellDoubleClicked, this, [this](int row, int column) {
         loadAndLaunchGame(row);
     });
 

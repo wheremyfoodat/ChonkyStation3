@@ -17,6 +17,12 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     }
 }
 
+PlayStation3::~PlayStation3() {
+    // Free memory
+    for (auto& i : mem.regions)
+        free(i->mem);
+}
+
 void PlayStation3::gameSelector() {
     // Find installed games
     GameLoader game_loader = GameLoader(this);  // Requires dev_hdd0 to be mounted

@@ -26,6 +26,7 @@
 class PlayStation3 {
 public:
     PlayStation3(const fs::path& executable = "");
+    ~PlayStation3();
     Memory mem = Memory();
     PPU* ppu;
     RSX rsx;
