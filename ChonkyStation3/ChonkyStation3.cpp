@@ -26,7 +26,9 @@ int main(int argc, char** argv) {
     QCoreApplication::addLibraryPath("./Qt6");
     QApplication app(argc, argv);
     MainWindow main_window = MainWindow();
-    return app.exec();
+    int ret = app.exec();
+    main_window.onExit();
+    return ret;
 #else
 
     fs::path file = "";

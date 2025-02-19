@@ -11,5 +11,6 @@
 
 class GameWindow {
 public:
+    GameWindow();
     void run(PlayStation3* ps3);
 };

@@ -3,9 +3,9 @@
 
 
 //#define PRINT_DEBUG_SYMBOLS
-#define TRACK_CALL_STACK
+//#define TRACK_CALL_STACK
 //#define TRACK_STATE
-#define ENABLE_CONDITIONAL_TRACE_LOG
+//#define ENABLE_CONDITIONAL_TRACE_LOG
 
 PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
     // Generate a rotation mask array - this code is adapted from RPCS3

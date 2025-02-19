@@ -2,29 +2,137 @@
 
 MainWindow::MainWindow() : QMainWindow() {
     ps3 = new PlayStation3();
+    game_loader = new GameLoader(ps3);
+    game_window = new GameWindow();
 
-    Ui::Main ui;
     ui.setupUi(this);
 
     // Setup menubar buttons
     connect(ui.actionOpen_ELF, &QAction::triggered, this, &MainWindow::launchELF);
+
+    int row = 0;
+    int column = 0;
+
+    // Setup the table widget
+    ui.tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui.tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui.tableWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    ui.tableWidget->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    ui.tableWidget->setRowCount(game_loader->games.size());
+    ui.tableWidget->setColumnCount(4);
+    for (int i = 0; i < ui.tableWidget->rowCount(); i++)
+        ui.tableWidget->setRowHeight(i, 60);
+    ui.tableWidget->setColumnWidth(0, 100);
+    ui.tableWidget->setColumnWidth(1, 3000);
+    ui.tableWidget->setColumnWidth(2, 100);
+    ui.tableWidget->setColumnWidth(3, 100);
+    ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui.tableWidget->setHorizontalHeaderLabels(QStringList({ "Icon", "Title", "ID", "Version"}));
+
+    connect(ui.tableWidget, &QTableWidget::cellDoubleClicked, this, [=, this](int row, int column) {
+        loadAndLaunchGame(row);
+    });
+
+    // Populate table
+    for (int i = 0; i < game_loader->games.size(); i++) {
+        setListIcon(i, ps3->fs.guestPathToHost(game_loader->games[i].content_path / "ICON0.PNG"));
+        setListItem(i, 1, game_loader->games[i].title);
+        setListItem(i, 2, game_loader->games[i].id);
+        if (game_loader->games[i].sfo.strings.contains("VERSION"))
+            setListItem(i, 3, (char*)game_loader->games[i].sfo.strings["VERSION"].c_str());
+        else
+            setListItem(i, 3, "Unknown");
+    }
 
     resize(1280, 720);
     setWindowTitle("ChonkyStation3");
     show();
 }
 
-int MainWindow::run(int argc, char** argv) {
+void MainWindow::setListItem(int row, int column, std::string str) {
+    QTableWidgetItem* item = new QTableWidgetItem();
+    QWidget* widget = new QWidget(this);
+    QVBoxLayout* layout = new QVBoxLayout(widget);
+    QLabel* label = new QLabel(widget);
+
+    layout->setAlignment(Qt::AlignVCenter);
+    label->setStyleSheet("color: white; font-size: 16px;");
+
+    label->setText(QString::fromStdString(str));
+    layout->addWidget(label);
+    widget->setLayout(layout);
+
+    ui.tableWidget->setItem(row, column, item);
+    ui.tableWidget->setCellWidget(row, column, widget);
+}
+
+void MainWindow::setListIcon(int row, fs::path icon) {
+    QTableWidgetItem* item = new QTableWidgetItem();
+    QWidget* widget = new QWidget(this);
+    QVBoxLayout* layout = new QVBoxLayout(widget);
+    QLabel* label = new QLabel(widget);
     
-    return 0;
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setAlignment(Qt::AlignCenter);
+    if (fs::exists(icon)) {
+        QImage image = QImage(QString::fromStdString(icon.generic_string())).scaled(100, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        label->setPixmap(QPixmap::fromImage(image));
+    }
+    else {
+        label->setText("No icon");
+    }
+
+    layout->addWidget(label);
+    widget->setLayout(layout);
+
+    ui.tableWidget->setItem(row, 0, item);
+    ui.tableWidget->setCellWidget(row, 0, widget);
+}
+
+bool MainWindow::ensureGameNotRunning() {
+    if (is_game_running) {
+        QMessageBox* dialog = new QMessageBox();
+        dialog->setText("Close the current game before launching a new one!");
+        dialog->exec();
+    }
+    return is_game_running;
 }
 
 void MainWindow::launchELF() {
+    if (ensureGameNotRunning()) return;
+
     const char* filters[1] = { "*.elf" };
     const char* path;
     if (path = tinyfd_openFileDialog("Select a Playstation 3 ELF", "", 1, filters, "ELF File", false)) {
         ps3->elf_path = path;
-        ps3->init();
-        game_thread = std::thread(&GameWindow::run, &game_window, ps3);
+        launchGame();
     }
+}
+
+void MainWindow::loadAndLaunchGame(int idx) {
+    if (ensureGameNotRunning()) return;
+    Helpers::debugAssert(idx < game_loader->games.size(), "MainWindow::launchGame: invalid idx");
+
+    ps3->loadGame(game_loader->games[idx]);
+    launchGame();
+}
+
+void MainWindow::launchGame() {
+    ps3->init();
+    game_thread = std::thread(&MainWindow::gameThread, this);
+    game_thread.detach();
+    is_game_running = true;
+}
+
+void MainWindow::gameThread() {
+    game_window->run(ps3);
+
+    is_game_running = false;
+    delete ps3;
+    ps3 = new PlayStation3();
+}
+
+void MainWindow::onExit() {
+
 }

@@ -51,6 +51,7 @@ public:
     bool force_scheduler_update = false;
 
     void gameSelector();
+    void loadGame(const GameLoader::InstalledGame& game);
     void init();
     void run();
     void step();

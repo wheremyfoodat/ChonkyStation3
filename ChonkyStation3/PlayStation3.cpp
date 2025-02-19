@@ -34,12 +34,16 @@ void PlayStation3::gameSelector() {
         std::cin >> idx;
     }
 
-    curr_game = game_loader.games[idx];
+    loadGame(game_loader.games[idx]);
+}
+
+void PlayStation3::loadGame(const GameLoader::InstalledGame& game) {
+    curr_game = game;
     // Tell cellGame the path of the game's contents
-    module_manager.cellGame.setContentPath(game_loader.games[idx].content_path);
+    module_manager.cellGame.setContentPath(game.content_path);
     // Get path of EBOOT.elf
-    elf_path = fs.guestPathToHost(game_loader.games[idx].content_path / "USRDIR/EBOOT.elf");
-    elf_path_encrypted = (game_loader.games[idx].content_path / "USRDIR/EBOOT.BIN").generic_string();
+    elf_path = fs.guestPathToHost(game.content_path / "USRDIR/EBOOT.elf");
+    elf_path_encrypted = (game.content_path / "USRDIR/EBOOT.BIN").generic_string();
 }
 
 void PlayStation3::init() {

@@ -2,14 +2,15 @@
 
 #include <common.hpp>
 
-#include "PlayStation3.hpp"
-
+#include <atomic>
 #include <thread>
 
 #include <tinyfiledialogs.h>
 #include <Frontend/GameWindow.hpp>
 #include "Frontend/UI/ui_mainwindow.h"
 #include <QtWidgets>
+#include "PlayStation3.hpp"
+#include <Loaders/Game/GameLoader.hpp>
 
 
 class MainWindow : public QMainWindow {
@@ -17,11 +18,25 @@ class MainWindow : public QMainWindow {
 
 public:
     MainWindow();
-    int run(int argc, char** argv);
+    Ui::Main ui;
 
+    void setListItem(int row, int column, std::string str);
+    void setListIcon(int row, fs::path icon);
+
+    std::atomic<bool> is_game_running = false;
+    bool ensureGameNotRunning();
+
+    // Actions
     void launchELF();
+    void loadAndLaunchGame(int idx);
+
+    // Exit callback
+    void onExit();
 
     PlayStation3* ps3;
-    GameWindow game_window;
+    GameLoader* game_loader;
+    GameWindow* game_window;
     std::thread game_thread;
+    void launchGame();
+    void gameThread();
 };

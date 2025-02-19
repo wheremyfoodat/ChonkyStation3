@@ -13,14 +13,16 @@ SDL_GameController* findController() {
     return nullptr;
 }
 
-void GameWindow::run(PlayStation3* ps3) {
+GameWindow::GameWindow() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
         Helpers::panic("Failed to initialize SDL\n");
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+}
 
+void GameWindow::run(PlayStation3* ps3) {
     std::string title = "ChonkyStation3";
     SDL_Window* window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_GLContext context = SDL_GL_CreateContext(window);
@@ -146,6 +148,8 @@ void GameWindow::run(PlayStation3* ps3) {
 
         SDL_GL_SwapWindow(window);
     }
-
+    
+    SDL_GL_DeleteContext(context);
+    SDL_DestroyWindow(window);
     return;
 }

@@ -11,6 +11,16 @@ void Filesystem::initialize() {
     // Create mount point directories if they don't exist
     for (auto& i : mounted_devices)
         fs::create_directories(i.second);
+
+    // Initialize directory structures
+    if (isDeviceMounted(Device::DEV_HDD0)) {
+        fs::create_directories(guestPathToHost("/dev_hdd0/game"));
+    }
+
+    if (isDeviceMounted(Device::DEV_FLASH)) {
+        fs::create_directories(guestPathToHost("/dev_flash/sys/external"));
+        fs::create_directories(guestPathToHost("/dev_flash/data/cert"));
+    }
 }
 
 u32 Filesystem::open(fs::path path) {
