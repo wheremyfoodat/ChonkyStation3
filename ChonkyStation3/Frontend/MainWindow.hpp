@@ -23,12 +23,14 @@ public:
     void setListItem(int row, int column, std::string str);
     void setListIcon(int row, fs::path icon);
 
+    int curr_selection = -1;
     std::atomic<bool> is_game_running = false;
     bool ensureGameNotRunning();
 
     // Actions
     void launchELF();
     void loadAndLaunchGame(int idx);
+    void updateBackgroundImage();
 
     // Exit callback
     void onExit();
@@ -39,4 +41,8 @@ public:
     std::thread game_thread;
     void launchGame();
     void gameThread();
+
+private:
+    // Overrides
+    void resizeEvent(QResizeEvent* event) override;
 };

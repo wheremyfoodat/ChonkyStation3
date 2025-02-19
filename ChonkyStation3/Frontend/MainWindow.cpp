@@ -30,7 +30,13 @@ MainWindow::MainWindow() : QMainWindow() {
     ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.tableWidget->setHorizontalHeaderLabels(QStringList({ "Icon", "Title", "ID", "Version"}));
 
+    connect(ui.tableWidget, &QTableWidget::cellClicked, this, [this](int row, int column) {
+        curr_selection = row;
+        updateBackgroundImage();
+    });
+    
     connect(ui.tableWidget, &QTableWidget::cellDoubleClicked, this, [this](int row, int column) {
+        curr_selection = row;
         loadAndLaunchGame(row);
     });
 
@@ -44,6 +50,10 @@ MainWindow::MainWindow() : QMainWindow() {
         else
             setListItem(i, 3, "Unknown");
     }
+
+    QPalette palette;
+    palette.setColor(QPalette::Highlight, QColor(0, 0, 0, 0));
+    setPalette(palette);
 
     resize(1280, 720);
     setWindowTitle("ChonkyStation3");
@@ -112,10 +122,32 @@ void MainWindow::launchELF() {
 
 void MainWindow::loadAndLaunchGame(int idx) {
     if (ensureGameNotRunning()) return;
-    Helpers::debugAssert(idx < game_loader->games.size(), "MainWindow::launchGame: invalid idx");
+    Helpers::debugAssert(idx >= 0 && idx < game_loader->games.size(), "MainWindow::loadAndLaunchGame: invalid idx");
 
     ps3->loadGame(game_loader->games[idx]);
     launchGame();
+}
+
+void MainWindow::updateBackgroundImage() {
+    if (!game_loader) return;
+    if (curr_selection < 0 || curr_selection >= game_loader->games.size()) return;
+
+    fs::path local_content_path = ps3->fs.guestPathToHost(game_loader->games[curr_selection].content_path);
+    QPalette palette;
+    if (fs::exists(local_content_path / "PIC1.PNG")) {
+        fs::path image_path = local_content_path / "PIC1.PNG";
+        QImage image = QImage(QString::fromStdString(image_path.generic_string()));
+        QPixmap pix = QPixmap::fromImage(image).scaled(size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+        QPixmap final_pix = QPixmap(size());
+        final_pix.fill(Qt::transparent);
+        QPainter painter = QPainter(&final_pix);
+        painter.setOpacity(0.3);
+        painter.drawPixmap(0, 0, pix);
+        palette.setBrush(QPalette::Base, QBrush(final_pix));
+    }
+
+    palette.setColor(QPalette::Highlight, QColor(0, 0, 0, 0));
+    setPalette(palette);
 }
 
 void MainWindow::launchGame() {
@@ -133,6 +165,9 @@ void MainWindow::gameThread() {
     ps3 = new PlayStation3();
 }
 
-void MainWindow::onExit() {
+void MainWindow::onExit() {}
 
+void MainWindow::resizeEvent(QResizeEvent* event) {
+    QMainWindow::resizeEvent(event);
+    updateBackgroundImage();
 }
