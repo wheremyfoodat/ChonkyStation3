@@ -19,9 +19,9 @@ u64 CellFs::cellFsOpendir() {
 
     if (path == ".") return CELL_ENOENT;    // TODO: why?
     if (path == "/http-cache/") return CELL_ENOTMOUNTED;
-    if (path == "") return CELL_ENOENT; // TLOU does this - it's meant to happen
+    if (path == "") return CELL_ENOENT; // TLOU does this, it's meant to happen
 
-    const u32 file_id = ps3->fs.open(path);
+    const u32 file_id = ps3->fs.opendir(path);
     ps3->mem.write<u32>(file_id_ptr, file_id);
 
     if (file_id == 0) {
@@ -50,12 +50,12 @@ u64 CellFs::cellFsReaddir() {
     log("cellFsReaddir(file_id: %d, dirent_ptr: 0x%08x, bytes_read_ptr: 0x%08x)\n", file_id, dirent_ptr, bytes_read_ptr);
 
     CellFsDirent* dirent = (CellFsDirent*)ps3->mem.getPtr(dirent_ptr);
-    const std::string filename = ps3->fs.getFileFromID(file_id).path.filename().generic_string();
+    //const std::string filename = ps3->fs.getFileFromID(file_id).path.filename().generic_string();
 
-    dirent->type = ps3->fs.isDirectory(file_id) ? CELL_FS_TYPE_DIRECTORY : CELL_FS_TYPE_REGULAR;
-    std::memset(dirent->name, 0, 256);
-    std::memcpy(dirent->name, filename.c_str(), filename.length());
-    dirent->namelen = filename.length();
+    //dirent->type = ps3->fs.isDirectory(file_id) ? CELL_FS_TYPE_DIRECTORY : CELL_FS_TYPE_REGULAR;
+    //std::memset(dirent->name, 0, 256);
+    //std::memcpy(dirent->name, filename.c_str(), filename.length());
+    //dirent->namelen = filename.length();
 
     // TODO: stub
     dirent->type = 0;
@@ -92,10 +92,11 @@ u64 CellFs::cellFsStat() {
     const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
     logNoPrefix(" [path: %s]\n", path.c_str());
 
-    // Games might stat /dev_bdvd to check if the game was booted from disc
-    std::string device_str = std::next(fs::path(path).begin(), 1)->generic_string();
-    if (device_str == "dev_bdvd")
+    const auto device = ps3->fs.getDeviceFromPath(path);
+    if (!ps3->fs.isDeviceMounted(device)) {
+        log("Warning: device not mounted\n");
         return CELL_ENOTMOUNTED;
+    }
 
     if (!ps3->fs.exists(path))
         return CELL_ENOENT;
@@ -127,6 +128,17 @@ u64 CellFs::cellFsLseek() {
     return Result::CELL_OK;
 }
 
+u64 CellFs::cellFsGetFreeSize() {
+    const u32 path_ptr = ARG0;
+    const u32 block_size_ptr = ARG1;
+    const u64 block_cnt_ptr = ARG2;
+    const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
+    log("cellFsGetFreeSize(path_ptr: 0x%08x, block_size_ptr: 0x%08x, block_cnt_ptr: 0x%08x) [path: %s]\n", path_ptr, block_size_ptr, block_cnt_ptr, path.c_str());
+
+    // TODO
+    return Result::CELL_OK;
+}
+
 u64 CellFs::cellFsSdataOpen() {
     const u32 path_ptr = ARG0;
     const s32 flags = ARG1;
@@ -151,9 +163,10 @@ u64 CellFs::cellFsMkdir() {
     const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
     log("cellFsMkdir(path_ptr: 0x%08x, mode: %d) [path: %s]\n", path_ptr, mode, path.c_str());
 
-    // TODO
-    Helpers::debugAssert(path == "", "TODO: cellFsMkdir");
-    return Result::CELL_ENOENT;
+    if (path == "") return CELL_ENOENT; // TLOU does this, it's meant to happen
+    if (ps3->fs.mkdir(path)) return CELL_EEXIST;
+
+    return Result::CELL_OK;
 }
 
 u64 CellFs::cellFsFstat() {
@@ -179,6 +192,6 @@ u64 CellFs::cellFsClosedir() {
     log("cellFsClosedir(file_id: %d)\n", file_id);
 
     if ((s32)file_id <= 0) return Result::CELL_BADF;
-    ps3->fs.close(file_id);
+    ps3->fs.closedir(file_id);
     return Result::CELL_OK;
 }

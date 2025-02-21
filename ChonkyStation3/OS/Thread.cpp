@@ -31,7 +31,7 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, s32 prio, const u8* name, u32
     state.gprs[8] = tls_vaddr;
     state.gprs[9] = tls_filesize;
     state.gprs[10] = tls_memsize;
-    state.gprs[12] = PAGE_SIZE;
+    state.gprs[12] = 0x100000;  // malloc_pagesize  (TODO: Should this only be set for the main thread?)
 }
 
 void Thread::addArg(u64 arg) {

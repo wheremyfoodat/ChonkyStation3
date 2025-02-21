@@ -43,6 +43,11 @@ public:
     u64 sys_event_port_create();
     u64 sys_event_port_connect_local();
 
+    // sys_ppu_thread
+    u64 sys_ppu_thread_yield();
+    u64 sys_ppu_thread_get_priority();
+    u64 sys_ppu_thread_get_stack_information();
+
     // sys_semaphore
     u64 sys_semaphore_create();
     u64 sys_semaphore_wait();
@@ -58,6 +63,7 @@ public:
     u64 sys_cond_create();
 
     // sys_spu
+    u64 sys_raw_spu_create();
     u64 _sys_spu_image_import();
     u64 sys_spu_thread_group_join();
     u64 sys_spu_thread_group_connect_event_all_threads();

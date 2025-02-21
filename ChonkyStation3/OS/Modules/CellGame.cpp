@@ -100,8 +100,18 @@ u64 CellGame::cellGameBootCheck() {
 
     ps3->mem.write<u32>(type_ptr, CELL_GAME_GAMETYPE_HDD);
     ps3->mem.write<u32>(attrib_ptr, 0);
-    const std::string path = content_path + "\0\0";
-    std::memcpy(ps3->mem.getPtr(dir_ptr), path.c_str(), path.length() + 1);
+
+    if (dir_ptr) {
+        const std::string path = content_path + "\0\0";
+        std::memcpy(ps3->mem.getPtr(dir_ptr), path.c_str(), path.length() + 1);
+    }
+
+    if (size_ptr) {
+        CellGameContentSize* size = (CellGameContentSize*)ps3->mem.getPtr(size_ptr);
+        size->hdd_free = 1024 * 1024 * 1024;    // 1 GB
+        size->size = -1;
+        size->sys_size = 1024;  // ?
+    }
 
     return Result::CELL_OK;
 }

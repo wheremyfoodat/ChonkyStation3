@@ -75,6 +75,7 @@ public:
     u16 blend_sfactor_a = 0;
     u16 blend_dfactor_rgb = 0;
     u16 blend_dfactor_a = 0;
+    u32 vertex_shader_load_addr = 0;
 
     OpenGL::VertexArray vao;
     OpenGL::VertexBuffer vbo;

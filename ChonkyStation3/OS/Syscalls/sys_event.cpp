@@ -20,7 +20,10 @@ u64 Syscall::sys_event_queue_receive() {
     const u32 event_ptr = ARG1;
     const u64 timeout = ARG2;
     unimpl("sys_event_queue_receive(queue_id: %d, event_ptr: 0x%08x, timeout: %d) STUBBED\n", queue_id, event_ptr, timeout );
-    if (ps3->thread_manager.getCurrentThread()->name.contains("SPURS") || ps3->thread_manager.getCurrentThread()->name.contains("Spurs")) {
+    if (    ps3->thread_manager.getCurrentThread()->name.contains("SPURS")
+        ||  ps3->thread_manager.getCurrentThread()->name.contains("Spurs")
+        ||  ps3->thread_manager.getCurrentThread()->name == "faust_fl_PlatformScriptTimeout"
+       ) {
         ps3->thread_manager.getCurrentThread()->status = Thread::THREAD_STATUS::Sleeping;
         ps3->thread_manager.getCurrentThread()->reschedule();
     }

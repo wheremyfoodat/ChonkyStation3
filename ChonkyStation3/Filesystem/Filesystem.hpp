@@ -18,6 +18,18 @@ public:
         DEV_FLASH,
         DEV_HDD0,
         DEV_HDD1,
+        DEV_USB000,
+        DEV_USB001,
+        DEV_USB002,
+        DEV_USB003,
+        DEV_USB004,
+        DEV_USB005,
+        DEV_USB006,
+        DEV_USB007,
+        DEV_MS,
+        DEV_CF,
+        DEV_SD,
+        DEV_BDVD,
         APP_HOME,
         INVALID
     };
@@ -30,9 +42,12 @@ public:
     void mount(Device device, fs::path path);
     void initialize();
     u32 open(fs::path path);
+    u32 opendir(fs::path path);
     void close(u32 file_id);
+    void closedir(u32 file_id);
     u64 read(u32 file_id, u8* buf, u64 size);
     u64 seek(u32 file_id, s32 offs, u32 mode);
+    bool mkdir(fs::path path);
     u64 getFileSize(u32 file_id);
     u64 getFileSize(fs::path path);
     bool isDirectory(u32 file_id);
@@ -41,6 +56,7 @@ public:
     File& getFileFromID(u32 id);
     bool isDeviceMounted(Device device);
     fs::path guestPathToHost(fs::path path);
+    Device getDeviceFromPath(fs::path path);
     static std::string deviceToString(Device device);
     static Device stringToDevice(std::string device);
 

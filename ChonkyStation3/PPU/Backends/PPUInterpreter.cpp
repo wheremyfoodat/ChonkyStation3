@@ -5,7 +5,7 @@
 //#define PRINT_DEBUG_SYMBOLS
 //#define TRACK_CALL_STACK
 //#define TRACK_STATE
-//#define ENABLE_CONDITIONAL_TRACE_LOG
+#define ENABLE_CONDITIONAL_TRACE_LOG
 
 PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
     // Generate a rotation mask array - this code is adapted from RPCS3
@@ -1463,9 +1463,13 @@ void PPUInterpreter::divw(const Instruction& instr) {
     const s32 a = state.gprs[instr.ra];
     const s32 b = state.gprs[instr.rb];
     Helpers::debugAssert(!instr.oe, "divw: oe bit set\n");
-    Helpers::debugAssert(b != 0, "divw: division by 0 @ 0x%08x\n", (u32)state.pc);
-
-    state.gprs[instr.rt] = (u32)(a / b);
+    //Helpers::debugAssert(b != 0, "divw: division by 0 @ 0x%08x\n", (u32)state.pc);
+    if (b == 0) {
+        // This happens in Doom Classic
+        printf("WARNING: DIVW DIVISION BY 0!!!!!\n");
+        state.gprs[instr.rt] = 0;
+    } else
+        state.gprs[instr.rt] = (u32)(a / b);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
 }

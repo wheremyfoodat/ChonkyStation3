@@ -552,7 +552,8 @@ void RSX::runCommandList() {
         }
 
         case NV4097_SET_TRANSFORM_PROGRAM_LOAD: {
-            Helpers::debugAssert(args[1] == 0, "Set transform program load address: addr != 0 (0x%08x)\n", args[1]);
+            Helpers::debugAssert(args[0] == 0, "Set transform program load idx: %d\n", args[0]);
+            //Helpers::debugAssert(args[1] == 0, "Set transform program load address: addr != 0 (0x%08x)\n", args[1]);
             vertex_shader_data.clear();
             break;
         }

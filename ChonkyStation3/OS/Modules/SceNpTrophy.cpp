@@ -10,7 +10,14 @@ u64 SceNpTrophy::sceNpTrophyRegisterContext() {
     const u32 options = ARG4;
     log("sceNpTrophyRegisterContext(ctx: 0x%0x8, handle: 0x%08x, callback_ptr: 0x%08x, arg: 0x%08x, options: 0x%08x)\n", ctx, handle, callback_ptr, arg, options);
 
-    // TODO: call callback
+    // Call callback
+    const State old_state = ps3->ppu->state;
+    ps3->ppu->state.gprs[3] = 3;    // Installed
+    ps3->ppu->state.gprs[4] = 0;
+    ps3->ppu->state.gprs[5] = 0;
+    ps3->ppu->state.gprs[6] = arg;
+    ps3->ppu->runFunc(ps3->mem.read<u32>(callback_ptr), ps3->mem.read<u32>(callback_ptr + 4));
+    ps3->ppu->state = old_state;
 
     return Result::CELL_OK;
 }

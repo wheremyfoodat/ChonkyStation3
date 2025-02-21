@@ -23,7 +23,7 @@ u64 SysThread::sysPPUThreadCreate() {
         || thread->name == "SpuPrintfHandler"
         || thread->name == "soundmain"
         || thread->name == "SNKTrophy_Event_Thread"
-        || thread->name == "EE AudioLoop"
+        //|| thread->name == "mstream-update"
         //|| thread->name == "FMOD BGM status query thread"
         //|| thread->name == "FMOD libAudio event receive thread"
         //|| thread->name == "FMOD stream thread"

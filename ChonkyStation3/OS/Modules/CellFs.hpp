@@ -73,6 +73,7 @@ public:
     u64 cellFsOpen();
     u64 cellFsStat();
     u64 cellFsLseek();
+    u64 cellFsGetFreeSize();
     u64 cellFsSdataOpen();
     u64 cellFsMkdir();
     u64 cellFsFstat();

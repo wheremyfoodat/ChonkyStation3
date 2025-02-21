@@ -4,10 +4,13 @@
 PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable), interpreter(mem, this), rsx(this), syscall(this), module_manager(this), thread_manager(this), prx_manager(this), fs(this), lv2_obj(this, &handle_manager) {
     ppu = &interpreter;
     
+    module_manager.init();
+
     // Initialize filesystem
     fs.mount(Filesystem::Device::DEV_FLASH, "./Filesystem/dev_flash/");
     fs.mount(Filesystem::Device::DEV_HDD0, "./Filesystem/dev_hdd0/");
     fs.mount(Filesystem::Device::DEV_HDD1, "./Filesystem/dev_hdd1/");
+    fs.mount(Filesystem::Device::DEV_USB000, "./Filesystem/dev_usb000/");
     fs.mount(Filesystem::Device::APP_HOME, "./Filesystem/app_home/");
     fs.initialize();
 

@@ -102,6 +102,12 @@ public:
         { CELL_GAME_PARAMID_SOUND_FORMAT,             "SOUND_FORMAT"   },
     };
 
+    struct CellGameContentSize {    // All sizes are in KB
+        BEField<s32> hdd_free;
+        BEField<s32> size;
+        BEField<s32> sys_size;
+    };
+
     std::string content_path = "/dev_hdd0/game/STUB12345\0\0";
     void setContentPath(fs::path path);
 

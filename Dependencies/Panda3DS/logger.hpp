@@ -37,11 +37,12 @@ public:
 #ifdef CHONKYSTATION3_USER_BUILD
 #define true false
 #else
-#define true false
-//#define false true
+//#define true false
+#define false true
 #endif
 
 // Modules
+static Logger cellSysCache      = Logger<true> ("[Module ][cellSysCache  ] ");
 static Logger cellSsl           = Logger<true> ("[Module ][cellSsl       ] ");
 static Logger cellKb            = Logger<true> ("[Module ][cellKb        ] ");
 static Logger cellPad           = Logger<true> ("[Module ][cellPad       ] ");
@@ -66,8 +67,9 @@ static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
 // Syscalls
 static Logger sys_spu           = Logger<true> ("[Syscall][sys_spu       ] ");
 static Logger sys_semaphore     = Logger<true> ("[Syscall][sys_semaphore ] ");
+static Logger sys_ppu_thread    = Logger<true> ("[Syscall][sys_ppu_thread] ");
 static Logger sys_cond          = Logger<true> ("[Syscall][sys_cond      ] ");
-static Logger sys_mutex         = Logger<true> ("[Syscall][sys_mutex     ] ");
+static Logger sys_mutex         = Logger<0>    ("[Syscall][sys_mutex     ] ");
 static Logger sys_event         = Logger<true> ("[Syscall][sys_event     ] ");
 static Logger sys_memory        = Logger<true> ("[Syscall][sys_memory    ] ");
 static Logger sys_mmapper       = Logger<true> ("[Syscall][sys_mmapper   ] ");

@@ -4,6 +4,17 @@
 
 MAKE_LOG_FUNCTION(log, sys_spu);
 
+u64 Syscall::sys_raw_spu_create() {
+    const u32 id_ptr = ARG0;
+    const u32 attr_ptr = ARG1;
+    log("sys_raw_spu_create(id_ptr: 0x%08x, attr_ptr: 0x%08x) STUBBED\n", id_ptr, attr_ptr);
+
+    ps3->mem.write<u32>(id_ptr, 0);
+    ps3->mem.spu.alloc(SPU_MEM_SIZE);
+    
+    return Result::CELL_OK;
+}
+
 u64 Syscall::_sys_spu_image_import() {
     const u32 image_ptr = ARG0;
     const u32 src = ARG1;

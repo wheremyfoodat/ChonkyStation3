@@ -27,6 +27,7 @@ void PPU::runFunc(u32 addr, u32 toc, bool save_all_state) {
 
 void PPU::printState() {
     printf("pc:  0x%016llx\n", state.pc);
+    printf("lr:  0x%016llx\n", state.lr);
     printf("ctr: 0x%016llx\n", state.ctr);
     printf("cr:  0x%08x\n", state.cr.raw);
     for (int i = 0; i < 32; i++)
