@@ -109,6 +109,8 @@ public:
     u64 cellGcmSetTileInfo();
     u64 cellGcmInitDefaultFifoMode();
     u64 cellGcmSetGraphicsHandler();
+    u64 cellGcmSetTile();
+    u64 cellGcmSetZcull();
     u64 cellGcmUnmapIoAddress();
     u64 cellGcmSetFlip();
     u64 cellGcmGetConfiguration();

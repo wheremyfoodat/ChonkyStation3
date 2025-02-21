@@ -23,6 +23,7 @@ u64 SysThread::sysPPUThreadCreate() {
         || thread->name == "SpuPrintfHandler"
         || thread->name == "soundmain"
         || thread->name == "SNKTrophy_Event_Thread"
+        //|| thread->name == "Job Manager Event Handler"
         //|| thread->name == "mstream-update"
         //|| thread->name == "FMOD BGM status query thread"
         //|| thread->name == "FMOD libAudio event receive thread"
@@ -32,7 +33,7 @@ u64 SysThread::sysPPUThreadCreate() {
        )
         thread->status = Thread::THREAD_STATUS::Sleeping;
 
-    // TODO: For some reason rescheduling after creating a new thread breaks the Arkedo games (black screen)
+    // TODO: For some reason rescheduling after creating a new thread breaks the Arkedo games (black screen) (TODO: check if this still happens)
     //thread->reschedule();
     ps3->mem.write<u64>(thread_id_ptr, thread->id);
     return Result::CELL_OK;

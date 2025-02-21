@@ -84,7 +84,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
                     imports[addr] = nid;
                     log("* Imported function: 0x%08x @ 0x%08x \t[%s]\n", nid, addr, module_manager.getImportName(nid).c_str());
 
-                    StubPatcher::patch(addr, lle, ps3);
+                    StubPatcher::patch(addr, ps3->module_manager.isForcedHLE(nid) ? false : lle, ps3);
                 }
                 log("\n");
             }

@@ -42,6 +42,11 @@ std::string ModuleManager::getImportName(const u32 nid) {
         return import_map[nid].name;
 }
 
+bool ModuleManager::isForcedHLE(const u32 nid) {
+    if (!import_map.contains(nid)) return false;
+    else return import_map[nid].force_hle;
+}
+
 void ModuleManager::printReturnValue() {
     log("%s returned with 0x%08x\n", getImportName(last_lle_nid).c_str(), ps3->ppu->state.gprs[3]);
 }
@@ -57,7 +62,7 @@ void ModuleManager::init() {
         { 0xe6f2c1e7, { "sysProcessExit",                                   std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser) }},
         { 0x2c847572, { "sysProcessAtExitSpawn",                            std::bind(&SysPrxForUser::sysProcessAtExitSpawn, &sysPrxForUser) }},
         { 0x2d36462b, { "_sys_strlen",                                      std::bind(&SysPrxForUser::sysStrlen, &sysPrxForUser) }},
-        { 0x8461e528, { "sysGetSystemTime",                                 std::bind(&SysPrxForUser::sysGetSystemTime, &sysPrxForUser) }},
+        { 0x8461e528, { "sysGetSystemTime",                                 std::bind(&SysPrxForUser::sysGetSystemTime, &sysPrxForUser), true }},
         { 0x96328741, { "sysProcess_At_ExitSpawn",                          std::bind(&SysPrxForUser::sysProcess_At_ExitSpawn, &sysPrxForUser) }},
         { 0x5267cb35, { "sysSpinlockUnlock",                                std::bind(&SysPrxForUser::sysSpinlockUnlock, &sysPrxForUser) }},
         { 0x8c2bb498, { "sysSpinlockInitialize",                            std::bind(&SysPrxForUser::sysSpinlockInitialize, &sysPrxForUser) }},
@@ -72,16 +77,16 @@ void ModuleManager::init() {
         { 0x6bf66ea7, { "_sys_memcpy",                                      std::bind(&SysPrxForUser::sysMemcpy, &sysPrxForUser) }},
         { 0xfb5db080, { "_sys_memcmp",                                      std::bind(&SysPrxForUser::sysMemcmp, &sysPrxForUser) }},
 
-        { 0x1573dc3f, { "sysLwMutexLock",                                   std::bind(&SysLwMutex::sysLwMutexLock, &sysLwMutex) }},
-        { 0x1bc200f4, { "sysLwMutexUnlock",                                 std::bind(&SysLwMutex::sysLwMutexUnlock, &sysLwMutex) }},
-        { 0x2f85c0ef, { "sysLwMutexCreate",                                 std::bind(&SysLwMutex::sysLwMutexCreate, &sysLwMutex) }},
-        { 0xc3476d0c, { "sysLwMutexDestroy",                                std::bind(&SysLwMutex::sysLwMutexDestroy, &sysLwMutex) }},
+        { 0x1573dc3f, { "sysLwMutexLock",                                   std::bind(&SysLwMutex::sysLwMutexLock, &sysLwMutex), true }},
+        { 0x1bc200f4, { "sysLwMutexUnlock",                                 std::bind(&SysLwMutex::sysLwMutexUnlock, &sysLwMutex), true }},
+        { 0x2f85c0ef, { "sysLwMutexCreate",                                 std::bind(&SysLwMutex::sysLwMutexCreate, &sysLwMutex), true }},
+        { 0xc3476d0c, { "sysLwMutexDestroy",                                std::bind(&SysLwMutex::sysLwMutexDestroy, &sysLwMutex), true }},
 
-        { 0x24a1ea07, { "sysPPUThreadCreate",                               std::bind(&SysThread::sysPPUThreadCreate, &sysThread) }},
-        { 0x350d454e, { "sysPPUThreadGetID",                                std::bind(&SysThread::sysPPUThreadGetID, &sysThread) }},
-        { 0x744680a2, { "sysPPUThreadInitializeTLS",                        std::bind(&SysThread::sysPPUThreadInitializeTLS, &sysThread) }},
-        { 0xa3e3be68, { "sysPPUThreadOnce",                                 std::bind(&SysThread::sysPPUThreadOnce, &sysThread) }},
-        { 0xaff080a4, { "sysPPUThreadExit",                                 std::bind(&SysThread::sysPPUThreadExit, &sysThread) }},
+        { 0x24a1ea07, { "sysPPUThreadCreate",                               std::bind(&SysThread::sysPPUThreadCreate, &sysThread), true }},
+        { 0x350d454e, { "sysPPUThreadGetID",                                std::bind(&SysThread::sysPPUThreadGetID, &sysThread), true }},
+        { 0x744680a2, { "sysPPUThreadInitializeTLS",                        std::bind(&SysThread::sysPPUThreadInitializeTLS, &sysThread), true }},
+        { 0xa3e3be68, { "sysPPUThreadOnce",                                 std::bind(&SysThread::sysPPUThreadOnce, &sysThread), true }},
+        { 0xaff080a4, { "sysPPUThreadExit",                                 std::bind(&SysThread::sysPPUThreadExit, &sysThread), true }},
 
         { 0x409ad939, { "sysMMapperFreeMemory",                             std::bind(&SysMMapper::sysMMapperFreeMemory, &sysMMapper) }},
         { 0x4643ba6e, { "sysMMapperUnmapMemory",                            std::bind(&SysMMapper::sysMMapperUnmapMemory, &sysMMapper) }},
@@ -112,6 +117,8 @@ void ModuleManager::init() {
         { 0xbd100dbc, { "cellGcmSetTileInfo",                               std::bind(&CellGcmSys::cellGcmSetTileInfo, &cellGcmSys) }},
         { 0xcaabd992, { "cellGcmInitDefaultFifoMode",                       std::bind(&CellGcmSys::cellGcmInitDefaultFifoMode, &cellGcmSys) }},
         { 0xd01b570d, { "cellGcmSetGraphicsHandler",                        std::bind(&CellGcmSys::cellGcmSetGraphicsHandler, &cellGcmSys) }},
+        { 0xd0b1d189, { "cellGcmSetTile",                                   std::bind(&CellGcmSys::cellGcmSetTile, &cellGcmSys) }},
+        { 0xd34a420d, { "cellGcmSetZcull",                                  std::bind(&CellGcmSys::cellGcmSetZcull, &cellGcmSys) }},
         { 0xdb23e867, { "cellGcmUnmapIoAddress",                            std::bind(&CellGcmSys::cellGcmUnmapIoAddress, &cellGcmSys) }},
         { 0xdc09357e, { "cellGcmSetFlip",                                   std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
         { 0xe315a0b2, { "cellGcmGetConfiguration",                          std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
@@ -230,6 +237,7 @@ void ModuleManager::init() {
         { 0x8b72cda1, { "cellPadGetData",                                   std::bind(&CellPad::cellPadGetData, &cellPad)}},
         { 0xa703a51d, { "cellPadGetInfo2",                                  std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
         { 0x3aaad464, { "cellPadGetInfo",                                   std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},   // TODO: No idea if cellPadGetInfo is the same as cellPadGetInfo2?
+        { 0xf83f8182, { "cellPadSetPressMode",                              std::bind(&ModuleManager::stub, this) } },
 
         { 0x2f1774d5, { "cellKbGetInfo",                                    std::bind(&CellKb::cellKbGetInfo, &cellKb) }},
         { 0xff0a21b7, { "cellKbRead",                                       std::bind(&CellKb::cellKbRead, &cellKb) }},
@@ -240,6 +248,7 @@ void ModuleManager::init() {
         { 0x4885aa18, { "sceNpTerm",                                        std::bind(&ModuleManager::stub, this) }},
         { 0x52a6b523, { "sceNpManagerUnregisterCallback",                   std::bind(&ModuleManager::stub, this) }},
         { 0x5f2d9257, { "sceNpLookupInit",                                  std::bind(&ModuleManager::stub, this) }},
+        { 0x6ee62ed2, { "sceNpManagerGetContentRatingFlag",                 std::bind(&ModuleManager::stub, this) }},
         { 0x9851f805, { "sceNpScoreTerm",                                   std::bind(&ModuleManager::stub, this) }},
         { 0xa7bff757, { "sceNpManagerGetStatus",                            std::bind(&ModuleManager::stub, this) }},
         { 0xad218faf, { "sceNpDrmIsAvailable",                              std::bind(&ModuleManager::stub, this) }},
@@ -250,7 +259,9 @@ void ModuleManager::init() {
 
         { 0x41251f74, { "sceNp2Init",                                       std::bind(&ModuleManager::stub, this) }},
 
+        { 0x0ce13c6b, { "cellNetCtlAddHandler",                             std::bind(&ModuleManager::stub, this) }},
         { 0x105ee2cb, { "cellNetCtlTerm",                                   std::bind(&ModuleManager::stub, this) }},
+        { 0x1e585b5d, { "cellNetCtlGetInfo",                                std::bind(&ModuleManager::stub, this) }},
         { 0xbd5a59fc, { "cellNetCtlInit",                                   std::bind(&ModuleManager::stub, this) }},
 
         { 0x157d30c5, { "cellPngDecCreate",                                 std::bind(&CellPngDec::cellPngDecCreate, &cellPngDec) }},
@@ -274,10 +285,10 @@ void ModuleManager::init() {
         { 0x8b7ed64b, { "cellSaveDataAutoSave2",                            std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                            std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
 
-        { 0x2a6d9d51, { "sysLwCondWait",                                    std::bind(&SysLwCond::sysLwCondWait, &sysLwCond) } },
-        { 0xda0eb71a, { "sysLwCondCreate",                                  std::bind(&SysLwCond::sysLwCondCreate, &sysLwCond) } },
-        { 0xe9a1bd84, { "sysLwCondSignalAll",                               std::bind(&SysLwCond::sysLwCondSignalAll, &sysLwCond) } },
-        { 0xef87a695, { "sysLwCondSignal",                                  std::bind(&SysLwCond::sysLwCondSignal, &sysLwCond) } },
+        { 0x2a6d9d51, { "sysLwCondWait",                                    std::bind(&SysLwCond::sysLwCondWait, &sysLwCond), true } },
+        { 0xda0eb71a, { "sysLwCondCreate",                                  std::bind(&SysLwCond::sysLwCondCreate, &sysLwCond), true } },
+        { 0xe9a1bd84, { "sysLwCondSignalAll",                               std::bind(&SysLwCond::sysLwCondSignalAll, &sysLwCond), true } },
+        { 0xef87a695, { "sysLwCondSignal",                                  std::bind(&SysLwCond::sysLwCondSignal, &sysLwCond), true } },
 
         { 0x1f71ecbe, { "cellKbGetConfiguration",                           std::bind(&ModuleManager::stub, this) } },
         { 0x433f6ec0, { "cellKbInit",                                       std::bind(&ModuleManager::stub, this) } },
@@ -319,15 +330,21 @@ void ModuleManager::init() {
         { 0x571afaca, { "cellSslCertificateLoader",                         std::bind(&CellSsl::cellSslCertificateLoader, &cellSsl) } },
         
         { 0x1e7bff94, { "cellSysCacheMount",                                std::bind(&CellSysCache::cellSysCacheMount, &cellSysCache) } },
+        
+        { 0x7603d3db, { "cellMsgDialogOpen2",                               std::bind(&CellMsgDialog::cellMsgDialogOpen2, &cellMsgDialog) } },
 
         { 0x45fe2fce, { "_sys_spu_printf_initialize",                       std::bind(&ModuleManager::stub, this) } },
         { 0xdd0c1e09, { "_sys_spu_printf_attach_group",                     std::bind(&ModuleManager::stub, this) } },
-        { 0xebe5f72f, { "sys_spu_image_import",                             std::bind(&SysPrxForUser::sys_spu_image_import, &sysPrxForUser) } },
+        { 0xebe5f72f, { "sys_spu_image_import",                             std::bind(&SysPrxForUser::sys_spu_image_import, &sysPrxForUser), true } },
 
         { 0xe0998dbf, { "sys_prx_get_module_id_by_name",                    std::bind(&ModuleManager::stub, this) } },
 
         { 0xb48636c4, { "sys_net_show_ifconfig",                            std::bind(&ModuleManager::stub, this) } },
+        
+        { 0xe75c40f2, { "sys_process_get_paramsfo",                         std::bind(&ModuleManager::stub, this) } },
 
         { 0x05893e7c, { "cellUserTraceRegister",                            std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x2b761140, { "cellUserInfoGetStat",                              std::bind(&ModuleManager::stub, this) } },
     };
 }

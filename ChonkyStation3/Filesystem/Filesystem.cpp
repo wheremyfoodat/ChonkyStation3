@@ -112,6 +112,10 @@ bool Filesystem::isDeviceMounted(Filesystem::Device device) {
     return mounted_devices.contains(device);
 }
 
+bool Filesystem::isDeviceMounted(fs::path path) {
+    return mounted_devices.contains(getDeviceFromPath(path));
+}
+
 fs::path Filesystem::guestPathToHost(fs::path path) {
     const std::string path_str = path.generic_string();
     fs::path guest_path;
@@ -141,14 +145,17 @@ fs::path Filesystem::guestPathToHost(fs::path path) {
 
 Filesystem::Device Filesystem::getDeviceFromPath(fs::path path) {
     std::string device_str = std::next(path.begin(), 1)->generic_string();
-    Device device = stringToDevice(device_str);
-    if (device == Device::INVALID)
-        Helpers::panic("Path %s: device %s is not a valid device\n", path.generic_string().c_str(), device_str.c_str());
+    return stringToDevice(device_str);
+}
 
-    return device;
+bool Filesystem::isValidDevice(fs::path path) {
+    const auto device = getDeviceFromPath(path);
+    return device != Device::INVALID;
 }
 
 std::string Filesystem::deviceToString(Filesystem::Device device) {
+    if (device == Device::INVALID) Helpers::panic("deviceToString: invalid device\n");
+
     switch (device) {
     case Device::DEV_FLASH:     return "dev_flash";
     case Device::DEV_HDD0:      return "dev_hdd0";

@@ -165,7 +165,7 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
             const u32 addr = ps3->mem.read<u32>(module->addrs_ptr + i * sizeof(u32));
             ps3->module_manager.registerImport(addr, nid);
             log("* Imported function: 0x%08x @ 0x%08x \t[%s]\n", nid, addr, ps3->module_manager.getImportName(nid).c_str());
-            StubPatcher::patch(addr, lle, ps3);
+            StubPatcher::patch(addr, ps3->module_manager.isForcedHLE(nid) ? false : lle, ps3);
         }
 
         if (module->size)
@@ -173,8 +173,12 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
         else
             addr += sizeof(PRXModule);
     }
-
     log("\n");
+
+    if (path.filename() == "liblv2.prx") {
+        start_func = 0;
+    }
+
     return { Helpers::readString(lib->name), path.filename().generic_string(), lib->toc, start_func, stop_func };
 }
 

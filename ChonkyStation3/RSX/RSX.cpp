@@ -223,6 +223,7 @@ void RSX::runCommandList() {
     if (cmd_count <= 0) return;
 
     log("Executing commands (%d bytes)\n", cmd_count);
+    log("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
 
     // Execute while get < put
     // We increment get as we fetch data from the FIFO
@@ -251,7 +252,7 @@ void RSX::runCommandList() {
         for (int i = 0; i < argc; i++)
             args.push_back(fetch32());
 
-        if (command_names.contains(cmd_num))
+        if (command_names.contains(cmd_num) && cmd)
             log("%s\n", command_names[cmd_num].c_str());
 
         switch (cmd_num) {
@@ -607,10 +608,12 @@ void RSX::runCommandList() {
         }
 
         default:
-            if (command_names.contains(cmd & 0x3ffff))
-                log("Unimplemented RSX command %s\n", command_names[cmd_num].c_str());
-            else
-                log("Unimplemented RSX command 0x%08x (0x%08x)\n", cmd_num, cmd);
+            if (cmd) {  // Don't print NOPs
+                if (command_names.contains(cmd & 0x3ffff))
+                    log("Unimplemented RSX command %s\n", command_names[cmd_num].c_str());
+                else
+                    log("Unimplemented RSX command 0x%08x (0x%08x)\n", cmd_num, cmd);
+            }
         }
     }
 }

@@ -41,8 +41,10 @@ u64 CellSysutil::cellSysutilGetSystemParamInt() {
     case CELL_SYSUTIL_SYSTEMPARAM_ID_CAMERA_PLFREQ:                 val = CELL_SYSUTIL_CAMERA_PLFREQ_DISABLED;      break;
     case CELL_SYSUTIL_SYSTEMPARAM_ID_PAD_RUMBLE:                    val = CELL_SYSUTIL_PAD_RUMBLE_OFF;              break;
 
-    default:
-        Helpers::panic("Tried to get unimplemented system param int 0x%08x\n", param);
+    default: {
+        log("WARNING: Tried to get bad system param int 0x%08x\n", param);  // This happens in Resistance: Fall of Man
+        return CELL_SYSUTIL_ERROR_VALUE;
+    }
     }
 
     ps3->mem.write<u32>(val_ptr, val);

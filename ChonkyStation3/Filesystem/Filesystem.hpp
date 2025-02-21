@@ -55,8 +55,10 @@ public:
     bool exists(fs::path path);
     File& getFileFromID(u32 id);
     bool isDeviceMounted(Device device);
+    bool isDeviceMounted(fs::path path);
     fs::path guestPathToHost(fs::path path);
     Device getDeviceFromPath(fs::path path);
+    bool isValidDevice(fs::path path);
     static std::string deviceToString(Device device);
     static Device stringToDevice(std::string device);
 

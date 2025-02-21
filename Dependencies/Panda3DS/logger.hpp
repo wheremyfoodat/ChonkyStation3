@@ -42,6 +42,7 @@ public:
 #endif
 
 // Modules
+static Logger cellMsgDialog     = Logger<true> ("[Module ][cellMsgDialog ] ");
 static Logger cellSysCache      = Logger<true> ("[Module ][cellSysCache  ] ");
 static Logger cellSsl           = Logger<true> ("[Module ][cellSsl       ] ");
 static Logger cellKb            = Logger<true> ("[Module ][cellKb        ] ");

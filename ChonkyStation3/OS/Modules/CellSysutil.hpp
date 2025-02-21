@@ -12,6 +12,8 @@ class PlayStation3;
 
 using namespace CellTypes;
 
+static constexpr u32 CELL_SYSUTIL_ERROR_VALUE = 0x8002b102;
+
 class CellSysutil {
 public:
     CellSysutil(PlayStation3* ps3) : ps3(ps3) {

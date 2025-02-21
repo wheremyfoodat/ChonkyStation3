@@ -27,6 +27,8 @@ public:
     void todo(std::string name);
     // sys_mmapper
     u64 sys_mmapper_allocate_address();
+    u64 sys_mmapper_allocate_shared_memory();
+    u64 sys_mmapper_map_shared_memory();
     u64 sys_mmapper_search_and_map();
 
     // sys_memory
@@ -61,6 +63,8 @@ public:
 
     // sys_cond
     u64 sys_cond_create();
+    u64 sys_cond_wait();
+    u64 sys_cond_signal();
 
     // sys_spu
     u64 sys_raw_spu_create();

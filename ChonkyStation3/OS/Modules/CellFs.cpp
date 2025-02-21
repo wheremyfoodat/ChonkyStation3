@@ -18,8 +18,8 @@ u64 CellFs::cellFsOpendir() {
     log("cellFsOpendir(path_ptr: 0x%08x, file_id_ptr: 0x%08x) [path: %s]\n", path_ptr, file_id_ptr, path.c_str());
 
     if (path == ".") return CELL_ENOENT;    // TODO: why?
-    if (path == "/http-cache/") return CELL_ENOTMOUNTED;
     if (path == "") return CELL_ENOENT; // TLOU does this, it's meant to happen
+    if (path == "/http-cache/") return CELL_ENOTMOUNTED;
 
     const u32 file_id = ps3->fs.opendir(path);
     ps3->mem.write<u32>(file_id_ptr, file_id);
@@ -75,8 +75,10 @@ u64 CellFs::cellFsOpen() {
     const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
     log("cellFsOpen(path_ptr: 0x%08x, flags: %d, file_id_ptr: 0x%08x, arg_ptr: 0x%08x, size: %d) [path: %s]\n", path_ptr, flags, file_id_ptr, arg_ptr, size, path.c_str());
 
-    const u32 file_id = ps3->fs.open(path);
+    if (!ps3->fs.isValidDevice(path))   return CELL_ENOTMOUNTED;
+    if (!ps3->fs.isDeviceMounted(path)) return CELL_ENOTMOUNTED;
 
+    const u32 file_id = ps3->fs.open(path);
     if (file_id == 0) {
         return Result::CELL_ENOENT;
     }
@@ -104,8 +106,8 @@ u64 CellFs::cellFsStat() {
     CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
     bool is_dir = ps3->fs.isDirectory(path);
     stat->mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);
-    stat->uid = 1;
-    stat->gid = 1;
+    stat->uid = 0;
+    stat->gid = 0;
     stat->atime = 0;
     stat->mtime = 0;
     stat->ctime = 0;

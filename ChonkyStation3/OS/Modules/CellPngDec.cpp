@@ -61,7 +61,9 @@ u64 CellPngDec::cellPngDecDecodeData() {
 u64 CellPngDec::cellPngDecClose() {
     log("cellPngDecClose()\n");
 
-    fs::remove(curr_file);
+    // Delete temporary files
+    if (curr_src.src_sel == CellPngDecStreamSrcSel::CELL_PNGDEC_BUFFER)
+        fs::remove(curr_file);
     return Result::CELL_OK;
 }
 

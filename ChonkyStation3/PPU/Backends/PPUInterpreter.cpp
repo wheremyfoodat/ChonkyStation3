@@ -3,7 +3,7 @@
 
 
 //#define PRINT_DEBUG_SYMBOLS
-//#define TRACK_CALL_STACK
+#define TRACK_CALL_STACK
 //#define TRACK_STATE
 #define ENABLE_CONDITIONAL_TRACE_LOG
 

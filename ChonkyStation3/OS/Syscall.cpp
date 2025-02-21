@@ -79,6 +79,8 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 104:   ps3->ppu->state.gprs[3] = sys_mutex_unlock();                       break;
     case 105:   ps3->ppu->state.gprs[3] = sys_cond_create();                        break;
     case 106:   todo("sys_cond_destroy()");                                         break;
+    case 107:   ps3->ppu->state.gprs[3] = sys_cond_wait();                          break;
+    case 108:   ps3->ppu->state.gprs[3] = sys_cond_signal();                        break;
     //case 109:   todo("sys_cond_signal_all()");                                      break;
     case 114:   ps3->ppu->state.gprs[3] = sys_semaphore_get_value();                break;
     case 120:   todo("sys_rwlock_create()");                                        break;
@@ -130,6 +132,8 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 330:   ps3->ppu->state.gprs[3] = sys_mmapper_allocate_address();                       break;
     case 324:   todo("sys_memory_container_create()");                                          break;
     case 331:   todo("sys_mmapper_free_address()");                                             break;
+    case 332:   ps3->ppu->state.gprs[3] = sys_mmapper_allocate_shared_memory();                 break;
+    case 334:   ps3->ppu->state.gprs[3] = sys_mmapper_map_shared_memory();                      break;
     case 337:   ps3->ppu->state.gprs[3] = sys_mmapper_search_and_map();                         break;
     case 341:   todo("sys_memory_container_create()");                                          break;
     case 348:   ps3->ppu->state.gprs[3] = sys_memory_allocate();                                break;
@@ -164,7 +168,11 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = Result::CELL_OK;
         break;
     }
-    case 486:   todo("_sys_prx_register_library()\n");                                  break;
+    case 486:   todo("_sys_prx_register_library()");                                    break;
+    case 494:   todo("_sys_prx_get_module_list()");                                     break;
+    case 496:   todo("_sys_prx_get_module_id_by_name()");                               break;
+    case 630:   todo("sys_gpio_set()");                                                 break;
+    case 631:   todo("sys_gpio_get()");                                                 break;
     case 801:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsOpen();      break;
     case 802:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsRead();      break;
     case 804:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsClose();     break;

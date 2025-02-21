@@ -11,8 +11,10 @@ PRXManager::PRXManager(PlayStation3* ps3) : ps3(ps3) {
         //{ "cellFontFT",         "libfontFT.prx" },
         //{ "cell_FreeType2",     "libfreetype.prx" },
         //{ "cellSync",           "liblv2.prx" },
+        { "sysPrxForUser",      "liblv2.prx" },
         { "cellSpurs",          "libsre.prx" },
         { "cellKey2char",       "libkey2char.prx" },
+        { "cellL10n",           "libl10n.prx" },
     };
 }
 

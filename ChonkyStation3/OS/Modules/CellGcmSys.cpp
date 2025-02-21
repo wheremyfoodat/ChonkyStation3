@@ -343,6 +343,8 @@ u64 CellGcmSys::cellGcmResetFlipStatus() {
 
 u64 CellGcmSys::cellGcmSetDefaultCommandBuffer() {
     log("cellGcmSetDefaultCommandBuffer()\n");
+
+    ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
     return Result::CELL_OK;
 }
 
@@ -370,6 +372,20 @@ u64 CellGcmSys::cellGcmInitDefaultFifoMode() {
 
 u64 CellGcmSys::cellGcmSetGraphicsHandler() {
     log("cellGcmSetGraphicsHandler() UNIMPLEMENTED\n");
+
+    // TODO
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetTile() {
+    log("cellGcmSetTile() UNIMPLEMENTED\n");
+
+    // TODO
+    return Result::CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmSetZcull() {
+    log("cellGcmSetZcull() UNIMPLEMENTED\n");
 
     // TODO
     return Result::CELL_OK;
