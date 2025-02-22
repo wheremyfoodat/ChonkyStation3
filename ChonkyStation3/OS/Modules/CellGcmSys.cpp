@@ -138,6 +138,10 @@ bool CellGcmSys::isIoOffsMapped(u32 io) {
 
 u64 CellGcmSys::_cellGcmSetFlipCommand() {
     log("_cellGcmSetFlipCommand()\n");
+
+    if (ctx->current + 2 >= ctx->end) cellGcmCallback();
+
+    ps3->flip();    // TODO: this is wrong, but it works for now. (I should flip at the end of the current RSX command buffer)
     return Result::CELL_OK;
 }
 
@@ -329,6 +333,8 @@ u64 CellGcmSys::cellGcmGetControlRegister() {
 u64 CellGcmSys::cellGcmSetVBlankHandler() {
     const u32 handler_ptr = ARG0;
     log("cellGcmSetVBlankHandler(handler_ptr: 0x%08x)\n", handler_ptr);
+
+    vblank_handler = handler_ptr;
 
     return Result::CELL_OK;
 }

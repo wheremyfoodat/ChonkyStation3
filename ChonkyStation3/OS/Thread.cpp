@@ -119,8 +119,20 @@ void Thread::wakeUp() {
     log("Woke up thread %d \"%s\"\n", id, name.c_str());
 }
 
-void Thread::exit() {
+void Thread::join(u32 id, u32 vptr) {
+    waiter = id;
+    this->vptr = vptr;
+    reschedule();
+}
+
+void Thread::exit(u64 exit_status) {
     status = THREAD_STATUS::Terminated;
     reschedule();
-    log("Thread %d exited\n", id);
+    log("Thread %d \"%s\" exited with status %d\n", id, name.c_str(), exit_status);
+
+    // Wake up thread waiting to join this thread
+    if (waiter) {
+        mgr->getThreadByID(waiter)->wakeUp();
+        mgr->ps3->mem.write<u64>(vptr, exit_status);
+    }
 }

@@ -79,6 +79,7 @@ public:
     u32 buffer_info_addr = 0;
     u32 flip = 0;
     u32 flip_callback = 0;
+    u32 vblank_handler = 0;
 
     void mapEaIo(u32 ea, u32 io);
     void unmapEaIo(u32 ea, u32 io);

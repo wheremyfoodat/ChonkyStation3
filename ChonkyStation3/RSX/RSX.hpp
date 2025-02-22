@@ -76,6 +76,9 @@ public:
     u16 blend_dfactor_rgb = 0;
     u16 blend_dfactor_a = 0;
     u32 vertex_shader_load_addr = 0;
+    
+
+    bool has_immadiate_data = false;
 
     OpenGL::VertexArray vao;
     OpenGL::VertexBuffer vbo;
@@ -152,8 +155,11 @@ public:
     void getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start = 0);
     void uploadVertexConstants();
     void uploadFragmentUniforms();
+    void uploadTexture();
     GLuint getTexturePixelFormat(u8 fmt);
     GLuint getTextureInternalFormat(u8 fmt);
+    bool isCompressedFormat(u8 fmt);
+    size_t getCompressedTextureSize(u8 fmt, u32 width, u32 height);
     GLuint getPrimitive(u32 prim);
 
     enum CellGcmTexture : u32 {
@@ -367,7 +373,7 @@ public:
         NV4097_SET_POLY_SMOOTH_ENABLE                           = 0x00001838,
         NV4097_SET_CULL_FACE_ENABLE                             = 0x0000183c,
         NV4097_SET_TEXTURE_CONTROL3                             = 0x00001840,
-        NV4097_SET_VERTEX_DATA2F_M                              = 0x00001880,
+        NV4097_SET_VERTEX_DATA2F_M                              = 0x00001880,   // I
         NV4097_SET_VERTEX_DATA2S_M                              = 0x00001900,
         NV4097_SET_VERTEX_DATA4UB_M                             = 0x00001940,
         NV4097_SET_VERTEX_DATA4S_M                              = 0x00001980,

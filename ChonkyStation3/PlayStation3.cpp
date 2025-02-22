@@ -132,9 +132,16 @@ void PlayStation3::flip() {
     if (module_manager.cellGcmSys.flip_callback) {
         u32 old_r3 = ppu->state.gprs[3];
         ppu->state.gprs[3] = 1; // Callback function is always called with 1 as first argument
-        //ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.flip_callback), mem.read<u32>(module_manager.cellGcmSys.flip_callback + 4));
+        ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.flip_callback), mem.read<u32>(module_manager.cellGcmSys.flip_callback + 4));
+    }
+    if (module_manager.cellGcmSys.vblank_handler) {
+        u32 old_r3 = ppu->state.gprs[3];
+        ppu->state.gprs[3] = 1; // Handler function is always called with 1 as first argument
+        ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.vblank_handler), mem.read<u32>(module_manager.cellGcmSys.vblank_handler + 4));
         ppu->state.gprs[3] = old_r3;
     }
+    mem.write<u64>(module_manager.cellGcmSys.label_addr + 0x10, 0);
+    mem.write<u64>(module_manager.cellGcmSys.label_addr + 0x10 + 8, 0);
 }
 
 void PlayStation3::skipToNextEvent() {

@@ -47,6 +47,7 @@ public:
 
     // sys_ppu_thread
     u64 sys_ppu_thread_yield();
+    u64 sys_ppu_thread_join();
     u64 sys_ppu_thread_get_priority();
     u64 sys_ppu_thread_get_stack_information();
 

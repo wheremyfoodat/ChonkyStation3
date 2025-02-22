@@ -42,6 +42,8 @@ uniform sampler2D tex;
         log("%s (0x%08x)\n", fragment_opcodes[opc].c_str(), opc);
         
         if (opc == RSXFragment::NOP) continue;
+        if (opc == RSXFragment::FENCT) continue;
+        if (opc == RSXFragment::FENCB) continue;
 
         int num_lanes;
         const auto mask_str = mask(instr, num_lanes);
@@ -70,12 +72,24 @@ uniform sampler2D tex;
             decompiled_src = std::format("vec4(dot(vec3({}), vec3({})))", source(instr, 0), source(instr, 1));
             break;
         }
+        case RSXFragment::DP4: {
+            decompiled_src = std::format("vec4(dot({}, {}))", source(instr, 0), source(instr, 1));
+            break;
+        }
         case RSXFragment::MAX: {
             decompiled_src = std::format("max({}, {})", source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::SLE: {
             decompiled_src = std::format("vec4(lessThanEqual({}, {}))", source(instr, 0), source(instr, 1));
+            break;
+        }
+        case RSXFragment::DDX: {
+            decompiled_src = std::format("dFdx({})", source(instr, 0));
+            break;
+        }
+        case RSXFragment::DDY: {
+            decompiled_src = std::format("dFdy({})", source(instr, 0));
             break;
         }
         case RSXFragment::TEX: {
@@ -88,6 +102,10 @@ uniform sampler2D tex;
         }
         case RSXFragment::LG2: {
             decompiled_src = std::format("vec4(log2({}.x))", source(instr, 0));
+            break;
+        }
+        case RSXFragment::DP2: {
+            decompiled_src = std::format("vec4(dot(vec2({}), vec2({})))", source(instr, 0), source(instr, 1));
             break;
         }
         case RSXFragment::NRM: {

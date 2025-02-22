@@ -84,7 +84,7 @@ u64 SysThread::sysPPUThreadExit() {
     const u64 ret_val = ARG0;
     log("sysPPUThreadExit(%d)\n", ret_val);
 
-    ps3->thread_manager.getCurrentThread()->exit();
+    ps3->thread_manager.getCurrentThread()->exit(ret_val);
     return Result::CELL_OK;
 }
 

@@ -232,6 +232,7 @@ void ModuleManager::init() {
         { 0xe5e2b09d, { "cellAudioOutGetNumberOfDevice",                    std::bind(&ModuleManager::stub, this) }},
         { 0xf4e3caa0, { "cellAudioOutGetState",                             std::bind(&ModuleManager::stub, this) }},
 
+        { 0x0d5f2c14, { "cellPadClearBuf",                                  std::bind(&ModuleManager::stub, this) } },
         { 0x1cf98800, { "cellPadInit",                                      std::bind(&CellPad::cellPadInit, &cellPad) }},
         { 0x578e3c98, { "cellPadSetPortSetting",                            std::bind(&ModuleManager::stub, this) }},
         { 0x8b72cda1, { "cellPadGetData",                                   std::bind(&CellPad::cellPadGetData, &cellPad)}},

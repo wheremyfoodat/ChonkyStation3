@@ -54,6 +54,12 @@ vec4 r[16];
             main += std::format("{}{} = ({} * {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
             break;
         }
+        case RSXVertex::VECTOR::ADD: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            main += std::format("{}{} = ({} + {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            break;
+        }
         case RSXVertex::VECTOR::MAD: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);

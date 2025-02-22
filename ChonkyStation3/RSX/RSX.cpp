@@ -64,7 +64,8 @@ void RSX::compileProgram() {
         std::vector<u32> required_constants;
         auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, required_constants);
         OpenGL::Shader new_shader;
-        new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex);
+        if(!new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex))
+            Helpers::panic("Failed to create vertex shader object");
         cache.cacheShader(hash_vertex, { new_shader, required_constants });
         vertex = new_shader;
     }
@@ -78,7 +79,8 @@ void RSX::compileProgram() {
         // Shader wasn't cached, compile it and add it to the cache
         auto fragment_shader = fragment_shader_decompiler.decompile(fragment_shader_program);
         OpenGL::Shader new_shader;
-        new_shader.create(fragment_shader, OpenGL::ShaderType::Fragment);
+        if(!new_shader.create(fragment_shader, OpenGL::ShaderType::Fragment))
+            Helpers::panic("Failed to create fragment shader object");;
         cache.cacheShader(hash_fragment, { new_shader, std::nullopt });
         fragment = new_shader;
     }
@@ -92,10 +94,19 @@ void RSX::compileProgram() {
         // Program wasn't cached, link it and add it to the cache
         OpenGL::Program new_program;
         new_program.create({ vertex, fragment });
-        // Texture samplers
-        glUniform1i(glGetUniformLocation(new_program.handle(), "tex"), 0);
-        cache.cacheProgram(hash_program, new_program);
         program = new_program;
+        program.use();
+
+        // Texture samplers
+        const int loc = glGetUniformLocation(program.handle(), "tex");
+        if (loc >= 0)
+            glUniform1i(loc, 0);
+
+        // Cache it
+        cache.cacheProgram(hash_program, new_program);
+    }
+    else {
+        program.use();
     }
 }
 
@@ -178,12 +189,53 @@ void RSX::uploadFragmentUniforms() {
     fragment_uniforms.clear();
 }
 
+void RSX::uploadTexture() {
+    // Texture cache
+    // Don't do anything if the current texture is the same as the last one
+    // TODO: This will break if a game uploads a different texture but with the same format, width and height to the same address as the previous texture.
+    // I'm unsure how common that is. Probably make this toggleable in the future in case some games break
+    if (texture == last_tex) {
+       return;
+    }
+
+    const u64 hash = cache.computeTextureHash(ps3->mem.getPtr(texture.addr), texture.width, texture.height, 4);    // TODO: don't hardcode
+    OpenGL::Texture cached_texture;
+    if (!cache.getTexture(hash, cached_texture)) {
+        const auto fmt = getTexturePixelFormat(texture.format);
+        const auto internal = getTextureInternalFormat(texture.format);
+
+        glGenTextures(1, &cached_texture.m_handle);
+        glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glActiveTexture(GL_TEXTURE0 + 0);
+
+        if (!isCompressedFormat(texture.format)) {
+            glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
+        }
+        else {
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, getCompressedTextureSize(texture.format, texture.width, texture.height), (void*)ps3->mem.getPtr(texture.addr));
+        }
+        cache.cacheTexture(hash, cached_texture);
+        //lodepng::encode(std::format("./{:08x}.png", texture.addr).c_str(), ps3->mem.getPtr(texture.addr), texture.width, texture.height);
+    }
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
+
+    last_tex = texture;
+}
+
 GLuint RSX::getTextureInternalFormat(u8 fmt) {
     switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
 
-    case CELL_GCM_TEXTURE_B8:       return GL_RED;
-    case CELL_GCM_TEXTURE_A8R8G8B8: return GL_RGBA;
-    case CELL_GCM_TEXTURE_D8R8G8B8: return GL_BGRA;
+    case CELL_GCM_TEXTURE_B8:               return GL_RED;
+    case CELL_GCM_TEXTURE_A8R8G8B8:         return GL_RGBA;
+    case CELL_GCM_TEXTURE_D8R8G8B8:         return GL_BGRA;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT1:  return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT23: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT45: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 
     default:
         Helpers::panic("Unimplemented texture format 0x%02x (0x%02x)\n", fmt, fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN));
@@ -193,12 +245,39 @@ GLuint RSX::getTextureInternalFormat(u8 fmt) {
 GLuint RSX::getTexturePixelFormat(u8 fmt) {
     switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
 
-    case CELL_GCM_TEXTURE_B8:       return GL_RED;
-    case CELL_GCM_TEXTURE_A8R8G8B8: return GL_RGBA;
-    case CELL_GCM_TEXTURE_D8R8G8B8: return GL_BGRA;
+    case CELL_GCM_TEXTURE_B8:               return GL_RED;
+    case CELL_GCM_TEXTURE_A8R8G8B8:         return GL_RGBA;
+    case CELL_GCM_TEXTURE_D8R8G8B8:         return GL_BGRA;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT1:  return GL_RGBA;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT23: return GL_RGBA;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT45: return GL_RGBA;
 
     default:
         Helpers::panic("Unimplemented texture format 0x%02x (0x%02x)\n", fmt, fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN));
+    }
+}
+
+bool RSX::isCompressedFormat(u8 fmt) {
+    switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
+
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT1:  return true;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT23: return true;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT45: return true;
+
+    default:
+        return false;
+    }
+}
+
+size_t RSX::getCompressedTextureSize(u8 fmt, u32 width, u32 height) {
+    switch (fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN)) {
+
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT1:  return ((width + 3) / 4) * ((height + 3) / 4) * 8;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT23: return ((width + 3) / 4) * ((height + 3) / 4) * 16;
+    case CELL_GCM_TEXTURE_COMPRESSED_DXT45: return ((width + 3) / 4) * ((height + 3) / 4) * 16;
+
+    default:
+        Helpers::panic("Tried to get compressed texture size of unimplemented format 0x%08x\n", fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN));
     }
 }
 
@@ -225,17 +304,12 @@ void RSX::runCommandList() {
     log("Executing commands (%d bytes)\n", cmd_count);
     log("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
 
-    // Execute while get < put
+    // Execute while get != put
     // We increment get as we fetch data from the FIFO
-    while (gcm.ctrl->get < gcm.ctrl->put) {
+    while (gcm.ctrl->get != gcm.ctrl->put) {
         u32 cmd = fetch32();
-        const auto cmd_num = cmd & 0x3ffff;
-        const auto argc = (cmd >> 18) & 0x7ff;
-        if (gcm.ctrl->get + (argc * 4) > gcm.ctrl->put) {
-            // Not enough data to collect arguments, return
-            gcm.ctrl->get = gcm.ctrl->get - 4;  // Decrement get and curr_cmd to point back to the command that failed
-            return;
-        }
+        auto cmd_num = cmd & 0x3ffff;
+        auto argc = (cmd >> 18) & 0x7ff;
 
         if (cmd & 0x20000000) { // jump
             gcm.ctrl->get = cmd & ~0x20000000;
@@ -253,7 +327,7 @@ void RSX::runCommandList() {
             args.push_back(fetch32());
 
         if (command_names.contains(cmd_num) && cmd)
-            log("%s\n", command_names[cmd_num].c_str());
+            log("0x%08x: %s\n", (u32)gcm.ctrl->get, command_names[cmd_num].c_str());
 
         switch (cmd_num) {
 
@@ -388,8 +462,6 @@ void RSX::runCommandList() {
 
         case NV4097_DRAW_ARRAYS: {
             compileProgram();
-            program.use();
-
             setupVAO();
             uploadVertexConstants();
             uploadFragmentUniforms();
@@ -408,8 +480,17 @@ void RSX::runCommandList() {
                         
             // Hack for quads
             if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
-                //if (n_vertices > 4) Helpers::panic("more than 4 vertices\n");
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
+                quad_index_array.clear();
+                for (int i = 0; i < n_vertices / 4; i++) {
+                    quad_index_array.push_back((i * 4) + 0);
+                    quad_index_array.push_back((i * 4) + 1);
+                    quad_index_array.push_back((i * 4) + 2);
+                    quad_index_array.push_back((i * 4) + 2);
+                    quad_index_array.push_back((i * 4) + 3);
+                    quad_index_array.push_back((i * 4) + 0);
+                }
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
                 glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
                 glDrawElements(getPrimitive(primitive), quad_index_array.size(), GL_UNSIGNED_INT, 0);
             }
@@ -433,7 +514,6 @@ void RSX::runCommandList() {
 
         case NV4097_DRAW_INDEX_ARRAY: {
             compileProgram();
-            program.use();
 
             std::vector<u32> indices;
             u32 highest_index = 0;
@@ -473,6 +553,28 @@ void RSX::runCommandList() {
             break;
         }
 
+        case NV4097_SET_VERTEX_DATA2F_M + 8:
+        case NV4097_SET_VERTEX_DATA2F_M + 16:
+        case NV4097_SET_VERTEX_DATA2F_M + 24:
+        case NV4097_SET_VERTEX_DATA2F_M + 32:
+        case NV4097_SET_VERTEX_DATA2F_M + 40:
+        case NV4097_SET_VERTEX_DATA2F_M + 48:
+        case NV4097_SET_VERTEX_DATA2F_M + 56:
+        case NV4097_SET_VERTEX_DATA2F_M + 64:
+        case NV4097_SET_VERTEX_DATA2F_M + 72:
+        case NV4097_SET_VERTEX_DATA2F_M + 80:
+        case NV4097_SET_VERTEX_DATA2F_M + 88:
+        case NV4097_SET_VERTEX_DATA2F_M + 96:
+        case NV4097_SET_VERTEX_DATA2F_M + 104:
+        case NV4097_SET_VERTEX_DATA2F_M + 112:
+        case NV4097_SET_VERTEX_DATA2F_M: {
+            const u32 idx = (cmd_num - NV4097_SET_VERTEX_DATA2F_M) >> 3;
+            const float x = reinterpret_cast<float&>(args[0]);
+            const float y = reinterpret_cast<float&>(args[1]);
+            log("Attribute %d: {%f, %f}\n", idx, x, y);
+            break;
+        }
+
         case NV4097_SET_TEXTURE_OFFSET: {
             const u32 offs = args[0];
             const u8 loc = (args[1] & 0x3) - 1;
@@ -484,6 +586,14 @@ void RSX::runCommandList() {
 
             texture.addr = addr;
             texture.format = format;
+
+            // TODO: Figure out what all the other arguments mean???????
+            if (args.size() >= 7) {
+                texture.width = args[6] >> 16;
+                texture.height = args[6] & 0xffff;
+                log("Width: %d, height: %d\n", texture.width, texture.height);
+                uploadTexture();
+            }
             break;
         }
 
@@ -494,36 +604,8 @@ void RSX::runCommandList() {
             
             texture.width = width;
             texture.height = height;
-
-            const auto fmt = getTexturePixelFormat(texture.format);
-            const auto internal = getTextureInternalFormat(texture.format);
             
-            // Texture cache
-            // Don't do anything if the current texture is the same as the last one
-            // TODO: This will break if a game uploads a different texture but with the same format, width and height to the same address as the previous texture.
-            // I'm unsure how common that is. Probably make this toggleable in the future in case some games break
-            if (texture == last_tex) {
-                break;
-            }
-
-            const u64 hash = cache.computeTextureHash(ps3->mem.getPtr(texture.addr), width, height, 4);    // TODO: don't hardcode
-            OpenGL::Texture cached_texture;
-            if (!cache.getTexture(hash, cached_texture)) {
-                glGenTextures(1, &cached_texture.m_handle);
-                glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glActiveTexture(GL_TEXTURE0 + 0);
-                glTexImage2D(GL_TEXTURE_2D, 0, fmt, width, height, 0, fmt, GL_UNSIGNED_BYTE, (void*)ps3->mem.getPtr(texture.addr));
-                cache.cacheTexture(hash, cached_texture);
-                //lodepng::encode("./texture.png", ps3->mem.getPtr(texture.addr), texture.width, texture.height);
-            }
-            glActiveTexture(GL_TEXTURE0 + 0);
-            glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
-
-            last_tex = texture;
+            uploadTexture();
             break;
         }
 
@@ -553,7 +635,7 @@ void RSX::runCommandList() {
         }
 
         case NV4097_SET_TRANSFORM_PROGRAM_LOAD: {
-            Helpers::debugAssert(args[0] == 0, "Set transform program load idx: %d\n", args[0]);
+            //Helpers::debugAssert(args[0] == 0, "Set transform program load idx: %d\n", args[0]);
             //Helpers::debugAssert(args[1] == 0, "Set transform program load address: addr != 0 (0x%08x)\n", args[1]);
             vertex_shader_data.clear();
             break;

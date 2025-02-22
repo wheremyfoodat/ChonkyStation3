@@ -61,6 +61,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
     case 30:    todo("_sys_process_get_paramsfo()");                                break;
     case 43:    ps3->ppu->state.gprs[3] = sys_ppu_thread_yield();                   break;
+    case 44:    ps3->ppu->state.gprs[3] = sys_ppu_thread_join();                    break;
     case 47:    todo("sys_ppu_thread_set_priority()");                              break;
     case 48:    ps3->ppu->state.gprs[3] = sys_ppu_thread_get_priority();            break;
     case 49:    ps3->ppu->state.gprs[3] = sys_ppu_thread_get_stack_information();   break;
