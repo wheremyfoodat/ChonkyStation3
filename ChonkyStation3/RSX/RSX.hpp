@@ -78,7 +78,7 @@ public:
     u32 vertex_shader_load_addr = 0;
     
 
-    bool has_immadiate_data = false;
+    bool has_immediate_data = false;
 
     OpenGL::VertexArray vao;
     OpenGL::VertexBuffer vbo;
@@ -91,27 +91,38 @@ public:
 
     void checkGLError();
 
+    struct AttributeBinding {
+        u8 index;
+        u8 stride;
+        u8 size;
+        u32 offset;
+        u8 type;
+
+        // Only used in immediate drawing for now
+        int n_verts = 0;    // Amount of vertices uploaded
+        std::vector<u8> data;
+
+        size_t sizeOfComponent() {
+            size_t size;
+            switch (type) {
+            case 2: size = sizeof(float);   break;
+            case 4: size = sizeof(u8);      break;
+            case 5: size = sizeof(s16);     break;
+            default:
+                Helpers::panic("Tried to get size of unimplemented vertex type %d\n", type);
+            }
+            return size;
+        }
+    };
+
+    class ImmediateDataArray {
+    public:
+        AttributeBinding bindings[15];
+    };
+    ImmediateDataArray immediate_data;
+
     class VertexArray {
     public:
-        struct AttributeBinding {
-            u8 index;
-            u8 stride;
-            u8 size;
-            u32 offset;
-            u8 type;
-
-            size_t sizeOfComponent() {
-                size_t size;
-                switch (type) {
-                case 2: size = sizeof(float);   break;
-                case 4: size = sizeof(u8);      break;
-                case 5: size = sizeof(s16);     break;
-                default:
-                    Helpers::panic("Tried to get size of unimplemented vertex type %d\n", type);
-                }
-                return size;
-            }
-        };
         std::vector<AttributeBinding> bindings;
         
         u32 getBase() {
@@ -142,7 +153,7 @@ public:
         }
     };
     VertexArray vertex_array;
-    VertexArray::AttributeBinding curr_binding;
+    AttributeBinding curr_binding;
 
     struct IndexArray {
         u32 addr;
@@ -266,7 +277,7 @@ public:
         NV4097_SET_WINDOW_CLIP_HORIZONTAL                       = 0x000002c0,
         NV4097_SET_WINDOW_CLIP_VERTICAL                         = 0x000002c4,
         NV4097_SET_DITHER_ENABLE                                = 0x00000300,
-        NV4097_SET_ALPHA_TEST_ENABLE                            = 0x00000304,
+        NV4097_SET_ALPHA_TEST_ENABLE                            = 0x00000304,   // I
         NV4097_SET_ALPHA_FUNC                                   = 0x00000308,
         NV4097_SET_ALPHA_REF                                    = 0x0000030c,
         NV4097_SET_BLEND_ENABLE                                 = 0x00000310,   // I
@@ -385,7 +396,7 @@ public:
         NV4097_SET_TEXTURE_FILTER                               = 0x00001a14,
         NV4097_SET_TEXTURE_IMAGE_RECT                           = 0x00001a18,   // I
         NV4097_SET_TEXTURE_BORDER_COLOR                         = 0x00001a1c,
-        NV4097_SET_VERTEX_DATA4F_M                              = 0x00001c00,
+        NV4097_SET_VERTEX_DATA4F_M                              = 0x00001c00,   // I
         NV4097_SET_COLOR_KEY_COLOR                              = 0x00001d00,
         NV4097_SET_SHADER_CONTROL                               = 0x00001d60,   // I
         NV4097_SET_INDEXED_CONSTANT_READ_LIMITS                 = 0x00001d64,

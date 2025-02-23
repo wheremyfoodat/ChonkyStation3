@@ -75,6 +75,7 @@ public:
     void vsldoi     (const Instruction& instr);
     void vmaddfp    (const Instruction& instr);
     void vnmsubfp   (const Instruction& instr);
+    void vadduhm    (const Instruction& instr);
     void vsubfp     (const Instruction& instr);
     void vadduwm    (const Instruction& instr);
     void vcmpequw   (const Instruction& instr);
@@ -85,15 +86,19 @@ public:
     void vslw       (const Instruction& instr);
     void vmrglw     (const Instruction& instr);
     void vcmpgefp   (const Instruction& instr);
+    void vcmpgtuh   (const Instruction& instr);
     void vsrw       (const Instruction& instr);
     void vcmpgtuw   (const Instruction& instr);
     void vspltw     (const Instruction& instr);
     void vcmpgtfp   (const Instruction& instr);
     void vcfsx      (const Instruction& instr);
+    void vspltish   (const Instruction& instr);
+    void vctuxs     (const Instruction& instr);
     void vspltisw   (const Instruction& instr);
     void vctsxs     (const Instruction& instr);
     void vand       (const Instruction& instr);
     void vmaxfp     (const Instruction& instr);
+    void vsubuhm    (const Instruction& instr);
     void vandc      (const Instruction& instr);
     void vminfp     (const Instruction& instr);
     void vsubuwm    (const Instruction& instr);
@@ -176,7 +181,9 @@ public:
     void srw        (const Instruction& instr);
     void srd        (const Instruction& instr);
     void lfdx       (const Instruction& instr);
+    void stvlx      (const Instruction& instr);
     void stfsx      (const Instruction& instr);
+    void stvrx      (const Instruction& instr);
     void stfdx      (const Instruction& instr);
     void lhbrx      (const Instruction& instr);
     void sraw       (const Instruction& instr);

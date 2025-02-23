@@ -350,6 +350,22 @@ void RSX::runCommandList() {
         }
 
         case NV406E_SEMAPHORE_ACQUIRE: {
+            const auto sema = ps3->mem.read<u32>(gcm.label_addr + semaphore_offset);
+            if (sema != args[0]) {
+                Helpers::panic("Could not acquire semaphore\n");
+            }
+            break;
+        }
+
+        case NV4097_SET_ALPHA_TEST_ENABLE: {
+            // TODO
+            if (args[0]) {
+                log("Enabled alpha test\n");
+            }
+            else {
+                log("Disabled alpha test\n");
+                OpenGL::disableBlend();
+            }
             break;
         }
 
@@ -451,12 +467,82 @@ void RSX::runCommandList() {
         }
 
         case NV4097_SET_BEGIN_END: {
-            primitive = args[0];
-            log("Primitive: 0x%0x\n", primitive);
+            const u32 prim = args[0];
+            log("Primitive: 0x%0x\n", prim);
 
-            if (primitive == 0) {   // End
+            if (prim == 0) {   // End
                 vertex_array.bindings.clear();
+                
+                // Immediate mode drawing
+                int n_verts = 0;
+                if (has_immediate_data) {
+                    // Construct vertex buffer from immediate data (this is slow)
+                    std::vector<u8> buffer;
+                    for (auto& binding : immediate_data.bindings) {
+                        if (binding.n_verts > 0) {    // Binding is active
+                            if (binding.n_verts > n_verts) n_verts = binding.n_verts;
+
+                            const u32 old_size = buffer.size();
+                            buffer.resize(old_size + binding.data.size());
+                            std::memcpy(&buffer[old_size], binding.data.data(), binding.data.size());
+
+                            // Setup VAO attribute
+                            switch (binding.type) {
+                            case 2:
+                                vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)old_size, false);
+                                break;
+                            case 4:
+                                vao.setAttributeFloat<GLubyte>(binding.index, binding.size, binding.stride, (void*)old_size, true);
+                                break;
+                            case 5:
+                                vao.setAttributeFloat<GLshort>(binding.index, binding.size, binding.stride, (void*)old_size, false);
+                                break;
+                            default:
+                                Helpers::panic("Unimplemented vertex attribute type %d\n", binding.type);
+                            }
+                            vao.enableAttribute(binding.index);
+                        }
+                    }
+
+                    compileProgram();
+                    uploadVertexConstants();
+                    uploadFragmentUniforms();
+
+                    /*for (auto& i : ps3->thread_manager.threads)
+                        i.status = Thread::THREAD_STATUS::Sleeping;
+
+                    ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);*/
+
+                    // Hack for quads
+                    if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
+                        quad_index_array.clear();
+                        for (int i = 0; i < n_verts / 4; i++) {
+                            quad_index_array.push_back((i * 4) + 0);
+                            quad_index_array.push_back((i * 4) + 1);
+                            quad_index_array.push_back((i * 4) + 2);
+                            quad_index_array.push_back((i * 4) + 2);
+                            quad_index_array.push_back((i * 4) + 3);
+                            quad_index_array.push_back((i * 4) + 0);
+                        }
+                        glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
+                        glBufferData(GL_ARRAY_BUFFER, buffer.size(), (void*)buffer.data(), GL_STATIC_DRAW);
+                        glDrawElements(getPrimitive(primitive), quad_index_array.size(), GL_UNSIGNED_INT, 0);
+                    }
+                    else {
+                        glBufferData(GL_ARRAY_BUFFER, buffer.size(), (void*)buffer.data(), GL_STATIC_DRAW);
+                        glDrawArrays(getPrimitive(primitive), 0, n_verts);
+                    }
+
+                    has_immediate_data = false;
+                    for (auto& i : immediate_data.bindings) {
+                        i.n_verts = 0;
+                        i.data.clear();
+                    }
+                }
             }
+
+            primitive = prim;
             break;
         }
 
@@ -572,6 +658,21 @@ void RSX::runCommandList() {
             const float x = reinterpret_cast<float&>(args[0]);
             const float y = reinterpret_cast<float&>(args[1]);
             log("Attribute %d: {%f, %f}\n", idx, x, y);
+
+            // TODO: Should probably check if it tries to upload different types of data to the same binding.
+            // That's not supposed to happen
+            immediate_data.bindings[idx].index = idx;
+            immediate_data.bindings[idx].type = 2;  // Float
+            immediate_data.bindings[idx].size = 2;  // Elements per vertex
+            immediate_data.bindings[idx].stride = 2 * sizeof(float);    // Stride
+            immediate_data.bindings[idx].n_verts++;
+            const u32 old_size = immediate_data.bindings[idx].data.size();
+            // Append new data to vector
+            immediate_data.bindings[idx].data.resize(old_size + sizeof(float) * 2);
+            reinterpret_cast<float&>(immediate_data.bindings[idx].data[old_size + 0 * sizeof(float)]) = x;
+            reinterpret_cast<float&>(immediate_data.bindings[idx].data[old_size + 1 * sizeof(float)]) = y;
+            // Set a flag indicating that immediate data has been uploaded
+            has_immediate_data = true;
             break;
         }
 
@@ -606,6 +707,47 @@ void RSX::runCommandList() {
             texture.height = height;
             
             uploadTexture();
+            break;
+        }
+
+        case NV4097_SET_VERTEX_DATA4F_M + 16:
+        case NV4097_SET_VERTEX_DATA4F_M + 32:
+        case NV4097_SET_VERTEX_DATA4F_M + 48:
+        case NV4097_SET_VERTEX_DATA4F_M + 64:
+        case NV4097_SET_VERTEX_DATA4F_M + 80:
+        case NV4097_SET_VERTEX_DATA4F_M + 96:
+        case NV4097_SET_VERTEX_DATA4F_M + 112:
+        case NV4097_SET_VERTEX_DATA4F_M + 128:
+        case NV4097_SET_VERTEX_DATA4F_M + 144:
+        case NV4097_SET_VERTEX_DATA4F_M + 160:
+        case NV4097_SET_VERTEX_DATA4F_M + 176:
+        case NV4097_SET_VERTEX_DATA4F_M + 192:
+        case NV4097_SET_VERTEX_DATA4F_M + 208:
+        case NV4097_SET_VERTEX_DATA4F_M + 224:
+        case NV4097_SET_VERTEX_DATA4F_M: {
+            const u32 idx = (cmd_num - NV4097_SET_VERTEX_DATA4F_M) >> 4;
+            const float x = reinterpret_cast<float&>(args[0]);
+            const float y = reinterpret_cast<float&>(args[1]);
+            const float z = reinterpret_cast<float&>(args[2]);
+            const float w = reinterpret_cast<float&>(args[3]);
+            log("Attribute %d: {%f, %f, %f, %f}\n", idx, x, y, z, w);
+
+            // TODO: Should probably check if it tries to upload different types of data to the same binding.
+            // That's not supposed to happen
+            immediate_data.bindings[idx].index = idx;
+            immediate_data.bindings[idx].type = 2;  // Float
+            immediate_data.bindings[idx].size = 4;  // Elements per vertex
+            immediate_data.bindings[idx].stride = 4 * sizeof(float);    // Stride
+            immediate_data.bindings[idx].n_verts++;
+            const u32 old_size = immediate_data.bindings[idx].data.size();
+            // Append new data to vector
+            immediate_data.bindings[idx].data.resize(old_size + sizeof(float) * 4);
+            reinterpret_cast<float&>(immediate_data.bindings[idx].data[old_size + 0 * sizeof(float)]) = x;
+            reinterpret_cast<float&>(immediate_data.bindings[idx].data[old_size + 1 * sizeof(float)]) = y;
+            reinterpret_cast<float&>(immediate_data.bindings[idx].data[old_size + 2 * sizeof(float)]) = z;
+            reinterpret_cast<float&>(immediate_data.bindings[idx].data[old_size + 3 * sizeof(float)]) = w;
+            // Set a flag indicating that immediate data has been uploaded
+            has_immediate_data = true;
             break;
         }
 

@@ -264,7 +264,7 @@ enum G_04Opcodes {
     VSLDOI          = 0x2c,
     VMADDFP         = 0x2e,     // Vector Multiply Add Floating-Point
     VNMSUBFP        = 0x2f,     // Vector Negative Multiply-Subtract Floating-Point
-    VADDUHM         = 0x40,
+    VADDUHM         = 0x40,     // Vector Add Unsigned Half Word Modulo
     VMAXUH          = 0x42,
     VRLH            = 0x44,
     VCMPEQUH        = 0x046,
@@ -318,7 +318,7 @@ enum G_04Opcodes {
     VADDUHS         = 0x240,
     VMINUH          = 0x242,
     VSRH            = 0x244,
-    VCMPGTUH        = 0x246,
+    VCMPGTUH        = 0x246,    // Vector Compare Greater-Than Unsigned Half Word
     VCMPGTUH_       = 0x646,
     VMULEUH         = 0x248,
     VRFIZ           = 0x24a,
@@ -353,14 +353,14 @@ enum G_04Opcodes {
     VCMPGTSH_       = 0x746,
     VMULESH         = 0x348,
     VCFSX           = 0x34a,    // Vector Convert from Signed Fixed-Point Word
-    VSPLTISH        = 0x34c,
+    VSPLTISH        = 0x34c,    // Vector Splat Immediate Signed Half Word
     VUPKHPX         = 0x34e,
     VADDSWS         = 0x380,
     VMINSW          = 0x382,
     VSRAW           = 0x384,
     VCMPGTSW        = 0x386,
     VCMPGTSW_       = 0x786,
-    VCTUXS          = 0x38a,
+    VCTUXS          = 0x38a,    // Vector Convert to Unsigned Fixed-Point Word Saturate
     VSPLTISW        = 0x38c,    // Vector Splat Immediate Signed Word
     VCMPBFP         = 0x3c6,
     VCMPBFP_        = 0x7c6,
@@ -371,7 +371,7 @@ enum G_04Opcodes {
     VAND            = 0x404,    // Vector AND
     VMAXFP          = 0x40a,    // Vector Maximum Floating-Point
     VSLO            = 0x40c,
-    VSUBUHM         = 0x440,
+    VSUBUHM         = 0x440,    // Vector Subtract Half Word Modulo
     VAVGUH          = 0x442,
     VANDC           = 0x444,    // Vector Logical AND with Complement
     VMINFP          = 0x44a,    // Vector Minimum Floating-Point
@@ -512,7 +512,9 @@ enum G_1FOpcodes {      // Field 21 - 30
     SYNC    = 0x256,
     LFDX    = 0x257,
     LFDUX   = 0x277,
+    STVLX   = 0x287,
     STFSX   = 0x297,
+    STVRX   = 0x2a7,
     STFDX   = 0x2d7,
     LHBRX   = 0x316,
     SRAW    = 0x318,

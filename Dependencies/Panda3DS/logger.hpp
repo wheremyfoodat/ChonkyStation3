@@ -37,8 +37,8 @@ public:
 #ifdef CHONKYSTATION3_USER_BUILD
 #define true false
 #else
-//#define true false
-#define false true
+#define true false
+//#define false true
 #endif
 
 // Modules
@@ -48,6 +48,7 @@ static Logger cellSsl           = Logger<true> ("[Module ][cellSsl       ] ");
 static Logger cellKb            = Logger<true> ("[Module ][cellKb        ] ");
 static Logger cellPad           = Logger<true> ("[Module ][cellPad       ] ");
 static Logger cellSaveData      = Logger<true> ("[Module ][cellSaveData  ] ");
+static Logger sceNp             = Logger<true> ("[Module ][sceNp         ] ");
 static Logger sceNpTrophy       = Logger<true> ("[Module ][sceNpTrophy   ] ");
 static Logger cellPngDec        = Logger<true> ("[Module ][cellPngDec    ] ");
 static Logger cellFs            = Logger<true> ("[Module ][cellFs        ] ");

@@ -257,6 +257,7 @@ void ModuleManager::init() {
         { 0xbd28fdbf, { "sceNpInit",                                        std::bind(&ModuleManager::stub, this) }},
         { 0xe7dcd3b4, { "sceNpManagerRegisterCallback",                     std::bind(&ModuleManager::stub, this) }},
         { 0xf4babd3f, { "sceNpMatching2Init2",                              std::bind(&ModuleManager::stub, this) }},
+        { 0xfe37a7f4, { "sceNpManagerGetNpId",                              std::bind(&SceNp::sceNpManagerGetNpId, &sceNp) }},
 
         { 0x41251f74, { "sceNp2Init",                                       std::bind(&ModuleManager::stub, this) }},
 
@@ -299,7 +300,9 @@ void ModuleManager::init() {
 
         { 0x139a9e9b, { "sysNetInitializeNetworkEx",                        std::bind(&ModuleManager::stub, this) } },
 
+        { 0x91f2b7b0, { "cellSyncMutexUnlock",                              std::bind(&ModuleManager::stub, this) } },
         { 0xa9072dee, { "cellSyncMutexInitialize",                          std::bind(&ModuleManager::stub, this) } },
+        { 0xd06918c4, { "cellSyncMutexTryLock",                             std::bind(&ModuleManager::stub, this) } },
 
         { 0x42b23552, { "sysPRXRegisterLibrary",                            std::bind(&ModuleManager::stub, this) } },
         { 0x84bb6774, { "sysPRXGetModuleInfo",                              std::bind(&ModuleManager::stub, this) } },
@@ -343,6 +346,12 @@ void ModuleManager::init() {
         { 0xb48636c4, { "sys_net_show_ifconfig",                            std::bind(&ModuleManager::stub, this) } },
         
         { 0xe75c40f2, { "sys_process_get_paramsfo",                         std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x13efe7f5, { "getsockname",                                      std::bind(&ModuleManager::stub, this) } },
+        { 0x88f03575, { "setsockopt",                                       std::bind(&ModuleManager::stub, this) } },
+        { 0x8af3825e, { "inet_pton",                                        std::bind(&ModuleManager::stub, this) } },
+        { 0x9c056962, { "socket",                                           std::bind(&ModuleManager::stub, this) } },
+        { 0xb0a59804, { "bind",                                             std::bind(&ModuleManager::stub, this) } },
 
         { 0x05893e7c, { "cellUserTraceRegister",                            std::bind(&ModuleManager::stub, this) } },
         

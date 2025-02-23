@@ -25,6 +25,7 @@ u64 Syscall::sys_ppu_thread_join() {
         return CELL_EINVAL;
 
     ps3->thread_manager.getThreadByID(thread_id)->join(thread_id, vptr);
+    ps3->thread_manager.getCurrentThread()->wait();
     return Result::CELL_OK;
 }
 

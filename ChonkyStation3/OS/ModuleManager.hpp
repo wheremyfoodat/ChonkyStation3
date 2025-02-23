@@ -24,6 +24,7 @@
 #include <Modules/CellFs.hpp>
 #include <Modules/CellPngDec.hpp>
 #include <Modules/SceNpTrophy.hpp>
+#include <Modules/SceNp.hpp>
 #include <Modules/CellSaveData.hpp>
 #include <Modules/CellPad.hpp>
 #include <Modules/CellKb.hpp>
@@ -39,7 +40,7 @@ class ModuleManager {
 public:
     ModuleManager(PlayStation3* ps3) :  ps3(ps3), sysPrxForUser(ps3), sysThread(ps3), sysLwMutex(ps3), sysLwCond(ps3), sysMMapper(ps3), cellGcmSys(ps3), cellVideoOut(ps3), cellSysutil(ps3),
                                         cellSysmodule(ps3), cellResc(ps3), cellGame(ps3), cellSpurs(ps3), cellRtc(ps3), cellFs(ps3), cellPngDec(ps3), sceNpTrophy(ps3),
-                                        cellSaveData(ps3), cellPad(ps3), cellKb(ps3), cellSsl(ps3), cellSysCache(ps3), cellMsgDialog(ps3) {}
+                                        sceNp(ps3), cellSaveData(ps3), cellPad(ps3), cellKb(ps3), cellSsl(ps3), cellSysCache(ps3), cellMsgDialog(ps3) {}
     PlayStation3* ps3;
 
     void call(u32 nid);
@@ -74,6 +75,7 @@ public:
     CellFs cellFs;
     CellPngDec cellPngDec;
     SceNpTrophy sceNpTrophy;
+    SceNp sceNp;
     CellSaveData cellSaveData;
     CellPad cellPad;
     CellKb cellKb;
