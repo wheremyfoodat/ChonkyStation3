@@ -12,5 +12,5 @@ It can currently boot a few simple commercial games.<br>
 This is a hobby project I'm developing for fun and to learn.<br>
 You should not use this to actually play games. At least not for now.<br>
 </p>
-<img src="Resources/TLOU.gif">
-<img src="Resources/arkedo_series_pixel_menu.png">
+<img src="Resources/TLOU.gif" align="center">
+<img src="Resources/arkedo_series_pixel_menu.png" align="center">
