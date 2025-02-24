@@ -44,9 +44,13 @@ void RSX::setEaTableAddr(u32 addr) {
     ea_table = addr;
 }
 
+u32 RSX::ioToEa(u32 offs) {
+    return ((u32)ps3->mem.read<u16>(ea_table + ((offs >> 20) * 2)) << 20) | (offs & 0xfffff);
+}
+
 u32 RSX::fetch32() {
     const u32 addr = gcm.ctrl->get;
-    u32 data = ps3->mem.read<u32>(((u32)ps3->mem.read<u16>(ea_table + ((addr >> 20) * 2)) << 20) | (addr & 0xfffff));
+    u32 data = ps3->mem.read<u32>(ioToEa(addr));
     gcm.ctrl->get = gcm.ctrl->get + 4;  // Didn't overload += in BEField
     return data;
 }
@@ -209,7 +213,7 @@ void RSX::uploadTexture() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glActiveTexture(GL_TEXTURE0 + 0);
 
         if (!isCompressedFormat(texture.format)) {
@@ -298,10 +302,7 @@ GLuint RSX::getPrimitive(u32 prim) {
 }
 
 void RSX::runCommandList() {
-    int cmd_count = gcm.ctrl->put - gcm.ctrl->get;
-    if (cmd_count <= 0) return;
-
-    log("Executing commands (%d bytes)\n", cmd_count);
+    log("Executing commands\n");
     log("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
 
     // Execute while get != put
@@ -311,15 +312,21 @@ void RSX::runCommandList() {
         auto cmd_num = cmd & 0x3ffff;
         auto argc = (cmd >> 18) & 0x7ff;
 
-        if (cmd & 0x20000000) { // jump
-            gcm.ctrl->get = cmd & ~0x20000000;
-            continue;
-        }
-        if (cmd & 0x00000002) { // call
-            Helpers::panic("rsx: call\n");
-        }
-        if ((cmd & 0xffff0003) == 0x00020000) {
-            Helpers::panic("rsx: return\n");
+        if (cmd & 0xa0030003) {
+            if ((cmd & 0xe0000003) == 0x20000000) { // jump
+                gcm.ctrl->get = cmd & 0x1ffffffc;
+                continue;
+            }
+            if ((cmd & 0xe0000003) == 0x00000001) { // jump
+                gcm.ctrl->get = cmd & 0xfffffffc;
+                continue;
+            }
+            if ((cmd & 0x00000003) == 0x00000002) { // call
+                Helpers::panic("rsx: call\n");
+            }
+            if ((cmd & 0xffff0003) == 0x00020000) {
+                Helpers::panic("rsx: return\n");
+            }
         }
 
         std::vector<u32> args;
@@ -354,6 +361,12 @@ void RSX::runCommandList() {
             if (sema != args[0]) {
                 Helpers::panic("Could not acquire semaphore\n");
             }
+            break;
+        }
+
+        case NV4097_SET_CONTEXT_DMA_REPORT: {
+            dma_report = args[0];
+            log("Context DMA report location: 0x%08x\n", dma_report);
             break;
         }
 
@@ -465,7 +478,16 @@ void RSX::runCommandList() {
             log("Vertex attribute %d: size: %d, stride: 0x%02x, type: %d\n", curr_binding.index, curr_binding.size, curr_binding.stride, curr_binding.type);
             break;
         }
-
+/*
+        case NV4097_SET_ZPASS_PIXEL_COUNT_ENABLE: {
+            if (args.size() > 1) {
+                const u32 offs = args[1] & 0xffffff;
+                const u32 addr = ioToEa(offs);
+                log("Get report: 0x%08x (0x%08x)\n", offs, addr);
+            }
+            break;
+        }
+*/
         case NV4097_SET_BEGIN_END: {
             const u32 prim = args[0];
             log("Primitive: 0x%0x\n", prim);
@@ -831,6 +853,14 @@ void RSX::runCommandList() {
             break;
         }
 
+        case GCM_FLIP_COMMAND: {
+            const u32 buf_id = args[0];
+            log("Flip %d\n", buf_id);
+            ps3->flip();
+            break;
+        }
+
+            /*
         default:
             if (cmd) {  // Don't print NOPs
                 if (command_names.contains(cmd & 0x3ffff))
@@ -838,6 +868,7 @@ void RSX::runCommandList() {
                 else
                     log("Unimplemented RSX command 0x%08x (0x%08x)\n", cmd_num, cmd);
             }
+            */
         }
     }
 }

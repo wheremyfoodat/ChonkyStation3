@@ -1462,7 +1462,7 @@ void PPUInterpreter::mfspr(const Instruction& instr) {
 }
 
 void PPUInterpreter::mftb(const Instruction& instr) {
-    state.gprs[instr.rt] = std::chrono::system_clock::now().time_since_epoch().count();
+    state.gprs[instr.rt] = std::chrono::system_clock::now().time_since_epoch().count() * 8;
 }
 
 void PPUInterpreter::sthx(const Instruction& instr) {

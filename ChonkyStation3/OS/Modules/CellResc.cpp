@@ -13,7 +13,8 @@ u64 CellResc::cellRescSetDsts() {
 u64 CellResc::cellRescSetWaitFlip() {
     log("cellRescSetWaitFlip()\n");
 
-    ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
+    // See cellGcmSetWaitFlip
+    //ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
     return Result::CELL_OK;
 }
 
@@ -32,7 +33,19 @@ u64 CellResc::cellRescSetDisplayMode() {
 }
 
 u64 CellResc::cellRescSetConvertAndFlip() {
-    log("cellRescSetConvertAndFlip() STUBBED\n");
+    const u32 context_addr = ARG0;
+    const u32 buf_id = ARG1;
+    log("cellRescSetConvertAndFlip()\n");
+
+    CellGcmSys::CellGcmContextData* context = (CellGcmSys::CellGcmContextData*)ps3->mem.getPtr(context_addr);
+    //if (context->current + 8 >= context->end) ps3->module_manager.cellGcmCallback();
+    ps3->mem.write<u32>(context->current, RSX::GCM_FLIP_COMMAND | (1 << 18));   // 1 is argc
+    ps3->mem.write<u32>(context->current + 4, buf_id);
+    context->current = context->current + 8;
+    if (context_addr == ps3->module_manager.cellGcmSys.ctx_addr) {
+        ps3->module_manager.cellGcmSys.ctrl->put = ps3->module_manager.cellGcmSys.ctrl->put + 8;
+        ps3->rsx.runCommandList();
+    }
 
     return Result::CELL_OK;
 }

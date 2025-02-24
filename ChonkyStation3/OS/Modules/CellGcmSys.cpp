@@ -137,11 +137,16 @@ bool CellGcmSys::isIoOffsMapped(u32 io) {
 }
 
 u64 CellGcmSys::_cellGcmSetFlipCommand() {
-    log("_cellGcmSetFlipCommand()\n");
+    const u32 context_addr = ARG0;
+    const u32 buf_id = ARG1;
+    log("_cellGcmSetFlipCommand(ctx_addr: 0x%08x, buf_id: %d)\n", context_addr, buf_id);
 
-    if (ctx->current + 2 >= ctx->end) cellGcmCallback();
+    CellGcmContextData* context = (CellGcmContextData*)ps3->mem.getPtr(context_addr);
+    if (ctx->current + 8 >= ctx->end) cellGcmCallback();
+    ps3->mem.write<u32>(context->current, RSX::GCM_FLIP_COMMAND | (1 << 18));   // 1 is argc
+    ps3->mem.write<u32>(context->current + 4, buf_id);
+    context->current = context->current + 8;
 
-    ps3->flip();    // TODO: this is wrong, but it works for now. (I should flip at the end of the current RSX command buffer)
     return Result::CELL_OK;
 }
 
@@ -248,7 +253,9 @@ u64 CellGcmSys::cellGcmSetWaitFlip() {
     const u32 mode = ARG0;
     log("cellGcmSetWaitFlip(mode: 0x%08x)\n", mode);
 
-    ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
+    // A NOP because we don't have a multithreaded RSX.
+    // When this function is called, the RSX will have already flipped.
+    //ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
     return Result::CELL_OK;
 }
 
@@ -335,7 +342,6 @@ u64 CellGcmSys::cellGcmSetVBlankHandler() {
     log("cellGcmSetVBlankHandler(handler_ptr: 0x%08x)\n", handler_ptr);
 
     vblank_handler = handler_ptr;
-
     return Result::CELL_OK;
 }
 
@@ -416,7 +422,20 @@ u64 CellGcmSys::cellGcmUnmapIoAddress() {
 }
 
 u64 CellGcmSys::cellGcmSetFlip() {
-    log("cellGcmSetFlip() UNIMPLEMENTED\n");
+    const u32 context_addr = ARG0;
+    const u32 buf_id = ARG1;
+    log("cellGcmSetFlip(ctx_addr: 0x%08x, buf_id: %d)\n", context_addr, buf_id);
+
+    CellGcmContextData* context = (CellGcmContextData*)ps3->mem.getPtr(context_addr);
+    if (ctx->current + 8 >= ctx->end) cellGcmCallback();
+    ps3->mem.write<u32>(context->current, RSX::GCM_FLIP_COMMAND | (1 << 18));   // 1 is argc
+    ps3->mem.write<u32>(context->current + 4, buf_id);
+    context->current = context->current + 8;
+    if (context_addr == ctx_addr) {
+        ctrl->put = ctrl->put + 8;
+        ps3->rsx.runCommandList();
+    }
+
     return Result::CELL_OK;
 }
 

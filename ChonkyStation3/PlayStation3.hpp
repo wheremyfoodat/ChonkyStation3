@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 
+#include <functional>
 #include <unordered_map>
 
 #include <PPU.hpp>
@@ -46,6 +47,7 @@ public:
     fs::path elf_path;
     std::string elf_path_encrypted;
 
+    std::function<void(void)> flip_handler;
     u64 cycle_count = 0;
     u64 curr_block_cycles = 0;
     u64 skipped_cycles = 0;
@@ -53,10 +55,12 @@ public:
 
     void gameSelector();
     void loadGame(const GameLoader::InstalledGame& game);
+    void setFlipHandler(std::function<void(void)> const& handler);
     void init();
     void run();
     void step();
     void flip();
+    void vblank();
     void skipToNextEvent();
     void forceSchedulerUpdate();
 

@@ -55,6 +55,10 @@ void PlayStation3::loadGame(const GameLoader::InstalledGame& game) {
     elf_path_encrypted = (game.content_path / "USRDIR/EBOOT.BIN").generic_string();
 }
 
+void PlayStation3::setFlipHandler(std::function<void(void)> const& handler) {
+    flip_handler = handler;
+}
+
 void PlayStation3::init() {
     // Load ELF file
     ELFLoader elf = ELFLoader(this, mem);
@@ -133,15 +137,21 @@ void PlayStation3::flip() {
         u32 old_r3 = ppu->state.gprs[3];
         ppu->state.gprs[3] = 1; // Callback function is always called with 1 as first argument
         ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.flip_callback), mem.read<u32>(module_manager.cellGcmSys.flip_callback + 4));
+        ppu->state.gprs[3] = old_r3;
     }
+    mem.write<u64>(module_manager.cellGcmSys.label_addr + 0x10, 0);
+    mem.write<u64>(module_manager.cellGcmSys.label_addr + 0x10 + 8, 0);
+
+    flip_handler();
+}
+
+void PlayStation3::vblank() {
     if (module_manager.cellGcmSys.vblank_handler) {
         u32 old_r3 = ppu->state.gprs[3];
         ppu->state.gprs[3] = 1; // Handler function is always called with 1 as first argument
         ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.vblank_handler), mem.read<u32>(module_manager.cellGcmSys.vblank_handler + 4));
         ppu->state.gprs[3] = old_r3;
     }
-    mem.write<u64>(module_manager.cellGcmSys.label_addr + 0x10, 0);
-    mem.write<u64>(module_manager.cellGcmSys.label_addr + 0x10 + 8, 0);
 }
 
 void PlayStation3::skipToNextEvent() {

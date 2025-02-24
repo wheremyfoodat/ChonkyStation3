@@ -23,8 +23,10 @@ GameWindow::GameWindow() {
 }
 
 void GameWindow::run(PlayStation3* ps3) {
+    this->ps3 = ps3;
+
     std::string title = "ChonkyStation3";
-    SDL_Window* window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_GLContext context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
@@ -36,7 +38,6 @@ void GameWindow::run(PlayStation3* ps3) {
         Helpers::panic("OpenGL init failed");
     }
 
-    std::string title_game;
     if (ps3->curr_game.id != "") {
         title_game = ps3->curr_game.title;
     }
@@ -49,107 +50,116 @@ void GameWindow::run(PlayStation3* ps3) {
     printf("\nEXECUTING\n");
     printf("---------\n\n");
 
-    bool quit = false;
-    bool fullscreen = false;
-    bool vsync_enabled = false;
+    quit = false;
+    fullscreen = false;
+    vsync_enabled = false;
 
-    int frame_count = 0;
-    double last_time = SDL_GetTicks64() / 1000.0;
-    double curr_time = 0;
-    float ppu_usage = 0;
+    frame_count = 0;
+    last_time = SDL_GetTicks64() / 1000.0;
+    curr_time = 0;
+    ppu_usage = 0;
 
     SDL_GL_SwapWindow(window);
 
-    SDL_GameController* controller = findController();
+    controller = findController();
 
+    ps3->setFlipHandler(std::bind(&GameWindow::flipHandler, this));
     ps3->rsx.initGL();
     while (!quit) {
         ps3->run();
-        ps3->flip();
-        frame_count++;
-
-        const u64 curr_ticks = SDL_GetTicks64();
-        curr_time = curr_ticks / 1000.0;
-
-        if (curr_time - last_time > 1.0) {
-            ppu_usage = ((CPU_FREQ - ps3->skipped_cycles) * 100.0f) / CPU_FREQ;
-            title = std::format("ChonkyStation3 | {} | {} FPS | PPU: {:.2f}%", title_game, frame_count, std::ceil(ppu_usage * 100.0f) / 100.0f);
-            SDL_SetWindowTitle(window, title.c_str());
-            last_time = curr_time;
-            frame_count = 0;
-        }
-
-        ps3->resetButtons();
-
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            switch (e.type) {
-            case SDL_QUIT: {
-                quit = true;
-                break;
-            }
-
-            case SDL_MOUSEBUTTONDOWN: {
-                if (e.button.button == SDL_BUTTON_LEFT && e.button.clicks == 2) {
-                    fullscreen = !fullscreen;
-                    SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
-                    SDL_ShowCursor(fullscreen ? SDL_DISABLE : SDL_ENABLE);
-                }
-                else if (e.button.button == SDL_BUTTON_RIGHT) {
-                    vsync_enabled = !vsync_enabled;
-                    SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
-                }
-                break;
-            }
-
-            case SDL_CONTROLLERDEVICEADDED: {
-                if (!controller) {
-                    controller = SDL_GameControllerOpen(e.cdevice.which);
-                }
-                break;
-            }
-            case SDL_CONTROLLERDEVICEREMOVED: {
-                if (controller && e.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
-                    SDL_GameControllerClose(controller);
-                    controller = findController();
-                }
-                break;
-            }
-            }
-        }
-
-        if (!controller) {
-            const u8* keystate = SDL_GetKeyboardState(NULL);
-            if (keystate[SDL_SCANCODE_M])      ps3->pressButton(CELL_PAD_CTRL_START);
-            if (keystate[SDL_SCANCODE_K])      ps3->pressButton(CELL_PAD_CTRL_CROSS);
-            if (keystate[SDL_SCANCODE_L])      ps3->pressButton(CELL_PAD_CTRL_CIRCLE);
-            if (keystate[SDL_SCANCODE_J])      ps3->pressButton(CELL_PAD_CTRL_SQUARE);
-            if (keystate[SDL_SCANCODE_I])      ps3->pressButton(CELL_PAD_CTRL_TRIANGLE);
-            if (keystate[SDL_SCANCODE_DOWN])   ps3->pressButton(CELL_PAD_CTRL_DOWN);
-            if (keystate[SDL_SCANCODE_UP])     ps3->pressButton(CELL_PAD_CTRL_UP);
-            if (keystate[SDL_SCANCODE_LEFT])   ps3->pressButton(CELL_PAD_CTRL_LEFT);
-            if (keystate[SDL_SCANCODE_RIGHT])  ps3->pressButton(CELL_PAD_CTRL_RIGHT);
-        }
-        else {
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START))             ps3->pressButton(CELL_PAD_CTRL_START);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_A))                 ps3->pressButton(CELL_PAD_CTRL_CROSS);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_B))                 ps3->pressButton(CELL_PAD_CTRL_CIRCLE);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_X))                 ps3->pressButton(CELL_PAD_CTRL_SQUARE);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_Y))                 ps3->pressButton(CELL_PAD_CTRL_TRIANGLE);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_DOWN))         ps3->pressButton(CELL_PAD_CTRL_DOWN);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_UP))           ps3->pressButton(CELL_PAD_CTRL_UP);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_LEFT))         ps3->pressButton(CELL_PAD_CTRL_LEFT);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_RIGHT))        ps3->pressButton(CELL_PAD_CTRL_RIGHT);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_LEFTSHOULDER))      ps3->pressButton(CELL_PAD_CTRL_L1);
-            if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))     ps3->pressButton(CELL_PAD_CTRL_R1);
-            if (SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 20000)     ps3->pressButton(CELL_PAD_CTRL_L2);
-            if (SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 20000)    ps3->pressButton(CELL_PAD_CTRL_R2);
-        }
-
-        SDL_GL_SwapWindow(window);
+        ps3->vblank();
     }
     
     SDL_GL_DeleteContext(context);
     SDL_DestroyWindow(window);
     return;
+}
+
+// Will be called on every RSX flip
+void GameWindow::flipHandler() {
+    frame_count++;
+
+    const u64 curr_ticks = SDL_GetTicks64();
+    curr_time = curr_ticks / 1000.0;
+
+    std::string title;
+    if (curr_time - last_time > 1.0) {
+        //ppu_usage = ((CPU_FREQ - ps3->skipped_cycles) * 100.0f) / CPU_FREQ;
+        ppu_usage = std::min(((ps3->scheduler.time - last_timestamp) * 100.0f) / CPU_FREQ, 100.0f);
+        title = std::format("ChonkyStation3 | {} | {} FPS | PPU: {:.2f}%", title_game, frame_count, std::ceil(ppu_usage * 100.0f) / 100.0f);
+        SDL_SetWindowTitle(window, title.c_str());
+        last_time = curr_time;
+        frame_count = 0;
+    }
+    last_timestamp = ps3->scheduler.time;
+
+    ps3->resetButtons();
+
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        switch (e.type) {
+        case SDL_QUIT: {
+            quit = true;
+            ps3->cycle_count = CPU_FREQ;
+            break;
+        }
+
+        case SDL_MOUSEBUTTONDOWN: {
+            if (e.button.button == SDL_BUTTON_LEFT && e.button.clicks == 2) {
+                fullscreen = !fullscreen;
+                SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+                SDL_ShowCursor(fullscreen ? SDL_DISABLE : SDL_ENABLE);
+            }
+            else if (e.button.button == SDL_BUTTON_RIGHT) {
+                vsync_enabled = !vsync_enabled;
+                SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
+            }
+            break;
+        }
+
+        case SDL_CONTROLLERDEVICEADDED: {
+            if (!controller) {
+                controller = SDL_GameControllerOpen(e.cdevice.which);
+            }
+            break;
+        }
+        case SDL_CONTROLLERDEVICEREMOVED: {
+            if (controller && e.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
+                SDL_GameControllerClose(controller);
+                controller = findController();
+            }
+            break;
+        }
+        }
+    }
+
+    if (!controller) {
+        const u8* keystate = SDL_GetKeyboardState(NULL);
+        if (keystate[SDL_SCANCODE_M])      ps3->pressButton(CELL_PAD_CTRL_START);
+        if (keystate[SDL_SCANCODE_K])      ps3->pressButton(CELL_PAD_CTRL_CROSS);
+        if (keystate[SDL_SCANCODE_L])      ps3->pressButton(CELL_PAD_CTRL_CIRCLE);
+        if (keystate[SDL_SCANCODE_J])      ps3->pressButton(CELL_PAD_CTRL_SQUARE);
+        if (keystate[SDL_SCANCODE_I])      ps3->pressButton(CELL_PAD_CTRL_TRIANGLE);
+        if (keystate[SDL_SCANCODE_DOWN])   ps3->pressButton(CELL_PAD_CTRL_DOWN);
+        if (keystate[SDL_SCANCODE_UP])     ps3->pressButton(CELL_PAD_CTRL_UP);
+        if (keystate[SDL_SCANCODE_LEFT])   ps3->pressButton(CELL_PAD_CTRL_LEFT);
+        if (keystate[SDL_SCANCODE_RIGHT])  ps3->pressButton(CELL_PAD_CTRL_RIGHT);
+    }
+    else {
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START))             ps3->pressButton(CELL_PAD_CTRL_START);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_A))                 ps3->pressButton(CELL_PAD_CTRL_CROSS);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_B))                 ps3->pressButton(CELL_PAD_CTRL_CIRCLE);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_X))                 ps3->pressButton(CELL_PAD_CTRL_SQUARE);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_Y))                 ps3->pressButton(CELL_PAD_CTRL_TRIANGLE);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_DOWN))         ps3->pressButton(CELL_PAD_CTRL_DOWN);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_UP))           ps3->pressButton(CELL_PAD_CTRL_UP);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_LEFT))         ps3->pressButton(CELL_PAD_CTRL_LEFT);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_RIGHT))        ps3->pressButton(CELL_PAD_CTRL_RIGHT);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_LEFTSHOULDER))      ps3->pressButton(CELL_PAD_CTRL_L1);
+        if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))     ps3->pressButton(CELL_PAD_CTRL_R1);
+        if (SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 20000)     ps3->pressButton(CELL_PAD_CTRL_L2);
+        if (SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 20000)    ps3->pressButton(CELL_PAD_CTRL_R2);
+    }
+
+    SDL_GL_SwapWindow(window);
 }

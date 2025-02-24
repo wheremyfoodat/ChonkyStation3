@@ -30,6 +30,7 @@ public:
 
     u32 ea_table = 0;
     void setEaTableAddr(u32 addr);
+    u32 ioToEa(u32 offs);
 
     void runCommandList();
     u32 fetch32();
@@ -70,6 +71,7 @@ public:
     u32 dest_offset = 0;
     u16 point_x = 0;
     u16 point_y = 0;
+    u32 dma_report = 0;
     u32 primitive = 0;
     u16 blend_sfactor_rgb = 0;
     u16 blend_sfactor_a = 0;
@@ -250,7 +252,7 @@ public:
         NV4097_SET_CONTEXT_DMA_VERTEX_A                         = 0x0000019c,
         NV4097_SET_CONTEXT_DMA_VERTEX_B                         = 0x000001a0,
         NV4097_SET_CONTEXT_DMA_SEMAPHORE                        = 0x000001a4,
-        NV4097_SET_CONTEXT_DMA_REPORT                           = 0x000001a8,
+        NV4097_SET_CONTEXT_DMA_REPORT                           = 0x000001a8,   // I
         NV4097_SET_CONTEXT_DMA_CLIP_ID                          = 0x000001ac,
         NV4097_SET_CONTEXT_DMA_CULL_DATA                        = 0x000001b0,
         NV4097_SET_CONTEXT_DMA_COLOR_C                          = 0x000001b4,
@@ -517,6 +519,9 @@ public:
         NV3089_IMAGE_IN_FORMAT                                  = 0x0000C404,
         NV3089_IMAGE_IN_OFFSET                                  = 0x0000C408,
         NV3089_IMAGE_IN                                         = 0x0000C40C,
+
+        // GCM
+        GCM_FLIP_COMMAND                                        = 0x0000FEAC,
     };
 
     std::unordered_map<u32, std::string> command_names {
