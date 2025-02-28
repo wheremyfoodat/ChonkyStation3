@@ -170,8 +170,9 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         break;
     }
     case 486:   todo("_sys_prx_register_library()");                                    break;
-    case 494:   todo("_sys_prx_get_module_list()");                                     break;
-    case 496:   todo("_sys_prx_get_module_id_by_name()");                               break;
+    case 494:   ps3->ppu->state.gprs[3] = sys_prx_get_module_list();                    break;
+    case 495:   ps3->ppu->state.gprs[3] = sys_prx_get_module_info();                    break;
+    case 496:   ps3->ppu->state.gprs[3] = sys_prx_get_module_id_by_name();              break;
     case 630:   todo("sys_gpio_set()");                                                 break;
     case 631:   todo("sys_gpio_get()");                                                 break;
     case 801:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsOpen();      break;

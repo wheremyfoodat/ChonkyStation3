@@ -18,14 +18,20 @@ u64 Syscall::sys_ppu_thread_yield() {
 
 u64 Syscall::sys_ppu_thread_join() {
     const u32 thread_id = ARG0;
-    const u32 vptr = ARG1;
+    const u32 vptr = ARG1;  // v is u64
     log_sys_ppu_thread("sys_ppu_thread_join(thread_id: %d, vptr: 0x%08x)\n", thread_id, vptr);
 
     if (ps3->thread_manager.getThreadByID(thread_id)->waiter)   // Was a thread already for termination of this thread?
         return CELL_EINVAL;
 
-    ps3->thread_manager.getThreadByID(thread_id)->join(thread_id, vptr);
-    ps3->thread_manager.getCurrentThread()->wait();
+    if (ps3->thread_manager.getThreadByID(thread_id)->status != Thread::THREAD_STATUS::Terminated) {
+        ps3->thread_manager.getThreadByID(thread_id)->join(thread_id, vptr);
+        ps3->thread_manager.getCurrentThread()->wait();
+    }
+    else {
+        ps3->mem.write<u64>(vptr, ps3->thread_manager.getThreadByID(thread_id)->exit_status);
+    }
+
     return Result::CELL_OK;
 }
 

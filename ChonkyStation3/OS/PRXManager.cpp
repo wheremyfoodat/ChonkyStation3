@@ -11,7 +11,8 @@ PRXManager::PRXManager(PlayStation3* ps3) : ps3(ps3) {
         //{ "cellFontFT",         "libfontFT.prx" },
         //{ "cell_FreeType2",     "libfreetype.prx" },
         { "sysPrxForUser",      "liblv2.prx" },
-        //{ "cellSpurs",          "libsre.prx" },
+        { "cellSync",           "libsre.prx" },
+        { "cellSpurs",          "libsre.prx" },
         { "cellKey2char",       "libkey2char.prx" },
         { "cellL10n",           "libl10n.prx" },
     };
@@ -83,4 +84,21 @@ void PRXManager::initializeLibraries() {
             ps3->ppu->runFunc(ps3->mem.read<u32>(i.start_func), ps3->mem.read<u32>(i.start_func + 4));
         log("Done\n");
     }
+}
+
+void PRXManager::createLv2PRXs() {
+    const auto host_path = ps3->fs.guestPathToHost(lib_dir);
+    for (auto& i : fs::directory_iterator(host_path)) {
+        if (i.path().extension() == ".prx") {
+            prxs.push_back({ ps3->handle_manager.request(), lib_dir / i.path().filename() });
+        }
+    }
+}
+
+PRXManager::Lv2PRX* PRXManager::getLv2PRXById(u32 id) {
+    for (auto& i : prxs) {
+        if (i.id == id)
+            return &i;
+    }
+    return nullptr;
 }

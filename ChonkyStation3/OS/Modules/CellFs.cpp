@@ -177,14 +177,15 @@ u64 CellFs::cellFsFstat() {
     log("cellFsFstat(file_id: %d, stat_ptr: 0x%08x)\n", file_id, stat_ptr);
 
     CellFsStat* stat = (CellFsStat*)ps3->mem.getPtr(stat_ptr);
-    stat->mode = 0100000 | 0666;   // Regular file (TODO: Check if it's a directory)
+    bool is_dir = ps3->fs.isDirectory(file_id);
+    stat->mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);
     stat->uid = 0;
     stat->gid = 0;
     stat->atime = 0;
     stat->mtime = 0;
     stat->ctime = 0;
-    stat->size = ps3->fs.getFileSize(file_id);
-    stat->blksize = 512;
+    stat->size = !is_dir ? ps3->fs.getFileSize(file_id) : 4096;
+    stat->blksize = 4096;
 
     return Result::CELL_OK;
 }

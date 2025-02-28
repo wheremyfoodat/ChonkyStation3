@@ -78,6 +78,8 @@ void PlayStation3::init() {
     ppu->state.gprs[11] = entry;
     ppu->state.gprs[12] = proc_param.malloc_pagesize ? proc_param.malloc_pagesize : 0x100000;
 
+    prx_manager.createLv2PRXs();
+
     // Load PRXs required by the ELF
     prx_manager.loadModulesRecursively();
 

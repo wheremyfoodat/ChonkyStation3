@@ -51,6 +51,7 @@ public:
         Terminated
     };
     THREAD_STATUS status = THREAD_STATUS::Running;
+    int exit_status = 0;
 
     void reschedule(u64 cycles = 0);
     void sleep(u64 us);

@@ -67,7 +67,7 @@ void GameWindow::run(PlayStation3* ps3) {
     ps3->rsx.initGL();
     while (!quit) {
         ps3->run();
-        ps3->vblank();
+        //ps3->vblank();
     }
     
     SDL_GL_DeleteContext(context);

@@ -77,6 +77,12 @@ public:
     u16 blend_sfactor_a = 0;
     u16 blend_dfactor_rgb = 0;
     u16 blend_dfactor_a = 0;
+    u8 blend_color_r = 0;
+    u8 blend_color_g = 0;
+    u8 blend_color_b = 0;
+    u8 blend_color_a = 0;
+    u16 blend_equation_rgb = 0;
+    u16 blend_equation_alpha = 0;
     u32 vertex_shader_load_addr = 0;
     
 
@@ -169,11 +175,14 @@ public:
     void uploadVertexConstants();
     void uploadFragmentUniforms();
     void uploadTexture();
+
     GLuint getTexturePixelFormat(u8 fmt);
     GLuint getTextureInternalFormat(u8 fmt);
     bool isCompressedFormat(u8 fmt);
     size_t getCompressedTextureSize(u8 fmt, u32 width, u32 height);
     GLuint getPrimitive(u32 prim);
+    GLuint getBlendEquation(u16 eq);
+    GLuint getBlendFactor(u16 fact);
 
     enum CellGcmTexture : u32 {
         // Color Flag
@@ -225,6 +234,35 @@ public:
         CELL_GCM_PRIMITIVE_QUADS = 8,
         CELL_GCM_PRIMITIVE_QUAD_STRIP = 9,
         CELL_GCM_PRIMITIVE_POLYGON = 10,
+    };
+
+    enum CellGcmBlendEquation {
+        CELL_GCM_FUNC_ADD = 0x8006,
+        CELL_GCM_MIN = 0x8007,
+        CELL_GCM_MAX = 0x8008,
+        CELL_GCM_FUNC_SUBTRACT = 0x800A,
+        CELL_GCM_FUNC_REVERSE_SUBTRACT = 0x800B,
+        CELL_GCM_FUNC_REVERSE_SUBTRACT_SIGNED = 0x0000F005,
+        CELL_GCM_FUNC_ADD_SIGNED = 0x0000F006,
+        CELL_GCM_FUNC_REVERSE_ADD_SIGNED = 0x0000F007
+    };
+
+    enum CellGcmBlendFactor {
+        CELL_GCM_ZERO = 0x0000,
+        CELL_GCM_ONE = 0x0001,
+        CELL_GCM_SRC_COLOR = 0x0300,
+        CELL_GCM_ONE_MINUS_SRC_COLOR = 0x0301,
+        CELL_GCM_SRC_ALPHA = 0x0302,
+        CELL_GCM_ONE_MINUS_SRC_ALPHA = 0x0303,
+        CELL_GCM_DST_ALPHA = 0x0304,
+        CELL_GCM_ONE_MINUS_DST_ALPHA = 0x0305,
+        CELL_GCM_DST_COLOR = 0x0306,
+        CELL_GCM_ONE_MINUS_DST_COLOR = 0x0307,
+        CELL_GCM_SRC_ALPHA_SATURATE = 0x0308,
+        CELL_GCM_CONSTANT_COLOR = 0x8001,
+        CELL_GCM_ONE_MINUS_CONSTANT_COLOR = 0x8002,
+        CELL_GCM_CONSTANT_ALPHA = 0x8003,
+        CELL_GCM_ONE_MINUS_CONSTANT_ALPHA = 0x8004,
     };
 
     // I == command is implemented or at least handled in some way
@@ -285,8 +323,8 @@ public:
         NV4097_SET_BLEND_ENABLE                                 = 0x00000310,   // I
         NV4097_SET_BLEND_FUNC_SFACTOR                           = 0x00000314,   // I
         NV4097_SET_BLEND_FUNC_DFACTOR                           = 0x00000318,
-        NV4097_SET_BLEND_COLOR                                  = 0x0000031c,
-        NV4097_SET_BLEND_EQUATION                               = 0x00000320,
+        NV4097_SET_BLEND_COLOR                                  = 0x0000031c,   // I
+        NV4097_SET_BLEND_EQUATION                               = 0x00000320,   // I
         NV4097_SET_COLOR_MASK                                   = 0x00000324,
         NV4097_SET_STENCIL_TEST_ENABLE                          = 0x00000328,
         NV4097_SET_STENCIL_MASK                                 = 0x0000032c,

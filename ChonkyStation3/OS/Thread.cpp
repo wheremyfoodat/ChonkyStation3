@@ -129,6 +129,7 @@ void Thread::exit(u64 exit_status) {
     status = THREAD_STATUS::Terminated;
     reschedule();
     log("Thread %d \"%s\" exited with status %d\n", id, name.c_str(), exit_status);
+    this->exit_status = exit_status;
 
     // Wake up thread waiting to join this thread
     if (waiter) {

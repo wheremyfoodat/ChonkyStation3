@@ -67,6 +67,11 @@ public:
     u64 sys_cond_wait();
     u64 sys_cond_signal();
 
+    // sys_prx
+    u64 sys_prx_get_module_list();
+    u64 sys_prx_get_module_info();
+    u64 sys_prx_get_module_id_by_name();
+
     // sys_spu
     u64 sys_raw_spu_create();
     u64 _sys_spu_image_import();

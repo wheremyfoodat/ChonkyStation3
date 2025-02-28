@@ -74,7 +74,7 @@ void ThreadManager::reschedule() {
         if (found_thread) {
             contextSwitch(*switch_to);
             switch_to->exec_cnt++;
-            if (switch_to->exec_cnt > 16)
+            if (switch_to->exec_cnt > 4)
                 switch_to->low_prio = true;
         }
 
