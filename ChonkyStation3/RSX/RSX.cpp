@@ -287,6 +287,7 @@ size_t RSX::getCompressedTextureSize(u8 fmt, u32 width, u32 height) {
 
 GLuint RSX::getPrimitive(u32 prim) {
     switch (prim) {
+
     case CELL_GCM_PRIMITIVE_POINTS:         return GL_POINTS;
     case CELL_GCM_PRIMITIVE_LINES:          return GL_LINES;
     case CELL_GCM_PRIMITIVE_LINE_LOOP:      return GL_LINE_LOOP;
@@ -297,41 +298,46 @@ GLuint RSX::getPrimitive(u32 prim) {
     case CELL_GCM_PRIMITIVE_QUADS:          return GL_TRIANGLES;
     case CELL_GCM_PRIMITIVE_QUAD_STRIP:     Helpers::panic("Unimplemented quad strip\n");
     case CELL_GCM_PRIMITIVE_POLYGON:        Helpers::panic("Unimplemented polygon\n");
+
     default:                                Helpers::panic("Invalid RSX primitive type %d\n", prim);
     }
 }
 
 GLuint RSX::getBlendEquation(u16 eq) {
     switch (eq) {
+    
     case CELL_GCM_FUNC_ADD:                     return GL_FUNC_ADD;
     case CELL_GCM_MIN:                          return GL_MIN;
     case CELL_GCM_MAX:                          return GL_MAX;
     case CELL_GCM_FUNC_SUBTRACT:                return GL_FUNC_SUBTRACT;
     case CELL_GCM_FUNC_REVERSE_SUBTRACT_SIGNED:
     case CELL_GCM_FUNC_REVERSE_SUBTRACT:        return GL_FUNC_REVERSE_SUBTRACT;
+    
     default:
         log("WARNING: Unimplemented blend equation 0x%04x\n", eq);
         return GL_FUNC_ADD;
     }
-}
+} 
 
 GLuint RSX::getBlendFactor(u16 fact) {
     switch (fact) {
-    case CELL_GCM_ZERO: return GL_ZERO;
-    case CELL_GCM_ONE: return GL_ONE;
-    case CELL_GCM_SRC_COLOR: return GL_SRC_COLOR;
-    case CELL_GCM_ONE_MINUS_SRC_COLOR: return GL_ONE_MINUS_SRC_COLOR;
-    case CELL_GCM_DST_COLOR: return GL_DST_COLOR;
-    case CELL_GCM_ONE_MINUS_DST_COLOR: return GL_ONE_MINUS_DST_COLOR;
-    case CELL_GCM_SRC_ALPHA: return GL_SRC_ALPHA;
-    case CELL_GCM_ONE_MINUS_SRC_ALPHA: return GL_ONE_MINUS_SRC_ALPHA;
-    case CELL_GCM_DST_ALPHA: return GL_DST_ALPHA;
-    case CELL_GCM_ONE_MINUS_DST_ALPHA: return GL_ONE_MINUS_DST_ALPHA;
-    case CELL_GCM_SRC_ALPHA_SATURATE: return GL_SRC_ALPHA_SATURATE;
-    case CELL_GCM_CONSTANT_COLOR: return GL_CONSTANT_COLOR;
+
+    case CELL_GCM_ZERO:                     return GL_ZERO;
+    case CELL_GCM_ONE:                      return GL_ONE;
+    case CELL_GCM_SRC_COLOR:                return GL_SRC_COLOR;
+    case CELL_GCM_ONE_MINUS_SRC_COLOR:      return GL_ONE_MINUS_SRC_COLOR;
+    case CELL_GCM_DST_COLOR:                return GL_DST_COLOR;
+    case CELL_GCM_ONE_MINUS_DST_COLOR:      return GL_ONE_MINUS_DST_COLOR;
+    case CELL_GCM_SRC_ALPHA:                return GL_SRC_ALPHA;
+    case CELL_GCM_ONE_MINUS_SRC_ALPHA:      return GL_ONE_MINUS_SRC_ALPHA;
+    case CELL_GCM_DST_ALPHA:                return GL_DST_ALPHA;
+    case CELL_GCM_ONE_MINUS_DST_ALPHA:      return GL_ONE_MINUS_DST_ALPHA;
+    case CELL_GCM_SRC_ALPHA_SATURATE:       return GL_SRC_ALPHA_SATURATE;
+    case CELL_GCM_CONSTANT_COLOR:           return GL_CONSTANT_COLOR;
     case CELL_GCM_ONE_MINUS_CONSTANT_COLOR: return GL_ONE_MINUS_CONSTANT_COLOR;
-    case CELL_GCM_CONSTANT_ALPHA: return GL_CONSTANT_ALPHA;
+    case CELL_GCM_CONSTANT_ALPHA:           return GL_CONSTANT_ALPHA;
     case CELL_GCM_ONE_MINUS_CONSTANT_ALPHA: return GL_ONE_MINUS_CONSTANT_ALPHA;
+
     default:
         log("WARNING: Unimplemented blend factor 0x%04x\n");
         return GL_ONE;

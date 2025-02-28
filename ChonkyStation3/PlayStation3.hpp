@@ -59,6 +59,7 @@ public:
     void init();
     void run();
     void step();
+    void printCrashInfo(std::exception err);
     void flip();
     void vblank();
     void skipToNextEvent();

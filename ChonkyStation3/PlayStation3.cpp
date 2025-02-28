@@ -84,7 +84,12 @@ void PlayStation3::init() {
     prx_manager.loadModulesRecursively();
 
     // Initialize libraries (must be done after creating main thread)
-    prx_manager.initializeLibraries();
+    try {
+        prx_manager.initializeLibraries();
+    }
+    catch (std::exception e) {
+        printCrashInfo(e);
+    }
 }
 
 void PlayStation3::run() {
@@ -113,24 +118,28 @@ void PlayStation3::run() {
         cycle_count = 0;
     }
     catch (std::exception e) {
-        ppu->printState();
-
-        const std::string error = e.what();
-        printf("FATAL: %s\n", e.what());
-        
-#ifndef CHONKYSTATION3_USER_BUILD
-        ((PPUInterpreter*)ppu)->printCallStack();
-
-        //printf("The crash happened at the following instruction:\n");
-        //PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
-        //crash_analyzer.analyzeCrash(error);
-#endif
-        std::exit(0);
+        printCrashInfo(e);
     }
 }
 
 void PlayStation3::step() {
     ppu->step();
+}
+
+void PlayStation3::printCrashInfo(std::exception err) {
+    ppu->printState();
+
+    const std::string error = err.what();
+    printf("FATAL: %s\n", err.what());
+
+#ifndef CHONKYSTATION3_USER_BUILD
+    ((PPUInterpreter*)ppu)->printCallStack();
+
+    //printf("The crash happened at the following instruction:\n");
+    //PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
+    //crash_analyzer.analyzeCrash(error);
+#endif
+    std::exit(0);
 }
 
 void PlayStation3::flip() {

@@ -175,12 +175,10 @@ u64 SysPrxForUser::sys_spu_image_import() {
     const u32 src = ARG1;
     const u32 type = ARG2;
     log("sys_spu_image_import(image_ptr: 0x%08x, src: 0x%08x, type: 0x%08x) STUBBED\n", image_ptr, src, type);
-
-    Syscall::SysSpuImage* image = (Syscall::SysSpuImage*)ps3->mem.getPtr(image_ptr);
-    image->type = type;
-    image->segs_ptr = 0xfdeadb00;
-    image->n_segs = 0;
-    image->entry_point = 0xfdeadb01;
+    
+    SPULoader loader = SPULoader(ps3);
+    SPULoader::sys_spu_image* image = (SPULoader::sys_spu_image*)ps3->mem.getPtr(image_ptr);
+    loader.load(src, image);
 
     return Result::CELL_OK;
 }

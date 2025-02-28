@@ -3,6 +3,7 @@
 #include <common.hpp>
 #include <logger.hpp>
 #include <BEField.hpp>
+#include <Loaders/SPU/SPULoader.hpp>
 
 #include <CellTypes.hpp>
 

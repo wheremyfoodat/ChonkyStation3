@@ -30,7 +30,7 @@ public:
     PlayStation3* ps3;
     Memory& mem;
 
-    std::unordered_map<u64, std::string> segment_type_string {
+    static inline std::unordered_map<u64, std::string> segment_type_string {
         { ELFIO::PT_LOAD,   "PT_LOAD    " },
         { ELFIO::PT_TLS,    "PT_TLS     " },
         { PROC_PARAM,       "PROC_PARAM " },

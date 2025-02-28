@@ -9,7 +9,7 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
 
     auto str = path.generic_string();
     if (!elf.load(str.c_str())) {
-        Helpers::panic("Couldn't load ELF %s", str.c_str());
+        Helpers::panic("Couldn't load ELF %s:\n%s\n", str.c_str(), elf.validate().c_str());
     }
 
     log("Loading ELF %s\n", str.c_str());
@@ -93,9 +93,9 @@ u64 ELFLoader::load(const fs::path& path, std::unordered_map<u32, u32>& imports,
 
         // Load segment only if it's of type PT_LOAD
         if (seg->get_type() == PT_LOAD) {
-            u64 size = seg->get_memory_size();
-            u64 aligned_size = mem.ram.pageAlign(size);
-            u64 paddr = mem.ram.allocPhys(size)->start;
+            const u64 size = seg->get_memory_size();
+            const u64 aligned_size = mem.ram.pageAlign(size);
+            const u64 paddr = mem.ram.allocPhys(size)->start;
             auto entry = mem.ram.mmap(seg->get_virtual_address(), paddr, size);
             for (u64 addr = entry->vaddr; addr < entry->vaddr + entry->size; addr += PAGE_SIZE)
                 mem.markAsFastMem(addr >> PAGE_SHIFT, mem.getPtr(addr), true, true);

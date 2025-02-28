@@ -1,8 +1,10 @@
 #include <Syscall.hpp>
+#include <SPU/SPULoader.hpp>
 #include "PlayStation3.hpp"
 
 
 MAKE_LOG_FUNCTION(log_sys_spu, sys_spu);
+
 
 u64 Syscall::sys_raw_spu_create() {
     const u32 id_ptr = ARG0;
@@ -15,20 +17,21 @@ u64 Syscall::sys_raw_spu_create() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::_sys_spu_image_import() {
+u64 Syscall::sys_spu_image_import() {
     const u32 image_ptr = ARG0;
     const u32 src = ARG1;
     const u32 size = ARG2;
     const u32 arg4 = ARG3;
-    log_sys_spu("sys_spu_image_import(image_ptr: 0x%08x, src: 0x%08x, size: 0x%08x, arg4: 0x%08x) UNIMPLEMENTED\n");
+    log_sys_spu("sys_spu_image_import(image_ptr: 0x%08x, src: 0x%08x, size: 0x%08x, arg4: 0x%08x) UNIMPLEMENTED\n", image_ptr, src, size);
 
+    Helpers::panic("TODO: sys_spu_image_import syscall\n");
     return Result::CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_group_join() {
     log_sys_spu("sys_spu_thread_group_join() UNIMPLEMENTED\n");
 
-    ps3->thread_manager.getCurrentThread()->status = Thread::THREAD_STATUS::Sleeping;
+    ps3->thread_manager.getCurrentThread()->status = Thread::THREAD_STATUS::Sleeping;   // Never wake up
     ps3->thread_manager.getCurrentThread()->reschedule();
 
     return Result::CELL_OK;

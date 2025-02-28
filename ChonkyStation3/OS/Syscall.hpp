@@ -74,7 +74,7 @@ public:
 
     // sys_spu
     u64 sys_raw_spu_create();
-    u64 _sys_spu_image_import();
+    u64 sys_spu_image_import();
     u64 sys_spu_thread_group_join();
     u64 sys_spu_thread_group_connect_event_all_threads();
 

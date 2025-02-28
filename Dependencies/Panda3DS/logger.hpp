@@ -88,6 +88,7 @@ static Logger rsx_cache         = Logger<true> ("[RSX    ][Cache         ] ");
 
 // Loader
 static Logger loader_elf        = Logger<1>    ("[Loader ][ELF           ] ");
+static Logger loader_spu        = Logger<1>    ("[Loader ][SPU           ] ");
 static Logger loader_prx        = Logger<1>    ("[Loader ][PRX           ] ");
 static Logger loader_sfo        = Logger<1>    ("[Loader ][SFO           ] ");
 static Logger loader_game       = Logger<1>    ("[Loader ][Game          ] ");
