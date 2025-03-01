@@ -15,6 +15,7 @@
 #include <ElfSymbolParser.hpp>
 #include <ModuleManager.hpp>
 #include <ThreadManager.hpp>
+#include <SPUThreadManager.hpp>
 #include <HandleManager.hpp>
 #include <PRXManager.hpp>
 #include <Lv2ObjectManager.hpp>
@@ -34,6 +35,7 @@ public:
     PPUInterpreter interpreter;
     ModuleManager module_manager;
     ThreadManager thread_manager;
+    SPUThreadManager spu_thread_manager;
     HandleManager handle_manager;
     PRXManager prx_manager;
     Lv2ObjectManager lv2_obj;

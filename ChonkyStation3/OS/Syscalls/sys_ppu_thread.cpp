@@ -24,7 +24,7 @@ u64 Syscall::sys_ppu_thread_join() {
     if (ps3->thread_manager.getThreadByID(thread_id)->waiter)   // Was a thread already for termination of this thread?
         return CELL_EINVAL;
 
-    if (ps3->thread_manager.getThreadByID(thread_id)->status != Thread::THREAD_STATUS::Terminated) {
+    if (ps3->thread_manager.getThreadByID(thread_id)->status != Thread::ThreadStatus::Terminated) {
         ps3->thread_manager.getThreadByID(thread_id)->join(thread_id, vptr);
         ps3->thread_manager.getCurrentThread()->wait();
     }

@@ -25,7 +25,7 @@ u64 Syscall::sys_event_queue_receive() {
         ||  ps3->thread_manager.getCurrentThread()->name == "faust_fl_PlatformScriptTimeout"
         //||  ps3->thread_manager.getCurrentThread()->name == "faust_fl_DownloadThread"
        ) {
-        ps3->thread_manager.getCurrentThread()->status = Thread::THREAD_STATUS::Sleeping;
+        ps3->thread_manager.getCurrentThread()->status = Thread::ThreadStatus::Sleeping;
         ps3->thread_manager.getCurrentThread()->reschedule();
     }
 

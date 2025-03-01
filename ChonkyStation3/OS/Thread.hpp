@@ -16,7 +16,7 @@ class Thread {
 public:
     Thread(u64 entry, u64 stack_size, u64 arg, s32 prio, const u8* name, u32 id, u32 tls_vaddr, u32 tls_filesize, u32 tls_memsize, ThreadManager* mgr);
     ThreadManager* mgr;
-    State state;
+    PPUTypes::State state;
     s32 prio;
     u64 stack;
     u64 stack_size;
@@ -44,13 +44,13 @@ public:
 
     MAKE_LOG_FUNCTION(log, thread);
 
-    enum class THREAD_STATUS {
+    enum class ThreadStatus {
         Running,
         Sleeping,
         Waiting,
         Terminated
     };
-    THREAD_STATUS status = THREAD_STATUS::Running;
+    ThreadStatus status = ThreadStatus::Running;
     int exit_status = 0;
 
     void reschedule(u64 cycles = 0);
@@ -61,12 +61,12 @@ public:
     void join(u32 id, u32 vptr);
     void exit(u64 exit_status);
 
-    static std::string threadStatusToString(THREAD_STATUS status) {
+    static std::string threadStatusToString(ThreadStatus status) {
         switch (status) {
-        case THREAD_STATUS::Running:    return "Running";
-        case THREAD_STATUS::Sleeping:   return "Sleeping";
-        case THREAD_STATUS::Waiting:    return "Waiting";
-        case THREAD_STATUS::Terminated: return "Terminated";
+        case ThreadStatus::Running:    return "Running";
+        case ThreadStatus::Sleeping:   return "Sleeping";
+        case ThreadStatus::Waiting:    return "Waiting";
+        case ThreadStatus::Terminated: return "Terminated";
         }
     }
 };

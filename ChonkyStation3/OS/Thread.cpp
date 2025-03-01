@@ -94,7 +94,7 @@ void Thread::reschedule(u64 cycles) {
 void Thread::sleep(u64 us) {
     const u64 cycles = Scheduler::uSecondsToCycles(us);
     mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), mgr->ps3->curr_block_cycles + cycles, "thread wakeup");
-    status = THREAD_STATUS::Sleeping;
+    status = ThreadStatus::Sleeping;
     reschedule();
     mgr->setAllHighPriority();
     log("Sleeping thread %d for %d us\n", id, us);
@@ -102,19 +102,19 @@ void Thread::sleep(u64 us) {
 
 void Thread::sleepForCycles(u64 cycles) {
     mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), mgr->ps3->curr_block_cycles + cycles, "thread wakeup");
-    status = THREAD_STATUS::Sleeping;
+    status = ThreadStatus::Sleeping;
     reschedule();
     log("Sleeping thread %d for %lld cycles\n", id, cycles);
 }
 
 void Thread::wait() {
-    status = THREAD_STATUS::Waiting;
+    status = ThreadStatus::Waiting;
     reschedule();
     log("Thread %d \"%s\" is waiting\n", id, name.c_str());
 }
 
 void Thread::wakeUp() {
-    status = THREAD_STATUS::Running;
+    status = ThreadStatus::Running;
     reschedule();
     log("Woke up thread %d \"%s\"\n", id, name.c_str());
 }
@@ -126,7 +126,7 @@ void Thread::join(u32 id, u32 vptr) {
 }
 
 void Thread::exit(u64 exit_status) {
-    status = THREAD_STATUS::Terminated;
+    status = ThreadStatus::Terminated;
     reschedule();
     log("Thread %d \"%s\" exited with status %d\n", id, name.c_str(), exit_status);
     this->exit_status = exit_status;

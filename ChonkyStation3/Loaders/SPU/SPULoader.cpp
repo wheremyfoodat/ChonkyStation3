@@ -22,6 +22,7 @@ void SPULoader::load(u32 img_ptr, sys_spu_image* img) {
         Helpers::panic("Couldn't load SPU image %s:\n%s\n", filename.c_str(), elf.validate().c_str());
     }
 
+    /*
     // Calculate size of the ELF
     size_t elf_size = 0;
     for (auto& i : elf.segments) {
@@ -35,6 +36,11 @@ void SPULoader::load(u32 img_ptr, sys_spu_image* img) {
     file.open(filename, std::ios::binary);
     file.write((char*)img_src, elf_size);
     file.close();
+
+    if (!elf.load(filename)) {
+        Helpers::panic("Couldn't load SPU image %s:\n%s\n", filename.c_str(), elf.validate().c_str());
+    }
+    */
 
     // Allocate segment table (there can be max 32 segments)
     const u32 segs_ptr = ps3->mem.alloc(sizeof(sys_spu_segment) * 32)->vaddr;

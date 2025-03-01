@@ -96,9 +96,12 @@ static Logger loader_game       = Logger<1>    ("[Loader ][Game          ] ");
 // Manager
 static Logger manager_prx       = Logger<1>    ("[Manager][PRX           ] ");
 
+// Thread
+static Logger thread            = Logger<false>("[Thread ][PPU           ] ");
+static Logger thread_spu        = Logger<true> ("[Thread ][SPU           ] ");
+
 // Other
 static Logger memory            = Logger<true> ("[Other  ][Memory        ] ");
-static Logger thread            = Logger<false>("[Other  ][Thread        ] ");
 static Logger lle_module        = Logger<true> ("[LLE    ][Module        ] ");
 static Logger filesystem        = Logger<true> ("[Other  ][Filesystem    ] ");
 static Logger lv2_obj           = Logger<true> ("[Other  ][Lv2 Object    ] ");

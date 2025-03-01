@@ -1,6 +1,9 @@
 #include "SysPrxForUser.hpp"
 #include "PlayStation3.hpp"
+#include <OS/Syscalls/sys_spu.hpp>
 
+
+using namespace sys_spu;
 
 u64 SysPrxForUser::sysProcessExit() {
     const s32 code = ARG0;
@@ -177,7 +180,7 @@ u64 SysPrxForUser::sys_spu_image_import() {
     log("sys_spu_image_import(image_ptr: 0x%08x, src: 0x%08x, type: 0x%08x) STUBBED\n", image_ptr, src, type);
     
     SPULoader loader = SPULoader(ps3);
-    SPULoader::sys_spu_image* image = (SPULoader::sys_spu_image*)ps3->mem.getPtr(image_ptr);
+    sys_spu_image* image = (sys_spu_image*)ps3->mem.getPtr(image_ptr);
     loader.load(src, image);
 
     return Result::CELL_OK;

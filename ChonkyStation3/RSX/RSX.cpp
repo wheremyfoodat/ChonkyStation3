@@ -592,7 +592,7 @@ void RSX::runCommandList() {
                     uploadFragmentUniforms();
 
                     /*for (auto& i : ps3->thread_manager.threads)
-                        i.status = Thread::THREAD_STATUS::Sleeping;
+                        i.status = Thread::ThreadStatus::Sleeping;
 
                     ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);*/
 

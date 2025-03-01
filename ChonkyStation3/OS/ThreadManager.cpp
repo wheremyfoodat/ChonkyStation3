@@ -58,7 +58,7 @@ void ThreadManager::reschedule() {
             // Does the thread have low priority?
             if (t.low_prio) continue;
 
-            if (t.status == Thread::THREAD_STATUS::Running) {
+            if (t.status == Thread::ThreadStatus::Running) {
                 if (!switch_to) {
                     switch_to = &t;
                     found_thread = true;
@@ -94,7 +94,7 @@ void ThreadManager::reschedule() {
             }
 
             if (!found_low_prio) {
-                if (getCurrentThread()->status == Thread::THREAD_STATUS::Running) break;
+                if (getCurrentThread()->status == Thread::ThreadStatus::Running) break;
                 else ps3->skipToNextEvent(); // Will panic if there are no events
             }
         }

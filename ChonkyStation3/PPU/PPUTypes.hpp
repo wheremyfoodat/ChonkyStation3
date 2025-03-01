@@ -63,7 +63,7 @@ struct State {
     u64 ctr = 0;
     u64 vrsave = 0;
 
-    State& operator=(const State& other) {
+    PPUTypes::State& operator=(const PPUTypes::State& other) {
         for (int i = 0; i < 32; i++) gprs[i] = other.gprs[i];
         for (int i = 0; i < 32; i++) fprs[i] = other.fprs[i];
         for (int i = 0; i < 32; i++) {

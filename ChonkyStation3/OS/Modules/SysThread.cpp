@@ -31,10 +31,8 @@ u64 SysThread::sysPPUThreadCreate() {
         //|| thread->name == "SPURS SystemWorkload Serv"
         //|| thread->name.contains("SpursHdlr")
        )
-        thread->status = Thread::THREAD_STATUS::Sleeping;
+        thread->status = Thread::ThreadStatus::Sleeping;
 
-    // TODO: For some reason rescheduling after creating a new thread breaks the Arkedo games (black screen) (TODO: check if this still happens)
-    //thread->reschedule();
     ps3->mem.write<u64>(thread_id_ptr, thread->id);
     return Result::CELL_OK;
 }
@@ -88,7 +86,7 @@ u64 SysThread::sysPPUThreadExit() {
     return Result::CELL_OK;
 }
 
-void SysThread::initializeTLS(u64 thread_id, u32 tls_seg_addr, u32 tls_seg_size, u32 tls_mem_size, State& state) {
+void SysThread::initializeTLS(u64 thread_id, u32 tls_seg_addr, u32 tls_seg_size, u32 tls_mem_size, PPUTypes::State& state) {
     // Allocate TLS memory
     const u32 tls_addr = ps3->thread_manager.allocTLS(tls_mem_size);
     const u8* tls_image_ptr = ps3->mem.getPtr(tls_seg_addr);

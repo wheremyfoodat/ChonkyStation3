@@ -8,12 +8,12 @@
 
 
 using namespace PPUTypes;
-static constexpr size_t MAX_SAVED_STATES = 64_MB / sizeof(State);
+static constexpr size_t MAX_SAVED_STATES = 64_MB / sizeof(PPUTypes::State);
 
 class CrashAnalyzer {
 public:
     struct Step {
-        State state;    // The state is the state of the PPU *before* executing the instruction
+        PPUTypes::State state;    // The state is the state of the PPU *before* executing the instruction
         Instruction instr;
     };
     std::deque<Step> state_queue;
@@ -54,6 +54,6 @@ public:
         }
     }
 
-    State&          lastState() { return state_queue.back().state; }
-    Instruction&    lastInstr() { return state_queue.back().instr; }
+    PPUTypes::State&    lastState() { return state_queue.back().state; }
+    Instruction&        lastInstr() { return state_queue.back().instr; }
 };

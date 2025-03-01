@@ -11,7 +11,7 @@ u64 SceNpTrophy::sceNpTrophyRegisterContext() {
     log("sceNpTrophyRegisterContext(ctx: 0x%0x8, handle: 0x%08x, callback_ptr: 0x%08x, arg: 0x%08x, options: 0x%08x)\n", ctx, handle, callback_ptr, arg, options);
 
     // Call callback
-    const State old_state = ps3->ppu->state;
+    const PPUTypes::State old_state = ps3->ppu->state;
     ps3->ppu->state.gprs[3] = 3;    // Installed
     ps3->ppu->state.gprs[4] = 0;
     ps3->ppu->state.gprs[5] = 0;
