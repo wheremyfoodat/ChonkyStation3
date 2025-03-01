@@ -46,9 +46,12 @@ u64 Syscall::sys_spu_thread_initialize() {
     const u32 arg_ptr = ARG5;
     log_sys_spu("sys_spu_thread_initialize(id_ptr: 0x%08x, group_id: %d, spu_num: %d, img_ptr: 0x%08x, attr_ptr: 0x%08x, arg_ptr: 0x%08x)\n", id_ptr, group_id, spu_num, img_ptr, attr_ptr, arg_ptr);
 
+    sys_spu_image* img = (sys_spu_image*)ps3->mem.getPtr(img_ptr);
     sys_spu_thread_attribute* attr = (sys_spu_thread_attribute*)ps3->mem.getPtr(attr_ptr);
     const auto name = Helpers::readString(ps3->mem.getPtr(attr->name_ptr));
-    ps3->spu_thread_manager.createThread(name);
+    
+    auto thread = ps3->spu_thread_manager.createThread(name);
+    thread->loadImage(img);
 
     return Result::CELL_OK;
 }

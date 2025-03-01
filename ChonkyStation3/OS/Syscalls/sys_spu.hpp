@@ -7,6 +7,10 @@
 // We break our naming conventions here to follow CellOS's instead
 namespace sys_spu {
 
+static constexpr s32 SYS_SPU_SEGMENT_TYPE_COPY = 0x0001;
+static constexpr s32 SYS_SPU_SEGMENT_TYPE_FILL = 0x0002;
+static constexpr s32 SYS_SPU_SEGMENT_TYPE_INFO = 0x0004;
+
 struct sys_spu_segment {
     BEField<s32> type;       // Segment type (COPY / FILL / INFO)
     BEField<u32> ls_addr;    // Addr in LS that this segment will be loaded to

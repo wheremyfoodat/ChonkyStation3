@@ -69,11 +69,13 @@ void SPULoader::load(u32 img_ptr, sys_spu_image* img) {
                 segs[n_segs].type = SYS_SPU_SEGMENT_TYPE_COPY;
                 segs[n_segs].ls_addr = seg->get_virtual_address();
                 segs[n_segs].src.addr = addr;
+                segs[n_segs].size = seg->get_memory_size();
             }
             else if (size < seg->get_memory_size()) {
                 segs[n_segs].type = SYS_SPU_SEGMENT_TYPE_FILL;
                 segs[n_segs].ls_addr = seg->get_virtual_address();
                 segs[n_segs].src.addr = 0;
+                segs[n_segs].size = seg->get_memory_size();
             }
             else {
                 Helpers::panic("SPULoader::load: segment file size > memory size\n");

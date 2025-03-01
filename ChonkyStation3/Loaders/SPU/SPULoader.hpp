@@ -15,10 +15,6 @@ class PlayStation3;
 
 static constexpr size_t EHDR_SIZE = 42;
 
-static constexpr s32 SYS_SPU_SEGMENT_TYPE_COPY = 0x0001;
-static constexpr s32 SYS_SPU_SEGMENT_TYPE_FILL = 0x0002;
-static constexpr s32 SYS_SPU_SEGMENT_TYPE_INFO = 0x0004;
-
 using namespace sys_spu;
 
 class SPULoader {
