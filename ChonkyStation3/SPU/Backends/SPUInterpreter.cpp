@@ -3,7 +3,7 @@
 
 
 #define UNIMPL_INSTR(name)                                          \
-void SPUInterpreter::##name(const SPUInstruction& instr) {          \
+void SPUInterpreter::name(const SPUInstruction& instr) {      \
     Helpers::panic("Unimplemented instruction %s\n", #name);        \
 }
 
