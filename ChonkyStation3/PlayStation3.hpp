@@ -6,7 +6,9 @@
 #include <unordered_map>
 
 #include <PPU.hpp>
-#include <Backends/PPUInterpreter.hpp>
+#include <PPU/Backends/PPUInterpreter.hpp>
+#include <SPU.hpp>
+#include <SPU/Backends/SPUInterpreter.hpp>
 #include <RSX.hpp>
 #include <Memory.hpp>
 #include <ELF/ELFLoader.hpp>
@@ -31,8 +33,10 @@ public:
     ~PlayStation3();
     Memory mem = Memory();
     PPU* ppu;
-    RSX rsx;
     PPUInterpreter interpreter;
+    SPU* spu;
+    SPUInterpreter spu_interpreter;
+    RSX rsx;
     ModuleManager module_manager;
     ThreadManager thread_manager;
     SPUThreadManager spu_thread_manager;

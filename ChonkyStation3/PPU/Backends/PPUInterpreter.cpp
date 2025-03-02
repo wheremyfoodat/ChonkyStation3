@@ -7,6 +7,8 @@
 //#define TRACK_STATE
 #define ENABLE_CONDITIONAL_TRACE_LOG
 
+using Instruction = PPUTypes::Instruction;
+
 PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
     // Generate a rotation mask array - this code is adapted from RPCS3
     for (u32 mb = 0; mb < 64; mb++) {

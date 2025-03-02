@@ -25,7 +25,7 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, s32 prio
         threads.back().finalizeArgsAndEnv();
     }
 
-    printf("Created thread %d \"%s\" (entry: 0x%08x)\n", threads.back().id, threads.back().name.c_str(), (u32)threads.back().state.pc);
+    log("Created thread %d \"%s\" (entry: 0x%08x)\n", threads.back().id, threads.back().name.c_str(), (u32)threads.back().state.pc);
 
     return &threads.back();
 }
@@ -34,7 +34,7 @@ void ThreadManager::contextSwitch(Thread& thread) {
     Thread* current_thread = getCurrentThread();
     if (current_thread->id == thread.id) return;
 
-    printf("Switched from thread %s to thread %s\n", current_thread->name.c_str(), thread.name.c_str());
+    log("Switched from thread \"%s\" to thread \"%s\"\n", current_thread->name.c_str(), thread.name.c_str());
     current_thread->state = ps3->ppu->state;
     ps3->ppu->state = thread.state;
     current_thread_id = thread.id;
@@ -44,7 +44,7 @@ void ThreadManager::contextSwitch(Thread& thread) {
 //       This is what I managed to come up with on my own.
 void ThreadManager::reschedule() {
     bool found_thread = false;
-    //printf("Rescheduling...\n");
+    //log("Rescheduling...\n");
 
     int curr_thread = 0;
     while (threads[curr_thread].id != getCurrentThread()->id) curr_thread++;
@@ -53,7 +53,7 @@ void ThreadManager::reschedule() {
         Thread* switch_to = nullptr;
         for (int i = 0; i < threads.size() - 1; i++) {
             Thread& t = threads[(curr_thread + 1 + i) % threads.size()];    // +1 because we want to begin searching from the thread after the current thread
-            //printf("Thread %s (%d): %s\n", t.name.c_str(), t.id, Thread::threadStatusToString(t.status).c_str());
+            //log("Thread %s (%d): %s\n", t.name.c_str(), t.id, Thread::threadStatusToString(t.status).c_str());
 
             // Does the thread have low priority?
             if (t.low_prio) continue;

@@ -76,9 +76,10 @@ public:
     u64 sys_raw_spu_create();
     u64 sys_spu_thread_group_create();
     u64 sys_spu_thread_initialize();
-    u64 sys_spu_image_import();
+    u64 sys_spu_thread_group_start();
     u64 sys_spu_thread_group_join();
     u64 sys_spu_thread_group_connect_event_all_threads();
+    u64 sys_spu_image_import();
 
     // Temporary until I move the FS syscalls to their own file
     enum CELL_FS_S : u32 {

@@ -1,8 +1,9 @@
 #include "PlayStation3.hpp"
 
 
-PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable), interpreter(mem, this), rsx(this), syscall(this), module_manager(this), thread_manager(this), spu_thread_manager(this), prx_manager(this), fs(this), lv2_obj(this, &handle_manager) {
+PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable), interpreter(mem, this), spu_interpreter(this), rsx(this), syscall(this), module_manager(this), thread_manager(this), spu_thread_manager(this), prx_manager(this), fs(this), lv2_obj(this, &handle_manager) {
     ppu = &interpreter;
+    spu = &spu_interpreter;
     
     module_manager.init();
 
@@ -124,6 +125,7 @@ void PlayStation3::run() {
 
 void PlayStation3::step() {
     ppu->step();
+    spu->step();
 }
 
 void PlayStation3::printCrashInfo(std::exception err) {

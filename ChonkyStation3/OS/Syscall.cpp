@@ -119,7 +119,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 169:   todo("sys_spu_initialize()");                                                   break;
     case 170:   ps3->ppu->state.gprs[3] = sys_spu_thread_group_create();                        break;
     case 172:   ps3->ppu->state.gprs[3] = sys_spu_thread_initialize();                          break;
-    case 173:   todo("sys_spu_thread_group_start()");                                           break;
+    case 173:   ps3->ppu->state.gprs[3] = sys_spu_thread_group_start();                         break;
     case 174:   todo("sys_spu_thread_group_suspend()");                                         break;
     case 178:   ps3->ppu->state.gprs[3] = sys_spu_thread_group_join();                          break;
     case 182:   todo("sys_spu_thread_read_ls()");                                               break;

@@ -42,8 +42,6 @@ public:
     void finalizeEnv();
     void finalizeArgsAndEnv();  // To be called after finalizeArgs and finalizeEnv (used to align the stack)
 
-    MAKE_LOG_FUNCTION(log, thread);
-
     enum class ThreadStatus {
         Running,
         Sleeping,
@@ -69,4 +67,7 @@ public:
         case ThreadStatus::Terminated: return "Terminated";
         }
     }
+
+private:
+    MAKE_LOG_FUNCTION(log, thread);
 };

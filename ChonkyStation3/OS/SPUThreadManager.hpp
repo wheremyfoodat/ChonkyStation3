@@ -14,6 +14,14 @@ public:
     PlayStation3* ps3;
 
     SPUThread* createThread(std::string name);
+    void contextSwitch(SPUThread& thread);
+    SPUThread* getCurrentThread();
+    SPUThread* getThreadByID(u32 id);
+    void reschedule();
+
     std::vector<SPUThread> threads;
     u64 current_thread_id;
+
+private:
+    MAKE_LOG_FUNCTION(log, thread_spu);
 };

@@ -1,0 +1,27 @@
+#pragma once
+
+#include <common.hpp>
+#include <BitField.hpp>
+
+#include <Memory.hpp>
+#include <SPUTypes.hpp>
+
+
+// Circular dependency
+class PlayStation3;
+
+class SPU {
+public:
+    SPU(PlayStation3* ps3) : ps3(ps3) {}
+    PlayStation3* ps3;
+    virtual void step();
+
+    bool enabled = false;
+    SPUTypes::State state;
+    u8* ls;
+
+    void printState();
+
+    template<typename T> T read(u64 addr);
+    template<typename T> void write(u64 addr, T data);
+};

@@ -50,8 +50,23 @@ u64 Syscall::sys_spu_thread_initialize() {
     sys_spu_thread_attribute* attr = (sys_spu_thread_attribute*)ps3->mem.getPtr(attr_ptr);
     const auto name = Helpers::readString(ps3->mem.getPtr(attr->name_ptr));
     
+    // Create thread and load image
     auto thread = ps3->spu_thread_manager.createThread(name);
     thread->loadImage(img);
+
+    // Register this thread in the SPU thread group
+    Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);
+    group->threads.push_back(thread->id);
+
+    return Result::CELL_OK;
+}
+
+u64 Syscall::sys_spu_thread_group_start() {
+    const u32 group_id = ARG0;
+    log_sys_spu("sys_spu_thread_group_start(group_id: %d)\n", group_id);
+
+    Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);
+    group->start(ps3);
 
     return Result::CELL_OK;
 }
