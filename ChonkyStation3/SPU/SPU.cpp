@@ -6,8 +6,12 @@ void SPU::step() {
 }
 
 void SPU::printState() {
-    for (int i = 0; i < 128; i++)
-        printf("r%d: { 0x%08x, 0x%08x, 0x%08x, 0x%08x }\n", i, state.gprs[i].w[0], state.gprs[i].w[1], state.gprs[i].w[2], state.gprs[i].w[3]);
+    for (int i = 0; i < 128; i++) {
+        printf("r%d: { 0x%08x, 0x%08x, 0x%08x, 0x%08x } 0x", i, state.gprs[i].w[3], state.gprs[i].w[2], state.gprs[i].w[1], state.gprs[i].w[0]);
+        for (int j = 0; j < 16; j++)
+            printf("%02x", state.gprs[i].b[15 - j]);
+        printf("\n");
+    }
 }
 
 template<typename T>

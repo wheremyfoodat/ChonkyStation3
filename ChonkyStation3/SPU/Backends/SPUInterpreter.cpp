@@ -2,9 +2,9 @@
 #include <PlayStation3.hpp>
 
 
-#define UNIMPL_INSTR(name)                                          \
-void SPUInterpreter::name(const SPUInstruction& instr) {      \
-    Helpers::panic("Unimplemented instruction %s\n", #name);        \
+#define UNIMPL_INSTR(name)                                                      \
+void SPUInterpreter::name(const SPUInstruction& instr) {                        \
+    Helpers::panic("Unimplemented instruction %s @ 0x%08x\n", #name, state.pc); \
 }
 
 SPUInterpreter::SPUInterpreter(PlayStation3* ps3) : SPU(ps3) {
@@ -219,7 +219,6 @@ void SPUInterpreter::step() {
 
     const SPUInstruction instr = { .raw = read<u32>(state.pc) };
     const auto opc = (instr.raw >> (31 - INSTR_BITS)) & INSTR_MASK;
-    printf("fetched instr 0x%08x (opc: 0x%04x)\n", instr.raw, opc);
 
     (*this.*instr_table[opc])(instr);
     printState();
@@ -228,7 +227,7 @@ void SPUInterpreter::step() {
 
 void SPUInterpreter::registerInstruction(u32 size, u32 opc, void (SPUInterpreter::*handler)(const SPUInstruction&)) {
     for (int i = 0; i < (1 << (INSTR_BITS - size)); i++) {
-        instr_table[(opc << (10 - size)) | i] = handler;
+        instr_table[(opc << (INSTR_BITS - size)) | i] = handler;
     }
 }
 
@@ -238,6 +237,32 @@ void SPUInterpreter::unimpl(const SPUInstruction& instr) {
     Helpers::panic("Unimplemented instruction\n");
 }
 
+void SPUInterpreter::cwd(const SPUInstruction& instr) {
+    const u32 t = (state.gprs[instr.ra].w[3] + ext<s8, 7>(instr.i7)) & 0xc;
+    state.gprs[instr.rt].dw[1] = 0x1011121314151617;
+    state.gprs[instr.rt].dw[0] = 0x18191A1B1C1D1E1F;
+    state.gprs[instr.rt].w[3 - (t >> 2)] = 0x00010203;
+}
+
+void SPUInterpreter::cdd(const SPUInstruction& instr) {
+    const u32 t = (state.gprs[instr.ra].w[3] + ext<s8, 7>(instr.i7)) & 0x8;
+    state.gprs[instr.rt].dw[1] = 0x1011121314151617;
+    state.gprs[instr.rt].dw[0] = 0x18191A1B1C1D1E1F;
+    state.gprs[instr.rt].dw[1 - (t >> 3)] = 0x0001020304050607;
+}
+
+void SPUInterpreter::lqa(const SPUInstruction& instr) {
+    const u32 addr = (instr.i16 << 2) & 0x3fff0;
+    for (int i = 0; i < 16; i++)
+        state.gprs[instr.rt].b[15 - i] = ls[addr + i];
+}
+
+void SPUInterpreter::lqr(const SPUInstruction& instr) {
+    const u32 addr = (state.pc + (instr.i16 << 2)) & 0x3fff0;
+    for (int i = 0; i < 16; i++)
+        state.gprs[instr.rt].b[15 - i] = ls[addr + i];
+}
+
 void SPUInterpreter::hbrr(const SPUInstruction& instr) {}
 
 void SPUInterpreter::ila(const SPUInstruction& instr) {
@@ -245,6 +270,20 @@ void SPUInterpreter::ila(const SPUInstruction& instr) {
     state.gprs[instr.rt].w[1] = instr.i18;
     state.gprs[instr.rt].w[2] = instr.i18;
     state.gprs[instr.rt].w[3] = instr.i18;
+}
+
+void SPUInterpreter::shufb(const SPUInstruction& instr) {
+    u8 src[32];
+    for (int i = 0; i < 16; i++) src[i +  0] = state.gprs[instr.rb].b[i];
+    for (int i = 0; i < 16; i++) src[i + 16] = state.gprs[instr.ra].b[i];
+    
+    for (int i = 0; i < 16; i++) {
+        const u8 b = state.gprs[instr.rc].b[i];
+        if ((b >> 6) == 0b10)       state.gprs[instr.rt].b[i] = 0;
+        else if ((b >> 5) == 0b110) state.gprs[instr.rt].b[i] = 0xff;
+        else if ((b >> 5) == 0b111) state.gprs[instr.rt].b[i] = 0x80;
+        else state.gprs[instr.rt].b[i] = src[31 - (b & 0x1f)];
+    }
 }
 
 UNIMPL_INSTR(stop);
@@ -320,8 +359,8 @@ UNIMPL_INSTR(shlqby);
 UNIMPL_INSTR(orx);
 UNIMPL_INSTR(cbd);
 UNIMPL_INSTR(chd);
-UNIMPL_INSTR(cwd);
-UNIMPL_INSTR(cdd);
+//UNIMPL_INSTR(cwd);
+//UNIMPL_INSTR(cdd);
 UNIMPL_INSTR(rotqbii);
 UNIMPL_INSTR(rotqmbii);
 UNIMPL_INSTR(shlqbii);
@@ -398,12 +437,12 @@ UNIMPL_INSTR(brhz);
 UNIMPL_INSTR(brhnz);
 UNIMPL_INSTR(stqr);
 UNIMPL_INSTR(bra);
-UNIMPL_INSTR(lqa);
+//UNIMPL_INSTR(lqa);
 UNIMPL_INSTR(brasl);
 UNIMPL_INSTR(br);
 UNIMPL_INSTR(fsmbi);
 UNIMPL_INSTR(brsl);
-UNIMPL_INSTR(lqr);
+//UNIMPL_INSTR(lqr);
 UNIMPL_INSTR(il);
 UNIMPL_INSTR(ilhu);
 UNIMPL_INSTR(ilh);
@@ -441,7 +480,7 @@ UNIMPL_INSTR(hbra);
 //UNIMPL_INSTR(hbrr);
 //UNIMPL_INSTR(ila);
 UNIMPL_INSTR(selb);
-UNIMPL_INSTR(shufb);
+//UNIMPL_INSTR(shufb);
 UNIMPL_INSTR(mpya);
 UNIMPL_INSTR(fnms);
 UNIMPL_INSTR(fma);
