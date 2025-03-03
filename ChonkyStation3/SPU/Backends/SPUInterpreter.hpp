@@ -15,7 +15,7 @@ class PlayStation3;
 
 using namespace SPUTypes;
 
-static constexpr u32 INSTR_BITS = 10;
+static constexpr u32 INSTR_BITS = 11;
 static constexpr u32 INSTR_TABLE_SIZE = 1 << INSTR_BITS;
 static constexpr u32 INSTR_MASK = INSTR_TABLE_SIZE - 1;
 
