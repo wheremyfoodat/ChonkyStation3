@@ -34,6 +34,38 @@ public:
 
     void loadImage(sys_spu_image* img);
 
+    // MFC
+    enum MFC_Channel: u32 {
+        MFC_WrMSSyncReq     = 9,
+        MFC_RdTagMask       = 12,
+        MFC_LSA             = 16,
+        MFC_EAH             = 17, 
+        MFC_EAL             = 18,
+        MFC_Size            = 19,
+        MFC_TagID           = 20,
+        MFC_Cmd             = 21,
+        MFC_WrTagMask       = 22,
+        MFC_WrTagUpdate     = 23,
+        MFC_RdTagStat       = 24,
+        MFC_RdListStallStat = 25,
+        MFC_WrListStallAck  = 26,
+        MFC_RdAtomicStat    = 27,
+    };
+
+    enum MFC_Command : u32 {
+        GET = 0x40
+    };
+
+    u32 lsa = 0;
+    u32 eah = 0;
+    u32 eal = 0;
+    u32 size = 0;
+    u32 tag_id = 0;
+
+    std::string channelToString(u32 ch);
+    void writeChannel(u32 ch, u32 val);
+    void doCmd(u32 cmd);
+
 private:
     MAKE_LOG_FUNCTION(log, thread_spu);
 };

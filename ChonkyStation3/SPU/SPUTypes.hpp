@@ -24,6 +24,7 @@ union SPUInstruction {
     BitField<0,  7,  u32> rt0;
     BitField<0,  7,  u32> rc;
     BitField<7,  7,  u32> ra;
+    BitField<7,  7,  u32> ch;
     BitField<7,  16, u32> i16;
     BitField<7,  18, u32> i18;
     BitField<14, 2,  u32> roh;

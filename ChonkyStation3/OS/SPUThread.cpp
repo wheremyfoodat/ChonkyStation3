@@ -39,3 +39,57 @@ void SPUThread::loadImage(sys_spu_image* img) {
     file.close();
     */
 }
+
+std::string SPUThread::channelToString(u32 ch) {
+    switch (ch) {
+    
+    case MFC_WrMSSyncReq:       return "MFC_WrMSSyncReq";
+    case MFC_RdTagMask:         return "MFC_RdTagMask";
+    case MFC_LSA:               return "MFC_LSA";
+    case MFC_EAH:               return "MFC_EAH";
+    case MFC_EAL:               return "MFC_EAL";
+    case MFC_Size:              return "MFC_Size";
+    case MFC_TagID:             return "MFC_TagID";
+    case MFC_Cmd:               return "MFC_Cmd";
+    case MFC_WrTagMask:         return "MFC_WrTagMask";
+    case MFC_WrTagUpdate:       return "MFC_WrTagUpdate";
+    case MFC_RdTagStat:         return "MFC_RdTagStat";
+    case MFC_RdListStallStat:   return "MFC_RdListStallStat";
+    case MFC_WrListStallAck:    return "MFC_WrListStallAck";
+    case MFC_RdAtomicStat:      return "MFC_RdAtomicStat";
+
+    default: Helpers::panic("Tried to get name of bad MFC channel %d\n", ch);
+    }
+}
+
+void SPUThread::writeChannel(u32 ch, u32 val) {
+    log("%s = 0x%08x\n", channelToString(ch).c_str(), val);
+    switch (ch) {
+     
+    case MFC_LSA:           lsa     = val;  break;
+    case MFC_EAH:           eah     = val;  break;
+    case MFC_EAL:           eal     = val;  break;
+    case MFC_Size:          size    = val;  break;
+    case MFC_TagID:         tag_id  = val;  break;
+    case MFC_Cmd:           doCmd(val);     break;
+    case MFC_WrTagMask:     /* TODO */      break;
+    case MFC_WrTagUpdate:   /* TODO */      break;
+
+    default:
+        Helpers::panic("Unimplemented MFC channel write 0x%02x\n", ch);
+    }
+}
+
+void SPUThread::doCmd(u32 cmd) {
+    switch (cmd) {
+        
+    case GET: {
+        log("GET\n");
+        std::memcpy(&ls[lsa], ps3->mem.getPtr(eal), size);
+        break;
+    }
+
+    default:
+        Helpers::panic("Unimplemented MFC command 0x%02x\n", cmd);
+    }
+}
