@@ -48,11 +48,17 @@ u64 Syscall::sys_spu_thread_initialize() {
 
     sys_spu_image* img = (sys_spu_image*)ps3->mem.getPtr(img_ptr);
     sys_spu_thread_attribute* attr = (sys_spu_thread_attribute*)ps3->mem.getPtr(attr_ptr);
+    sys_spu_thread_argument* arg = (sys_spu_thread_argument*)ps3->mem.getPtr(arg_ptr);
     const auto name = Helpers::readString(ps3->mem.getPtr(attr->name_ptr));
     
     // Create thread and load image
     auto thread = ps3->spu_thread_manager.createThread(name);
     thread->loadImage(img);
+    // Setup arguments
+    thread->state.gprs[3].dw[1] = arg->arg1;
+    thread->state.gprs[4].dw[1] = arg->arg2;
+    thread->state.gprs[5].dw[1] = arg->arg3;
+    thread->state.gprs[6].dw[1] = arg->arg4;
 
     // Register this thread in the SPU thread group
     Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);

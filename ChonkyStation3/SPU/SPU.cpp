@@ -5,7 +5,13 @@ void SPU::step() {
     Helpers::panic("Backend did not define step function\n");
 }
 
+void SPU::clr(SPUTypes::GPR& gpr) {
+    gpr.dw[0] = 0;
+    gpr.dw[1] = 0;
+}
+
 void SPU::printState() {
+    printf("pc: 0x%08x\n", state.pc);
     for (int i = 0; i < 128; i++) {
         printf("r%d: { 0x%08x, 0x%08x, 0x%08x, 0x%08x } 0x", i, state.gprs[i].w[3], state.gprs[i].w[2], state.gprs[i].w[1], state.gprs[i].w[0]);
         for (int j = 0; j < 16; j++)

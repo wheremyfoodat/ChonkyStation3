@@ -20,6 +20,7 @@ public:
     SPUTypes::State state;
     u8* ls;
 
+    void clr(SPUTypes::GPR& gpr);   // Clears a register
     void printState();
 
     template<typename T> T read(u64 addr);

@@ -21,11 +21,10 @@ struct State {
 
 union SPUInstruction {
     u32 raw;
-    BitField<0,  7,  u32> rt;
+    BitField<0,  7,  u32> rt0;
     BitField<0,  7,  u32> rc;
     BitField<7,  7,  u32> ra;
     BitField<7,  16, u32> i16;
-    BitField<7,  16, u32> si16;
     BitField<7,  18, u32> i18;
     BitField<14, 2,  u32> roh;
     BitField<14, 7,  u32> rb;
@@ -36,7 +35,7 @@ union SPUInstruction {
     BitField<18, 1,  u32> e;
     BitField<19, 1,  u32> d;
     BitField<20, 1,  u32> c;
-    BitField<21, 7,  u32> rt4;
+    BitField<21, 7,  u32> rt;
     BitField<23, 2,  u32> r0h;
 };
 
