@@ -63,6 +63,7 @@ public:
     u32 tag_id = 0;
 
     std::string channelToString(u32 ch);
+    u32  readChannel(u32 ch);
     void writeChannel(u32 ch, u32 val);
     void doCmd(u32 cmd);
 

@@ -237,6 +237,12 @@ void SPUInterpreter::unimpl(const SPUInstruction& instr) {
     Helpers::panic("Unimplemented instruction\n");
 }
 
+void SPUInterpreter::sync(const SPUInstruction& instr) {}
+
+void SPUInterpreter::rdch(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].w[3] = ps3->spu_thread_manager.getCurrentThread()->readChannel(instr.ch);
+}
+
 void SPUInterpreter::shli(const SPUInstruction& instr) {
     const auto sh = instr.i7 & 0x3f;
     state.gprs[instr.rt0].w[0] = state.gprs[instr.ra].w[0] << sh;
@@ -261,6 +267,14 @@ void SPUInterpreter::cg(const SPUInstruction& instr) {
 
 void SPUInterpreter::wrch(const SPUInstruction& instr) {
     ps3->spu_thread_manager.getCurrentThread()->writeChannel(instr.ch, state.gprs[instr.rt0].w[3]);
+}
+
+void SPUInterpreter::gb(const SPUInstruction& instr) {
+    clr(state.gprs[instr.rt0]);
+    state.gprs[instr.rt0].w[3]  = (state.gprs[instr.ra].w[0] & 1) << 0;
+    state.gprs[instr.rt0].w[3] |= (state.gprs[instr.ra].w[1] & 1) << 1;
+    state.gprs[instr.rt0].w[3] |= (state.gprs[instr.ra].w[2] & 1) << 2;
+    state.gprs[instr.rt0].w[3] |= (state.gprs[instr.ra].w[3] & 1) << 3;
 }
 
 void SPUInterpreter::fsm(const SPUInstruction& instr) {
@@ -310,6 +324,13 @@ void SPUInterpreter::shlqbyi(const SPUInstruction& instr) {
         state.gprs[instr.rt0].b[i] = temp.b[i - sh];
 }
 
+void SPUInterpreter::ceq(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].w[0] = (state.gprs[instr.ra].w[0] == state.gprs[instr.rb].w[0]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[1] = (state.gprs[instr.ra].w[1] == state.gprs[instr.rb].w[1]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[2] = (state.gprs[instr.ra].w[2] == state.gprs[instr.rb].w[2]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[3] = (state.gprs[instr.ra].w[3] == state.gprs[instr.rb].w[3]) ? 0xffffffff : 0;
+}
+
 void SPUInterpreter::addx(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[0] = state.gprs[instr.ra].w[0] + state.gprs[instr.rb].w[0] + (state.gprs[instr.rt0].w[0] & 1);
     state.gprs[instr.rt0].w[1] = state.gprs[instr.ra].w[1] + state.gprs[instr.rb].w[1] + (state.gprs[instr.rt0].w[1] & 1);
@@ -321,6 +342,13 @@ void SPUInterpreter::stqa(const SPUInstruction& instr) {
     const u32 addr = (instr.i16 << 2) & 0x3fff0;
     for (int i = 0; i < 16; i++)
         ls[addr + i] = state.gprs[instr.rt0].b[15 - i];
+}
+
+void SPUInterpreter::brnz(const SPUInstruction& instr) {
+    if (state.gprs[instr.rt0].w[3] != 0) {
+        const u32 addr = state.pc + (s16)(instr.i16 << 2);
+        state.pc = addr - 4;
+    }
 }
 
 void SPUInterpreter::stqr(const SPUInstruction& instr) {
@@ -430,6 +458,14 @@ void SPUInterpreter::xorbi(const SPUInstruction& instr) {
         state.gprs[instr.rt0].b[i] = state.gprs[instr.ra].b[i] ^ b;
 }
 
+void SPUInterpreter::cgti(const SPUInstruction& instr) {
+    const s32 val = ext<s32, 10>(instr.si10);
+    state.gprs[instr.rt0].w[0] = (state.gprs[instr.ra].w[0] > val) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[1] = (state.gprs[instr.ra].w[1] > val) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[2] = (state.gprs[instr.ra].w[2] > val) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[3] = (state.gprs[instr.ra].w[3] > val) ? 0xffffffff : 0;
+}
+
 void SPUInterpreter::clgti(const SPUInstruction& instr) {
     const u32 val = ext<s32, 10>(instr.si10);
     state.gprs[instr.rt0].w[0] = (state.gprs[instr.ra].w[0] > val) ? 0xffffffff : 0;
@@ -476,10 +512,10 @@ void SPUInterpreter::shufb(const SPUInstruction& instr) {
 
 UNIMPL_INSTR(stop);
 UNIMPL_INSTR(lnop);
-UNIMPL_INSTR(sync);
+//UNIMPL_INSTR(sync);
 UNIMPL_INSTR(dsync);
 UNIMPL_INSTR(mfspr);
-UNIMPL_INSTR(rdch);
+//UNIMPL_INSTR(rdch);
 UNIMPL_INSTR(rchcnt);
 UNIMPL_INSTR(sf);
 UNIMPL_INSTR(or_);
@@ -522,7 +558,7 @@ UNIMPL_INSTR(bisl);
 UNIMPL_INSTR(iret);
 UNIMPL_INSTR(bisled);
 UNIMPL_INSTR(hbr);
-UNIMPL_INSTR(gb);
+//UNIMPL_INSTR(gb);
 UNIMPL_INSTR(gbh);
 UNIMPL_INSTR(gbb);
 //UNIMPL_INSTR(fsm);
@@ -588,7 +624,7 @@ UNIMPL_INSTR(dfma);
 UNIMPL_INSTR(dfms);
 UNIMPL_INSTR(dfnms);
 UNIMPL_INSTR(dfnma);
-UNIMPL_INSTR(ceq);
+//UNIMPL_INSTR(ceq);
 UNIMPL_INSTR(mpyhhu);
 //UNIMPL_INSTR(addx);
 UNIMPL_INSTR(sfx);
@@ -620,7 +656,7 @@ UNIMPL_INSTR(csflt);
 UNIMPL_INSTR(cuflt);
 UNIMPL_INSTR(brz);
 //UNIMPL_INSTR(stqa);
-UNIMPL_INSTR(brnz);
+//UNIMPL_INSTR(brnz);
 UNIMPL_INSTR(brhz);
 UNIMPL_INSTR(brhnz);
 //UNIMPL_INSTR(stqr);
@@ -650,7 +686,7 @@ UNIMPL_INSTR(lqd);
 //UNIMPL_INSTR(xori);
 UNIMPL_INSTR(xorhi);
 //UNIMPL_INSTR(xorbi);
-UNIMPL_INSTR(cgti);
+//UNIMPL_INSTR(cgti);
 UNIMPL_INSTR(cgthi);
 UNIMPL_INSTR(cgtbi);
 UNIMPL_INSTR(hgti);

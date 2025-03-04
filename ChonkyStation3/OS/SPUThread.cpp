@@ -62,8 +62,21 @@ std::string SPUThread::channelToString(u32 ch) {
     }
 }
 
+u32 SPUThread::readChannel(u32 ch) {
+    log("Read %s\n", channelToString(ch).c_str());
+
+    switch (ch) {
+    
+    case MFC_RdTagStat: return 0xffffffff;  break;  // TODO
+
+    default:
+        Helpers::panic("Unimplemented MFC channel read 0x%02x\n", ch);
+    }
+}
+
 void SPUThread::writeChannel(u32 ch, u32 val) {
     log("%s = 0x%08x\n", channelToString(ch).c_str(), val);
+
     switch (ch) {
      
     case MFC_LSA:           lsa     = val;  break;
