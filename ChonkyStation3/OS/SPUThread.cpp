@@ -40,6 +40,12 @@ void SPUThread::loadImage(sys_spu_image* img) {
     */
 }
 
+void SPUThread::halt() {
+    log("Halting thread %d \"%s\"\n", id, name.c_str());
+    status = ThreadStatus::Terminated;
+    ps3->spu_thread_manager.reschedule();
+}
+
 std::string SPUThread::channelToString(u32 ch) {
     switch (ch) {
     
@@ -67,7 +73,8 @@ u32 SPUThread::readChannel(u32 ch) {
 
     switch (ch) {
     
-    case MFC_RdTagStat: return 0xffffffff;  break;  // TODO
+    case MFC_RdTagStat:     return 0xffffffff;  break;  // TODO
+    case MFC_RdAtomicStat:  return 0b110;       break;  // TODO
 
     default:
         Helpers::panic("Unimplemented MFC channel read 0x%02x\n", ch);
@@ -95,9 +102,21 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
 
 void SPUThread::doCmd(u32 cmd) {
     switch (cmd) {
-        
+       
     case GET: {
         log("GET\n");
+        std::memcpy(&ls[lsa], ps3->mem.getPtr(eal), size);
+        break;
+    }
+
+    case PUTLLC: {
+        log("PUTLLC\n");
+        std::memcpy(ps3->mem.getPtr(eal), &ls[lsa], size);
+        break;
+    }
+
+    case GETLLAR: {
+        log("GETLLAR\n");
         std::memcpy(&ls[lsa], ps3->mem.getPtr(eal), size);
         break;
     }

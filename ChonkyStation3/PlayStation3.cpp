@@ -129,7 +129,10 @@ void PlayStation3::step() {
 }
 
 void PlayStation3::printCrashInfo(std::exception err) {
+    printf("PPU state:\n");
     ppu->printState();
+    printf("SPU state:\n");
+    spu->printState();
 
     const std::string error = err.what();
     printf("FATAL: %s\n", err.what());

@@ -33,6 +33,7 @@ public:
     ThreadStatus status = ThreadStatus::Ready;
 
     void loadImage(sys_spu_image* img);
+    void halt();
 
     // MFC
     enum MFC_Channel: u32 {
@@ -53,7 +54,9 @@ public:
     };
 
     enum MFC_Command : u32 {
-        GET = 0x40
+        GET     = 0x40,
+        PUTLLC  = 0xb4,
+        GETLLAR = 0xd0,
     };
 
     u32 lsa = 0;
