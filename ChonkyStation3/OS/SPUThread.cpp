@@ -41,7 +41,7 @@ void SPUThread::loadImage(sys_spu_image* img) {
 }
 
 void SPUThread::halt() {
-    log("Halting thread %d \"%s\"\n", id, name.c_str());
+    Helpers::panic("Halting thread %d \"%s\"\n", id, name.c_str());
     status = ThreadStatus::Terminated;
     ps3->spu_thread_manager.reschedule();
 }
@@ -119,7 +119,6 @@ void SPUThread::doCmd(u32 cmd) {
         // Update atomic stat
         atomic_stat = 0;
         atomic_stat |= !success;    // Bit 0 is set if the reservation was lost 
-        atomic_stat |= (success << 1);  // Bit 1 is set when putllc completes
         break;
     }
 

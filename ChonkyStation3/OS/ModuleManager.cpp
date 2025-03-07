@@ -188,7 +188,7 @@ void ModuleManager::init() {
         { 0x652b70e2, { "cellSpursTasksetAttributeSetName",                 std::bind(&CellSpurs::cellSpursTasksetAttributeSetName, &cellSpurs) }},
         { 0x82275c1c, { "cellSpursAttributeSetMemoryContainerForSpuThread", std::bind(&CellSpurs::cellSpursAttributeSetMemoryContainerForSpuThread, &cellSpurs) }},
         { 0x87630976, { "cellSpursEventFlagAttachLv2EventQueue",            std::bind(&CellSpurs::cellSpursEventFlagAttachLv2EventQueue, &cellSpurs) }},
-        { 0x8a85674d, { "_cellSpursLFQueuePushBody",                        std::bind(&CellSpurs::_cellSpursLFQueuePushBody, &cellSpurs), true }},
+        { 0x8a85674d, { "_cellSpursLFQueuePushBody",                        std::bind(&CellSpurs::_cellSpursLFQueuePushBody, &cellSpurs) }},
         { 0x95180230, { "_cellSpursAttributeInitialize",                    std::bind(&CellSpurs::_cellSpursAttributeInitialize, &cellSpurs) }},
         { 0x9dcbcb5d, { "cellSpursAttributeEnableSystemWorkload",           std::bind(&CellSpurs::cellSpursAttributeEnableSystemWorkload, &cellSpurs) }},
         { 0xa73bf47e, { "_cellSpursWorkloadFlagReceiver",                   std::bind(&CellSpurs::_cellSpursWorkloadFlagReceiver, &cellSpurs) }},
