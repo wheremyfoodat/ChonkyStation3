@@ -113,7 +113,9 @@ public:
 
     // Reservations
     void reserveAddress(u64 vaddr);
+    void reserveAddress(u64 vaddr, u64 thread_id);
     bool acquireReservation(u64 vaddr); // Returns false if the reservation was lost
+    bool acquireReservation(u64 vaddr, u64 thread_id);
     void reservedWrite(u64 vaddr);  // Handler function for reserved writes
     void setCurrentThreadID(u64 id) { curr_thread_id = id; }
     std::unordered_map<u64, u64> reservations;  // First u64 is the vaddr, second u64 is the ID of the thread that created the reservation

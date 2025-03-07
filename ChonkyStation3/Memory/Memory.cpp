@@ -266,8 +266,13 @@ u8* Memory::getPtr(u64 vaddr) {
 
 // Creates a reservation for the given virtual address.
 void Memory::reserveAddress(u64 vaddr) {
-    //printf("Thread %d reserved address 0x%08x\n", curr_thread_id, vaddr);
-    reservations[vaddr] = curr_thread_id;
+    reserveAddress(vaddr, curr_thread_id);
+}
+
+// Creates a reservation for the given virtual address and thread id.
+void Memory::reserveAddress(u64 vaddr, u64 thread_id) {
+    //printf("Thread %d reserved address 0x%08x\n", thread_id, vaddr);
+    reservations[vaddr] = thread_id;
     // Setup memory watchpoint
     watchpoints_w[vaddr] = std::bind(&Memory::reservedWrite, this, std::placeholders::_1);
     markAsSlowMem(vaddr >> PAGE_SHIFT, false, true);   // Only need to make writes take the slow path
@@ -275,13 +280,18 @@ void Memory::reserveAddress(u64 vaddr) {
 
 // Attempts to acquire the reservation - returns false if the reservation was lost.
 bool Memory::acquireReservation(u64 vaddr) {
+    return acquireReservation(vaddr, curr_thread_id);
+}
+
+// Attempts to acquire the reservation as the given thread - returns false if the reservation was lost.
+bool Memory::acquireReservation(u64 vaddr, u64 thread_id) {
     if (reservations.contains(vaddr)) {
-        if (reservations[vaddr] == curr_thread_id) {
-            //printf("Thread %d successfully acquired reservation 0x%08x\n", curr_thread_id, vaddr);
+        if (reservations[vaddr] == thread_id) {
+            //printf("Thread %d successfully acquired reservation 0x%08x\n", thread_id, vaddr);
             return true;
         }
     }
-    //printf("Thread %d failed to acquire reservation 0x%08x\n", curr_thread_id, vaddr);
+    //printf("Thread %d failed to acquire reservation 0x%08x\n", thread_id, vaddr);
     return false;
 }
 
@@ -292,7 +302,7 @@ void Memory::reservedWrite(u64 vaddr) {
         // Delete the reservation
         reservations.erase(vaddr);
         watchpoints_w.erase(vaddr);
-        markAsFastMem(vaddr >> PAGE_SHIFT, getPtr(vaddr), true, true);   // Only need to make writes take the slow path
+        markAsFastMem(vaddr >> PAGE_SHIFT, getPtr(vaddr), true, true);
     }
 }
 

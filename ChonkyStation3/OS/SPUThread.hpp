@@ -64,6 +64,7 @@ public:
     u32 eal = 0;
     u32 size = 0;
     u32 tag_id = 0;
+    u32 atomic_stat = 0;
 
     std::string channelToString(u32 ch);
     u32  readChannel(u32 ch);

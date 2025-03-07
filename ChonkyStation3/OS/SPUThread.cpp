@@ -74,7 +74,7 @@ u32 SPUThread::readChannel(u32 ch) {
     switch (ch) {
     
     case MFC_RdTagStat:     return 0xffffffff;  break;  // TODO
-    case MFC_RdAtomicStat:  return 0b110;       break;  // TODO
+    case MFC_RdAtomicStat:  return atomic_stat; break;  // TODO
 
     default:
         Helpers::panic("Unimplemented MFC channel read 0x%02x\n", ch);
@@ -111,13 +111,27 @@ void SPUThread::doCmd(u32 cmd) {
 
     case PUTLLC: {
         log("PUTLLC\n");
-        std::memcpy(ps3->mem.getPtr(eal), &ls[lsa], size);
+
+        // Try to acquire the reservation
+        bool success = ps3->mem.acquireReservation(eal, id);
+        if (success)    // Conditionally write
+            std::memcpy(ps3->mem.getPtr(eal), &ls[lsa], size);
+        // Update atomic stat
+        atomic_stat = 0;
+        atomic_stat |= !success;    // Bit 0 is set if the reservation was lost 
+        atomic_stat |= (success << 1);  // Bit 1 is set when putllc completes
         break;
     }
 
     case GETLLAR: {
         log("GETLLAR\n");
+
+        // Create reservation
+        ps3->mem.reserveAddress(eal, id);
         std::memcpy(&ls[lsa], ps3->mem.getPtr(eal), size);
+        // Update atomic stat
+        atomic_stat = 0;    // It gets overwritten on every command
+        atomic_stat |= (1 << 2);    // getllar command completed
         break;
     }
 
