@@ -174,6 +174,9 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
 }
 
 void RSX::uploadVertexConstants() {
+    if (!constants_dirty) return;
+    constants_dirty = false;
+
     // Constants
     // TODO: don't upload constants if they weren't changed
     for (auto& i : required_constants) {
@@ -344,7 +347,7 @@ GLuint RSX::getBlendFactor(u16 fact) {
     }
 }
 
-void RSX::runCommandList() {
+void RSX::runCommandList(u64 put_addr) {
     log("Executing commands\n");
     log("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
 
@@ -868,7 +871,8 @@ void RSX::runCommandList() {
 
         case NV4097_SET_TRANSFORM_CONSTANT_LOAD: {
             const u32 start = args[0];
-            for (int i = 1; i < args.size(); i++) constants[start * 4 + i - 1] = args[i];                
+            for (int i = 1; i < args.size(); i++) constants[start * 4 + i - 1] = args[i];    
+            constants_dirty = true;
 
             log("Upload %d transform constants starting at %d\n", args.size() - 1, args[0]);
             for (int i = 1; i < args.size(); i++) {

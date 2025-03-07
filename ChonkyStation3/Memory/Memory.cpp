@@ -203,7 +203,7 @@ MemoryRegion::MapEntry* MemoryRegion::mmap(u64 vaddr, u64 paddr, size_t size) {
     return &map.back();
 }
 
-// Unmaps the region starting at the given virtual address
+// Unmaps the region starting at the given virtual address.
 void MemoryRegion::unmap(u64 vaddr) {
     for (int i = 0; i < map.size(); i++) {
         if (map[i].vaddr == vaddr) {
@@ -212,7 +212,7 @@ void MemoryRegion::unmap(u64 vaddr) {
     }
 }
 
-// Translates a virtual address
+// Translates a virtual address.
 u64 MemoryRegion::translateAddr(u64 vaddr) {
     auto [mapped, map] = isMapped(vaddr);
     if (!mapped) Helpers::panic("Tried to access unmapped vaddr 0x%016x\n", vaddr);
@@ -220,12 +220,12 @@ u64 MemoryRegion::translateAddr(u64 vaddr) {
     return map->paddr + (vaddr - map->vaddr);
 }
 
-// Returns a pointer to the data at the specified physical address
+// Returns a pointer to the data at the specified physical address.
 u8* MemoryRegion::getPtrPhys(u64 paddr) {
     return &mem[paddr];
 }
 
-// Returns amount of available memory
+// Returns amount of available memory.
 u64 MemoryRegion::getAvailableMem() {
     u64 size = 0;
     for (auto& i : blocks)
@@ -264,6 +264,38 @@ u8* Memory::getPtr(u64 vaddr) {
     return &mem[offset];
 }
 
+// Creates a reservation for the given virtual address.
+void Memory::reserveAddress(u64 vaddr) {
+    //printf("Thread %d reserved address 0x%08x\n", curr_thread_id, vaddr);
+    reservations[vaddr] = curr_thread_id;
+    // Setup memory watchpoint
+    watchpoints_w[vaddr] = std::bind(&Memory::reservedWrite, this, std::placeholders::_1);
+    markAsSlowMem(vaddr >> PAGE_SHIFT, false, true);   // Only need to make writes take the slow path
+}
+
+// Attempts to acquire the reservation - returns false if the reservation was lost.
+bool Memory::acquireReservation(u64 vaddr) {
+    if (reservations.contains(vaddr)) {
+        if (reservations[vaddr] == curr_thread_id) {
+            //printf("Thread %d successfully acquired reservation 0x%08x\n", curr_thread_id, vaddr);
+            return true;
+        }
+    }
+    //printf("Thread %d failed to acquire reservation 0x%08x\n", curr_thread_id, vaddr);
+    return false;
+}
+
+// Called on writes to reserved addresses.
+void Memory::reservedWrite(u64 vaddr) {
+    if (reservations[vaddr] != curr_thread_id) {
+        //printf("Thread %d wrote to address 0x%08x reserved by thread %d, deleting reservation\n", curr_thread_id, vaddr, reservations[vaddr]);
+        // Delete the reservation
+        reservations.erase(vaddr);
+        watchpoints_w.erase(vaddr);
+        markAsFastMem(vaddr >> PAGE_SHIFT, getPtr(vaddr), true, true);   // Only need to make writes take the slow path
+    }
+}
+
 template<typename T>
 T Memory::read(u64 vaddr) {
     const u64 page = vaddr >> PAGE_SHIFT;
@@ -282,7 +314,7 @@ T Memory::read(u64 vaddr) {
         std::memcpy(&data, &mem[offset], sizeof(T));
 
         if (watchpoints_r.contains(vaddr))
-            watchpoints_r[vaddr]();
+            watchpoints_r[vaddr](vaddr);
 
         return Helpers::bswap<T>(data);
     }
@@ -311,7 +343,7 @@ void Memory::write(u64 vaddr, T data) {
         std::memcpy(&mem[offset], &data, sizeof(T));
 
         if (watchpoints_w.contains(vaddr))
-            watchpoints_w[vaddr]();
+            watchpoints_w[vaddr](vaddr);
     }
 }
 template void Memory::write(u64 vaddr, u8  data);

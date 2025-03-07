@@ -64,7 +64,7 @@ u64 CellGcmSys::cellGcmInitBody() {
     std::memset(ps3->mem.getPtr(buffer_info_addr), 0, sizeof(CellGcmDisplayInfo) * 8);
     
     // Memory watchpoint to tell the RSX to check if there are commands to run when put is written
-    ps3->mem.watchpoints_w[ctrl_addr] = std::bind(&RSX::runCommandList, &ps3->rsx);
+    ps3->mem.watchpoints_w[ctrl_addr] = std::bind(&RSX::runCommandList, &ps3->rsx, std::placeholders::_1);
     ps3->mem.markAsSlowMem(ctrl_addr >> PAGE_SHIFT, false, true);   // Only need to make writes take the slow path
 
     label_addr = dma_ctrl_addr + 2_MB;

@@ -64,6 +64,8 @@ u64 Syscall::sys_spu_thread_initialize() {
     Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);
     group->threads.push_back(thread->id);
 
+    ps3->mem.write<u32>(id_ptr, thread->id);
+
     return Result::CELL_OK;
 }
 

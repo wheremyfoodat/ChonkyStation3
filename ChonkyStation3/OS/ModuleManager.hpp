@@ -86,7 +86,7 @@ public:
     u64 stub();
 
     u32 last_lle_nid = 0;
-    void printReturnValue();
+    void printReturnValue(u64 addr);
 
 private:
     MAKE_LOG_FUNCTION(log, lle_module);

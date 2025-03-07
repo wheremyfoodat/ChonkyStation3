@@ -414,21 +414,21 @@ void SPUInterpreter::addx(const SPUInstruction& instr) {
 
 void SPUInterpreter::brz(const SPUInstruction& instr) {
     if (state.gprs[instr.rt0].w[3] == 0) {
-        const u32 addr = state.pc + (s16)(instr.i16 << 2);
+        const u32 addr = (state.pc + (s16)(instr.i16 << 2) & 0x3fffc);
         state.pc = addr - 4;
     }
 }
 
 void SPUInterpreter::brhz(const SPUInstruction& instr) {
     if (state.gprs[instr.rt0].h[6] == 0) {
-        const u32 addr = state.pc + (s16)(instr.i16 << 2);
+        const u32 addr = (state.pc + (s16)(instr.i16 << 2) & 0x3fffc);
         state.pc = addr - 4;
     }
 }
 
 void SPUInterpreter::brhnz(const SPUInstruction& instr) {
     if (state.gprs[instr.rt0].h[6] != 0) {
-        const u32 addr = state.pc + (s16)(instr.i16 << 2);
+        const u32 addr = (state.pc + (s16)(instr.i16 << 2) & 0x3fffc);
         state.pc = addr - 4;
     }
 }
@@ -441,7 +441,7 @@ void SPUInterpreter::stqa(const SPUInstruction& instr) {
 
 void SPUInterpreter::brnz(const SPUInstruction& instr) {
     if (state.gprs[instr.rt0].w[3] != 0) {
-        const u32 addr = state.pc + (s16)(instr.i16 << 2);
+        const u32 addr = (state.pc + (s16)(instr.i16 << 2) & 0x3fffc);
         state.pc = addr - 4;
     }
 }
@@ -468,7 +468,7 @@ void SPUInterpreter::fsmbi(const SPUInstruction& instr) {
 }
 
 void SPUInterpreter::brsl(const SPUInstruction& instr) {
-    const u32 addr = state.pc + (s16)(instr.i16 << 2);
+    const u32 addr = (state.pc + (s16)(instr.i16 << 2) & 0x3fffc);
     clr(state.gprs[instr.rt0]);
     state.gprs[instr.rt0].w[3] = state.pc + 4;
     state.pc = addr - 4;

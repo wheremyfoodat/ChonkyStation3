@@ -8,6 +8,7 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, s32 prio
     // current_thread to point to this thread and initialize ppu
     if (is_start_thread) {
         current_thread_id = threads.back().id;
+        ps3->mem.setCurrentThreadID(current_thread_id);
 
         // argc and argv
         auto data = ps3->mem.alloc(1_MB);
@@ -38,6 +39,7 @@ void ThreadManager::contextSwitch(Thread& thread) {
     current_thread->state = ps3->ppu->state;
     ps3->ppu->state = thread.state;
     current_thread_id = thread.id;
+    ps3->mem.setCurrentThreadID(current_thread_id);
 }
 
 // TODO: There are probably better ways to handle thread scheduling.

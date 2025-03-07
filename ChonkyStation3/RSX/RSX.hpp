@@ -32,7 +32,7 @@ public:
     void setEaTableAddr(u32 addr);
     u32 ioToEa(u32 offs);
 
-    void runCommandList();
+    void runCommandList(u64 put_addr = 0);
     u32 fetch32();
     u32 offsetAndLocationToAddress(u32 offset, u8 location);
 
@@ -45,6 +45,7 @@ public:
     std::vector<u32> quad_index_array;
 
     u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
+    bool constants_dirty = true;
     struct FragmentUniform {
         std::string name;
         float x;

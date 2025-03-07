@@ -111,6 +111,13 @@ public:
     void unmap(u64 vaddr) { ram.unmap(vaddr); }
     u64 translateAddr(u64 vaddr) { return ram.translateAddr(vaddr); }
 
+    // Reservations
+    void reserveAddress(u64 vaddr);
+    bool acquireReservation(u64 vaddr); // Returns false if the reservation was lost
+    void reservedWrite(u64 vaddr);  // Handler function for reserved writes
+    void setCurrentThreadID(u64 id) { curr_thread_id = id; }
+    std::unordered_map<u64, u64> reservations;  // First u64 is the vaddr, second u64 is the ID of the thread that created the reservation
+
     template<typename T> T read(u64 vaddr);
     template<typename T> void write(u64 vaddr, T data);
 
@@ -118,6 +125,10 @@ public:
     // Call a function when an address is read or written.
     // In case of writes, the function is called after the write.
     // In order for the function to be called, the memory page the address is part of must not be in fastmem.
-    std::unordered_map<u64, std::function<void(void)>> watchpoints_r;
-    std::unordered_map<u64, std::function<void(void)>> watchpoints_w;
+    // For both reads and writes, the address being read/written is passed as an argument to the handler.
+    std::unordered_map<u64, std::function<void(u64)>> watchpoints_r;
+    std::unordered_map<u64, std::function<void(u64)>> watchpoints_w;
+    
+private:
+    u64 curr_thread_id = 0;
 };

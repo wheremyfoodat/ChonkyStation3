@@ -19,7 +19,7 @@ void ModuleManager::lle(u32 nid) {
     if (!exports.funcs.contains(nid))
         Helpers::panic("Could not find export for function %s\n", getImportName(nid).c_str());
 
-    ps3->mem.watchpoints_r[ps3->ppu->state.lr + 4] = std::bind(&ModuleManager::printReturnValue, this);
+    ps3->mem.watchpoints_r[ps3->ppu->state.lr + 4] = std::bind(&ModuleManager::printReturnValue, this, std::placeholders::_1);
     ps3->mem.markAsSlowMem((ps3->ppu->state.lr + 4) >> PAGE_SHIFT, true, false);
     last_lle_nid = nid;
 
@@ -47,7 +47,7 @@ bool ModuleManager::isForcedHLE(const u32 nid) {
     else return import_map[nid].force_hle;
 }
 
-void ModuleManager::printReturnValue() {
+void ModuleManager::printReturnValue(u64 addr) {
     log("%s returned with 0x%08x\n", getImportName(last_lle_nid).c_str(), ps3->ppu->state.gprs[3]);
 }
 

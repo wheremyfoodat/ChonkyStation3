@@ -1197,7 +1197,10 @@ void PPUInterpreter::mfcr(const Instruction& instr) {
 }
 
 void PPUInterpreter::lwarx(const Instruction& instr) {
-    state.gprs[instr.rt] = mem.read<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
+    const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
+    // Create reservation
+    mem.reserveAddress(addr);
+    state.gprs[instr.rt] = mem.read<u32>(addr);
 }
 
 void PPUInterpreter::ldx(const Instruction& instr) {
@@ -1306,7 +1309,10 @@ void PPUInterpreter::mulhw(const Instruction& instr) {
 }
 
 void PPUInterpreter::ldarx(const Instruction& instr) {
-    state.gprs[instr.rt] = mem.read<u64>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]);
+    const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
+    // Create reservation
+    mem.reserveAddress(addr);
+    state.gprs[instr.rt] = mem.read<u64>(addr);
 }
 
 void PPUInterpreter::lbzx(const Instruction& instr) {
@@ -1371,8 +1377,14 @@ void PPUInterpreter::stdx(const Instruction& instr) {
 }
 
 void PPUInterpreter::stwcx(const Instruction& instr) {
-    mem.write<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb], state.gprs[instr.rs]);
-    state.cr.setCRField(0, ConditionRegister::EQUAL);
+    const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
+    // Try to acquire reservation
+    bool success = mem.acquireReservation(addr);
+    // Conditionally write
+    if (success)
+        mem.write<u32>(addr, state.gprs[instr.rs]);
+    // Update CR
+    state.cr.setCRField(0, success ? ConditionRegister::EQUAL : 0);
 }
 
 void PPUInterpreter::stwx(const Instruction& instr) {
@@ -1405,8 +1417,14 @@ void PPUInterpreter::addze(const Instruction& instr) {
 }
 
 void PPUInterpreter::stdcx(const Instruction& instr) {
-    mem.write<u64>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb], state.gprs[instr.rs]);
-    state.cr.setCRField(0, ConditionRegister::EQUAL);
+    const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
+    // Try to acquire reservation
+    bool success = mem.acquireReservation(addr);
+    // Conditionally write
+    if (success)
+        mem.write<u64>(addr, state.gprs[instr.rs]);
+    // Update CR
+    state.cr.setCRField(0, success ? ConditionRegister::EQUAL : 0);
 }
 
 void PPUInterpreter::stbx(const Instruction& instr) {
