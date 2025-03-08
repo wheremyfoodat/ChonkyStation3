@@ -65,7 +65,7 @@ public:
     void init();
     void run();
     void step();
-    void printCrashInfo(std::exception err);
+    void printCrashInfo(std::runtime_error err);
     void flip();
     void vblank();
     void skipToNextEvent();
