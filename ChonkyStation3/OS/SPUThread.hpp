@@ -36,6 +36,23 @@ public:
     void halt();
 
     // MFC
+    enum SPU_Channel : u32 {
+        SPU_RdEventStat     = 0,
+        SPU_WrEventMask     = 1,
+        SPU_WrEventAck      = 2,
+        SPU_RdSigNotify1    = 3,
+        SPU_RdSigNotify2    = 4,
+        SPU_WrDec           = 7,
+        SPU_RdDec           = 8,
+        SPU_RdEventMask     = 11,
+        SPU_RdMachStat      = 13,
+        SPU_WrSRR0          = 14,
+        SPU_RdSRR0          = 15,	
+        SPU_WrOutMbox       = 28,
+        SPU_RdInMbox        = 29,
+        SPU_WrOutIntrMbox   = 30,
+    };
+
     enum MFC_Channel: u32 {
         MFC_WrMSSyncReq     = 9,
         MFC_RdTagMask       = 12,
@@ -64,6 +81,7 @@ public:
     u32 eal = 0;
     u32 size = 0;
     u32 tag_id = 0;
+    u32 tag_mask = 0;
     u32 atomic_stat = 0;
 
     std::string channelToString(u32 ch);

@@ -49,6 +49,21 @@ void SPUThread::halt() {
 std::string SPUThread::channelToString(u32 ch) {
     switch (ch) {
     
+    case SPU_RdEventStat:       return "SPU_RdEventStat";
+    case SPU_WrEventMask:       return "SPU_WrEventMask";
+    case SPU_WrEventAck:        return "SPU_WrEventAck";
+    case SPU_RdSigNotify1:      return "SPU_RdSigNotify1";
+    case SPU_RdSigNotify2:      return "SPU_RdSigNotify2";
+    case SPU_WrDec:             return "SPU_WrDec";
+    case SPU_RdDec:             return "SPU_RdDec";
+    case SPU_RdEventMask:       return "SPU_RdEventMask";
+    case SPU_RdMachStat:        return "SPU_RdMachStat";
+    case SPU_WrSRR0:            return "SPU_WrSRR0";
+    case SPU_RdSRR0:            return "SPU_RdSRR0";
+    case SPU_WrOutMbox:         return "SPU_WrOutMbox";
+    case SPU_RdInMbox:          return "SPU_RdInMbox";
+    case SPU_WrOutIntrMbox:     return "SPU_WrOutIntrMbox";
+
     case MFC_WrMSSyncReq:       return "MFC_WrMSSyncReq";
     case MFC_RdTagMask:         return "MFC_RdTagMask";
     case MFC_LSA:               return "MFC_LSA";
@@ -64,7 +79,8 @@ std::string SPUThread::channelToString(u32 ch) {
     case MFC_WrListStallAck:    return "MFC_WrListStallAck";
     case MFC_RdAtomicStat:      return "MFC_RdAtomicStat";
 
-    default: Helpers::panic("Tried to get name of bad MFC channel %d\n", ch);
+    default:
+        Helpers::panic("Tried to get name of bad MFC channel %d\n", ch);
     }
 }
 
@@ -73,8 +89,15 @@ u32 SPUThread::readChannel(u32 ch) {
 
     switch (ch) {
     
-    case MFC_RdTagStat:     return 0xffffffff;  break;  // TODO
-    case MFC_RdAtomicStat:  return atomic_stat; break;  // TODO
+    case SPU_RdEventStat: {
+        // TODO
+        status = ThreadStatus::Terminated;
+        ps3->spu_thread_manager.reschedule();
+        break;
+    }
+
+    case MFC_RdTagStat:     return 0xffffffff & tag_mask;   break;  // TODO
+    case MFC_RdAtomicStat:  return atomic_stat;             break;
 
     default:
         Helpers::panic("Unimplemented MFC channel read 0x%02x\n", ch);
@@ -86,14 +109,16 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
 
     switch (ch) {
      
-    case MFC_LSA:           lsa     = val;  break;
-    case MFC_EAH:           eah     = val;  break;
-    case MFC_EAL:           eal     = val;  break;
-    case MFC_Size:          size    = val;  break;
-    case MFC_TagID:         tag_id  = val;  break;
-    case MFC_Cmd:           doCmd(val);     break;
-    case MFC_WrTagMask:     /* TODO */      break;
-    case MFC_WrTagUpdate:   /* TODO */      break;
+    case SPU_WrEventMask:   /* TODO */          break;
+
+    case MFC_LSA:           lsa         = val;  break;
+    case MFC_EAH:           eah         = val;  break;
+    case MFC_EAL:           eal         = val;  break;
+    case MFC_Size:          size        = val;  break;
+    case MFC_TagID:         tag_id      = val;  break;
+    case MFC_Cmd:           doCmd(val);         break;
+    case MFC_WrTagMask:     tag_mask    = val;  break;
+    case MFC_WrTagUpdate:   /* TODO */          break;
 
     default:
         Helpers::panic("Unimplemented MFC channel write 0x%02x\n", ch);
