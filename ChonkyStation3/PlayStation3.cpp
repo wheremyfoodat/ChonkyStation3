@@ -88,7 +88,7 @@ void PlayStation3::init() {
     try {
         prx_manager.initializeLibraries();
     }
-    catch (std::exception e) {
+    catch (std::runtime_error e) {
         printCrashInfo(e);
     }
 }
@@ -118,7 +118,7 @@ void PlayStation3::run() {
         }
         cycle_count = 0;
     }
-    catch (std::exception e) {
+    catch (std::runtime_error e) {
         printCrashInfo(e);
     }
 }
@@ -128,7 +128,7 @@ void PlayStation3::step() {
     spu->step();
 }
 
-void PlayStation3::printCrashInfo(std::exception err) {
+void PlayStation3::printCrashInfo(std::runtime_error err) {
     printf("PPU state:\n");
     ppu->printState();
     printf("SPU state:\n");
