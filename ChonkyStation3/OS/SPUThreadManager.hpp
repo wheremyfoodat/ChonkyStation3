@@ -20,7 +20,7 @@ public:
     void reschedule();
 
     std::vector<SPUThread> threads;
-    u64 current_thread_id;
+    u64 current_thread_id = 0;
 
 private:
     MAKE_LOG_FUNCTION(log, thread_spu);

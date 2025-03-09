@@ -56,6 +56,7 @@ public:
     std::function<void(void)> flip_handler;
     u64 cycle_count = 0;
     u64 curr_block_cycles = 0;
+    u64 curr_block = 0;
     u64 skipped_cycles = 0;
     bool force_scheduler_update = false;
 

@@ -7,6 +7,14 @@
 // We break our naming conventions here to follow CellOS's instead
 namespace sys_spu {
 
+static constexpr u32 SYS_SPU_THREAD_GROUP_EVENT_RUN             = 1;
+static constexpr u32 SYS_SPU_THREAD_GROUP_EVENT_EXCEPTION       = 2;
+static constexpr u32 SYS_SPU_THREAD_GROUP_EVENT_SYSTEM_MODULE   = 4;
+
+static constexpr u64 SYS_SPU_THREAD_GROUP_EVENT_RUN_KEY             = 0xFFFFFFFF53505500;
+static constexpr u64 SYS_SPU_THREAD_GROUP_EVENT_EXCEPTION_KEY       = 0xFFFFFFFF53505503;
+static constexpr u64 SYS_SPU_THREAD_GROUP_EVENT_SYSTEM_MODULE_KEY   = 0xFFFFFFFF53505504;
+
 static constexpr s32 SYS_SPU_SEGMENT_TYPE_COPY = 0x0001;
 static constexpr s32 SYS_SPU_SEGMENT_TYPE_FILL = 0x0002;
 static constexpr s32 SYS_SPU_SEGMENT_TYPE_INFO = 0x0004;

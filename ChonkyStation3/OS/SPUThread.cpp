@@ -6,6 +6,12 @@ SPUThread::SPUThread(PlayStation3* ps3, std::string name) : ps3(ps3) {
     id = ps3->handle_manager.request();
     this->name = name;
     log("Created SPU thread %d \"%s\"\n", id, name.c_str());
+
+    lockline_waiter = new LocklineWaiter(ps3, id);
+}
+
+bool SPUThread::isRunning() {
+    return status == ThreadStatus::Running;
 }
 
 void SPUThread::loadImage(sys_spu_image* img) {
@@ -40,10 +46,73 @@ void SPUThread::loadImage(sys_spu_image* img) {
     */
 }
 
+void SPUThread::reschedule() {
+    ps3->scheduler.push(std::bind(&SPUThreadManager::reschedule, ps3->spu_thread_manager), ps3->curr_block_cycles, "spu thread reschedule");
+    ps3->forceSchedulerUpdate();
+}
+
 void SPUThread::halt() {
     Helpers::panic("Halting thread %d \"%s\"\n", id, name.c_str());
     status = ThreadStatus::Terminated;
-    ps3->spu_thread_manager.reschedule();
+    reschedule();
+}
+
+void SPUThread::wait() {
+    log("Thread %d \"%s\" is waiting\n", id, name.c_str());
+    status = ThreadStatus::Waiting;
+    reschedule();
+}
+
+void SPUThread::wakeUp() {
+    log("Woke up thread %d \"%s\"\n", id, name.c_str());
+    status = ThreadStatus::Running;
+    reschedule();
+}
+
+void SPUThread::LocklineWaiter::waiter() {
+    while (is_waiting) {
+        if (std::memcmp(reservation.data, ps3->mem.getPtr(reservation.addr), 128)) {
+            ps3->spu_thread_manager.getThreadByID(waiter_id)->sendLocklineLostEvent(reservation.addr);
+            is_waiting = false;
+        }
+    }
+}
+
+void SPUThread::LocklineWaiter::begin(Reservation reservation) {
+    if (is_waiting) end();  // End the current waiter if it was already active
+    // This happens when the lockline is written, waiter() will set is_waiting to false but the thread will still be waiting to be joined
+    if (waiter_thread.joinable()) waiter_thread.join();
+
+    this->reservation = reservation;
+    is_waiting = true;
+    waiter_thread = std::thread(&LocklineWaiter::waiter, this);
+}
+
+void SPUThread::LocklineWaiter::end() {
+    if (!is_waiting) Helpers::panic("LocklineWaiter: tried to end waiter, but the waiter was already inactive\n");
+
+    is_waiting = false;
+    waiter_thread.join();
+}
+
+void SPUThread::sendLocklineLostEvent(u32 addr) {
+    if (Helpers::inRangeSized<u32>(addr, reservation.addr, 128)) {
+        if (std::memcmp(reservation.data, ps3->mem.getPtr(reservation.addr), 128)) {
+            log("Lockline lost, sending event\n");
+            event_stat.lr = true;
+            reservation.addr = 0;
+            wakeUpIfEvent();
+        }
+    }
+}
+
+void SPUThread::wakeUpIfEvent() {
+    if (hasPendingEvents())
+        wakeUp();
+}
+
+bool SPUThread::hasPendingEvents() {
+    return event_stat.raw & event_mask;
 }
 
 std::string SPUThread::channelToString(u32 ch) {
@@ -85,19 +154,21 @@ std::string SPUThread::channelToString(u32 ch) {
 }
 
 u32 SPUThread::readChannel(u32 ch) {
-    log("Read %s\n", channelToString(ch).c_str());
+    log("Read %s @ 0x%08x\n", channelToString(ch).c_str(), ps3->spu->state.pc);
 
     switch (ch) {
     
     case SPU_RdEventStat: {
-        // TODO
-        status = ThreadStatus::Terminated;
-        ps3->spu_thread_manager.reschedule();
-        break;
+        if (!hasPendingEvents()) {
+            wait();
+            return 0;
+        }
+
+        return event_stat.raw & event_mask;
     }
 
-    case MFC_RdTagStat:     return 0xffffffff & tag_mask;   break;  // TODO
-    case MFC_RdAtomicStat:  return atomic_stat;             break;
+    case MFC_RdTagStat:     return 0xffffffff & tag_mask;   // TODO
+    case MFC_RdAtomicStat:  return atomic_stat;             
 
     default:
         Helpers::panic("Unimplemented MFC channel read 0x%02x\n", ch);
@@ -109,7 +180,8 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
 
     switch (ch) {
      
-    case SPU_WrEventMask:   /* TODO */          break;
+    case SPU_WrEventMask:   event_mask      = val;      break;
+    case SPU_WrEventAck:    event_stat.raw &= ~val;     break;
 
     case MFC_LSA:           lsa         = val;  break;
     case MFC_EAH:           eah         = val;  break;
@@ -135,27 +207,46 @@ void SPUThread::doCmd(u32 cmd) {
     }
 
     case PUTLLC: {
-        log("PUTLLC\n");
+        log("PUTLLC ");
 
-        // Try to acquire the reservation
-        bool success = ps3->mem.acquireReservation(eal, id);
-        if (success)    // Conditionally write
-            std::memcpy(ps3->mem.getPtr(eal), &ls[lsa], size);
+        bool success = true;
+        if (eal != reservation.addr) success = false;
+        else if (std::memcmp(reservation.data, ps3->mem.getPtr(eal), 128)) {    // Has the lockline data changed?
+            success = false;
+        }
+
+        // Conditionally write
+        if (success) {
+            std::memcpy(ps3->mem.getPtr(eal), &ls[lsa], 128);
+            reservation.addr = 0;
+            lockline_waiter->end();
+        }
+
         // Update atomic stat
         atomic_stat = 0;
         atomic_stat |= !success;    // Bit 0 is set if the reservation was lost 
+
+        if (success) logNoPrefix("Success\n");
+        else logNoPrefix("Failure\n");
         break;
     }
 
     case GETLLAR: {
-        log("GETLLAR\n");
+        log("GETLLAR 0x%08x\n", ps3->spu->state.pc);
 
-        // Create reservation
-        ps3->mem.reserveAddress(eal, id);
-        std::memcpy(&ls[lsa], ps3->mem.getPtr(eal), size);
+        // Get reservation data
+        reservation.addr = eal;
+        std::memcpy(reservation.data, ps3->mem.getPtr(eal), 128);
+        
+        // Copy it to local storage
+        std::memcpy(&ls[lsa], ps3->mem.getPtr(eal), 128);
+
         // Update atomic stat
-        atomic_stat = 0;    // It gets overwritten on every command
+        atomic_stat = 0;            // It gets overwritten on every command
         atomic_stat |= (1 << 2);    // getllar command completed
+        
+        // Setup lockline waiter
+        lockline_waiter->begin(reservation);
         break;
     }
 

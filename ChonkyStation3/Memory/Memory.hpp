@@ -6,6 +6,7 @@
 #include <queue>
 #include <unordered_map>
 #include <functional>
+#include <optional>
 
 #include <MemoryConstants.hpp>
 
@@ -112,13 +113,23 @@ public:
     u64 translateAddr(u64 vaddr) { return ram.translateAddr(vaddr); }
 
     // Reservations
+    struct Reservation {
+        u64 thread_id = 0;
+        u64 vaddr = 0;
+        size_t size = 0;
+        std::vector<std::function<void(void)>> reservation_lost_handlers = {};
+    };
     void reserveAddress(u64 vaddr);
-    void reserveAddress(u64 vaddr, u64 thread_id);
+    void reserveAddress(u64 vaddr, size_t size, u64 thread_id, std::optional<std::function<void(void)>> reservation_lost_handler = std::nullopt, bool is_spu = false);
     bool acquireReservation(u64 vaddr); // Returns false if the reservation was lost
     bool acquireReservation(u64 vaddr, u64 thread_id);
+    void addReservationLostHandler(u64 vaddr, std::function<void(void)> reservation_lost_handler);
     void reservedWrite(u64 vaddr);  // Handler function for reserved writes
+    void deleteReservation(u64 vaddr);
+    u64 getReservationOwner(u64 vaddr);
+    bool isAddressReserved(u64 vaddr);
     void setCurrentThreadID(u64 id) { curr_thread_id = id; }
-    std::unordered_map<u64, u64> reservations;  // First u64 is the vaddr, second u64 is the ID of the thread that created the reservation
+    std::unordered_map<u64, Reservation> reservations;  // First u64 is the vaddr
 
     template<typename T> T read(u64 vaddr);
     template<typename T> void write(u64 vaddr, T data);

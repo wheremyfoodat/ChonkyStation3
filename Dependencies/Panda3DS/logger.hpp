@@ -76,7 +76,7 @@ static Logger sys_mutex         = Logger<true> ("[Syscall][sys_mutex     ] ");
 static Logger sys_event         = Logger<true> ("[Syscall][sys_event     ] ");
 static Logger sys_memory        = Logger<true> ("[Syscall][sys_memory    ] ");
 static Logger sys_mmapper       = Logger<true> ("[Syscall][sys_mmapper   ] ");
-static Logger sys_timer         = Logger<true> ("[Syscall][sys_timer     ] ");
+static Logger sys_timer         = Logger<false>("[Syscall][sys_timer     ] ");
 static Logger misc_sc           = Logger<true> ("[Syscall][Misc          ] ");
 static Logger tty               = Logger<1>    ();
 
@@ -97,7 +97,7 @@ static Logger loader_game       = Logger<1>    ("[Loader ][Game          ] ");
 static Logger manager_prx       = Logger<1>    ("[Manager][PRX           ] ");
 
 // Thread
-static Logger thread            = Logger<false>("[Thread ][PPU           ] ");
+static Logger thread            = Logger<true> ("[Thread ][PPU           ] ");
 static Logger thread_spu        = Logger<true> ("[Thread ][SPU           ] ");
 
 // Other

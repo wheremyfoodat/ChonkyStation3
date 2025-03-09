@@ -95,27 +95,10 @@ void PlayStation3::init() {
 
 void PlayStation3::run() {
     try {
-        skipped_cycles = 0;
-        static constexpr int reschedule_every_n_blocks = 256;
-        int curr_block = 0;
-
-        while (cycle_count < CPU_FREQ) {
-            while (curr_block_cycles++ < 2048) {
-                step();
-                if (force_scheduler_update) {
-                    force_scheduler_update = false;
-                    break;
-                }
-            }
-            cycle_count += curr_block_cycles;
-            scheduler.tick(curr_block_cycles);
-            curr_block_cycles = 0;
-            curr_block++;
-            if (curr_block >= reschedule_every_n_blocks) {
-                curr_block = 0;
-                thread_manager.reschedule();
-            }
-        }
+        curr_block_cycles = 0;
+        curr_block = 0;
+        while (cycle_count < CPU_FREQ)
+            step();
         cycle_count = 0;
     }
     catch (std::runtime_error e) {
@@ -123,9 +106,23 @@ void PlayStation3::run() {
     }
 }
 
+static constexpr int reschedule_every_n_blocks = 256;
 void PlayStation3::step() {
     ppu->step();
     spu->step();
+
+    if (force_scheduler_update || curr_block_cycles++ >= 2048) {
+        scheduler.tick(curr_block_cycles);
+        cycle_count += curr_block_cycles;
+        
+        curr_block_cycles = 0;
+        force_scheduler_update = false;
+        
+        if (curr_block++ >= reschedule_every_n_blocks) {
+            curr_block = 0;
+            thread_manager.reschedule();
+        }
+    }
 }
 
 void PlayStation3::printCrashInfo(std::runtime_error err) {

@@ -244,6 +244,10 @@ void SPUInterpreter::dsync(const SPUInstruction& instr) {}
 void SPUInterpreter::rdch(const SPUInstruction& instr) {
     clr(state.gprs[instr.rt0]);
     state.gprs[instr.rt0].w[3] = ps3->spu_thread_manager.getCurrentThread()->readChannel(instr.ch);
+    // Check if the channel read caused the SPU thread to stall (i.e. when reading the event stat channel)
+    // If it did stall, decrease pc so that when the thread wakes up it executes this instruction again and reads the actual value.
+    if (ps3->spu_thread_manager.getCurrentThread() == nullptr)         state.pc -= 4;
+    else if (!ps3->spu_thread_manager.getCurrentThread()->isRunning()) state.pc -= 4;
 }
 
 void SPUInterpreter::sf(const SPUInstruction& instr) {

@@ -266,16 +266,31 @@ u8* Memory::getPtr(u64 vaddr) {
 
 // Creates a reservation for the given virtual address.
 void Memory::reserveAddress(u64 vaddr) {
-    reserveAddress(vaddr, curr_thread_id);
+    reserveAddress(vaddr, 1, curr_thread_id);
 }
 
 // Creates a reservation for the given virtual address and thread id.
-void Memory::reserveAddress(u64 vaddr, u64 thread_id) {
+void Memory::reserveAddress(u64 vaddr, size_t size, u64 thread_id, std::optional<std::function<void(void)>> reservation_lost_handler, bool is_spu) {
     //printf("Thread %d reserved address 0x%08x\n", thread_id, vaddr);
-    reservations[vaddr] = thread_id;
-    // Setup memory watchpoint
-    watchpoints_w[vaddr] = std::bind(&Memory::reservedWrite, this, std::placeholders::_1);
-    markAsSlowMem(vaddr >> PAGE_SHIFT, false, true);   // Only need to make writes take the slow path
+
+    // If this address was already reserved, call the old reservation lost handler (if present), unless the address is being reserved again by the same thread
+    if (reservations.contains(vaddr) && !is_spu) {
+        if (reservations[vaddr].thread_id != thread_id) {
+            printf("n_handlers: %lld\n", reservations[vaddr].reservation_lost_handlers.size());
+            for (auto& handler : reservations[vaddr].reservation_lost_handlers)
+                handler();
+        }
+    }
+
+    for (int i = 0; i < size; i++) {
+        // Update reservation map
+        reservations[vaddr + i] = { thread_id, vaddr, size };
+        if (reservation_lost_handler.has_value())
+            reservations[vaddr + i].reservation_lost_handlers.push_back(reservation_lost_handler.value());
+        // Setup memory watchpoint
+        watchpoints_w[vaddr + i] = std::bind(&Memory::reservedWrite, this, std::placeholders::_1);
+        markAsSlowMem((vaddr + i) >> PAGE_SHIFT, false, true);   // Only need to make writes take the slow path
+    }
 }
 
 // Attempts to acquire the reservation - returns false if the reservation was lost.
@@ -286,8 +301,9 @@ bool Memory::acquireReservation(u64 vaddr) {
 // Attempts to acquire the reservation as the given thread - returns false if the reservation was lost.
 bool Memory::acquireReservation(u64 vaddr, u64 thread_id) {
     if (reservations.contains(vaddr)) {
-        if (reservations[vaddr] == thread_id) {
+        if (reservations[vaddr].thread_id == thread_id) {
             //printf("Thread %d successfully acquired reservation 0x%08x\n", thread_id, vaddr);
+            deleteReservation(vaddr);
             return true;
         }
     }
@@ -295,15 +311,49 @@ bool Memory::acquireReservation(u64 vaddr, u64 thread_id) {
     return false;
 }
 
+// Adds a handler to the list of reservation lost handlers for the reservation at the given virtual address.
+// Panics if the reservation doesn't exist.
+void Memory::addReservationLostHandler(u64 vaddr, std::function<void(void)> reservation_lost_handler) {
+    Helpers::debugAssert(reservations.contains(vaddr), "Tried to add reservation lost write handler to a non-existing reservation\n");
+    reservations[vaddr].reservation_lost_handlers.push_back(reservation_lost_handler);
+    printf("Enlisted handler, new size: %lld\n", reservations[vaddr].reservation_lost_handlers.size());
+}
+
 // Called on writes to reserved addresses.
 void Memory::reservedWrite(u64 vaddr) {
-    if (reservations[vaddr] != curr_thread_id) {
+    const Reservation& reservation = reservations[vaddr];
+    if (reservation.thread_id != curr_thread_id) {
         //printf("Thread %d wrote to address 0x%08x reserved by thread %d, deleting reservation\n", curr_thread_id, vaddr, reservations[vaddr]);
+        
+        for (auto& handler : reservation.reservation_lost_handlers)
+            handler();
+
         // Delete the reservation
-        reservations.erase(vaddr);
-        watchpoints_w.erase(vaddr);
-        markAsFastMem(vaddr >> PAGE_SHIFT, getPtr(vaddr), true, true);
+        deleteReservation(reservation.vaddr);
     }
+}
+
+// Delete a reservation
+void Memory::deleteReservation(u64 vaddr) {
+    const auto addr = reservations[vaddr].vaddr;
+    const auto size = reservations[vaddr].size;
+    for (int i = 0; i < size; i++) {
+        reservations.erase(addr + i);
+        watchpoints_w.erase(addr + i);
+        //markAsFastMem((reservation.vaddr + i) >> PAGE_SHIFT, getPtr(vaddr), true, true);
+    }
+}
+
+// Returns the ID of the thread that created the reservation at the given virtual address.
+// Panics if the reservation doesn't exist.
+u64 Memory::getReservationOwner(u64 vaddr) {
+    Helpers::debugAssert(reservations.contains(vaddr), "Tried to get owner of a non-existing reservation\n");
+    return reservations[vaddr].thread_id;
+}
+
+// Returns whether or not a reservation has been created for the given virtual address.
+bool Memory::isAddressReserved(u64 vaddr) {
+    return reservations.contains(vaddr);
 }
 
 template<typename T>

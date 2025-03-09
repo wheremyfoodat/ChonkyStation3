@@ -99,12 +99,35 @@ u64 Syscall::sys_spu_thread_group_join() {
     return Result::CELL_OK;
 }
 
+u64 Syscall::sys_spu_thread_group_connect_event() {
+    const u32 group_id = ARG0;
+    const u32 queue_id = ARG1;
+    const u32 event_type = ARG2;
+    log_sys_spu("sys_spu_thread_group_connect_event(group_id: %d, queue_id: %d, event_type: 0x%08x)\n", group_id, queue_id, event_type);
+
+    Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);
+    if (group->run_event_queue_id)
+        Helpers::panic("Thread group already had a connected event queue\n");
+
+    switch (event_type) {
+
+    case SYS_SPU_THREAD_GROUP_EVENT_RUN:            group->run_event_queue_id = queue_id;   break;
+    case SYS_SPU_THREAD_GROUP_EVENT_EXCEPTION:      /* TODO */                              break;
+    case SYS_SPU_THREAD_GROUP_EVENT_SYSTEM_MODULE:  /* TODO */                              break;
+
+    default:
+        Helpers::panic("sys_spu_thread_group_connect_event: Unimplemented event type 0x%08x\n", event_type);
+    }
+
+    return Result::CELL_OK;
+}
+
 u64 Syscall::sys_spu_thread_group_connect_event_all_threads() {
     const u32 id = ARG0;
     const u32 eq = ARG1;
     const u64 req = ARG2;
     const u32 spup_ptr = ARG3;  // spup is u8
-    log_sys_spu("sys_spu_thread_group_connect_event_all_threads(id: %d, eq: %d, req: %d, spup_ptr: 0x%08x) UNIMPLEMENTED\n", id, eq, req, spup_ptr);
+    log_sys_spu("sys_spu_thread_group_connect_event_all_threads(id: %d, eq: %d, req: 0x%016x, spup_ptr: 0x%08x) UNIMPLEMENTED\n", id, eq, req, spup_ptr);
 
     ps3->mem.write<u8>(spup_ptr, 0);
     return Result::CELL_OK;

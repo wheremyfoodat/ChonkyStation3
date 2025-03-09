@@ -1,4 +1,5 @@
 #include "PPU.hpp"
+#include "PlayStation3.hpp"
 
 
 void PPU::step() {
@@ -13,7 +14,7 @@ void PPU::runFunc(u32 addr, u32 toc, bool save_all_state) {
     if (toc) state.gprs[2] = toc;
 
     while (state.pc != ret_val)
-        step();
+        ps3->step();
 
     if (save_all_state) {
         state = old_state;

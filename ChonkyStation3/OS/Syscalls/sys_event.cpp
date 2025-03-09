@@ -1,5 +1,6 @@
 #include <Syscall.hpp>
 #include "PlayStation3.hpp"
+#include <Lv2Objects/Lv2EventQueue.hpp>
 
 
 MAKE_LOG_FUNCTION(log_sys_event, sys_event);
@@ -9,30 +10,23 @@ u64 Syscall::sys_event_queue_create() {
     const u32 attr_ptr = ARG1;
     const u64 ipc_key = ARG2;
     const s32 size = ARG3;
-    log_sys_event("sys_event_queue_create(queue_id_ptr: 0x%08x, attr_ptr: 0x%08x, ipc_key: 0x%016x, size: 0x%08x) STUBBED\n", queue_id_ptr, attr_ptr, ipc_key, size);
+    log_sys_event("sys_event_queue_create(queue_id_ptr: 0x%08x, attr_ptr: 0x%08x, ipc_key: 0x%016x, size: 0x%08x)\n", queue_id_ptr, attr_ptr, ipc_key, size);
 
-    ps3->mem.write<u32>(queue_id_ptr, ps3->handle_manager.request());
+    Lv2EventQueue* queue = ps3->lv2_obj.create<Lv2EventQueue>();
+    queue->size = size;
+
+    ps3->mem.write<u32>(queue_id_ptr, queue->handle());
     return Result::CELL_OK;
 }
 
 u64 Syscall::sys_event_queue_receive() {
     const u32 queue_id = ARG0;
-    const u32 event_ptr = ARG1;
+    const u32 event_ptr = ARG1; // Unused
     const u64 timeout = ARG2;
-    unimpl("sys_event_queue_receive(queue_id: %d, event_ptr: 0x%08x, timeout: %d) STUBBED\n", queue_id, event_ptr, timeout );
-    if (    ps3->thread_manager.getCurrentThread()->name.contains("SPURS")
-        ||  ps3->thread_manager.getCurrentThread()->name.contains("Spurs")
-        ||  ps3->thread_manager.getCurrentThread()->name == "faust_fl_PlatformScriptTimeout"
-        //||  ps3->thread_manager.getCurrentThread()->name == "faust_fl_DownloadThread"
-       ) {
-        ps3->thread_manager.getCurrentThread()->status = Thread::ThreadStatus::Sleeping;
-        ps3->thread_manager.getCurrentThread()->reschedule();
-    }
+    log_sys_event("sys_event_queue_receive(queue_id: %d, event_ptr: 0x%08x, timeout: %d)\n", queue_id, event_ptr, timeout );
 
-    ps3->ppu->state.gprs[4] = 0;
-    ps3->ppu->state.gprs[5] = 0;
-    ps3->ppu->state.gprs[6] = 0;
-    ps3->ppu->state.gprs[7] = 0;
+    Lv2EventQueue* queue = ps3->lv2_obj.get<Lv2EventQueue>(queue_id);
+    queue->receive(ps3);    // queue->receive will return the event data in gprs[4] - gprs[7]
 
     return Result::CELL_OK;
 }

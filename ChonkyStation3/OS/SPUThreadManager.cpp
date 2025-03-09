@@ -8,6 +8,7 @@ SPUThread* SPUThreadManager::createThread(std::string name) {
 }
 
 void SPUThreadManager::contextSwitch(SPUThread& thread) {
+    ps3->spu->enabled = true;
     SPUThread* current_thread = getCurrentThread();
     if (current_thread && current_thread->id == thread.id) return;
 
@@ -15,10 +16,10 @@ void SPUThreadManager::contextSwitch(SPUThread& thread) {
         log("Switched from thread \"%s\" to thread \"%s\"\n", current_thread->name.c_str(), thread.name.c_str());
     else
         log("Switched to thread \"%s\"\n", thread.name.c_str());
+
     if (current_thread)
         current_thread->state = ps3->spu->state;
     
-    ps3->spu->enabled = true;
     ps3->spu->state = thread.state;
     ps3->spu->ls = thread.ls;
     current_thread_id = thread.id;
@@ -40,7 +41,7 @@ SPUThread* SPUThreadManager::getThreadByID(u32 id) {
 }
 
 void SPUThreadManager::reschedule() {
-    // No thread is active - find the first running thread and execute it
+    // No thread is currently active - find the first running thread and execute it
     if (current_thread_id == 0) {
         for (auto& i : threads) {
             if (i.status == SPUThread::ThreadStatus::Running) {
@@ -57,7 +58,7 @@ void SPUThreadManager::reschedule() {
 
     // Try to switch to the next running thread
     bool found_thread = false;
-    for (int i = 0; i < threads.size() - 1; i++) {
+    for (int i = 0; i < threads.size(); i++) {
         SPUThread& t = threads[(curr_thread + 1 + i) % threads.size()];    // +1 because we want to begin searching from the thread after the current thread
 
         if (t.status == SPUThread::ThreadStatus::Running) {
@@ -70,5 +71,6 @@ void SPUThreadManager::reschedule() {
     // No available threads, disable SPU
     if (!found_thread) {
         ps3->spu->enabled = false;
+        current_thread_id = 0;
     }
 }

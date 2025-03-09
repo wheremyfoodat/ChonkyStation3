@@ -20,8 +20,8 @@ public:
     T* create() {
         const auto handle = handle_manager->request();
         Lv2Object new_obj = Lv2Object(handle);
-        new_obj.create<T>();
         objs.push_back(new_obj);
+        objs.back().create<T>();
 
         log("Created obj with handle %d\n", handle);
         return objs.back().get<T>();

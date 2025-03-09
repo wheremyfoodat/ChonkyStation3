@@ -3,6 +3,9 @@
 #include <common.hpp>
 #include <logger.hpp>
 
+#include <thread>
+#include <atomic>
+
 #include <SPUTypes.hpp>
 #include <OS/Syscalls/sys_spu.hpp>
 
@@ -30,10 +33,24 @@ public:
         Waiting,
         Terminated
     };
+
     ThreadStatus status = ThreadStatus::Ready;
+    bool isRunning();
 
     void loadImage(sys_spu_image* img);
+    
+    void reschedule();
     void halt();
+    void wait();
+    void wakeUp();
+
+    static std::string threadStatusToString(ThreadStatus status) {
+        switch (status) {
+        case ThreadStatus::Running:    return "Running";
+        case ThreadStatus::Waiting:    return "Waiting";
+        case ThreadStatus::Terminated: return "Terminated";
+        }
+    }
 
     // MFC
     enum SPU_Channel : u32 {
@@ -83,6 +100,52 @@ public:
     u32 tag_id = 0;
     u32 tag_mask = 0;
     u32 atomic_stat = 0;
+
+    union {
+        u32 raw = 0;
+
+        BitField<0,  1, u32> tg;
+        BitField<1,  1, u32> sn;
+        BitField<2,  1, u32> reserved;
+        BitField<3,  1, u32> qv;
+        BitField<4,  1, u32> mb;
+        BitField<5,  1, u32> tm;
+        BitField<6,  1, u32> me;
+        BitField<7,  1, u32> le;
+        BitField<8,  1, u32> s2;
+        BitField<9,  1, u32> s1;
+        BitField<10, 1, u32> lr;
+        BitField<11, 1, u32> a;
+        BitField<12, 1, u32> ms;
+    } event_stat;
+    u32 event_mask = 0;
+
+    struct Reservation {
+        u32 addr;
+        u32 data[128];
+    };
+    Reservation reservation;
+
+    class LocklineWaiter {
+    public:
+        LocklineWaiter(PlayStation3* ps3, u32 waiter_id) : ps3(ps3), waiter_id(waiter_id) {}
+        PlayStation3* ps3;
+        u32 waiter_id;
+
+        void waiter();
+        void begin(Reservation reservation);
+        void end();
+
+    private:
+        std::atomic<bool> is_waiting = false;
+        Reservation reservation;
+        std::thread waiter_thread;
+    };
+    LocklineWaiter* lockline_waiter;
+
+    void sendLocklineLostEvent(u32 addr);
+    void wakeUpIfEvent();
+    bool hasPendingEvents();
 
     std::string channelToString(u32 ch);
     u32  readChannel(u32 ch);
