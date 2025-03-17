@@ -7,6 +7,7 @@ SPUThread::SPUThread(PlayStation3* ps3, std::string name) : ps3(ps3) {
     this->name = name;
     log("Created SPU thread %d \"%s\"\n", id, name.c_str());
 
+    std::memset(ls, 0, 256_KB);
     lockline_waiter = new LocklineWaiter(ps3, id);
 }
 
