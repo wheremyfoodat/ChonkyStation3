@@ -99,6 +99,7 @@ This is a hobby project I'm developing for fun and to learn.<br>
     <ul>
       <li>liblv2.prx</li>
       <li>libsre.prx</li>
+      <li>libspurs_jq.prx</li>
       <li>libkey2char.prx</li>
       <li>libl10n.prx</li>
       <li>libfiber.prx</li>
