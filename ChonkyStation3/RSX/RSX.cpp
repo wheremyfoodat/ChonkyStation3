@@ -398,10 +398,12 @@ void RSX::runCommandList(u64 put_addr) {
 
             if ((cmd & 0x00000003) == 0x00000002) { // call
                 Helpers::panic("rsx: call\n");
+                return;
             }
 
             if ((cmd & 0xffff0003) == 0x00020000) {
                 Helpers::panic("rsx: return\n");
+                return;
             }
         }
 

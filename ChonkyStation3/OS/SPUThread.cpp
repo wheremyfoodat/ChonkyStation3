@@ -42,7 +42,7 @@ void SPUThread::loadImage(sys_spu_image* img) {
     /*
     std::string filename = std::format("ls{:d}.bin", id);
     std::ofstream file(filename, std::ios::binary);
-    file.write((char*)ls, 16_KB);
+    file.write((char*)ls, 256_KB);
     file.close();
     */
 }
@@ -90,7 +90,7 @@ void SPUThread::LocklineWaiter::waiter() {
         }
     }
     
-    // The lockline reservation was lost
+    // The lockline reservation was lost, check if it was acquired before losing it. If not, send lockline lost event
     if (!acquired)  // Set by i.e. PUTLLC
         ps3->spu_thread_manager.getThreadByID(waiter_id)->sendLocklineLostEvent(reservation.addr);
 }
@@ -245,19 +245,19 @@ void SPUThread::doCmd(u32 cmd) {
     switch (cmd) {
      
     case PUT: {
-        log("PUT\n");
+        log("PUT @ 0x%08x\n", ps3->spu->state.pc);
         std::memcpy(ps3->mem.getPtr(eal), &ls[lsa & 0x3ffff], size);
         break;
     }
 
     case GET: {
-        log("GET\n");
+        log("GET @ 0x%08x\n", ps3->spu->state.pc);
         std::memcpy(&ls[lsa & 0x3ffff], ps3->mem.getPtr(eal), size);
         break;
     }
 
     case PUTLLC: {
-        log("PUTLLC ");
+        log("PUTLLC @ 0x%08x ", ps3->spu->state.pc);
         lockline_waiter->end();
 
         bool success = true;
@@ -282,7 +282,7 @@ void SPUThread::doCmd(u32 cmd) {
     }
 
     case GETLLAR: {
-        log("GETLLAR 0x%08x\n", ps3->spu->state.pc);
+        log("GETLLAR @ 0x%08x\n", ps3->spu->state.pc);
 
         // Get reservation data
         reservation.addr = eal;

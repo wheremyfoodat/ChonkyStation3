@@ -29,6 +29,11 @@ public:
         return (v << ((sizeof(T) * 8) - l)) >> ((sizeof(T) * 8) - l);
     }
 
+    template<typename T>
+    inline int fixSh(int v) {
+        return (v >= sizeof(T) * 8) ? 0 : v;
+    }
+
     // Instruction table
     void (SPUInterpreter::*instr_table[INSTR_TABLE_SIZE])(const SPUInstruction&);
     void registerInstruction(u32 size, u32 opc, void (SPUInterpreter::*handler)(const SPUInstruction&));

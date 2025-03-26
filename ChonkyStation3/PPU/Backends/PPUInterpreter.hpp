@@ -21,6 +21,11 @@ public:
 
     u64 rotation_mask[64][64];
 
+    template<typename T>
+    inline int fixSh(int v) {
+        return (v >= sizeof(T) * 8) ? 0 : v;
+    }
+
     void printCallStack();
     std::unordered_map<u32, std::string> known_funcs;   // Used for debugging
     std::vector<std::pair<u32, u32>> call_stack;    // First: addr of function, second: addr the function is called from

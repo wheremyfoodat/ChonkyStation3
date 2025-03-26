@@ -208,6 +208,12 @@ u64 CellGcmSys::cellGcmSetFlipMode() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmSetSecondVFrequency() {
+    log("cellGcmSetSecondVFrequency() UNIMPLEMENTED\n");
+
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmSetDebugOutputLevel() {
     const s32 level = ARG0;
     log("cellGcmSetDebugOutputLevel(level: %d)\n", level);

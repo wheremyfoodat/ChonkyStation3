@@ -1226,13 +1226,13 @@ void PPUInterpreter::cntlzw(const Instruction& instr) {
 }
 
 void PPUInterpreter::slw(const Instruction& instr) {
-    state.gprs[instr.ra] = (u32)state.gprs[instr.rs] << (state.gprs[instr.rb] & 0x1f);
+    state.gprs[instr.ra] = (u32)state.gprs[instr.rs] << fixSh<u32>((state.gprs[instr.rb] & 0x3f));
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::sld(const Instruction& instr) {
-    state.gprs[instr.ra] = state.gprs[instr.rs] << (state.gprs[instr.rb] & 0x7f);
+    state.gprs[instr.ra] = state.gprs[instr.rs] << fixSh<u64>((state.gprs[instr.rb] & 0x7f));
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
@@ -1603,13 +1603,13 @@ void PPUInterpreter::lfsx(const Instruction& instr) {
 }
 
 void PPUInterpreter::srw(const Instruction& instr) {
-    state.gprs[instr.ra] = (u32)state.gprs[instr.rs] >> (state.gprs[instr.rb] & 0x3f);
+    state.gprs[instr.ra] = (u32)state.gprs[instr.rs] >> fixSh<u32>((state.gprs[instr.rb] & 0x3f));
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::srd(const Instruction& instr) {
-    state.gprs[instr.ra] = state.gprs[instr.rs] >> (state.gprs[instr.rb] & 0x7f);
+    state.gprs[instr.ra] = state.gprs[instr.rs] >> fixSh<u64>((state.gprs[instr.rb] & 0x7f));
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
