@@ -7,6 +7,7 @@
 #include "PlayStation3.hpp" // Don't need this here in Qt builds because it's included in MainWindow.hpp
 #endif
 
+
 #ifdef _WIN32
 #include <windows.h>
 // Gently ask to use the discrete Nvidia/AMD GPU if possible instead of
@@ -42,7 +43,6 @@ int main(int argc, char** argv) {
 
     GameWindow game_window = GameWindow();
     game_window.run(ps3);
-
     return 0;
 #endif
 }

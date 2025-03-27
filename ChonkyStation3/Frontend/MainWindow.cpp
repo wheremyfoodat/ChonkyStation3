@@ -4,7 +4,8 @@ MainWindow::MainWindow() : QMainWindow() {
     ps3 = new PlayStation3();
     game_loader = new GameLoader(ps3);
     game_window = new GameWindow();
-
+    
+    // Qt6 UI
     ui.setupUi(this);
 
     // Setup menubar buttons

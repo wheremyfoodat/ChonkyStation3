@@ -19,6 +19,9 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     if (!(executable.generic_string() == "")) {
         elf_path = executable;
     }
+
+    // Load settings
+    settings.load();
 }
 
 PlayStation3::~PlayStation3() {

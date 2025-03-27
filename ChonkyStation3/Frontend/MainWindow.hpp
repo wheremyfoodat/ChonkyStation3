@@ -9,7 +9,7 @@
 #include <Frontend/GameWindow.hpp>
 #include "Frontend/UI/ui_mainwindow.h"
 #include <QtWidgets>
-#include "PlayStation3.hpp"
+#include <PlayStation3.hpp>
 #include <Loaders/Game/GameLoader.hpp>
 
 
