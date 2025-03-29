@@ -76,4 +76,9 @@ public:
 
     void pressButton(u32 button);
     void resetButtons();
+
+    // Debugging
+    void enableSPUOnPC(u32 unused);
+    u32 enable_spu_on_pc = 0;
+    std::string spu_thread_to_enable = "";
 };

@@ -75,6 +75,7 @@
     </property>
     <addaction name="actionSystem"/>
     <addaction name="actionLLE"/>
+    <addaction name="actionDebug"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -93,6 +94,11 @@
   <action name="actionLLE">
    <property name="text">
     <string>LLE</string>
+   </property>
+  </action>
+  <action name="actionDebug">
+   <property name="text">
+    <string>Debug</string>
    </property>
   </action>
  </widget>

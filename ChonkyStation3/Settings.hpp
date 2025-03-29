@@ -22,7 +22,6 @@ public:
     } system;
 
     struct {
-
         bool partialLv2LLE = true;
         bool sys_fs = false;
         bool cellResc = true;
@@ -52,6 +51,11 @@ public:
             else if (name == "cellFiber")       return cellFiber;
             else Helpers::panic("Tried to get LLE configuration of unknown module %s\n", name.c_str());
         }
-
     } lle;
+
+    struct {
+        bool disableSPU = false;
+        std::string enableSPUAfterPC = "";
+        std::string spuThreadToEnable = "";
+    } debug;
 };

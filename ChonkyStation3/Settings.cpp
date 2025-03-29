@@ -14,6 +14,7 @@ void Settings::load() {
     }
 
     auto cfg = toml::parse(path);
+    
     system.nickname = cfg["System"]["Nickname"].as_string();
     
     lle.partialLv2LLE  = cfg["LLEModules"]["PartialLv2LLE"].as_boolean();
@@ -30,6 +31,10 @@ void Settings::load() {
     lle.cellL10n       = cfg["LLEModules"]["cellL10n"].as_boolean();
     lle.cellFiber      = cfg["LLEModules"]["cellFiber"].as_boolean();
 
+    debug.disableSPU        = cfg["Debug"]["DisableSPU"].as_boolean();
+    debug.enableSPUAfterPC  = cfg["Debug"]["EnableSPUAfterPC"].as_string();
+    debug.spuThreadToEnable = cfg["Debug"]["SPUThreadToEnable"].as_string();
+
     if (lle.cellPngDec) printf("Warning: enabled LLE cellPngDec\n");
 }
 
@@ -43,19 +48,23 @@ void Settings::save() {
 
     cfg["System"]["Nickname"] = system.nickname;
     
-    cfg["LLEModules"]["PartialLv2LLE"]     = lle.partialLv2LLE;
-    cfg["LLEModules"]["sys_fs"]            = lle.sys_fs;
-    cfg["LLEModules"]["cellResc"]          = lle.cellResc;
-    cfg["LLEModules"]["cellPngDec"]        = lle.cellPngDec;
-    cfg["LLEModules"]["cellFont"]          = lle.cellFont;
-    cfg["LLEModules"]["cellFontFT"]        = lle.cellFontFT;
-    cfg["LLEModules"]["cell_FreeType2"]    = lle.cell_FreeType2;
-    cfg["LLEModules"]["cellSync"]          = lle.cellSync;
-    cfg["LLEModules"]["cellSpurs"]         = lle.cellSpurs;
-    cfg["LLEModules"]["cellSpursJq"]       = lle.cellSpursJq;
-    cfg["LLEModules"]["cellKey2char"]      = lle.cellKey2char;
-    cfg["LLEModules"]["cellL10n"]          = lle.cellL10n;
-    cfg["LLEModules"]["cellFiber"]         = lle.cellFiber;
+    cfg["LLEModules"]["PartialLv2LLE"]      = lle.partialLv2LLE;
+    cfg["LLEModules"]["sys_fs"]             = lle.sys_fs;
+    cfg["LLEModules"]["cellResc"]           = lle.cellResc;
+    cfg["LLEModules"]["cellPngDec"]         = lle.cellPngDec;
+    cfg["LLEModules"]["cellFont"]           = lle.cellFont;
+    cfg["LLEModules"]["cellFontFT"]         = lle.cellFontFT;
+    cfg["LLEModules"]["cell_FreeType2"]     = lle.cell_FreeType2;
+    cfg["LLEModules"]["cellSync"]           = lle.cellSync;
+    cfg["LLEModules"]["cellSpurs"]          = lle.cellSpurs;
+    cfg["LLEModules"]["cellSpursJq"]        = lle.cellSpursJq;
+    cfg["LLEModules"]["cellKey2char"]       = lle.cellKey2char;
+    cfg["LLEModules"]["cellL10n"]           = lle.cellL10n;
+    cfg["LLEModules"]["cellFiber"]          = lle.cellFiber;
+    
+    cfg["Debug"]["DisableSPU"]              = debug.disableSPU;
+    cfg["Debug"]["EnableSPUAfterPC"]        = debug.enableSPUAfterPC;
+    cfg["Debug"]["SPUThreadToEnable"]       = debug.spuThreadToEnable;
 
     file << toml::format(cfg);
     file.close();

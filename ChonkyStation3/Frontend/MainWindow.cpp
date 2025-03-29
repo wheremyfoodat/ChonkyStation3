@@ -22,6 +22,11 @@ MainWindow::MainWindow() : QMainWindow() {
         settings->show();
     });
 
+    connect(ui.actionDebug, &QAction::triggered, this, [this]() {
+        settings->ui.tabWidget->setCurrentIndex(2);
+        settings->show();
+        });
+
     int row = 0;
     int column = 0;
 
