@@ -52,7 +52,7 @@ target_link_libraries(ChonkyStation3 PUBLIC glad SDL2-static xxHash::xxhash toml
 if (ENABLE_QT_BUILD)
     find_package(Qt6 REQUIRED COMPONENTS Widgets)
     target_include_directories(ChonkyStation3 PRIVATE ${Qt6Gui_PRIVATE_INCLUDE_DIRS})
-    target_sources(ChonkyStation3 PRIVATE "ChonkyStation3/Frontend/MainWindow.cpp")
+    target_sources(ChonkyStation3 PRIVATE "ChonkyStation3/Frontend/MainWindow.cpp" "ChonkyStation3/Frontend/SettingsWidget.cpp")
 
     set_target_properties(ChonkyStation3 PROPERTIES AUTOMOC ON)
     set_target_properties(ChonkyStation3 PROPERTIES AUTORCC ON)
@@ -60,6 +60,7 @@ if (ENABLE_QT_BUILD)
 
     qt_standard_project_setup()
     qt_add_ui(ChonkyStation3 SOURCES "ChonkyStation3/Frontend/UI/mainwindow.ui" INCLUDE_PREFIX "Frontend/UI")
+    qt_add_ui(ChonkyStation3 SOURCES "ChonkyStation3/Frontend/UI/settings.ui" INCLUDE_PREFIX "Frontend/UI")
 
     target_link_libraries(ChonkyStation3 PUBLIC Qt6::Widgets)
 endif()

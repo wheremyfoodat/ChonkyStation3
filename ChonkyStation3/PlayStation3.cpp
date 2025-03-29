@@ -109,7 +109,7 @@ void PlayStation3::run() {
     }
 }
 
-bool tmp = true;
+bool tmp = false;
 
 static constexpr int reschedule_every_n_blocks = 48;
 void PlayStation3::step() {

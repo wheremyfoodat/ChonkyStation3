@@ -22,8 +22,18 @@ public:
     u64 rotation_mask[64][64];
 
     template<typename T>
-    inline int fixSh(int v) {
-        return (v >= sizeof(T) * 8) ? 0 : v;
+    inline bool isShOK(int v) {
+        return !(v >= sizeof(T) * 8);
+    }
+
+    template<typename T>
+    inline T safeShl(T v, int sh) {
+        return isShOK<T>(sh) ? (v << sh) : 0;
+    }
+
+    template<typename T>
+    inline T safeShr(T v, int sh) {
+        return isShOK<T>(sh) ? (v >> sh) : 0;
     }
 
     void printCallStack();

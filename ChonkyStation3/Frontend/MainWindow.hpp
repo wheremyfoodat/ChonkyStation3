@@ -12,6 +12,8 @@
 #include <PlayStation3.hpp>
 #include <Loaders/Game/GameLoader.hpp>
 
+#include "SettingsWidget.hpp"
+
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -19,6 +21,7 @@ class MainWindow : public QMainWindow {
 public:
     MainWindow();
     Ui::Main ui;
+    SettingsWidget* settings;
 
     void setListItem(int row, int column, std::string str);
     void setListIcon(int row, fs::path icon);

@@ -197,7 +197,7 @@ u32 SPUThread::readChannel(u32 ch) {
     case SPU_RdMachStat:    return 0;   // TODO
     case SPU_RdInMbox:      return 0;   // TODO
 
-    case MFC_RdTagStat:     return 0xffffffff & tag_mask;   // TODO
+    case MFC_RdTagStat:     return 1 << tag_mask;   // TODO
     case MFC_RdAtomicStat:  return atomic_stat;             
 
     default:

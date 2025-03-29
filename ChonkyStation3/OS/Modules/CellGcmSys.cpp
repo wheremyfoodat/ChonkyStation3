@@ -42,7 +42,7 @@ u64 CellGcmSys::cellGcmInitBody() {
     // Setup callback
     u32 callback_addr = ps3->mem.alloc(4 * 4)->vaddr;
     ps3->mem.write<u32>(callback_addr +  0, callback_addr + 4);
-    ps3->mem.write<u32>(callback_addr +  4, 0x39600006);     // li r11, 0x6
+    ps3->mem.write<u32>(callback_addr +  4, 0x39600400);     // li r11, 0x400
     ps3->mem.write<u32>(callback_addr +  8, 0x44000002);     // sc
     ps3->mem.write<u32>(callback_addr + 12, 0x4E800020);     // blr
 

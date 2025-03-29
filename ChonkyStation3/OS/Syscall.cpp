@@ -42,7 +42,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     switch (syscall_num) {
     
     // cellGcmCallback
-    case 0x06: ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
+    case 0x400: ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
 
     case 1: {
         log_misc("sys_process_getpid()\n");
