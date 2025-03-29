@@ -221,6 +221,7 @@ void SPUInterpreter::step() {
     const auto opc = (instr.raw >> (32 - INSTR_BITS)) & INSTR_MASK;
     (*this.*instr_table[opc])(instr);
 
+    //printState();
     state.pc += 4;
 }
 

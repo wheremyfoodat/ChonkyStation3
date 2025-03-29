@@ -75,6 +75,7 @@ void ModuleManager::init() {
         { 0xd3039d4d, { "_sys_strncpy",                                     std::bind(&SysPrxForUser::sysStrncpy, &sysPrxForUser) }},
         { 0x68b9b011, { "_sys_memset",                                      std::bind(&SysPrxForUser::sysMemset, &sysPrxForUser) }},
         { 0x6bf66ea7, { "_sys_memcpy",                                      std::bind(&SysPrxForUser::sysMemcpy, &sysPrxForUser) }},
+        { 0xbdb18f83, { "_sys_malloc",                                      std::bind(&SysPrxForUser::sysMalloc, &sysPrxForUser), true }},
         { 0xfb5db080, { "_sys_memcmp",                                      std::bind(&SysPrxForUser::sysMemcmp, &sysPrxForUser) }},
 
         { 0x1573dc3f, { "sysLwMutexLock",                                   std::bind(&SysLwMutex::sysLwMutexLock, &sysLwMutex), true }},

@@ -30,6 +30,13 @@ void SPUThread::loadImage(sys_spu_image* img) {
             break;
         }
 
+        case SYS_SPU_SEGMENT_TYPE_FILL: {
+            log("*  Loading segment %d type FILL\n", i);
+            std::memset(&ls[segs[i].ls_addr], segs[i].src.addr, segs[i].size);
+            log("*  Filled segment at ls[0x%08x - 0x%08x] with 0x%02x\n", (u32)segs[i].ls_addr, segs[i].ls_addr + segs[i].size, segs[i].src.addr);
+            break;
+        }
+
         default: {
             Helpers::panic("Unimplemented segment type %d\n", (u32)segs[i].type);
         }

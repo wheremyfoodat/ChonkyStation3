@@ -5,6 +5,7 @@
 
 PRXManager::PRXManager(PlayStation3* ps3) : ps3(ps3) {
     lle_modules = {
+        { "sys_fs",             "libfs.prx" },
         { "cellResc",           "libresc.prx" },
         { "cellPngDec",         "libpngdec.prx" },
         { "cellFont",           "libfont.prx" },
@@ -36,7 +37,6 @@ bool PRXManager::isLLEModule(const std::string name) {
     if (name == "sysPrxForUser")
         return ps3->settings.lle.partialLv2LLE;
 
-    if (ps3->settings.lle.cellPngDec) printf("fuck\n");
     return lle_modules.contains(name) ? ps3->settings.lle.isLLEEnabled(name) : false;
 }
 

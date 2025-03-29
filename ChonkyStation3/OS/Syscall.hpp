@@ -97,6 +97,10 @@ public:
     u64 sys_spu_thread_group_connect_event_all_threads();
     u64 sys_spu_image_import();
 
+    // sys_fs
+    u64 sys_fs_test();
+    u64 sys_fs_fcntl();
+
     // Temporary until I move the FS syscalls to their own file
     enum CELL_FS_S : u32 {
         CELL_FS_S_IFDIR = 0040000,	// Directory

@@ -17,6 +17,7 @@ void Settings::load() {
     system.nickname = cfg["System"]["Nickname"].as_string();
     
     lle.partialLv2LLE  = cfg["LLEModules"]["PartialLv2LLE"].as_boolean();
+    lle.sys_fs         = cfg["LLEModules"]["sys_fs"].as_boolean();
     lle.cellResc       = cfg["LLEModules"]["cellResc"].as_boolean();
     lle.cellPngDec     = cfg["LLEModules"]["cellPngDec"].as_boolean();
     lle.cellFont       = cfg["LLEModules"]["cellFont"].as_boolean();
@@ -43,6 +44,7 @@ void Settings::save() {
     cfg["System"]["Nickname"] = system.nickname;
     
     cfg["LLEModules"]["PartialLv2LLE"]     = lle.partialLv2LLE;
+    cfg["LLEModules"]["sys_fs"]            = lle.sys_fs;
     cfg["LLEModules"]["cellResc"]          = lle.cellResc;
     cfg["LLEModules"]["cellPngDec"]        = lle.cellPngDec;
     cfg["LLEModules"]["cellFont"]          = lle.cellFont;

@@ -24,6 +24,7 @@ public:
     struct {
 
         bool partialLv2LLE = true;
+        bool sys_fs = false;
         bool cellResc = true;
         bool cellPngDec = false;
         bool cellFont = false;
@@ -37,7 +38,8 @@ public:
         bool cellFiber = true;
 
         inline bool isLLEEnabled(std::string name) {
-            if (name == "cellResc")             return cellResc;
+            if (name == "sys_fs")          return sys_fs;
+            else if (name == "cellResc")        return cellResc;
             else if (name == "cellPngDec")      return cellPngDec;
             else if (name == "cellFont")        return cellFont;
             else if (name == "cellFontFT")      return cellFontFT;

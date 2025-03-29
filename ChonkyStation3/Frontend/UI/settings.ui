@@ -129,13 +129,23 @@
        <property name="checkable">
         <bool>false</bool>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0">
         <property name="spacing">
          <number>6</number>
         </property>
         <property name="sizeConstraint">
          <enum>QLayout::SizeConstraint::SetNoConstraint</enum>
         </property>
+        <item>
+         <widget class="QCheckBox" name="sys_fs">
+          <property name="text">
+           <string>sys_fs</string>
+          </property>
+          <property name="tristate">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QCheckBox" name="cellResc">
           <property name="text">
