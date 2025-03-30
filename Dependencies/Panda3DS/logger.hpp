@@ -37,11 +37,12 @@ public:
 #ifdef CHONKYSTATION3_USER_BUILD
 #define true false
 #else
-//#define true false
-#define false true
+#define true false
+//#define false true
 #endif
 
 // Modules
+static Logger cellAudioOut      = Logger<true> ("[Module ][cellAudioOut  ] ");
 static Logger cellAudio         = Logger<true> ("[Module ][cellAudio     ] ");
 static Logger cellMsgDialog     = Logger<true> ("[Module ][cellMsgDialog ] ");
 static Logger cellSysCache      = Logger<true> ("[Module ][cellSysCache  ] ");

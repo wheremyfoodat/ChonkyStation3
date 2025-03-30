@@ -229,14 +229,15 @@ void ModuleManager::init() {
         { 0xff42dcc3, { "cellFsClosedir",                                   std::bind(&CellFs::cellFsClosedir, &cellFs) }},
 
         { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
-        { 0x2beac488, { "cellAudioOutGetSoundAvailability2",                std::bind(&ModuleManager::stub, this) }},
-        { 0x4692ab35, { "cellAudioOutConfigure",                            std::bind(&ModuleManager::stub, this) }},
         { 0x74a66af0, { "cellAudioGetPortConfig",                           std::bind(&CellAudio::cellAudioGetPortConfig, &cellAudio) }},
         { 0x89be28f2, { "cellAudioPortStart",                               std::bind(&CellAudio::cellAudioPortStart, &cellAudio) }},
-        { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",                 std::bind(&ModuleManager::stub, this) }},
         { 0xcd7bc431, { "cellAudioPortOpen",                                std::bind(&CellAudio::cellAudioPortOpen, &cellAudio) }},
+
+        { 0x2beac488, { "cellAudioOutGetSoundAvailability2",                std::bind(&ModuleManager::stub, this) }},
+        { 0x4692ab35, { "cellAudioOutConfigure",                            std::bind(&ModuleManager::stub, this) }},
+        { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",                 std::bind(&ModuleManager::stub, this) }},
         { 0xe5e2b09d, { "cellAudioOutGetNumberOfDevice",                    std::bind(&ModuleManager::stub, this) }},
-        { 0xf4e3caa0, { "cellAudioOutGetState",                             std::bind(&ModuleManager::stub, this) }},
+        { 0xf4e3caa0, { "cellAudioOutGetState",                             std::bind(&CellAudioOut::cellAudioOutGetState, &cellAudioOut) }},
 
         { 0x0d5f2c14, { "cellPadClearBuf",                                  std::bind(&ModuleManager::stub, this) } },
         { 0x1cf98800, { "cellPadInit",                                      std::bind(&CellPad::cellPadInit, &cellPad) }},
@@ -361,6 +362,7 @@ void ModuleManager::init() {
         { 0xb6feb84b, { "cellHttpClientSetTransactionStateCallback",        std::bind(&ModuleManager::stub, this) } },
         
         { 0x1e7bff94, { "cellSysCacheMount",                                std::bind(&CellSysCache::cellSysCacheMount, &cellSysCache) } },
+        { 0x744c1544, { "cellSysCacheClear",                                std::bind(&CellSysCache::cellSysCacheClear, &cellSysCache) } },
         
         { 0x7603d3db, { "cellMsgDialogOpen2",                               std::bind(&CellMsgDialog::cellMsgDialogOpen2, &cellMsgDialog) } },
 

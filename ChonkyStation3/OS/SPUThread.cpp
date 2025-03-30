@@ -9,6 +9,8 @@ SPUThread::SPUThread(PlayStation3* ps3, std::string name) : ps3(ps3) {
 
     std::memset(ls, 0, 256_KB);
     lockline_waiter = new LocklineWaiter(ps3, id);
+
+    for (auto& i : ports) i = -1;
 }
 
 bool SPUThread::isRunning() {
@@ -202,8 +204,12 @@ u32 SPUThread::readChannel(u32 ch) {
         return event_stat.raw & event_mask;
     }
     case SPU_RdMachStat:    return 0;   // TODO
-    case SPU_RdInMbox:      return 0;   // TODO
-
+    case SPU_RdInMbox: {
+        Helpers::debugAssert(in_mbox.size(), "TODO: SPU_RdInMbox with empty queue\n");
+        const u32 val = in_mbox.front();
+        in_mbox.pop();
+        return val;
+    }
     case MFC_RdTagStat:     return 1 << tag_mask;   // TODO
     case MFC_RdAtomicStat:  return atomic_stat;             
 
@@ -213,11 +219,13 @@ u32 SPUThread::readChannel(u32 ch) {
 }
 
 u32 SPUThread::readChannelCount(u32 ch) {
-    log("Read cnt %s @ 0x%08x\n", channelToString(ch).c_str(), ps3->spu->state.pc);
+    //log("Read cnt %s @ 0x%08x\n", channelToString(ch).c_str(), ps3->spu->state.pc);
 
     switch (ch) {
 
-    case SPU_RdInMbox:  return 0;   // TODO
+    case SPU_RdInMbox:  return in_mbox.size();
+
+    case MFC_WrTagUpdate:   return 1;
 
     default:
         Helpers::panic("Unimplemented MFC channel count read 0x%02x\n", ch);
@@ -231,8 +239,29 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
      
     case SPU_WrEventMask:   event_mask      = val;      break;
     case SPU_WrEventAck:    event_stat.raw &= ~val;     break;
-    case SPU_WrOutMbox:     /* TODO */                  break;
-    case SPU_WrOutIntrMbox: /* TODO */                  break;
+    case SPU_WrOutMbox:     out_mbox.push(val);         break;
+    case SPU_WrOutIntrMbox: {
+        const u32 spup = val >> 24;
+        if (spup < 64) {
+            Helpers::debugAssert(ports[spup] != -1, "sys_spu_thread_send_event: port %d was not connected\n", spup);
+            Helpers::debugAssert(out_mbox.size(), "sys_spu_thread_send_event: out_mbox is empty\n");
+            const u32 data0 = val & 0xffffff;
+            const u32 data1 = out_mbox.front();
+            out_mbox.pop();
+            log("sys_spu_thread_send_event(spup: %d, data0: 0x%08x, data1: 0x%08x)\n", spup, data0, data1);
+
+            // Send the event
+            Lv2EventQueue* equeue = ps3->lv2_obj.get<Lv2EventQueue>(ports[spup]);
+            equeue->send({ SYS_SPU_THREAD_EVENT_USER_KEY, id, data0, data1 });
+
+            // Write response to in mbox
+            in_mbox.push(Result::CELL_OK);
+        }
+        else {
+            Helpers::panic("Unhandled SPU_WrOutIntrMbox write with spup %d\n", spup);
+        }
+        break;
+    }
 
     case MFC_LSA:           lsa         = val;  break;
     case MFC_EAH:           eah         = val;  break;
