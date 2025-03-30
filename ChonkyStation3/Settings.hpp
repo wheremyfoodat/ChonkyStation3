@@ -30,6 +30,7 @@ public:
         bool cellFontFT = false;
         bool cell_FreeType2 = false;
         bool cellSync = true;
+        bool cellSync2 = true;
         bool cellSpurs = true;
         bool cellSpursJq = true;
         bool cellKey2char = true;
@@ -44,6 +45,7 @@ public:
             else if (name == "cellFontFT")      return cellFontFT;
             else if (name == "cell_FreeType2")  return cell_FreeType2;
             else if (name == "cellSync")        return cellSync;
+            else if (name == "cellSync2")       return cellSync2;
             else if (name == "cellSpurs")       return cellSpurs;
             else if (name == "cellSpursJq")     return cellSpursJq;
             else if (name == "cellKey2char")    return cellKey2char;

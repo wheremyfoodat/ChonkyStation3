@@ -126,6 +126,7 @@ public:
     void crnor      (const Instruction& instr);
     void crandc     (const Instruction& instr);
     void crnand     (const Instruction& instr);
+    void crand      (const Instruction& instr);
     void crorc      (const Instruction& instr);
     void cror       (const Instruction& instr);
     void bcctr      (const Instruction& instr);

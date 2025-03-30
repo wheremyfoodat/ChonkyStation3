@@ -403,6 +403,7 @@ void RSX::runCommandList(u64 put_addr) {
 
             if ((cmd & 0xffff0003) == 0x00020000) {
                 Helpers::panic("rsx: return\n");
+                gcm.ctrl->get = gcm.ctrl->put;
                 return;
             }
         }

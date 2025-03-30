@@ -13,6 +13,7 @@ PRXManager::PRXManager(PlayStation3* ps3) : ps3(ps3) {
         { "cell_FreeType2",     "libfreetype.prx" },
         { "sysPrxForUser",      "liblv2.prx" },
         { "cellSync",           "libsre.prx" },
+        { "cellSync2",          "libsync2.prx" },
         { "cellSpurs",          "libsre.prx" },
         { "cellSpursJq",        "libspurs_jq.prx" },
         { "cellKey2char",       "libkey2char.prx" },

@@ -17,19 +17,20 @@ void Settings::load() {
     
     system.nickname = cfg["System"]["Nickname"].as_string();
     
-    lle.partialLv2LLE  = cfg["LLEModules"]["PartialLv2LLE"].as_boolean();
-    lle.sys_fs         = cfg["LLEModules"]["sys_fs"].as_boolean();
-    lle.cellResc       = cfg["LLEModules"]["cellResc"].as_boolean();
-    lle.cellPngDec     = cfg["LLEModules"]["cellPngDec"].as_boolean();
-    lle.cellFont       = cfg["LLEModules"]["cellFont"].as_boolean();
-    lle.cellFontFT     = cfg["LLEModules"]["cellFontFT"].as_boolean();
-    lle.cell_FreeType2 = cfg["LLEModules"]["cell_FreeType2"].as_boolean();
-    lle.cellSync       = cfg["LLEModules"]["cellSync"].as_boolean();
-    lle.cellSpurs      = cfg["LLEModules"]["cellSpurs"].as_boolean();
-    lle.cellSpursJq    = cfg["LLEModules"]["cellSpursJq"].as_boolean();
-    lle.cellKey2char   = cfg["LLEModules"]["cellKey2char"].as_boolean();
-    lle.cellL10n       = cfg["LLEModules"]["cellL10n"].as_boolean();
-    lle.cellFiber      = cfg["LLEModules"]["cellFiber"].as_boolean();
+    lle.partialLv2LLE   = cfg["LLEModules"]["PartialLv2LLE"].as_boolean();
+    lle.sys_fs          = cfg["LLEModules"]["sys_fs"].as_boolean();
+    lle.cellResc        = cfg["LLEModules"]["cellResc"].as_boolean();
+    lle.cellPngDec      = cfg["LLEModules"]["cellPngDec"].as_boolean();
+    lle.cellFont        = cfg["LLEModules"]["cellFont"].as_boolean();
+    lle.cellFontFT      = cfg["LLEModules"]["cellFontFT"].as_boolean();
+    lle.cell_FreeType2  = cfg["LLEModules"]["cell_FreeType2"].as_boolean();
+    lle.cellSync        = cfg["LLEModules"]["cellSync"].as_boolean();
+    lle.cellSync2       = cfg["LLEModules"]["cellSync2"].as_boolean();
+    lle.cellSpurs       = cfg["LLEModules"]["cellSpurs"].as_boolean();
+    lle.cellSpursJq     = cfg["LLEModules"]["cellSpursJq"].as_boolean();
+    lle.cellKey2char    = cfg["LLEModules"]["cellKey2char"].as_boolean();
+    lle.cellL10n        = cfg["LLEModules"]["cellL10n"].as_boolean();
+    lle.cellFiber       = cfg["LLEModules"]["cellFiber"].as_boolean();
 
     debug.disableSPU        = cfg["Debug"]["DisableSPU"].as_boolean();
     debug.enableSPUAfterPC  = cfg["Debug"]["EnableSPUAfterPC"].as_string();
@@ -56,6 +57,7 @@ void Settings::save() {
     cfg["LLEModules"]["cellFontFT"]         = lle.cellFontFT;
     cfg["LLEModules"]["cell_FreeType2"]     = lle.cell_FreeType2;
     cfg["LLEModules"]["cellSync"]           = lle.cellSync;
+    cfg["LLEModules"]["cellSync2"]          = lle.cellSync2;
     cfg["LLEModules"]["cellSpurs"]          = lle.cellSpurs;
     cfg["LLEModules"]["cellSpursJq"]        = lle.cellSpursJq;
     cfg["LLEModules"]["cellKey2char"]       = lle.cellKey2char;

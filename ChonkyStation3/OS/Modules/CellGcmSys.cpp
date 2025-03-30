@@ -486,6 +486,12 @@ u64 CellGcmSys::cellGcmGetLabelAddress() {
     return label_addr + 0x10 * idx;
 }
 
+u64 CellGcmSys::cellGcmSetVBlankFrequency() {
+    log("cellGcmSetVBlankFrequency() UNIMPLEMENTED\n");
+
+    return Result::CELL_OK;
+}
+
 
 // Resets the command buffer
 // If there are any remaining commands to be executed, copy them back at the start

@@ -128,6 +128,7 @@ void PPUInterpreter::step() {
         case CRANDC:    crandc(instr);  break;
         case ISYNC:     break;
         case CRNAND:    crnand(instr);  break;
+        case CRAND:     crand(instr);  break;
         case CRORC:     crorc(instr);   break;
         case CROR:      cror(instr);    break;
         case BCCTR:     bcctr(instr);   break;
@@ -1040,6 +1041,14 @@ void PPUInterpreter::crnand(const Instruction& instr) {
     state.cr.raw &= ~(1 << (31 - instr.bt));
     state.cr.raw |= (~(a & b) & 1) << (31 - instr.bt);
 }
+
+void PPUInterpreter::crand(const Instruction& instr) {
+    const auto a = (state.cr.raw >> (31 - instr.ba)) & 1;
+    const auto b = (state.cr.raw >> (31 - instr.bb)) & 1;
+    state.cr.raw &= ~(1 << (31 - instr.bt));
+    state.cr.raw |= (a & b) << (31 - instr.bt);
+}
+
 
 void PPUInterpreter::crorc(const Instruction& instr) {
     const auto a = (state.cr.raw >> (31 - instr.ba)) & 1;
