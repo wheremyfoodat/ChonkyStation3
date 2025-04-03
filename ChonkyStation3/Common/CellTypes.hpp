@@ -12,6 +12,7 @@
 #define ARG5 ps3->ppu->state.gprs[8]
 #define ARG6 ps3->ppu->state.gprs[9]
 #define ARG7 ps3->ppu->state.gprs[10]
+#define ARG8 ps3->mem.read<u64>(ps3->ppu->state.gprs[1] + 0x70)
 
 namespace CellTypes {
 

@@ -12,8 +12,15 @@ class PlayStation3;
 
 using namespace CellTypes;
 
+static constexpr u32 CELL_MAX_PADS = 127;
+
 static constexpr u32 CELL_PAD_MAX_PORT_NUM = 7;
 static constexpr u32 CELL_PAD_MAX_CODES = 64;
+
+static constexpr u32 CELL_PAD_STATUS_DISCONNECTED       = 0;
+static constexpr u32 CELL_PAD_STATUS_CONNECTED          = 1;
+static constexpr u32 CELL_PAD_STATUS_ASSIGN_CHANGES     = 2;
+static constexpr u32 CELL_PAD_STATUS_CUSTOM_CONTROLLER  = 4;
 
 // Digital1
 static constexpr u32 CELL_PAD_CTRL_LEFT      = (1 << 7);
@@ -44,6 +51,15 @@ public:
         BEField<u16> button[CELL_PAD_MAX_CODES];
     };
 
+    struct CellPadInfo {
+        BEField<u32> max_connect;
+        BEField<u32> now_connect;
+        BEField<u32> system_info;
+        BEField<u16> vendor_id[CELL_MAX_PADS];
+        BEField<u16> product_id[CELL_MAX_PADS];
+        u8 status[CELL_MAX_PADS];
+    };
+
     struct CellPadInfo2 {
         BEField<u32> max_connect;
         BEField<u32> now_connect;
@@ -55,6 +71,7 @@ public:
     };
 
     u64 cellPadInit();
+    u64 cellPadGetInfo();
     u64 cellPadGetData();
     u64 cellPadGetInfo2();
 

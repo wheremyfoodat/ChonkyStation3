@@ -421,6 +421,13 @@ u64 CellGcmSys::cellGcmSetZcull() {
     return Result::CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmUnbindTile() {
+    log("cellGcmUnbindTile() UNIMPLEMENTED\n");
+
+    // TODO
+    return Result::CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmUnmapIoAddress() {
     const u32 io = ARG0;
     log("cellGcmUnmapIoAddress(io: 0x%08x)\n", io);

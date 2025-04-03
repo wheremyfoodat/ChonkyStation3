@@ -16,7 +16,8 @@ SFOLoader::SFOData SFOLoader::parse(fs::path guest_path) {
         SFOIndexEntry* entry = (SFOIndexEntry*)&sfo[sizeof(SFOHeader) + (sizeof(SFOIndexEntry) * i)];
         const auto key = Helpers::readString(&sfo[header->key_table_start + entry->key_offset]);
         switch (entry->data_fmt) {
-        // String
+        // String / Array
+        case 0x004:
         case 0x204: {
             const auto data = std::u8string(reinterpret_cast<const char8_t*>(&sfo[header->data_table_start + entry->data_offset]));
             log("{ %s : %s }\n", key.c_str(), data.c_str());

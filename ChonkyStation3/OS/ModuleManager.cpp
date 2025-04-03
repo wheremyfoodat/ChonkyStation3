@@ -122,6 +122,7 @@ void ModuleManager::init() {
         { 0xd01b570d, { "cellGcmSetGraphicsHandler",                        std::bind(&CellGcmSys::cellGcmSetGraphicsHandler, &cellGcmSys) }},
         { 0xd0b1d189, { "cellGcmSetTile",                                   std::bind(&CellGcmSys::cellGcmSetTile, &cellGcmSys) }},
         { 0xd34a420d, { "cellGcmSetZcull",                                  std::bind(&CellGcmSys::cellGcmSetZcull, &cellGcmSys) }},
+        { 0xd9b7653e, { "cellGcmUnbindTile",                                std::bind(&CellGcmSys::cellGcmUnbindTile, &cellGcmSys) }},
         { 0xdb23e867, { "cellGcmUnmapIoAddress",                            std::bind(&CellGcmSys::cellGcmUnmapIoAddress, &cellGcmSys) }},
         { 0xdc09357e, { "cellGcmSetFlip",                                   std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
         { 0xe315a0b2, { "cellGcmGetConfiguration",                          std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
@@ -241,10 +242,10 @@ void ModuleManager::init() {
 
         { 0x0d5f2c14, { "cellPadClearBuf",                                  std::bind(&ModuleManager::stub, this) } },
         { 0x1cf98800, { "cellPadInit",                                      std::bind(&CellPad::cellPadInit, &cellPad) }},
+        { 0x3aaad464, { "cellPadGetInfo",                                   std::bind(&CellPad::cellPadGetInfo, &cellPad)}},
         { 0x578e3c98, { "cellPadSetPortSetting",                            std::bind(&ModuleManager::stub, this) }},
         { 0x8b72cda1, { "cellPadGetData",                                   std::bind(&CellPad::cellPadGetData, &cellPad)}},
         { 0xa703a51d, { "cellPadGetInfo2",                                  std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
-        { 0x3aaad464, { "cellPadGetInfo",                                   std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},   // TODO: No idea if cellPadGetInfo is the same as cellPadGetInfo2?
         { 0xf83f8182, { "cellPadSetPressMode",                              std::bind(&ModuleManager::stub, this) } },
 
         { 0x2f1774d5, { "cellKbGetInfo",                                    std::bind(&CellKb::cellKbGetInfo, &cellKb) }},
@@ -299,7 +300,7 @@ void ModuleManager::init() {
         { 0xe3bf9a28, { "sceNpTrophyCreateContext",                         std::bind(&SceNpTrophy::sceNpTrophyCreateContext, &sceNpTrophy) } },
 
         { 0x8b7ed64b, { "cellSaveDataAutoSave2",                            std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
-        { 0xcdc6aefd, { "cellSaveDataUserAutoLoad",                         std::bind(&ModuleManager::stub, this) } },
+        { 0xcdc6aefd, { "cellSaveDataUserAutoLoad",                         std::bind(&CellSaveData::cellSaveDataUserAutoLoad, &cellSaveData) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                            std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
 
         { 0x2a6d9d51, { "sysLwCondWait",                                    std::bind(&SysLwCond::sysLwCondWait, &sysLwCond), true } },

@@ -214,8 +214,6 @@ SPUInterpreter::SPUInterpreter(PlayStation3* ps3) : SPU(ps3) {
     registerInstruction(4, 0xf,     &SPUInterpreter::fms);
 }
 
-int cnt = 0;
-
 void SPUInterpreter::step() {
     if (!enabled) return; 
 

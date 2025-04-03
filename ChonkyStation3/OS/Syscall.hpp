@@ -58,6 +58,9 @@ public:
     u64 sys_ppu_thread_get_priority();
     u64 sys_ppu_thread_get_stack_information();
 
+    // sys_event_flag
+    u64 sys_event_flag_wait();
+
     // sys_semaphore
     u64 sys_semaphore_create();
     u64 sys_semaphore_wait();

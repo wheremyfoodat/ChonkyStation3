@@ -37,8 +37,8 @@ public:
 #ifdef CHONKYSTATION3_USER_BUILD
 #define true false
 #else
-#define true false
-//#define false true
+//#define true false
+#define false true
 #endif
 
 // Modules
@@ -72,6 +72,7 @@ static Logger sysThread         = Logger<true> ("[Module ][sysThread     ] ");
 static Logger sys_spu           = Logger<true> ("[Syscall][sys_spu       ] ");
 static Logger sys_semaphore     = Logger<true> ("[Syscall][sys_semaphore ] ");
 static Logger sys_ppu_thread    = Logger<true> ("[Syscall][sys_ppu_thread] ");
+static Logger sys_event_flag    = Logger<true> ("[Syscall][sys_event_flag] ");
 static Logger sys_prx           = Logger<true> ("[Syscall][sys_prx       ] ");
 static Logger sys_cond          = Logger<true> ("[Syscall][sys_cond      ] ");
 static Logger sys_rwlock        = Logger<true> ("[Syscall][sys_rwlock    ] ");

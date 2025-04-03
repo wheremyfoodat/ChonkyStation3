@@ -77,6 +77,8 @@ public:
     void pressButton(u32 button);
     void resetButtons();
 
+    std::string getCurrentUserID() { return "00000001"; }
+
     // Debugging
     void enableSPUOnPC(u32 unused);
     u32 enable_spu_on_pc = 0;

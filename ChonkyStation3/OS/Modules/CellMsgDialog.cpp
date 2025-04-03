@@ -17,7 +17,8 @@ u64 CellMsgDialog::cellMsgDialogOpen2() {
     log("%s\n", msg.c_str());
     
     if ((type & 1) == 0) {  // Error
-        Helpers::panic("Error\n");
+        //Helpers::panic("Error\n");
+        log("WARNING: Error message dialog\n");
     }
 
     return Result::CELL_OK;

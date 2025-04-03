@@ -115,6 +115,7 @@ public:
     u64 cellGcmSetGraphicsHandler();
     u64 cellGcmSetTile();
     u64 cellGcmSetZcull();
+    u64 cellGcmUnbindTile();
     u64 cellGcmUnmapIoAddress();
     u64 cellGcmSetFlip();
     u64 cellGcmGetConfiguration();

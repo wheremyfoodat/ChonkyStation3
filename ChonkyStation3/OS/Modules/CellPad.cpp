@@ -9,17 +9,33 @@ u64 CellPad::cellPadInit() {
     return Result::CELL_OK;
 }
 
+u64 CellPad::cellPadGetInfo() {
+    const u32 info_ptr = ARG0;
+    log("cellPadGetInfo(info_ptr: 0x%08x)\n", info_ptr);
+
+    CellPadInfo* info = (CellPadInfo*)ps3->mem.getPtr(info_ptr);
+    info->max_connect = 4;
+    info->now_connect = 1;
+    info->system_info = 0;
+    info->status[0] = CELL_PAD_STATUS_CONNECTED;
+
+    return Result::CELL_OK;
+}
+
 u64 CellPad::cellPadGetData() {
     const u32 port_num = ARG0;
     const u32 data_ptr = ARG1;
-    log("cellPadGetData(port_num: %d, data_ptr: 0x%08x)\n");
+    log("cellPadGetData(port_num: %d, data_ptr: 0x%08x)\n", port_num, data_ptr);
+
+    if (port_num != 0) return 0x80121107; // CELL_PAD_ERROR_NO_DEVICE
 
     CellPadData* data = (CellPadData*)ps3->mem.getPtr(data_ptr);
-    data->len = 8;
+    data->len = 20;
 
     for (int i = 0; i < CELL_PAD_MAX_CODES; i++)
         data->button[i] = buttons[i];
-    data->button[1] = (data->len / 2) & 0xf;
+    data->button[0] = 0;
+    data->button[1] = ((data->len / 2) & 0xf) | (7 << 4);
     data->button[4] = 0x7f; // Right stick X
     data->button[5] = 0x7f; // Right stick Y
     data->button[6] = 0x7f; // Left stick X
@@ -30,7 +46,7 @@ u64 CellPad::cellPadGetData() {
 
 u64 CellPad::cellPadGetInfo2() {
     const u32 info_ptr = ARG0;
-    log("cellPadGetInfo2(info_ptr: 0x%08x)\n");
+    log("cellPadGetInfo2(info_ptr: 0x%08x)\n", info_ptr);
 
     CellPadInfo2* info = (CellPadInfo2*)ps3->mem.getPtr(info_ptr);
     info->max_connect = 4;
@@ -40,7 +56,6 @@ u64 CellPad::cellPadGetInfo2() {
     info->port_setting[0] = 0;
     info->device_capability[0] = 1;
     info->device_type[0] = 0;   // Standard
-    //ps3->ppu->should_log = true;
 
     return Result::CELL_OK;
 }
