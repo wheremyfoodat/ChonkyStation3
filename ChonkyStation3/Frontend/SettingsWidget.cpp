@@ -26,6 +26,7 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
     connect(ui.apply, &QPushButton::clicked, this, [this, ps3]() {
         ps3->settings.system.nickname   = ui.nickname->text().toStdString();
 
+        ps3->settings.lle.partialLv2LLE = ui.partialLv2->isChecked();
         ps3->settings.lle.sys_fs        = ui.sys_fs->isChecked();
         ps3->settings.lle.cellResc      = ui.cellResc->isChecked();
         ps3->settings.lle.cellPngDec    = ui.cellPngDec->isChecked();
