@@ -1,12 +1,12 @@
 [submodule "Dependencies/ELFIO"]
 	path = Dependencies/ELFIO
 	url = https://github.com/serge1/ELFIO.git
-[submodule "Dependencies/SDL"]
-	path = Dependencies/SDL
-	url = https://github.com/libsdl-org/SDL.git
 [submodule "Dependencies/xxHash"]
 	path = Dependencies/xxHash
 	url = https://github.com/Cyan4973/xxHash.git
 [submodule "Dependencies/toml11"]
 	path = Dependencies/toml11
 	url = https://github.com/ToruNiina/toml11.git
+[submodule "Dependencies/SDL"]
+	path = Dependencies/SDL
+	url = https://github.com/ChonkyStation3/SDL.git
