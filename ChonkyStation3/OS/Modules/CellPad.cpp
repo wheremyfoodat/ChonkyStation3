@@ -30,7 +30,7 @@ u64 CellPad::cellPadGetData() {
     if (port_num != 0) return 0x80121107; // CELL_PAD_ERROR_NO_DEVICE
 
     CellPadData* data = (CellPadData*)ps3->mem.getPtr(data_ptr);
-    data->len = 20;
+    data->len = 8;
 
     for (int i = 0; i < CELL_PAD_MAX_CODES; i++)
         data->button[i] = buttons[i];

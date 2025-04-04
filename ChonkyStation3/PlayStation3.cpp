@@ -118,7 +118,7 @@ void PlayStation3::run() {
     }
 }
 
-static constexpr int reschedule_every_n_blocks = 1024;
+static constexpr int reschedule_every_n_blocks = 48;
 void PlayStation3::step() {
     ppu->step();
     spu->step();
