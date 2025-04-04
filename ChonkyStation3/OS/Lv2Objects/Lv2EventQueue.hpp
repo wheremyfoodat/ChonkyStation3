@@ -24,4 +24,5 @@ public:
 
     void receive();
     void send(Event event);
+    void drain();
 };

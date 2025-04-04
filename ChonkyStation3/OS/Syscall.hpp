@@ -36,6 +36,7 @@ public:
 
     // sys_memory
     u64 sys_memory_allocate();
+    u64 sys_memory_free();
     u64 sys_memory_get_user_memory_size();
 
     // sys_vm
@@ -49,8 +50,10 @@ public:
     // sys_event
     u64 sys_event_queue_create();
     u64 sys_event_queue_receive();
+    u64 sys_event_queue_drain();
     u64 sys_event_port_create();
     u64 sys_event_port_connect_local();
+    u64 sys_event_port_send();
 
     // sys_ppu_thread
     u64 sys_ppu_thread_yield();

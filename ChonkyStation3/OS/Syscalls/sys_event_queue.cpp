@@ -31,20 +31,12 @@ u64 Syscall::sys_event_queue_receive() {
     return Result::CELL_OK;
 }
 
-u64 Syscall::sys_event_port_create() {
-    const u32 port_id_ptr = ARG0;
-    const s32 port_type = ARG1;
-    const u64 name = ARG2;
-    log_sys_event("sys_event_port_create(port_id_ptr: 0x%08x, port_type: %d, name: 0x%016x) STUBBED\n", port_id_ptr, port_type, name);
+u64 Syscall::sys_event_queue_drain() {
+    const u32 queue_id = ARG0;
+    log_sys_event("sys_event_queue_drain(queue_id: %d)\n", queue_id);
 
-    ps3->mem.write<u32>(port_id_ptr, ps3->handle_manager.request());
-    return Result::CELL_OK;
-}
-
-u64 Syscall::sys_event_port_connect_local() {
-    const u32 port_id = ARG0;
-    const u32 queue_id = ARG1;
-    log_sys_event("sys_event_port_connect_local(port_id: %d, queue_id: %d) STUBBED\n", port_id, queue_id);
+    Lv2EventQueue* queue = ps3->lv2_obj.get<Lv2EventQueue>(queue_id);
+    queue->drain();
 
     return Result::CELL_OK;
 }

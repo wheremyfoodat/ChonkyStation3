@@ -93,8 +93,10 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 128:   ps3->ppu->state.gprs[3] = sys_event_queue_create();                 break;
     case 129:   todo("sys_event_queue_destroy()");                                  break;
     case 130:   ps3->ppu->state.gprs[3] = sys_event_queue_receive();                break;
+    case 133:   ps3->ppu->state.gprs[3] = sys_event_queue_drain();                  break;
     case 134:   ps3->ppu->state.gprs[3] = sys_event_port_create();                  break;
     case 136:   ps3->ppu->state.gprs[3] = sys_event_port_connect_local();           break;
+    case 138:   ps3->ppu->state.gprs[3] = sys_event_port_send();                    break;
     case 141:   ps3->ppu->state.gprs[3] = sys_timer_usleep();                       break;
     case 142:   ps3->ppu->state.gprs[3] = sys_timer_sleep();                        break;
     case 144: {
@@ -143,7 +145,9 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 335:   ps3->ppu->state.gprs[3] = sys_mmapper_unmap_shared_memory();                    break;
     case 337:   ps3->ppu->state.gprs[3] = sys_mmapper_search_and_map();                         break;
     case 341:   todo("sys_memory_container_create()");                                          break;
+    case 342:   todo("sys_memory_container_destroy()");                                         break;
     case 348:   ps3->ppu->state.gprs[3] = sys_memory_allocate();                                break;
+    case 349:   ps3->ppu->state.gprs[3] = sys_memory_free();                                    break;
     case 351:   todo("sys_memory_get_page_attribute()");                                        break;
     case 352:   ps3->ppu->state.gprs[3] = sys_memory_get_user_memory_size();                    break;
     case 403: {   // puts

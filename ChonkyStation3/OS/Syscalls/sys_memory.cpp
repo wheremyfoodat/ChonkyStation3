@@ -16,6 +16,18 @@ u64 Syscall::sys_memory_allocate() {
     return Result::CELL_OK;
 }
 
+u64 Syscall::sys_memory_free() {
+    const u32 start_addr = ARG0;
+    log_sys_memory("sys_memory_free(start_addr: 0x%08x)\n", start_addr);
+
+    auto entry = ps3->mem.isMapped(start_addr);
+    Helpers::debugAssert(entry.first, "sys_memory_free: tried to free unmapped memory\n");
+
+    ps3->mem.free(entry.second);
+
+    return Result::CELL_OK;
+}
+
 u64 Syscall::sys_memory_get_user_memory_size() {
     const u64 mem_info_ptr = ARG0;
     const auto available_mem = ps3->mem.ram.getAvailableMem();

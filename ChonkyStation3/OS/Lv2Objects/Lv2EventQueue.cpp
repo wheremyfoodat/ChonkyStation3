@@ -41,3 +41,7 @@ void Lv2EventQueue::send(Event event) {
         }
     }
 }
+
+void Lv2EventQueue::drain() {
+    while (events.size()) events.pop();
+}

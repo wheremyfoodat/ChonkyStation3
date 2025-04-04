@@ -111,6 +111,7 @@ This is a hobby project I'm developing for fun and to learn.<br>
       <li>libl10n.prx</li>
       <li>libfiber.prx</li>
       <li>libresc.prx</li>
+      <li>libsync2.prx</li>
     </ul>
     The list is likely to get updated frequently.
   </p>

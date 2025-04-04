@@ -20,6 +20,11 @@ u64 Syscall::sys_mutex_lock() {
     const u64 timeout = ARG1;
     log_sys_mutex("sys_mutex_lock(mutex_idx: %d, timeout: %d)\n", mutex_id, timeout);
 
+    if (!mutex_id) {
+        log_sys_mutex("WARNING: sys_mutex_lock with mutex_id == 0\n");
+        return CELL_ESRCH;
+    }
+
     Lv2Mutex* mutex = ps3->lv2_obj.get<Lv2Mutex>(mutex_id);
     mutex->lock();
 
@@ -29,6 +34,11 @@ u64 Syscall::sys_mutex_lock() {
 u64 Syscall::sys_mutex_unlock() {
     const u32 mutex_id = ARG0;
     log_sys_mutex("sys_mutex_unlock(mutex_id: %d)\n", mutex_id);
+
+    if (!mutex_id) {
+        log_sys_mutex("WARNING: sys_mutex_lock with mutex_id == 0\n");
+        return CELL_ESRCH;
+    }
 
     Lv2Mutex* mutex = ps3->lv2_obj.get<Lv2Mutex>(mutex_id);
     mutex->unlock();

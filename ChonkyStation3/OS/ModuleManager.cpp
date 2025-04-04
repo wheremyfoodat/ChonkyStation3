@@ -177,6 +177,8 @@ void ModuleManager::init() {
         { 0xce4374f6, { "cellGamePatchCheck",                               std::bind(&CellGame::cellGamePatchCheck, &cellGame) }},
         { 0xdb9819f3, { "cellGameDataCheck",                                std::bind(&CellGame::cellGameDataCheck, &cellGame) }},
         { 0xf52639ea, { "cellGameBootCheck",                                std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
+        
+        { 0x9117df20, { "cellHddGameCheck",                                 std::bind(&ModuleManager::stub, this) } },  // TODO: Important
 
         { 0x011ee38b, { "_cellSpursLFQueueInitialize",                      std::bind(&CellSpurs::_cellSpursLFQueueInitialize, &cellSpurs) }},
         { 0x07529113, { "cellSpursAttributeSetNamePrefix",                  std::bind(&CellSpurs::cellSpursAttributeSetNamePrefix, &cellSpurs) }},
