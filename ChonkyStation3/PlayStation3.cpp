@@ -198,6 +198,16 @@ void PlayStation3::pressButton(u32 button) {
     module_manager.cellPad.buttons[idx] |= button;
 }
 
+void PlayStation3::setLeftStick(float x, float y) {
+    module_manager.cellPad.buttons[6] = (u8)(x * 255);
+    module_manager.cellPad.buttons[7] = (u8)(y * 255);
+}
+
+void PlayStation3::setRightStick(float x, float y) {
+    module_manager.cellPad.buttons[4] = (u8)(x * 255);
+    module_manager.cellPad.buttons[5] = (u8)(y * 255);
+}
+
 void PlayStation3::resetButtons() {
     for (int i = 0; i < CELL_PAD_MAX_CODES; i++)
         module_manager.cellPad.buttons[i] = 0;

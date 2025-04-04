@@ -159,6 +159,17 @@ void GameWindow::flipHandler() {
         if (SDL_GameControllerGetButton(controller, SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))     ps3->pressButton(CELL_PAD_CTRL_R1);
         if (SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERLEFT) > 20000)     ps3->pressButton(CELL_PAD_CTRL_L2);
         if (SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_TRIGGERRIGHT) > 20000)    ps3->pressButton(CELL_PAD_CTRL_R2);
+        float leftX   = ((float)SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTX)  / 32767.0f + 1.0f) / 2.0f;
+        float leftY   = ((float)SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_LEFTY)  / 32767.0f + 1.0f) / 2.0f;
+        float rightX  = ((float)SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTX) / 32767.0f + 1.0f) / 2.0f;
+        float rightY  = ((float)SDL_GameControllerGetAxis(controller, SDL_GameControllerAxis::SDL_CONTROLLER_AXIS_RIGHTY) / 32767.0f + 1.0f) / 2.0f;
+        // Deadzone
+        leftX = (leftX < 0.4f || leftX > 0.6f) ? leftX : 0.5f;
+        leftY = (leftY < 0.4f || leftY > 0.6f) ? leftY : 0.5f;
+        rightX = (rightX < 0.4f || rightX > 0.6f) ? rightX : 0.5f;
+        rightY = (rightY < 0.4f || rightY > 0.6f) ? rightY : 0.5f;
+        ps3->setLeftStick(leftX, leftY);
+        ps3->setRightStick(rightX, rightY);
     }
 
     SDL_GL_SwapWindow(window);

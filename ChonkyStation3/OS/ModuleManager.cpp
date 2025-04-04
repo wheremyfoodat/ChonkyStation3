@@ -59,7 +59,7 @@ u64 ModuleManager::stub() {
 
 void ModuleManager::init() {
     import_map = {
-        { 0xe6f2c1e7, { "sysProcessExit",                                   std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser) }},
+        { 0xe6f2c1e7, { "sysProcessExit",                                   std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser), true }},
         { 0x2c847572, { "sysProcessAtExitSpawn",                            std::bind(&SysPrxForUser::sysProcessAtExitSpawn, &sysPrxForUser) }},
         { 0x2d36462b, { "_sys_strlen",                                      std::bind(&SysPrxForUser::sysStrlen, &sysPrxForUser) }},
         { 0x8461e528, { "sysGetSystemTime",                                 std::bind(&SysPrxForUser::sysGetSystemTime, &sysPrxForUser), true }},

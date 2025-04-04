@@ -75,6 +75,8 @@ public:
     void forceSchedulerUpdate();
 
     void pressButton(u32 button);
+    void setLeftStick(float x, float y);    // Accepts a value ranging from 0.0 (left/up) to 1.0 (right/down), same for the right stick
+    void setRightStick(float x, float y);
     void resetButtons();
 
     std::string getCurrentUserID() { return "00000001"; }

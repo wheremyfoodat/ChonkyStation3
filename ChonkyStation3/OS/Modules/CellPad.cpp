@@ -34,12 +34,9 @@ u64 CellPad::cellPadGetData() {
 
     for (int i = 0; i < CELL_PAD_MAX_CODES; i++)
         data->button[i] = buttons[i];
+
     data->button[0] = 0;
     data->button[1] = ((data->len / 2) & 0xf) | (7 << 4);
-    data->button[4] = 0x7f; // Right stick X
-    data->button[5] = 0x7f; // Right stick Y
-    data->button[6] = 0x7f; // Left stick X
-    data->button[7] = 0x7f; // Left stick Y
 
     return Result::CELL_OK;
 }
