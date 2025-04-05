@@ -14,7 +14,7 @@ u64 CellSysCache::cellSysCacheMount() {
     fs::create_directories(ps3->fs.guestPathToHost(cache_path));
     std::strcpy((char*)param->cache_path, cache_path.generic_string().c_str());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellSysCache::cellSysCacheClear() {
@@ -26,5 +26,5 @@ u64 CellSysCache::cellSysCacheClear() {
         fs::remove_all(entry.path());
     }
 
-    return Result::CELL_OK; // CELL_SYSCACHE_RET_OK_CLEARED
+    return CELL_OK; // CELL_SYSCACHE_RET_OK_CLEARED
 }

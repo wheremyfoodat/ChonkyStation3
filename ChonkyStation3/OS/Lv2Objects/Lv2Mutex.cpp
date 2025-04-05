@@ -17,6 +17,17 @@ void Lv2Mutex::lock() {
     }
 }
 
+bool Lv2Mutex::tryLock() {
+    Thread* curr_thread = ps3->thread_manager.getCurrentThread();
+    if (isFree()) {
+        owner = curr_thread->id;
+        return true;
+    }
+    else if (owner != curr_thread->id)
+        return false;
+}
+
+
 void Lv2Mutex::unlock() {
     Thread* curr_thread = ps3->thread_manager.getCurrentThread();
     if (isFree() || owner == curr_thread->id) {

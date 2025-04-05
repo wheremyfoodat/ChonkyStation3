@@ -17,7 +17,7 @@ u64 Syscall::sys_vm_memory_map() {
     auto block = ps3->mem.alloc(psize, 0x20000000);
     ps3->mem.write<u32>(addr_ptr, block->vaddr);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_vm_touch() {
@@ -25,5 +25,5 @@ u64 Syscall::sys_vm_touch() {
     const u32 size = ARG1;
     log_sys_vm("sys_vm_touch(addr: 0x%08x, size: 0x%08x)\n", addr, size);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

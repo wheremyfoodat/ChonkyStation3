@@ -13,7 +13,7 @@ u64 Syscall::sys_ppu_thread_yield() {
     log_sys_ppu_thread("sys_ppu_thread_yield() @ 0x%08x\n", ps3->ppu->state.lr);
     
     ps3->thread_manager.getCurrentThread()->reschedule();
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_ppu_thread_join() {
@@ -31,7 +31,7 @@ u64 Syscall::sys_ppu_thread_join() {
         ps3->mem.write<u64>(vptr, ps3->thread_manager.getThreadByID(thread_id)->exit_status);
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_ppu_thread_get_priority() {
@@ -40,7 +40,7 @@ u64 Syscall::sys_ppu_thread_get_priority() {
     log_sys_ppu_thread("sys_ppu_thread_get_priority(thread_id: %d, prio_ptr: 0x%08x)\n");
 
     ps3->mem.write<u32>(ARG1, ps3->thread_manager.getThreadByID(thread_id)->prio);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_ppu_thread_get_stack_information() {
@@ -51,5 +51,5 @@ u64 Syscall::sys_ppu_thread_get_stack_information() {
     stack->addr = ps3->thread_manager.getCurrentThread()->stack;
     stack->size = ps3->thread_manager.getCurrentThread()->stack_size;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

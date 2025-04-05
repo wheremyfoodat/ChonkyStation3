@@ -7,7 +7,7 @@ u64 CellResc::cellRescSetDsts() {
     const u32 dsts_ptr = ARG1;
     log("cellRescSetDsts(buf_mode: 0x%08x, dsts_ptr: 0x%08x) UNIMPLEMENTED\n", buf_mode, dsts_ptr);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescSetWaitFlip() {
@@ -15,21 +15,21 @@ u64 CellResc::cellRescSetWaitFlip() {
 
     // See cellGcmSetWaitFlip
     //ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescResetFlipStatus() {
     log("cellRescResetFlipStatus()\n");
     
     ps3->module_manager.cellGcmSys.flip = 1;
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescSetDisplayMode() {
     const u32 buf_mode = ARG0;
     log("cellRescSetDisplayMode(buf_mode: 0x%08x) UNIMPLEMENTED\n", buf_mode);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescSetConvertAndFlip() {
@@ -47,14 +47,14 @@ u64 CellResc::cellRescSetConvertAndFlip() {
         ps3->rsx.runCommandList();
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescInit() {
     const u32 config_ptr = ARG0;
     log("cellRescInit(config_ptr: 0x%08x) UNIMPLEMENTED\n", config_ptr);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescGetBufferSize() {
@@ -63,7 +63,7 @@ u64 CellResc::cellRescGetBufferSize() {
     const u32 frag_shader = ARG2;
     log("cellRescGetBufferSize(color_bufs: 0x%08x, vertex_array: 0x%08x, frag_shader: 0x%08x) UNIMPLEMENTED\n", color_bufs, vertex_array, frag_shader);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescSetBufferAddress() {
@@ -72,7 +72,7 @@ u64 CellResc::cellRescSetBufferAddress() {
     const u32 frag_shader = ARG2;
     log("cellRescSetBufferAddress(color_bufs: 0x%08x, vertex_array: 0x%08x, frag_shader: 0x%08x) UNIMPLEMENTED\n", color_bufs, vertex_array, frag_shader);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellResc::cellRescGetFlipStatus() {
@@ -85,5 +85,5 @@ u64 CellResc::cellRescVideoOutResolutionId2RescBufferMode() {
     const u32 buf_mode = ARG1;
     log("cellRescVideoOutResolutionId2RescBufferMode(res_id: %d, buf_mode: 0x%08x) UNIMPLEMENTED\n", res_id, buf_mode);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

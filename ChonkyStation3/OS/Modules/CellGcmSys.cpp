@@ -86,7 +86,7 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     ps3->rsx.setEaTableAddr(ea_table_ptr);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 // Maps a 1MB page from main memory to IO address space 
@@ -151,7 +151,7 @@ u64 CellGcmSys::_cellGcmSetFlipCommand() {
     ps3->mem.write<u32>(context->current + 4, buf_id);
     context->current = context->current + 8;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmAddressToOffset() {
@@ -180,7 +180,7 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     //logNoPrefix(" [offs: 0x%08x]\n", offs);
     ps3->mem.write<u32>(offs_ptr, offs);
     
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetOffsetTable() {
@@ -191,34 +191,34 @@ u64 CellGcmSys::cellGcmGetOffsetTable() {
     table->ea_addr_ptr = ea_table_ptr;
     table->io_addr_ptr = io_table_ptr;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmBindTile() {
     const u8 idx = ARG0;
     log("cellGcmBindTile(idx: %d) UNIMPLEMENTED\n", idx);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetFlipMode() {
     const u32 mode = ARG0;
     log("cellGcmSetFlipMode(mode: 0x%08x) UNIMPLEMENTED\n", mode);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetSecondVFrequency() {
     log("cellGcmSetSecondVFrequency() UNIMPLEMENTED\n");
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetDebugOutputLevel() {
     const s32 level = ARG0;
     log("cellGcmSetDebugOutputLevel(level: %d)\n", level);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmMapEaIoAddressWithFlags() {
@@ -235,7 +235,7 @@ u64 CellGcmSys::cellGcmMapEaIoAddressWithFlags() {
     mapping_sizes[io >> 20] = n_pages;
 
     //printOffsetTable();
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmMapEaIoAddress() {
@@ -250,7 +250,7 @@ u64 CellGcmSys::cellGcmMapEaIoAddress() {
         mapEaIo(ea + (i << 20), io + (i << 20));
     mapping_sizes[io >> 20] = n_pages;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetFlipStatus() {
@@ -274,7 +274,7 @@ u64 CellGcmSys::cellGcmSetWaitFlip() {
     // A NOP because we don't have a multithreaded RSX.
     // When this function is called, the RSX will have already flipped.
     //ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmBindZcull() {
@@ -291,7 +291,7 @@ u64 CellGcmSys::cellGcmBindZcull() {
     //const u32 s_mask = ARG10;
     log("cellGcmBindZcull() UNIMPLEMENTED\n");
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmMapMainMemory() {
@@ -322,7 +322,7 @@ u64 CellGcmSys::cellGcmMapMainMemory() {
     //printOffsetTable();
     ps3->mem.write<u32>(offs_ptr, offs << 20);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetFlipHandler() {
@@ -330,7 +330,7 @@ u64 CellGcmSys::cellGcmSetFlipHandler() {
     log("cellGcmSetFlipHandler(func_addr: 0x%08x)\n", func_addr);
     
     flip_callback = func_addr;
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetDisplayBuffer() {
@@ -347,7 +347,7 @@ u64 CellGcmSys::cellGcmSetDisplayBuffer() {
     info->height = height;
     info->pitch = pitch;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetControlRegister() {
@@ -360,7 +360,7 @@ u64 CellGcmSys::cellGcmSetVBlankHandler() {
     log("cellGcmSetVBlankHandler(handler_ptr: 0x%08x)\n", handler_ptr);
 
     vblank_handler = handler_ptr;
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmResetFlipStatus() {
@@ -368,14 +368,14 @@ u64 CellGcmSys::cellGcmResetFlipStatus() {
 
     flip = 1;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetDefaultCommandBuffer() {
     log("cellGcmSetDefaultCommandBuffer()\n");
 
     ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetTileInfo() {
@@ -389,7 +389,7 @@ u64 CellGcmSys::cellGcmSetTileInfo() {
     const u8 bank = ARG7;
     log("cellGcmSetTileInfo(idx: %d, location: %d, offs: 0x%08x, size: 0x%08x, pitch: 0x%08x, compression: %d, base: 0x%04x, bank: %d) UNIMPLEMENTED\n", idx, location, offs, size, pitch, compression, base, bank);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmInitDefaultFifoMode() {
@@ -397,35 +397,35 @@ u64 CellGcmSys::cellGcmInitDefaultFifoMode() {
     log("cellGcmInitDefaultFifoMode(mode: %d)\n", mode);
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetGraphicsHandler() {
     log("cellGcmSetGraphicsHandler() UNIMPLEMENTED\n");
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetTile() {
     log("cellGcmSetTile() UNIMPLEMENTED\n");
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetZcull() {
     log("cellGcmSetZcull() UNIMPLEMENTED\n");
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmUnbindTile() {
     log("cellGcmUnbindTile() UNIMPLEMENTED\n");
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmUnmapIoAddress() {
@@ -443,7 +443,7 @@ u64 CellGcmSys::cellGcmUnmapIoAddress() {
     mapping_sizes[io >> 20] = 0;
 
     //printOffsetTable();
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetFlip() {
@@ -461,7 +461,7 @@ u64 CellGcmSys::cellGcmSetFlip() {
         ps3->rsx.runCommandList();
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetConfiguration() {
@@ -483,7 +483,7 @@ u64 CellGcmSys::cellGcmGetConfiguration() {
     log("local_size: 0x%08x\n", (u32)config->local_size);
     log("io_size   : 0x%08x\n", (u32)config->io_size);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmGetLabelAddress() {
@@ -496,7 +496,7 @@ u64 CellGcmSys::cellGcmGetLabelAddress() {
 u64 CellGcmSys::cellGcmSetVBlankFrequency() {
     log("cellGcmSetVBlankFrequency() UNIMPLEMENTED\n");
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 
@@ -520,5 +520,5 @@ u64 CellGcmSys::cellGcmCallback() {
     ctrl->put = bytes_remaining;
     ctrl->get = 0;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

@@ -10,13 +10,28 @@ u64 SysLwMutex::sysLwMutexLock() {
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     if (!mtx->sleep_queue) {
         log("WARNING: TRIED TO LOCK INVALID LWMUTEX!!!\n"); // Arkedo relies on this
-        return Result::CELL_EINVAL;
+        return CELL_EINVAL;
     }
 
     Lv2Mutex* lv2_mtx = ps3->lv2_obj.get<Lv2Mutex>(mtx->sleep_queue);
     lv2_mtx->lock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
+}
+
+u64 SysLwMutex::sysLwMutexTryLock() {
+    const u32 ptr = ARG0;
+    //log("sysLwMutexTryLock(ptr: 0x%08x)\n", ptr);
+
+    LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
+    if (!mtx->sleep_queue) {
+        log("WARNING: TRIED TO LOCK INVALID LWMUTEX!!!\n");
+        return CELL_EINVAL;
+    }
+    Lv2Mutex* lv2_mtx = ps3->lv2_obj.get<Lv2Mutex>(mtx->sleep_queue);
+    if(!lv2_mtx->tryLock()) return CELL_EBUSY;
+
+    return CELL_OK;
 }
 
 u64 SysLwMutex::sysLwMutexUnlock() {
@@ -26,13 +41,13 @@ u64 SysLwMutex::sysLwMutexUnlock() {
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     if (!mtx->sleep_queue) {
         log("WARNING: TRIED TO UNLOCK INVALID LWMUTEX!!!\n");
-        return Result::CELL_EINVAL;
+        return CELL_EINVAL;
     }
 
     Lv2Mutex* lv2_mtx = ps3->lv2_obj.get<Lv2Mutex>(mtx->sleep_queue);
     lv2_mtx->unlock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysLwMutex::sysLwMutexCreate() {
@@ -51,12 +66,12 @@ u64 SysLwMutex::sysLwMutexCreate() {
     mtx->recursive_count = 0;
     mtx->sleep_queue = lv2_mtx->handle();   // The real CellOS would store actual information here - we can just store our mutex id instead (this information is hidden from games anyway)
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysLwMutex::sysLwMutexDestroy() {
     const u32 ptr = ARG0;
     log("sysLwMutexDestroy(ptr: 0x%08x)\n", ptr);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

@@ -14,7 +14,7 @@ u64 Syscall::sys_cond_create() {
     cond->mutex_id = mutex_id;
     ps3->mem.write<u32>(cond_id_ptr, cond->handle());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_cond_wait() {
@@ -25,7 +25,7 @@ u64 Syscall::sys_cond_wait() {
     Lv2Cond* cond = ps3->lv2_obj.get<Lv2Cond>(cond_id);
     cond->wait();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_cond_signal() {
@@ -35,7 +35,7 @@ u64 Syscall::sys_cond_signal() {
     Lv2Cond* cond = ps3->lv2_obj.get<Lv2Cond>(cond_id);
     cond->signal();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_cond_signal_all() {
@@ -45,5 +45,5 @@ u64 Syscall::sys_cond_signal_all() {
     Lv2Cond* cond = ps3->lv2_obj.get<Lv2Cond>(cond_id);
     cond->signalAll();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

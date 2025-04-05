@@ -20,7 +20,7 @@ u64 SceNpTrophy::sceNpTrophyRegisterContext() {
     ps3->ppu->runFunc(ps3->mem.read<u32>(callback_ptr));
     ps3->ppu->state = old_state;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SceNpTrophy::sceNpTrophyCreateHandle() {
@@ -29,7 +29,7 @@ u64 SceNpTrophy::sceNpTrophyCreateHandle() {
 
     ps3->mem.write<u32>(handle_ptr, ps3->handle_manager.request());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SceNpTrophy::sceNpTrophyGetRequiredDiskSpace() {
@@ -41,7 +41,7 @@ u64 SceNpTrophy::sceNpTrophyGetRequiredDiskSpace() {
 
     ps3->mem.write<u32>(req_space_ptr, 1_KB);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SceNpTrophy::sceNpTrophyGetGameInfo() {
@@ -51,7 +51,7 @@ u64 SceNpTrophy::sceNpTrophyGetGameInfo() {
     const u32 data_ptr = ARG3;
     log("sceNpTrophyGetGameInfo(ctx: 0x%08x, handle: 0x%08x, details_ptr: 0x%08x, data_ptr: 0x%08x)\n UNIMPLEMENTED\n");
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SceNpTrophy::sceNpTrophyGetTrophyUnlockState() {
@@ -63,7 +63,7 @@ u64 SceNpTrophy::sceNpTrophyGetTrophyUnlockState() {
 
     ps3->mem.write<u32>(count_ptr, 0);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SceNpTrophy::sceNpTrophyCreateContext() {
@@ -75,5 +75,5 @@ u64 SceNpTrophy::sceNpTrophyCreateContext() {
 
     ps3->mem.write<u32>(ctx_ptr, ps3->handle_manager.request());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

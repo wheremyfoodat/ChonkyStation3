@@ -17,7 +17,7 @@ u64 Syscall::sys_event_port_create() {
     eport->type = port_type;
 
     ps3->mem.write<u32>(port_id_ptr, eport->handle());
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_event_port_connect_local() {
@@ -28,7 +28,7 @@ u64 Syscall::sys_event_port_connect_local() {
     Lv2EventPort* eport = ps3->lv2_obj.get<Lv2EventPort>(port_id);
     eport->equeue_id = queue_id;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_event_port_send() {
@@ -42,5 +42,5 @@ u64 Syscall::sys_event_port_send() {
     Lv2EventQueue* equeue = ps3->lv2_obj.get<Lv2EventQueue>(eport->equeue_id);
     equeue->send({ eport->name, data1, data2, data3 });
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

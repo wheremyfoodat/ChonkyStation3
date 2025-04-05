@@ -51,7 +51,7 @@ u64 Syscall::sys_prx_get_module_list() {
     }
     info->count = i;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_prx_get_module_info() {
@@ -69,7 +69,7 @@ u64 Syscall::sys_prx_get_module_info() {
         Helpers::panic("Could not get PRX with id %d\n", id);
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_prx_get_module_id_by_name() {

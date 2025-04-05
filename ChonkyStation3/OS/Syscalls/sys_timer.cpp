@@ -10,7 +10,7 @@ u64 Syscall::sys_timer_usleep() {
 
     ps3->thread_manager.getCurrentThread()->sleep(us);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_timer_sleep() {
@@ -20,5 +20,5 @@ u64 Syscall::sys_timer_sleep() {
     //ps3->thread_manager.getCurrentThread()->sleep(s * 1000000);
     ps3->thread_manager.getCurrentThread()->sleep(s * 1);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

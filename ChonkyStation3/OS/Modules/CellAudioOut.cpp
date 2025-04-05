@@ -10,5 +10,5 @@ u64 CellAudioOut::cellAudioOutGetState() {
 
     ps3->mem.write<u8>(state_ptr, CELL_AUDIO_OUT_OUTPUT_STATE_ENABLED);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

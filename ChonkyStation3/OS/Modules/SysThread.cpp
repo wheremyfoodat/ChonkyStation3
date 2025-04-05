@@ -26,7 +26,7 @@ u64 SysThread::sysPPUThreadCreate() {
         thread->status = Thread::ThreadStatus::Sleeping;
 
     ps3->mem.write<u64>(thread_id_ptr, thread->id);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysThread::sysPPUThreadGetID() {
@@ -35,7 +35,7 @@ u64 SysThread::sysPPUThreadGetID() {
     //log("sysPPUThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, current_thread->id);
 
     ps3->mem.write<u64>(ptr, current_thread->id);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 // Allocate TLS memory, copy TLS image to the newly allocated area. Returns TLS address in R13
@@ -49,12 +49,12 @@ u64 SysThread::sysPPUThreadInitializeTLS() {
     // Was TLS already initialized?
     if (ps3->ppu->state.gprs[13] != 0) {
         logNoPrefix(" [TLS was already initialized]\n");
-        return Result::CELL_OK;
+        return CELL_OK;
     }
     putc('\n', stdout);
 
     initializeTLS(thread_id, tls_seg_addr, tls_seg_size, tls_mem_size, ps3->ppu->state);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysThread::sysPPUThreadOnce() {
@@ -67,7 +67,7 @@ u64 SysThread::sysPPUThreadOnce() {
         ps3->mem.write<u32>(once_ctrl_ptr, SYS_PPU_THREAD_DONE_INIT);
     }
     
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysThread::sysPPUThreadExit() {
@@ -75,7 +75,7 @@ u64 SysThread::sysPPUThreadExit() {
     log("sysPPUThreadExit(%d)\n", ret_val);
 
     ps3->thread_manager.getCurrentThread()->exit(ret_val);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 void SysThread::initializeTLS(u64 thread_id, u32 tls_seg_addr, u32 tls_seg_size, u32 tls_mem_size, PPUTypes::State& state) {

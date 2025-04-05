@@ -15,6 +15,7 @@ void Filesystem::initialize() {
     // Initialize directory structures
     if (isDeviceMounted(Device::DEV_HDD0)) {
         fs::create_directories(guestPathToHost("/dev_hdd0/game"));
+        fs::create_directories(guestPathToHost("/dev_hdd0/home/00000001"));
     }
 
     if (isDeviceMounted(Device::DEV_FLASH)) {

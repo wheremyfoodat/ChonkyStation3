@@ -6,9 +6,9 @@ u64 CellFs::cellFsClose() {
     const u32 file_id = ARG0;
     log("cellFsClose(file_id: %d)\n", file_id);
 
-    if ((s32)file_id <= 0) return Result::CELL_BADF;
+    if ((s32)file_id <= 0) return CELL_BADF;
     ps3->fs.close(file_id);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsOpendir() {
@@ -25,9 +25,9 @@ u64 CellFs::cellFsOpendir() {
     ps3->mem.write<u32>(file_id_ptr, file_id);
 
     if (file_id == 0) {
-        return Result::CELL_ENOENT;
+        return CELL_ENOENT;
     }
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsRead() {
@@ -41,7 +41,7 @@ u64 CellFs::cellFsRead() {
     if (bytes_read_ptr) // Note: this behavior is different from sys_fs_read, which returns CELL_EFAULT in case bytes_read_ptr is null.
         ps3->mem.write<u64>(bytes_read_ptr, bytes_read);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsReaddir() {
@@ -64,7 +64,7 @@ u64 CellFs::cellFsReaddir() {
     dirent->name[0] = '\0';
     ps3->mem.write<u64>(bytes_read_ptr, 0);
     //ps3->mem.write<u64>(bytes_read_ptr, sizeof(CellFsDirent));
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsOpen() {
@@ -81,11 +81,11 @@ u64 CellFs::cellFsOpen() {
 
     const u32 file_id = ps3->fs.open(path);
     if (file_id == 0) {
-        return Result::CELL_ENOENT;
+        return CELL_ENOENT;
     }
 
     ps3->mem.write<u32>(file_id_ptr, file_id);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsStat() {
@@ -115,7 +115,7 @@ u64 CellFs::cellFsStat() {
     stat->size = !is_dir ? ps3->fs.getFileSize(path) : 4096;
     stat->blksize = 4096;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsLseek() {
@@ -128,7 +128,7 @@ u64 CellFs::cellFsLseek() {
     const u64 pos = ps3->fs.seek(file_id, offs, seek_mode);
     ps3->mem.write<u64>(pos_ptr, pos);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsGetFreeSize() {
@@ -139,7 +139,7 @@ u64 CellFs::cellFsGetFreeSize() {
     log("cellFsGetFreeSize(path_ptr: 0x%08x, block_size_ptr: 0x%08x, block_cnt_ptr: 0x%08x) [path: %s]\n", path_ptr, block_size_ptr, block_cnt_ptr, path.c_str());
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsSdataOpen() {
@@ -157,7 +157,7 @@ u64 CellFs::cellFsSdataOpen() {
     if (file_id == 0) {
         Helpers::panic("cellFsSdataOpen: could not find file %s\n", path.c_str());
     }
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsMkdir() {
@@ -169,7 +169,7 @@ u64 CellFs::cellFsMkdir() {
     if (path == "") return CELL_ENOENT; // TLOU does this, it's meant to happen
     if (ps3->fs.mkdir(path)) return CELL_EEXIST;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsFstat() {
@@ -188,14 +188,14 @@ u64 CellFs::cellFsFstat() {
     stat->size = !is_dir ? ps3->fs.getFileSize(file_id) : 4096;
     stat->blksize = 4096;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellFs::cellFsClosedir() {
     const u32 file_id = ARG0;
     log("cellFsClosedir(file_id: %d)\n", file_id);
 
-    if ((s32)file_id <= 0) return Result::CELL_BADF;
+    if ((s32)file_id <= 0) return CELL_BADF;
     ps3->fs.closedir(file_id);
-    return Result::CELL_OK;
+    return CELL_OK;
 }

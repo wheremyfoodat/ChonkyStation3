@@ -17,7 +17,7 @@ u64 SysPrxForUser::sysProcessAtExitSpawn() {
     log("sysProcessAtExitSpawn()\n");
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysStrlen() {
@@ -37,7 +37,7 @@ u64 SysPrxForUser::sysProcess_At_ExitSpawn() {
     log("sysProcess_At_ExitSpawn()\n");
 
     // TODO
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysSpinlockInitialize() {
@@ -45,7 +45,7 @@ u64 SysPrxForUser::sysSpinlockInitialize() {
     log("sysSpinlockInitialize(lock_ptr: 0x%08llx)\n", ptr);
 
     ps3->mem.write<u32>(ptr, 0);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysProcessIsStack() {
@@ -58,7 +58,7 @@ u64 SysPrxForUser::sysPrintf() {
     const u32 fmt_ptr = ARG0;
     const auto fmt = Helpers::readString(ps3->mem.getPtr(fmt_ptr));
     printf("%s", fmt.c_str());
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysStrcat() {
@@ -129,7 +129,7 @@ u64 SysPrxForUser::sysSpinlockLock() {
         Helpers::panic("Tried to lock already locked lock\n");
 
     ps3->mem.write<u32>(ptr, 1);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysSpinlockUnlock() {
@@ -141,7 +141,7 @@ u64 SysPrxForUser::sysSpinlockUnlock() {
         Helpers::panic("Tried to unlock already unlocked lock\n");
 
     ps3->mem.write<u32>(ptr, 0);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysMemset() {
@@ -151,7 +151,7 @@ u64 SysPrxForUser::sysMemset() {
     log("_sys_memset(dst: 0x%08x, val: 0x%08x, size: 0x%08x)\n", dst, val, size);
 
     std::memset(ps3->mem.getPtr(dst), val, size);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysMemcpy() {
@@ -161,7 +161,7 @@ u64 SysPrxForUser::sysMemcpy() {
     log("_sys_memcpy(dst: 0x%08x, src: 0x%08x, size: 0x%08x)\n", dst, src, size);
 
     std::memcpy(ps3->mem.getPtr(dst), ps3->mem.getPtr(src), size);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysPrxForUser::sysMalloc() {
@@ -190,5 +190,5 @@ u64 SysPrxForUser::sys_spu_image_import() {
     sys_spu_image* image = (sys_spu_image*)ps3->mem.getPtr(image_ptr);
     loader.load(src, image);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

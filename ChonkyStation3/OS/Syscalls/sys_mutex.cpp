@@ -12,7 +12,7 @@ u64 Syscall::sys_mutex_create() {
     Lv2Mutex* mutex = ps3->lv2_obj.create<Lv2Mutex>();
     ps3->mem.write<u32>(mutex_id_ptr, mutex->handle());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_mutex_lock() {
@@ -28,7 +28,7 @@ u64 Syscall::sys_mutex_lock() {
     Lv2Mutex* mutex = ps3->lv2_obj.get<Lv2Mutex>(mutex_id);
     mutex->lock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_mutex_unlock() {
@@ -43,5 +43,5 @@ u64 Syscall::sys_mutex_unlock() {
     Lv2Mutex* mutex = ps3->lv2_obj.get<Lv2Mutex>(mutex_id);
     mutex->unlock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

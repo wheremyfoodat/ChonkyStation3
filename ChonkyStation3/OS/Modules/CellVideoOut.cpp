@@ -19,7 +19,7 @@ u64 CellVideoOut::cellVideoOutConfigure() {
     video_config.aspect = config->aspect;
     video_config.pitch = config->pitch;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellVideoOut::cellVideoOutGetConfiguration() {
@@ -34,7 +34,7 @@ u64 CellVideoOut::cellVideoOutGetConfiguration() {
     config->aspect = video_config.aspect;
     config->pitch = video_config.pitch;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellVideoOut::cellVideoOutGetDeviceInfo() {
@@ -54,7 +54,7 @@ u64 CellVideoOut::cellVideoOutGetDeviceInfo() {
     info->available_modes[0].aspect = CELL_VIDEO_OUT_ASPECT_16_9;
     info->available_modes[0].refresh_rates = CELL_VIDEO_OUT_REFRESH_RATE_59_94HZ;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellVideoOut::cellVideoOutGetNumberOfDevice() {
@@ -81,7 +81,7 @@ u64 CellVideoOut::cellVideoOutGetState() {
     state->display_mode.aspect = (video_config.aspect != CELL_VIDEO_OUT_ASPECT_AUTO) ? video_config.aspect : CELL_VIDEO_OUT_ASPECT_16_9;
     state->display_mode.refresh_rates = CELL_VIDEO_OUT_REFRESH_RATE_59_94HZ;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellVideoOut::cellVideoOutGetResolutionAvailability() {
@@ -116,5 +116,5 @@ u64 CellVideoOut::cellVideoOutGetResolution() {
     res->width = res_.width;
     res->height = res_.height;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

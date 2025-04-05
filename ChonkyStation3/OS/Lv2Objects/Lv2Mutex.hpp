@@ -16,5 +16,6 @@ public:
 
     bool isFree();
     void lock();
+    bool tryLock();
     void unlock();
 };

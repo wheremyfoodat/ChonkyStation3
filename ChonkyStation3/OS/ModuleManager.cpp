@@ -2,6 +2,8 @@
 #include "PlayStation3.hpp"
 
 
+//#define LOG_LLE_FUNC_RESULT
+
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {
         Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
@@ -19,9 +21,15 @@ void ModuleManager::lle(u32 nid) {
     if (!exports.funcs.contains(nid))
         Helpers::panic("Could not find export for function %s\n", getImportName(nid).c_str());
 
+#ifndef CHONKYSTATION3_USER_BUILD
+
+#ifdef LOG_LLE_FUNC_RESULT
     ps3->mem.watchpoints_r[ps3->ppu->state.lr + 4] = std::bind(&ModuleManager::printReturnValue, this, std::placeholders::_1);
     ps3->mem.markAsSlowMem((ps3->ppu->state.lr + 4) >> PAGE_SHIFT, true, false);
     last_lle_nid = nid;
+#endif
+
+#endif
 
     log("%s @ 0x%08x\n", getImportName(nid).c_str(), (u32)ps3->ppu->state.lr);
     ps3->ppu->runFunc(ps3->mem.read<u32>(exports.funcs[nid].addr), ps3->mem.read<u32>(exports.funcs[nid].addr + 4), false);
@@ -54,7 +62,7 @@ void ModuleManager::printReturnValue(u64 addr) {
 u64 ModuleManager::stub() {
     unimpl("%s() UNIMPLEMENTED @ 0x%08x\n", last_call.c_str(), ps3->ppu->state.lr);
     //if (last_call == "sysNetInitializeNetworkEx")   ps3->ppu->should_log = true;
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 void ModuleManager::init() {
@@ -81,6 +89,7 @@ void ModuleManager::init() {
         { 0x1573dc3f, { "sysLwMutexLock",                                   std::bind(&SysLwMutex::sysLwMutexLock, &sysLwMutex), true }},
         { 0x1bc200f4, { "sysLwMutexUnlock",                                 std::bind(&SysLwMutex::sysLwMutexUnlock, &sysLwMutex), true }},
         { 0x2f85c0ef, { "sysLwMutexCreate",                                 std::bind(&SysLwMutex::sysLwMutexCreate, &sysLwMutex), true }},
+        { 0xaeb78725, { "sysLwMutexTryLock",                                std::bind(&SysLwMutex::sysLwMutexTryLock, &sysLwMutex), true }},
         { 0xc3476d0c, { "sysLwMutexDestroy",                                std::bind(&SysLwMutex::sysLwMutexDestroy, &sysLwMutex), true }},
 
         { 0x24a1ea07, { "sysPPUThreadCreate",                               std::bind(&SysThread::sysPPUThreadCreate, &sysThread), true }},

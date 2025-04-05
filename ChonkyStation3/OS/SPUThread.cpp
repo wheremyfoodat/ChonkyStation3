@@ -255,7 +255,7 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
             equeue->send({ SYS_SPU_THREAD_EVENT_USER_KEY, id, data0, data1 });
 
             // Write response to in mbox
-            in_mbox.push(Result::CELL_OK);
+            in_mbox.push(CELL_OK);
         }
         else {
             Helpers::panic("Unhandled SPU_WrOutIntrMbox write with spup %d\n", spup);

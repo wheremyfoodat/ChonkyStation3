@@ -10,7 +10,7 @@ u64 CellSysmodule::cellSysmoduleUnloadModule() {
     if (module_name == "BAD")
         Helpers::panic("cellSysmoduleUnloadModule(): bad module id %d\n", module_id);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellSysmodule::cellSysmoduleLoadModule() {
@@ -21,7 +21,7 @@ u64 CellSysmodule::cellSysmoduleLoadModule() {
     if (module_name == "BAD")
         Helpers::panic("cellSysmoduleLoadModule(): bad module id %d\n", module_id);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 std::string CellSysmodule::getModule(u16 id) {

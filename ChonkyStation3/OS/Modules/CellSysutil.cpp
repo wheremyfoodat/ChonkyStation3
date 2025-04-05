@@ -5,7 +5,7 @@
 u64 CellSysutil::cellSysutilUnregisterCallback() {
     log("cellSysutilUnregisterCallback() UNIMPLEMENTED\n");
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellSysutil::cellSysutilCheckCallback() {
@@ -20,7 +20,7 @@ u64 CellSysutil::cellSysutilCheckCallback() {
         }
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellSysutil::cellSysutilGetSystemParamInt() {
@@ -48,7 +48,7 @@ u64 CellSysutil::cellSysutilGetSystemParamInt() {
     }
 
     ps3->mem.write<u32>(val_ptr, val);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellSysutil::cellSysutilGetSystemParamString() {
@@ -80,7 +80,7 @@ u64 CellSysutil::cellSysutilGetSystemParamString() {
     u8* buf = ps3->mem.getPtr(buf_ptr);
     std::memset(buf, 0, size);
     std::memcpy(buf, str.c_str(), str.length());
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellSysutil::cellSysutilRegisterCallback() {
@@ -92,5 +92,5 @@ u64 CellSysutil::cellSysutilRegisterCallback() {
 
     callbacks[slot] = { func_ptr, userdata_ptr };
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

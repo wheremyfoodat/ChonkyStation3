@@ -21,5 +21,5 @@ u64 CellMsgDialog::cellMsgDialogOpen2() {
         log("WARNING: Error message dialog\n");
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

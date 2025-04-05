@@ -36,7 +36,7 @@ u64 CellRtc::cellRtcGetCurrentClockLocalTime() {
     clock->microsecond = us;
 
     log("Time is %d/%d/%d %d:%d:%d:%d\n", (u32)clock->day, (u32)clock->month, (u32)clock->year, (u32)clock->hour, (u32)clock->minute, (u32)clock->second, (u32)clock->microsecond);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellRtc::cellRtcGetCurrentTick() {
@@ -45,7 +45,7 @@ u64 CellRtc::cellRtcGetCurrentTick() {
 
     ps3->mem.write<u64>(tick_ptr, ps3->scheduler.time);
     
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellRtc::cellRtcGetTime_t() {
@@ -58,5 +58,5 @@ u64 CellRtc::cellRtcGetTime_t() {
     // right after getting the current time, we can just get the current tick again here with std::chrono
     ps3->mem.write<u64>(time_ptr, std::chrono::system_clock::now().time_since_epoch().count() / 1000000);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

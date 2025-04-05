@@ -21,7 +21,7 @@ u64 CellGame::cellGameGetParamString() {
     else
         Helpers::panic("\ncellGameGetParamString: SFO doesn't contain param id %d\n", id);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGame::cellGameContentPermit() {
@@ -34,7 +34,7 @@ u64 CellGame::cellGameContentPermit() {
     std::memcpy(ps3->mem.getPtr(content_info_dir_ptr), path.c_str(), path.length() + 1);
     std::memcpy(ps3->mem.getPtr(user_dir_ptr), path_user.c_str(), path_user.length() + 1);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGame::cellGameContentErrorDialog() {
@@ -43,7 +43,7 @@ u64 CellGame::cellGameContentErrorDialog() {
     const u32 dir_name_ptr = ARG2;
     log("cellGameContentErrorDialog(type: 0x%08x, need_space_kb: %d, dir_name_ptr: 0x%08x)\n", type, need_space_kb, dir_name_ptr);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGame::cellGameGetParamInt() {
@@ -59,7 +59,7 @@ u64 CellGame::cellGameGetParamInt() {
     else
         Helpers::panic("\ncellGameGetParamString: SFO doesn't contain param id %d\n", id);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGame::cellGamePatchCheck() {
@@ -88,7 +88,7 @@ u64 CellGame::cellGameDataCheck() {
     if (!ps3->fs.exists(sfo_path))
         return CELL_GAME_RET_NONE;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGame::cellGameBootCheck() {
@@ -113,7 +113,7 @@ u64 CellGame::cellGameBootCheck() {
         size->sys_size = 1024;  // ?
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellGame::cellDiscGameGetBootDiscInfo() {

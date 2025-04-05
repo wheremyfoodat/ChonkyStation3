@@ -9,7 +9,7 @@ namespace sys_spu {
 
 static constexpr u32 SYS_SPU_THREAD_EVENT_USER = 1;
 
-static constexpr u32 SYS_SPU_THREAD_EVENT_USER_KEY = 0xFFFFFFFF53505501;
+static constexpr u64 SYS_SPU_THREAD_EVENT_USER_KEY = 0xFFFFFFFF53505501;
 
 static constexpr u32 SYS_SPU_THREAD_GROUP_EVENT_RUN             = 1;
 static constexpr u32 SYS_SPU_THREAD_GROUP_EVENT_EXCEPTION       = 2;

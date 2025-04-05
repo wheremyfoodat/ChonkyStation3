@@ -54,5 +54,5 @@ u64 CellSsl::cellSslCertificateLoader() {
         std::memcpy(ps3->mem.getPtr(buf_ptr), buf.c_str(), buf.size());
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

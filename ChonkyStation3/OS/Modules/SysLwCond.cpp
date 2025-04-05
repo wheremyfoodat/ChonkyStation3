@@ -12,10 +12,10 @@ u64 SysLwCond::sysLwCondWait() {
     const auto res = lv2_lwcond->wait();
     if (!res) {
         log("WARNING: Tried to wait on a cond variable, but the current thread was not the mutex's owner\n");
-        return Result::CELL_EPERM;
+        return CELL_EPERM;
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysLwCond::sysLwCondCreate() {
@@ -36,7 +36,7 @@ u64 SysLwCond::sysLwCondCreate() {
     std::strncpy(lv2_lwcond->name.data(), (char*)attr->name, 8);
     logNoPrefix(" [name: %s]\n", lv2_lwcond->name.c_str());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysLwCond::sysLwCondSignalAll() {
@@ -47,7 +47,7 @@ u64 SysLwCond::sysLwCondSignalAll() {
     Lv2LwCond* lv2_lwcond = ps3->lv2_obj.get<Lv2LwCond>(cond->id);
     if (!lv2_lwcond->signalAll()) return ps3->ppu->state.gprs[3];   // Locking failed and this thread went to sleep - do not update R3 yet
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysLwCond::sysLwCondSignal() {
@@ -58,5 +58,5 @@ u64 SysLwCond::sysLwCondSignal() {
     Lv2LwCond* lv2_lwcond = ps3->lv2_obj.get<Lv2LwCond>(cond->id);
     if (!lv2_lwcond->signal()) return ps3->ppu->state.gprs[3];   // Locking failed and this thread went to sleep - do not update R3 yet
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

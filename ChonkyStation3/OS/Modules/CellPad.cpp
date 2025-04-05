@@ -6,7 +6,7 @@ u64 CellPad::cellPadInit() {
     const u32 max_connect = ARG0;
     log("cellPadInit(max_connect: %d)\n", max_connect);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPad::cellPadGetInfo() {
@@ -19,7 +19,7 @@ u64 CellPad::cellPadGetInfo() {
     info->system_info = 0;
     info->status[0] = CELL_PAD_STATUS_CONNECTED;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPad::cellPadGetData() {
@@ -38,7 +38,7 @@ u64 CellPad::cellPadGetData() {
     data->button[0] = 0;
     data->button[1] = ((data->len / 2) & 0xf) | (7 << 4);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPad::cellPadGetInfo2() {
@@ -54,5 +54,5 @@ u64 CellPad::cellPadGetInfo2() {
     info->device_capability[0] = 1;
     info->device_type[0] = 0;   // Standard
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

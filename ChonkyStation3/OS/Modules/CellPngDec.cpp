@@ -70,7 +70,7 @@ u64 CellPngDec::cellPngDecDecodeData() {
 
     out_info->status = 0;   // FINISHED
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPngDec::cellPngDecClose() {
@@ -79,12 +79,12 @@ u64 CellPngDec::cellPngDecClose() {
     // Delete temporary files
     if (curr_src.src_sel == CellPngDecStreamSrcSel::CELL_PNGDEC_BUFFER)
         fs::remove(curr_file);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPngDec::cellPngDecDestroy() {
     log("cellPngDecDestroy()\n");
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPngDec::cellPngDecReadHeader() {
@@ -125,7 +125,7 @@ u64 CellPngDec::cellPngDecReadHeader() {
     curr_info.n_components = info->n_components;
     curr_info.bit_depth = info->bit_depth;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPngDec::cellPngDecCreate() {
@@ -138,7 +138,7 @@ u64 CellPngDec::cellPngDecCreate() {
     out->codec_version = PNG_CODEC_VERSION;
 
     log("cellPngDecCreate(handle_ptr: 0x%08x, thread_in_param_ptr: 0x%08x, thread_out_param_ptr: 0x%08x)\n", handle_ptr, thread_in_param_ptr, thread_out_param_ptr);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPngDec::cellPngDecOpen() {
@@ -178,7 +178,7 @@ u64 CellPngDec::cellPngDecOpen() {
         log("file_size: %d\n", curr_src.file_size);
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellPngDec::cellPngDecSetParameter() {
@@ -209,7 +209,7 @@ u64 CellPngDec::cellPngDecSetParameter() {
     out_param.output_color_space = out->output_color_space;
     out_param.use_mem_space = out->use_mem_space;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 void CellPngDec::displayPNGInfo(const LodePNGInfo& info) {

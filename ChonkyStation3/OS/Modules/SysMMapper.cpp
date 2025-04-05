@@ -13,7 +13,7 @@ u64 SysMMapper::sysMMapperAllocateMemory() {
     ps3->mem.write<u32>(addr_ptr, handle);
 
     log("sysMMapperAllocateMemory(size: 0x%08x, flags: 0x%016llx, addr_ptr: 0x%08x) [allocated memory paddr: 0x%08llx]\n", size, flags, addr_ptr, block->start);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysMMapper::sysMMapperFreeMemory() {
@@ -22,11 +22,11 @@ u64 SysMMapper::sysMMapperFreeMemory() {
 
     auto block = ps3->mem.findMapEntryWithHandle(handle);
     //Helpers::debugAssert(block.first, "sysMMapperFreeMemory: tried to free unmapped memory\n");
-    if (!block.first) return Result::CELL_OK;
+    if (!block.first) return CELL_OK;
 
     ps3->mem.free(block.second);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysMMapper::sysMMapperUnmapMemory() {
@@ -37,11 +37,11 @@ u64 SysMMapper::sysMMapperUnmapMemory() {
 
     auto info = ps3->mem.isMapped(addr);
     //Helpers::debugAssert(info.first, "sysMMapperUnmapMemory: tried to unmap unmapped memory\n");
-    if (!info.first) return Result::CELL_OK;
+    if (!info.first) return CELL_OK;
 
     ps3->mem.write<u32>(handle_ptr, info.second->handle);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 SysMMapper::sysMMapperMapMemory() {
@@ -62,5 +62,5 @@ u64 SysMMapper::sysMMapperMapMemory() {
         ps3->mem.mmap(start_addr, block.second->start, block.second->size);
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

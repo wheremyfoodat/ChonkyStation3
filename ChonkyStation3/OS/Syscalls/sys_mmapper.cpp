@@ -18,7 +18,7 @@ u64 Syscall::sys_mmapper_allocate_address() {
     ps3->mem.write<u32>(addr_ptr, next_address_alloc);
     next_address_alloc += 256_MB;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_mmapper_free_shared_memory() {
@@ -31,7 +31,7 @@ u64 Syscall::sys_mmapper_free_shared_memory() {
     Helpers::debugAssert(block.first, "sys_mmapper_free_shared_memory: tried to free unmapped memory\n");
     ps3->mem.free(block.second);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_mmapper_allocate_shared_memory() {
@@ -46,7 +46,7 @@ u64 Syscall::sys_mmapper_allocate_shared_memory() {
     block->handle = handle;
     ps3->mem.write<u32>(handle_ptr, handle);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_mmapper_map_shared_memory() {
@@ -69,7 +69,7 @@ u64 Syscall::sys_mmapper_map_shared_memory() {
         entry->handle = handle;
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_mmapper_unmap_shared_memory() {
@@ -84,7 +84,7 @@ u64 Syscall::sys_mmapper_unmap_shared_memory() {
     // Get handle of the physical block
     ps3->mem.write<u32>(handle_ptr, info.second->handle);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_mmapper_search_and_map() {
@@ -104,5 +104,5 @@ u64 Syscall::sys_mmapper_search_and_map() {
 
     ps3->mem.write<u32>(addr_ptr, entry->vaddr);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

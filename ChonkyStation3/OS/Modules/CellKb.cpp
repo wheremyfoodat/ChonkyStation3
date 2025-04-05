@@ -10,7 +10,7 @@ u64 CellKb::cellKbGetInfo() {
     info->max_connect = 1;
     info->now_connect = 0;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellKb::cellKbRead() {

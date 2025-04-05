@@ -18,7 +18,7 @@ u64 CellAudio::cellAudioGetPortConfig() {
     config->port_size = port.size;
     config->port_addr = port.addr;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellAudio::cellAudioPortStart() {
@@ -29,7 +29,7 @@ u64 CellAudio::cellAudioPortStart() {
     Port& port = ports[port_num];
     port.status = CELL_AUDIO_STATUS_RUN;
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellAudio::cellAudioPortOpen() {
@@ -63,5 +63,5 @@ u64 CellAudio::cellAudioPortOpen() {
     ps3->mem.write<u32>(port_ptr, port->id);
     log("Opened port %d (channels: %d, blocks: %d)\n", port->id, port->n_channels, port->n_blocks);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

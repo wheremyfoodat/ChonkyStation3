@@ -14,7 +14,7 @@ u64 Syscall::sys_rwlock_create() {
 
     ps3->mem.write<u32>(rwlock_id_ptr, rwlock->handle());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_rwlock_rlock() {
@@ -25,7 +25,7 @@ u64 Syscall::sys_rwlock_rlock() {
     Lv2RwLock* rwlock = ps3->lv2_obj.get<Lv2RwLock>(rwlock_id);
     rwlock->rlock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_rwlock_runlock() {
@@ -35,7 +35,7 @@ u64 Syscall::sys_rwlock_runlock() {
     Lv2RwLock* rwlock = ps3->lv2_obj.get<Lv2RwLock>(rwlock_id);
     rwlock->runlock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_rwlock_wlock() {
@@ -46,7 +46,7 @@ u64 Syscall::sys_rwlock_wlock() {
     Lv2RwLock* rwlock = ps3->lv2_obj.get<Lv2RwLock>(rwlock_id);
     rwlock->wlock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_rwlock_wunlock() {
@@ -56,5 +56,5 @@ u64 Syscall::sys_rwlock_wunlock() {
     Lv2RwLock* rwlock = ps3->lv2_obj.get<Lv2RwLock>(rwlock_id);
     rwlock->wunlock();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

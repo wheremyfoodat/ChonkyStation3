@@ -16,7 +16,7 @@ u64 Syscall::sys_event_queue_create() {
     queue->size = size;
 
     ps3->mem.write<u32>(queue_id_ptr, queue->handle());
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_event_queue_receive() {
@@ -28,7 +28,7 @@ u64 Syscall::sys_event_queue_receive() {
     Lv2EventQueue* queue = ps3->lv2_obj.get<Lv2EventQueue>(queue_id);
     queue->receive();    // queue->receive will return the event data in gprs[4] - gprs[7]
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_event_queue_drain() {
@@ -38,5 +38,5 @@ u64 Syscall::sys_event_queue_drain() {
     Lv2EventQueue* queue = ps3->lv2_obj.get<Lv2EventQueue>(queue_id);
     queue->drain();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

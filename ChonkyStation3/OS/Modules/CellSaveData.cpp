@@ -6,7 +6,7 @@
 u64 CellSaveData::cellSaveDataAutoSave2() {
     log("cellSaveDataAutoSave2() UNIMPLEMENTED\n");
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 CellSaveData::cellSaveDataUserAutoLoad() {
@@ -34,7 +34,7 @@ u64 CellSaveData::cellSaveDataAutoLoad2() {
     const auto dir = Helpers::readString(ps3->mem.getPtr(dir_ptr));
     log("cellSaveDataAutoLoad2(ver: 0x%08x, dir_ptr: 0x%08x, err_dialog: 0x%08x, set_buf_ptr: 0x%08x, stat_cb_ptr: 0x%08x, file_cb_ptr: 0x%08x, container: 0x%08x, userdata_ptr: 0x%08x) [dir: %s]\n", ver, dir_ptr, err_dialog, set_buf_ptr, stat_cb_ptr, file_cb_ptr, container, userdata_ptr, dir.c_str());
 
-    return Result::CELL_OK; // Disabled until I fix it
+    return CELL_OK; // Disabled until I fix it
 
     SFOLoader sfo_loader = SFOLoader(ps3->fs);
     CellSaveDataSetBuf* set_buf = (CellSaveDataSetBuf*)ps3->mem.getPtr(set_buf_ptr);
@@ -198,5 +198,5 @@ u64 CellSaveData::cellSaveDataAutoLoad2() {
         }
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }

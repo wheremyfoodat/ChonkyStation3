@@ -17,7 +17,7 @@ u64 Syscall::sys_raw_spu_create() {
     ps3->mem.write<u32>(id_ptr, 0);
     ps3->mem.spu.alloc(SPU_MEM_SIZE);
     
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_group_create() {
@@ -34,7 +34,7 @@ u64 Syscall::sys_spu_thread_group_create() {
     log_sys_spu("Created SPU thread group \"%s\"\n", group->getName().c_str());
     ps3->mem.write<u32>(id_ptr, group->handle());
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_initialize() {
@@ -66,7 +66,7 @@ u64 Syscall::sys_spu_thread_initialize() {
 
     ps3->mem.write<u32>(id_ptr, thread->id);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_group_start() {
@@ -76,7 +76,7 @@ u64 Syscall::sys_spu_thread_group_start() {
     Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);
     group->start();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_image_import() {
@@ -87,7 +87,7 @@ u64 Syscall::sys_spu_image_import() {
     log_sys_spu("sys_spu_image_import(image_ptr: 0x%08x, src: 0x%08x, size: 0x%08x, arg4: 0x%08x) UNIMPLEMENTED\n", image_ptr, src, size);
 
     Helpers::panic("TODO: sys_spu_image_import syscall\n");
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_group_join() {
@@ -96,7 +96,7 @@ u64 Syscall::sys_spu_thread_group_join() {
     ps3->thread_manager.getCurrentThread()->status = Thread::ThreadStatus::Sleeping;   // Never wake up
     ps3->thread_manager.getCurrentThread()->reschedule();
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_group_connect_event() {
@@ -119,7 +119,7 @@ u64 Syscall::sys_spu_thread_group_connect_event() {
         Helpers::panic("sys_spu_thread_group_connect_event: Unimplemented event type 0x%08x\n", event_type);
     }
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_write_spu_mb() {
@@ -131,7 +131,7 @@ u64 Syscall::sys_spu_thread_write_spu_mb() {
     Helpers::debugAssert(thread != nullptr, "sys_spu_thread_write_spu_mb: bad thread id (%d)\n", id);
     thread->in_mbox.push(val);
 
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_connect_event() {
@@ -148,7 +148,7 @@ u64 Syscall::sys_spu_thread_connect_event() {
     if (thread->ports[spup] != -1) Helpers::panic("sys_spu_thread_connect_event: port was already connected\n");
     thread->ports[spup] = equeue_id;
     
-    return Result::CELL_OK;
+    return CELL_OK;
 }
 
 u64 Syscall::sys_spu_thread_group_connect_event_all_threads() {
@@ -159,5 +159,5 @@ u64 Syscall::sys_spu_thread_group_connect_event_all_threads() {
     log_sys_spu("sys_spu_thread_group_connect_event_all_threads(id: %d, eq: %d, req: 0x%016x, spup_ptr: 0x%08x) UNIMPLEMENTED\n", id, eq, req, spup_ptr);
 
     ps3->mem.write<u8>(spup_ptr, 0);
-    return Result::CELL_OK;
+    return CELL_OK;
 }
