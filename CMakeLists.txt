@@ -61,8 +61,14 @@ if (ENABLE_QT_BUILD)
     qt_standard_project_setup()
     qt_add_ui(ChonkyStation3 SOURCES "ChonkyStation3/Frontend/UI/mainwindow.ui" INCLUDE_PREFIX "Frontend/UI")
     qt_add_ui(ChonkyStation3 SOURCES "ChonkyStation3/Frontend/UI/settings.ui" INCLUDE_PREFIX "Frontend/UI")
+    qt_add_resources(ChonkyStation3 "resources" PREFIX "/" FILES Resources/icon-small.ico)
 
     target_link_libraries(ChonkyStation3 PUBLIC Qt6::Widgets)
+endif()
+
+if (WIN32)
+    enable_language("RC")
+    target_sources(ChonkyStation3 PRIVATE "Resources/icon.rc")
 endif()
 
 

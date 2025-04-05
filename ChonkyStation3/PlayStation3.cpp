@@ -129,7 +129,7 @@ void PlayStation3::step() {
         
         curr_block_cycles = 0;
         force_scheduler_update = false;
-        
+
         if (curr_block++ >= reschedule_every_n_blocks) {
             curr_block = 0;
             thread_manager.reschedule();

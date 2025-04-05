@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     QApplication::setStyle("fusion");
     QCoreApplication::addLibraryPath("./Qt6");
     QApplication app(argc, argv);
+    app.setWindowIcon(QIcon(":/Resources/icon-small.ico"));
     MainWindow main_window = MainWindow();
     int ret = app.exec();
     main_window.onExit();

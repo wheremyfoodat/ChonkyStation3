@@ -197,7 +197,6 @@ void RSX::uploadFragmentUniforms() {
 }
 
 void RSX::uploadTexture() {
-    // Texture cache
     // Don't do anything if the current texture is the same as the last one
     // TODO: This will break if a game uploads a different texture but with the same format, width and height to the same address as the previous texture.
     // I'm unsure how common that is. Probably make this toggleable in the future in case some games break
@@ -205,6 +204,7 @@ void RSX::uploadTexture() {
        return;
     }
 
+    // Texture cache
     const u64 hash = cache.computeTextureHash(ps3->mem.getPtr(texture.addr), texture.width, texture.height, 4);    // TODO: don't hardcode
     OpenGL::Texture cached_texture;
     if (!cache.getTexture(hash, cached_texture)) {
@@ -467,7 +467,6 @@ void RSX::runCommandList(u64 put_addr) {
             }
             else {
                 log("Disabled alpha test\n");
-                OpenGL::disableBlend();
             }
             break;
         }
