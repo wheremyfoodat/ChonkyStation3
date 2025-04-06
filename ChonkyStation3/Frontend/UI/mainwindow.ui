@@ -75,7 +75,13 @@
     </property>
     <addaction name="actionSystem"/>
     <addaction name="actionFilesystem"/>
+    <addaction name="separator"/>
+    <addaction name="actionPPU"/>
+    <addaction name="actionSPU"/>
+    <addaction name="actionRSX"/>
+    <addaction name="separator"/>
     <addaction name="actionLLE"/>
+    <addaction name="separator"/>
     <addaction name="actionDebug"/>
    </widget>
    <addaction name="menuFile"/>
@@ -105,6 +111,21 @@
   <action name="actionFilesystem">
    <property name="text">
     <string>Filesystem</string>
+   </property>
+  </action>
+  <action name="actionPPU">
+   <property name="text">
+    <string>PPU</string>
+   </property>
+  </action>
+  <action name="actionSPU">
+   <property name="text">
+    <string>SPU</string>
+   </property>
+  </action>
+  <action name="actionRSX">
+   <property name="text">
+    <string>RSX</string>
    </property>
   </action>
  </widget>

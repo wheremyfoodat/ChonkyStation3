@@ -20,17 +20,32 @@ MainWindow::MainWindow() : QMainWindow() {
     connect(ui.actionFilesystem, &QAction::triggered, this, [this]() {
         settings->ui.tabWidget->setCurrentIndex(1);
         settings->show();
-        });
-    
-    connect(ui.actionLLE, &QAction::triggered, this, [this]() {
+    });
+
+    connect(ui.actionPPU, &QAction::triggered, this, [this]() {
         settings->ui.tabWidget->setCurrentIndex(2);
         settings->show();
     });
 
-    connect(ui.actionDebug, &QAction::triggered, this, [this]() {
+    connect(ui.actionSPU, &QAction::triggered, this, [this]() {
         settings->ui.tabWidget->setCurrentIndex(3);
         settings->show();
-        });
+    });
+
+    connect(ui.actionRSX, &QAction::triggered, this, [this]() {
+        settings->ui.tabWidget->setCurrentIndex(4);
+        settings->show();
+    });
+    
+    connect(ui.actionLLE, &QAction::triggered, this, [this]() {
+        settings->ui.tabWidget->setCurrentIndex(5);
+        settings->show();
+    });
+
+    connect(ui.actionDebug, &QAction::triggered, this, [this]() {
+        settings->ui.tabWidget->setCurrentIndex(6);
+        settings->show();
+    });
 
     int row = 0;
     int column = 0;

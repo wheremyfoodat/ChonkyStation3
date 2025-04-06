@@ -257,6 +257,7 @@ void ModuleManager::init() {
         { 0x578e3c98, { "cellPadSetPortSetting",                            std::bind(&ModuleManager::stub, this) }},
         { 0x8b72cda1, { "cellPadGetData",                                   std::bind(&CellPad::cellPadGetData, &cellPad)}},
         { 0xa703a51d, { "cellPadGetInfo2",                                  std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
+        { 0xf65544ee, { "cellPadSetActDirect",                              std::bind(&ModuleManager::stub, this) } },
         { 0xf83f8182, { "cellPadSetPressMode",                              std::bind(&ModuleManager::stub, this) } },
 
         { 0x2f1774d5, { "cellKbGetInfo",                                    std::bind(&CellKb::cellKbGetInfo, &cellKb) }},
@@ -290,6 +291,7 @@ void ModuleManager::init() {
         { 0x0ce13c6b, { "cellNetCtlAddHandler",                             std::bind(&ModuleManager::stub, this) }},
         { 0x105ee2cb, { "cellNetCtlTerm",                                   std::bind(&ModuleManager::stub, this) }},
         { 0x1e585b5d, { "cellNetCtlGetInfo",                                std::bind(&ModuleManager::stub, this) }},
+        { 0x8b3eba69, { "cellNetCtlGetState",                               std::bind(&ModuleManager::stub, this) }},
         { 0xbd5a59fc, { "cellNetCtlInit",                                   std::bind(&ModuleManager::stub, this) }},
 
         { 0x157d30c5, { "cellPngDecCreate",                                 std::bind(&CellPngDec::cellPngDecCreate, &cellPngDec) }},
