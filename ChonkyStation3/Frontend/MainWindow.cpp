@@ -16,14 +16,19 @@ MainWindow::MainWindow() : QMainWindow() {
         settings->ui.tabWidget->setCurrentIndex(0);
         settings->show();
     });
+
+    connect(ui.actionFilesystem, &QAction::triggered, this, [this]() {
+        settings->ui.tabWidget->setCurrentIndex(1);
+        settings->show();
+        });
     
     connect(ui.actionLLE, &QAction::triggered, this, [this]() {
-        settings->ui.tabWidget->setCurrentIndex(1);
+        settings->ui.tabWidget->setCurrentIndex(2);
         settings->show();
     });
 
     connect(ui.actionDebug, &QAction::triggered, this, [this]() {
-        settings->ui.tabWidget->setCurrentIndex(2);
+        settings->ui.tabWidget->setCurrentIndex(3);
         settings->show();
         });
 
@@ -71,6 +76,13 @@ MainWindow::MainWindow() : QMainWindow() {
     QPalette palette;
     palette.setColor(QPalette::Highlight, QColor(0, 0, 0, 0));
     setPalette(palette);
+
+    // Show a dialog if the config file was broken
+    if (ps3->settings.detected_broken_config) {
+        QMessageBox* dialog = new QMessageBox();
+        dialog->setText("Detected outdated or broken config file, a new one was created.\n");
+        dialog->exec();
+    }
 
     resize(1280, 720);
     setWindowTitle("ChonkyStation3");

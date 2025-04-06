@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="system">
       <attribute name="title">
@@ -29,7 +29,7 @@
          <x>10</x>
          <y>10</y>
          <width>175</width>
-         <height>81</height>
+         <height>73</height>
         </rect>
        </property>
        <property name="title">
@@ -60,6 +60,97 @@
         </item>
         <item row="0" column="1">
          <widget class="QLineEdit" name="nickname"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="filesystem">
+      <attribute name="title">
+       <string>Filesystem</string>
+      </attribute>
+      <widget class="QGroupBox" name="filesystemDevicesGroup">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>601</width>
+         <height>185</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Device mount points</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <layout class="QFormLayout" name="formLayout_4">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Conditionally enables the SPU after the PPU hits the given address.&lt;/p&gt;&lt;p&gt;Enter the address in the form of a 32bit hexadecimal number (i.e. &amp;quot;0x12345678&amp;quot;).&lt;/p&gt;&lt;p&gt;Leave blank to disable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>dev_hdd0</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="dev_hdd0_mountpoint"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the SPU Thread to enable when the condition explained in the setting above is met.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>dev_hdd1</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="dev_hdd1_mountpoint"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the SPU Thread to enable when the condition explained in the setting above is met.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>dev_flash</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="dev_flash_mountpoint"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the SPU Thread to enable when the condition explained in the setting above is met.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>dev_usb000</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="dev_usb000_mountpoint"/>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_9">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Conditionally enables the SPU after the PPU hits the given address.&lt;/p&gt;&lt;p&gt;Enter the address in the form of a 32bit hexadecimal number (i.e. &amp;quot;0x12345678&amp;quot;).&lt;/p&gt;&lt;p&gt;Leave blank to disable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Changing the mount points requires restarting the emulator.</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

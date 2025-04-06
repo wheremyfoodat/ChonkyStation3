@@ -8,7 +8,7 @@ bool Lv2SPUThreadGroup::start() {
     if (started) return false;
 
     // TODO: Check if all the threads in this group are ready
-    if (!ps3->settings.debug.disableSPU) {
+    if (!ps3->settings.debug.disable_spu) {
         for (auto& i : threads) {
             ps3->spu_thread_manager.getThreadByID(i)->status = SPUThread::ThreadStatus::Running;
         }

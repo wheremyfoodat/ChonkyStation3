@@ -11,14 +11,14 @@ public:
     void load();
     void save();
 
+    bool detected_broken_config = false;
+
     // --- The following functions must be called after load()---
 
     // Default settings
 
     struct {
-
         std::string nickname = "Alber";
-
     } system;
 
     struct {
@@ -56,8 +56,15 @@ public:
     } lle;
 
     struct {
-        bool disableSPU = false;
-        std::string enableSPUAfterPC = "";
-        std::string spuThreadToEnable = "";
+        std::string dev_hdd0_mountpoint     = "./Filesystem/dev_hdd0";
+        std::string dev_hdd1_mountpoint     = "./Filesystem/dev_hdd1";
+        std::string dev_flash_mountpoint    = "./Filesystem/dev_flash";
+        std::string dev_usb000_mountpoint   = "./Filesystem/dev_usb000";
+    } filesystem;
+
+    struct {
+        bool disable_spu = false;
+        std::string enable_spu_after_pc = "";
+        std::string spu_thread_to_enable = "";
     } debug;
 };

@@ -14,6 +14,18 @@ void Settings::load() {
     }
 
     auto cfg = toml::parse(path);
+    if (   !cfg.contains("System")
+        || !cfg.contains("LLEModules")
+        || !cfg.contains("Filesystem")
+        || !cfg.contains("Debug")
+       ) {
+        // Broken or outdated configuration file, create a new one
+        detected_broken_config = true;
+        printf("Detected broken or outdated configuration file, creating a new one\n");
+        fs::remove(path);
+        save();
+        return;
+    }
     
     system.nickname = cfg["System"]["Nickname"].as_string();
     
@@ -31,10 +43,15 @@ void Settings::load() {
     lle.cellKey2char    = cfg["LLEModules"]["cellKey2char"].as_boolean();
     lle.cellL10n        = cfg["LLEModules"]["cellL10n"].as_boolean();
     lle.cellFiber       = cfg["LLEModules"]["cellFiber"].as_boolean();
+    
+    filesystem.dev_hdd0_mountpoint      = cfg["Filesystem"]["dev_hdd0_mountpoint"].as_string();
+    filesystem.dev_hdd1_mountpoint      = cfg["Filesystem"]["dev_hdd1_mountpoint"].as_string();
+    filesystem.dev_flash_mountpoint     = cfg["Filesystem"]["dev_flash_mountpoint"].as_string();
+    filesystem.dev_usb000_mountpoint    = cfg["Filesystem"]["dev_usb000_mountpoint"].as_string();
 
-    debug.disableSPU        = cfg["Debug"]["DisableSPU"].as_boolean();
-    debug.enableSPUAfterPC  = cfg["Debug"]["EnableSPUAfterPC"].as_string();
-    debug.spuThreadToEnable = cfg["Debug"]["SPUThreadToEnable"].as_string();
+    debug.disable_spu          = cfg["Debug"]["DisableSPU"].as_boolean();
+    debug.enable_spu_after_pc  = cfg["Debug"]["EnableSPUAfterPC"].as_string();
+    debug.spu_thread_to_enable = cfg["Debug"]["SPUThreadToEnable"].as_string();
 
     if (lle.cellPngDec) printf("Warning: enabled LLE cellPngDec\n");
 }
@@ -64,9 +81,14 @@ void Settings::save() {
     cfg["LLEModules"]["cellL10n"]           = lle.cellL10n;
     cfg["LLEModules"]["cellFiber"]          = lle.cellFiber;
     
-    cfg["Debug"]["DisableSPU"]              = debug.disableSPU;
-    cfg["Debug"]["EnableSPUAfterPC"]        = debug.enableSPUAfterPC;
-    cfg["Debug"]["SPUThreadToEnable"]       = debug.spuThreadToEnable;
+    cfg["Filesystem"]["dev_hdd0_mountpoint"]    = filesystem.dev_hdd0_mountpoint;
+    cfg["Filesystem"]["dev_hdd1_mountpoint"]    = filesystem.dev_hdd1_mountpoint;
+    cfg["Filesystem"]["dev_flash_mountpoint"]   = filesystem.dev_flash_mountpoint;
+    cfg["Filesystem"]["dev_usb000_mountpoint"]  = filesystem.dev_usb000_mountpoint;
+    
+    cfg["Debug"]["DisableSPU"]              = debug.disable_spu;
+    cfg["Debug"]["EnableSPUAfterPC"]        = debug.enable_spu_after_pc;
+    cfg["Debug"]["SPUThreadToEnable"]       = debug.spu_thread_to_enable;
 
     file << toml::format(cfg);
     file.close();

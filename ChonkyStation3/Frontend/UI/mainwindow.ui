@@ -74,6 +74,7 @@
      <string>Settings</string>
     </property>
     <addaction name="actionSystem"/>
+    <addaction name="actionFilesystem"/>
     <addaction name="actionLLE"/>
     <addaction name="actionDebug"/>
    </widget>
@@ -99,6 +100,11 @@
   <action name="actionDebug">
    <property name="text">
     <string>Debug</string>
+   </property>
+  </action>
+  <action name="actionFilesystem">
+   <property name="text">
+    <string>Filesystem</string>
    </property>
   </action>
  </widget>

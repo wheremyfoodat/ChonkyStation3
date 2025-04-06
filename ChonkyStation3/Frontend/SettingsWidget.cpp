@@ -9,6 +9,12 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
     // System
     ui.nickname->setText(QString::fromStdString(ps3->settings.system.nickname));
 
+    // Filesystem
+    ui.dev_hdd0_mountpoint->setText(QString::fromStdString(ps3->settings.filesystem.dev_hdd0_mountpoint));
+    ui.dev_hdd1_mountpoint->setText(QString::fromStdString(ps3->settings.filesystem.dev_hdd1_mountpoint));
+    ui.dev_flash_mountpoint->setText(QString::fromStdString(ps3->settings.filesystem.dev_flash_mountpoint));
+    ui.dev_usb000_mountpoint->setText(QString::fromStdString(ps3->settings.filesystem.dev_usb000_mountpoint));
+
     // LLE
     ui.partialLv2->setChecked(ps3->settings.lle.partialLv2LLE);
     ui.sys_fs->setChecked(ps3->settings.lle.sys_fs);
@@ -18,13 +24,18 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
     ui.cellSpursJq->setChecked(ps3->settings.lle.cellSpursJq);
 
     // Debug
-    ui.disableSPU->setChecked(ps3->settings.debug.disableSPU);
-    ui.enableSPUAfterPC->setText(QString::fromStdString(ps3->settings.debug.enableSPUAfterPC));
-    ui.spuThreadToEnable->setText(QString::fromStdString(ps3->settings.debug.spuThreadToEnable));
+    ui.disableSPU->setChecked(ps3->settings.debug.disable_spu);
+    ui.enableSPUAfterPC->setText(QString::fromStdString(ps3->settings.debug.enable_spu_after_pc));
+    ui.spuThreadToEnable->setText(QString::fromStdString(ps3->settings.debug.spu_thread_to_enable));
 
     // Setup events
     connect(ui.apply, &QPushButton::clicked, this, [this, ps3]() {
         ps3->settings.system.nickname   = ui.nickname->text().toStdString();
+
+        ps3->settings.filesystem.dev_hdd0_mountpoint   = ui.dev_hdd0_mountpoint->text().toStdString();
+        ps3->settings.filesystem.dev_hdd1_mountpoint   = ui.dev_hdd1_mountpoint->text().toStdString();
+        ps3->settings.filesystem.dev_flash_mountpoint  = ui.dev_flash_mountpoint->text().toStdString();
+        ps3->settings.filesystem.dev_usb000_mountpoint = ui.dev_usb000_mountpoint->text().toStdString();
 
         ps3->settings.lle.partialLv2LLE = ui.partialLv2->isChecked();
         ps3->settings.lle.sys_fs        = ui.sys_fs->isChecked();
@@ -33,9 +44,9 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
         ps3->settings.lle.cellSpurs     = ui.cellSpurs->isChecked();
         ps3->settings.lle.cellSpursJq   = ui.cellSpursJq->isChecked();
 
-        ps3->settings.debug.disableSPU          = ui.disableSPU->isChecked();
-        ps3->settings.debug.enableSPUAfterPC    = ui.enableSPUAfterPC->text().toStdString();
-        ps3->settings.debug.spuThreadToEnable   = ui.spuThreadToEnable->text().toStdString();
+        ps3->settings.debug.disable_spu            = ui.disableSPU->isChecked();
+        ps3->settings.debug.enable_spu_after_pc    = ui.enableSPUAfterPC->text().toStdString();
+        ps3->settings.debug.spu_thread_to_enable   = ui.spuThreadToEnable->text().toStdString();
 
         ps3->settings.save();
     });

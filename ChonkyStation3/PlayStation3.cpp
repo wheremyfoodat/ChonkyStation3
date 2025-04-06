@@ -5,13 +5,16 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     ppu = &interpreter;
     spu = &spu_interpreter;
     
+    // Load settings
+    settings.load();
+
     module_manager.init();
 
     // Initialize filesystem
-    fs.mount(Filesystem::Device::DEV_FLASH, "./Filesystem/dev_flash/");
-    fs.mount(Filesystem::Device::DEV_HDD0, "./Filesystem/dev_hdd0/");
-    fs.mount(Filesystem::Device::DEV_HDD1, "./Filesystem/dev_hdd1/");
-    fs.mount(Filesystem::Device::DEV_USB000, "./Filesystem/dev_usb000/");
+    fs.mount(Filesystem::Device::DEV_HDD0, settings.filesystem.dev_hdd0_mountpoint);
+    fs.mount(Filesystem::Device::DEV_HDD1, settings.filesystem.dev_hdd1_mountpoint);
+    fs.mount(Filesystem::Device::DEV_FLASH, settings.filesystem.dev_flash_mountpoint);
+    fs.mount(Filesystem::Device::DEV_USB000, settings.filesystem.dev_usb000_mountpoint);
     fs.mount(Filesystem::Device::APP_HOME, "./Filesystem/app_home/");
     fs.initialize();
 
@@ -19,9 +22,6 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     if (!(executable.generic_string() == "")) {
         elf_path = executable;
     }
-
-    // Load settings
-    settings.load();
 }
 
 PlayStation3::~PlayStation3() {
@@ -96,9 +96,9 @@ void PlayStation3::init() {
     }
 
     // SPU Debugging options
-    if (!settings.debug.enableSPUAfterPC.empty()) {
-        enable_spu_on_pc = std::stoul(settings.debug.enableSPUAfterPC, 0, 16);
-        spu_thread_to_enable = settings.debug.spuThreadToEnable;
+    if (!settings.debug.enable_spu_after_pc.empty()) {
+        enable_spu_on_pc = std::stoul(settings.debug.enable_spu_after_pc, 0, 16);
+        spu_thread_to_enable = settings.debug.spu_thread_to_enable;
         mem.watchpoints_r[enable_spu_on_pc] = std::bind(&PlayStation3::enableSPUOnPC, this, std::placeholders::_1);
         mem.markAsSlowMem(enable_spu_on_pc >> PAGE_SHIFT, true, false);
         printf("Will enable SPU Thread %s on pc 0x%08x\n", spu_thread_to_enable.c_str(), enable_spu_on_pc);
