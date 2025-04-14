@@ -203,6 +203,8 @@ u32 SPUThread::readChannel(u32 ch) {
 
         return event_stat.raw & event_mask;
     }
+    case SPU_RdDec:         return 0;   // TODO
+    case SPU_RdEventMask:   return -1;  // TODO
     case SPU_RdMachStat:    return 0;   // TODO
     case SPU_RdInMbox: {
         Helpers::debugAssert(in_mbox.size(), "TODO: SPU_RdInMbox with empty queue\n");
@@ -210,6 +212,7 @@ u32 SPUThread::readChannel(u32 ch) {
         in_mbox.pop();
         return val;
     }
+    case MFC_RdTagMask:     return tag_mask;
     case MFC_RdTagStat:     return 1 << tag_mask;   // TODO
     case MFC_RdAtomicStat:  return atomic_stat;             
 
@@ -286,6 +289,7 @@ void SPUThread::doCmd(u32 cmd) {
         break;
     }
 
+    //case GETB:
     case GET: {
         log("GET @ 0x%08x\n", ps3->spu->state.pc);
         std::memcpy(&ls[lsa & 0x3ffff], ps3->mem.getPtr(eal), size);

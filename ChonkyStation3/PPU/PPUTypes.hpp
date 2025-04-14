@@ -61,7 +61,7 @@ struct State {
     ConditionRegister cr;
     XER xer;
     u64 ctr = 0;
-    u64 vrsave = 0;
+    u32 vrsave = -1;
 
     PPUTypes::State& operator=(const PPUTypes::State& other) {
         for (int i = 0; i < 32; i++) gprs[i] = other.gprs[i];

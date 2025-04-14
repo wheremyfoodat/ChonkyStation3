@@ -242,6 +242,7 @@ void ModuleManager::init() {
 
         { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
         { 0x74a66af0, { "cellAudioGetPortConfig",                           std::bind(&CellAudio::cellAudioGetPortConfig, &cellAudio) }},
+        { 0x56dfe179, { "cellAudioSetPortLevel",                            std::bind(&ModuleManager::stub, this) } },
         { 0x89be28f2, { "cellAudioPortStart",                               std::bind(&CellAudio::cellAudioPortStart, &cellAudio) }},
         { 0xcd7bc431, { "cellAudioPortOpen",                                std::bind(&CellAudio::cellAudioPortOpen, &cellAudio) }},
 
@@ -257,11 +258,14 @@ void ModuleManager::init() {
         { 0x578e3c98, { "cellPadSetPortSetting",                            std::bind(&ModuleManager::stub, this) }},
         { 0x8b72cda1, { "cellPadGetData",                                   std::bind(&CellPad::cellPadGetData, &cellPad)}},
         { 0xa703a51d, { "cellPadGetInfo2",                                  std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
+        { 0xbe5be3ba, { "cellPadSetSensorMode",                             std::bind(&ModuleManager::stub, this) } },
         { 0xf65544ee, { "cellPadSetActDirect",                              std::bind(&ModuleManager::stub, this) } },
         { 0xf83f8182, { "cellPadSetPressMode",                              std::bind(&ModuleManager::stub, this) } },
 
         { 0x2f1774d5, { "cellKbGetInfo",                                    std::bind(&CellKb::cellKbGetInfo, &cellKb) }},
         { 0xff0a21b7, { "cellKbRead",                                       std::bind(&CellKb::cellKbRead, &cellKb) }},
+        
+        { 0xc9030138, { "cellMouseInit",                                    std::bind(&ModuleManager::stub, this) } },
 
         { 0x2ecd48ed, { "sceNpDrmVerifyUpgradeLicense",                     std::bind(&ModuleManager::stub, this) }},
         { 0x32cf311f, { "sceNpScoreInit",                                   std::bind(&ModuleManager::stub, this) }},
@@ -302,6 +306,7 @@ void ModuleManager::init() {
         { 0xd2bc5bfd, { "cellPngDecOpen",                                   std::bind(&CellPngDec::cellPngDecOpen, &cellPngDec) }},
         { 0xe97c9bd4, { "cellPngDecSetParameter",                           std::bind(&CellPngDec::cellPngDecSetParameter, &cellPngDec) }},
 
+        { 0x8b300f66, { "cellJpgDecExtCreate",                              std::bind(&ModuleManager::stub, this) } },
         { 0xa7978f59, { "cellJpgDecCreate",                                 std::bind(&ModuleManager::stub, this) } },
 
         { 0x1197b52c, { "sceNpTrophyRegisterContext",                       std::bind(&SceNpTrophy::sceNpTrophyRegisterContext, &sceNpTrophy) } },
@@ -387,6 +392,7 @@ void ModuleManager::init() {
         { 0xe0998dbf, { "sys_prx_get_module_id_by_name",                    std::bind(&ModuleManager::stub, this) } },
 
         { 0xb48636c4, { "sys_net_show_ifconfig",                            std::bind(&ModuleManager::stub, this) } },
+        { 0xfdb8f926, { "sys_net_free_thread_context",                      std::bind(&ModuleManager::stub, this) } },
         
         { 0xe75c40f2, { "sys_process_get_paramsfo",                         std::bind(&ModuleManager::stub, this) } },
         
@@ -395,6 +401,7 @@ void ModuleManager::init() {
         { 0x8af3825e, { "inet_pton",                                        std::bind(&ModuleManager::stub, this) } },
         { 0x9c056962, { "socket",                                           std::bind(&ModuleManager::stub, this) } },
         { 0xb0a59804, { "bind",                                             std::bind(&ModuleManager::stub, this) } },
+        { 0xdabbc2c0, { "inet_addr",                                        std::bind(&ModuleManager::stub, this) } },
 
         { 0x05893e7c, { "cellUserTraceRegister",                            std::bind(&ModuleManager::stub, this) } },
         

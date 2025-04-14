@@ -15,7 +15,6 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
     fs.mount(Filesystem::Device::DEV_HDD1, settings.filesystem.dev_hdd1_mountpoint);
     fs.mount(Filesystem::Device::DEV_FLASH, settings.filesystem.dev_flash_mountpoint);
     fs.mount(Filesystem::Device::DEV_USB000, settings.filesystem.dev_usb000_mountpoint);
-    fs.mount(Filesystem::Device::APP_HOME, "./Filesystem/app_home/");
     fs.initialize();
 
     // An executable was passed as CLI argument
@@ -57,6 +56,8 @@ void PlayStation3::loadGame(const GameLoader::InstalledGame& game) {
     // Get path of EBOOT.elf
     elf_path = fs.guestPathToHost(game.content_path / "USRDIR/EBOOT.elf");
     elf_path_encrypted = (game.content_path / "USRDIR/EBOOT.BIN").generic_string();
+    // Mount /app_home
+    fs.mount(Filesystem::Device::APP_HOME, fs.guestPathToHost(game.content_path / "USRDIR"));
 }
 
 void PlayStation3::setFlipHandler(std::function<void(void)> const& handler) {

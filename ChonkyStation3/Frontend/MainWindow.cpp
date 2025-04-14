@@ -22,22 +22,22 @@ MainWindow::MainWindow() : QMainWindow() {
         settings->show();
     });
 
-    connect(ui.actionPPU, &QAction::triggered, this, [this]() {
+    connect(ui.actionLLE, &QAction::triggered, this, [this]() {
         settings->ui.tabWidget->setCurrentIndex(2);
         settings->show();
-    });
+        });
 
-    connect(ui.actionSPU, &QAction::triggered, this, [this]() {
+    connect(ui.actionPPU, &QAction::triggered, this, [this]() {
         settings->ui.tabWidget->setCurrentIndex(3);
         settings->show();
     });
 
-    connect(ui.actionRSX, &QAction::triggered, this, [this]() {
+    connect(ui.actionSPU, &QAction::triggered, this, [this]() {
         settings->ui.tabWidget->setCurrentIndex(4);
         settings->show();
     });
-    
-    connect(ui.actionLLE, &QAction::triggered, this, [this]() {
+
+    connect(ui.actionRSX, &QAction::triggered, this, [this]() {
         settings->ui.tabWidget->setCurrentIndex(5);
         settings->show();
     });

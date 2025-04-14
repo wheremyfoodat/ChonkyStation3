@@ -75,12 +75,11 @@
     </property>
     <addaction name="actionSystem"/>
     <addaction name="actionFilesystem"/>
+    <addaction name="actionLLE"/>
     <addaction name="separator"/>
     <addaction name="actionPPU"/>
     <addaction name="actionSPU"/>
     <addaction name="actionRSX"/>
-    <addaction name="separator"/>
-    <addaction name="actionLLE"/>
     <addaction name="separator"/>
     <addaction name="actionDebug"/>
    </widget>

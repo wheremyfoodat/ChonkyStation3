@@ -10,7 +10,7 @@ u64 Syscall::sys_event_port_create() {
     const u32 port_id_ptr = ARG0;
     const s32 port_type = ARG1;
     const u64 name = ARG2;
-    log_sys_event("sys_event_port_create(port_id_ptr: 0x%08x, port_type: %d, name: 0x%016x) STUBBED\n", port_id_ptr, port_type, name);
+    log_sys_event("sys_event_port_create(port_id_ptr: 0x%08x, port_type: %d, name: 0x%016x)\n", port_id_ptr, port_type, name);
 
     Lv2EventPort* eport = ps3->lv2_obj.create<Lv2EventPort>();
     eport->name = name;
@@ -23,7 +23,7 @@ u64 Syscall::sys_event_port_create() {
 u64 Syscall::sys_event_port_connect_local() {
     const u32 port_id = ARG0;
     const u32 queue_id = ARG1;
-    log_sys_event("sys_event_port_connect_local(port_id: %d, queue_id: %d) STUBBED\n", port_id, queue_id);
+    log_sys_event("sys_event_port_connect_local(port_id: %d, queue_id: %d)\n", port_id, queue_id);
 
     Lv2EventPort* eport = ps3->lv2_obj.get<Lv2EventPort>(port_id);
     eport->equeue_id = queue_id;

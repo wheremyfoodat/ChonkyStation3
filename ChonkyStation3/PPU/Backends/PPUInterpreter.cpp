@@ -3,7 +3,7 @@
 
 
 //#define PRINT_DEBUG_SYMBOLS
-//#define TRACK_CALL_STACK
+#define TRACK_CALL_STACK
 //#define TRACK_STATE
 //#define ENABLE_CONDITIONAL_TRACE_LOG
 
@@ -329,6 +329,7 @@ void PPUInterpreter::step() {
 
             case FCMPU:     fcmpu(instr);   break;
             case FRSP:      frsp(instr);    break;
+            case FCTIW:
             case FCTIWZ:    fctiwz(instr);  break;
             case FDIV:      fdiv(instr);    break;
             case FSUB:      fsub(instr);    break;
