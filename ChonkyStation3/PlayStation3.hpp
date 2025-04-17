@@ -26,6 +26,7 @@
 #include <Scheduler.hpp>
 #include <Filesystem.hpp>
 #include <CrashAnalyzer.hpp>
+#include <Capture/RSXCaptureReplayer.hpp>
 
 
 class PlayStation3 {
@@ -54,6 +55,7 @@ public:
     GameLoader::InstalledGame curr_game;
     fs::path elf_path;
     std::string elf_path_encrypted;
+    fs::path rsx_capture_path;
 
     std::function<void(void)> flip_handler;
     u64 cycle_count = 0;

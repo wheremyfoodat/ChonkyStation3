@@ -80,8 +80,16 @@ uniform sampler2D tex;
             decompiled_src = std::format("max({}, {})", source(instr, 0), source(instr, 1));
             break;
         }
+        case RSXFragment::SLT: {
+            decompiled_src = std::format("vec4(lessThan({}, {}))", source(instr, 0), source(instr, 1));
+            break;
+        }
         case RSXFragment::SLE: {
             decompiled_src = std::format("vec4(lessThanEqual({}, {}))", source(instr, 0), source(instr, 1));
+            break;
+        }
+        case RSXFragment::KIL: {
+            decompiled_src = "discard";
             break;
         }
         case RSXFragment::DDX: {
@@ -94,6 +102,10 @@ uniform sampler2D tex;
         }
         case RSXFragment::TEX: {
             decompiled_src = std::format("texture(tex, vec2({}))", source(instr, 0));
+            break;
+        }
+        case RSXFragment::RSQ: {
+            decompiled_src = std::format("inversesqrt({})", source(instr, 0));
             break;
         }
         case RSXFragment::EX2: {
@@ -112,6 +124,10 @@ uniform sampler2D tex;
             decompiled_src = std::format("normalize(vec3({}))", source(instr, 0));
             break;
         }
+        case RSXFragment::DIV: {
+            decompiled_src = std::format("({} / {})", source(instr, 0), source(instr, 1));
+            break;
+        }
 
         default:
             log("Shader so far:\n");
@@ -121,10 +137,12 @@ uniform sampler2D tex;
 
         // Conditional execution
         if (!hasCond(instr)) {
+            if (opc == RSXFragment::KIL)
+                main += decompiled_src + ";";
             // TODO: The whole opc == TEX part might break some stuff.
             // I do this because on the RSX if you use single channel textures, when you sample them it expects the color to be broadcasted to all the lanes (I think?).
             // Because we use GL_RED to emulate this format, that doesn't happen (the color is only in the red channel), so stuff breaks.
-            if (opc != RSXFragment::TEX)
+            else if (opc != RSXFragment::TEX)
                 main += std::format("{}{} = {}{};\n", decompiled_dest, mask_str, decompiled_src, mask_str);
             else
                 main += std::format("{}{} = {}({});\n", decompiled_dest, mask_str, getType(num_lanes), decompiled_src);
@@ -140,11 +158,18 @@ uniform sampler2D tex;
             std::string cc = instr.src0.cc_idx == 0 ? "cc0" : "cc1";
             std::string cond = getCond(instr);
 
-            if (num_lanes == 1)
-                main += std::format("if ({}.{} {} 0)\n\t{}{} = {}{};\n", cc, swizzle[0], cond, decompiled_dest, mask_str, decompiled_src, mask_str);
+            if (num_lanes == 1) {
+                if (opc != RSXFragment::KIL)
+                    main += std::format("if ({}.{} {} 0)\n\t{}{} = {}{};\n", cc, swizzle[0], cond, decompiled_dest, mask_str, decompiled_src, mask_str);
+                else
+                    main += std::format("if ({}.{} {} 0)\n\t{};\n", cc, swizzle[0], cond, decompiled_src);
+            }
             else {
                 for (int i = 0; i < num_lanes; i++) {
-                    main += std::format("if ({}.{} {} 0)\n\t{}.{} = {}.{};\n", cc, swizzle[i], cond, decompiled_dest, all[i], decompiled_src, all[i]);
+                    if (opc != RSXFragment::KIL)
+                        main += std::format("if ({}.{} {} 0)\n\t{}.{} = {}.{};\n", cc, swizzle[i], cond, decompiled_dest, all[i], decompiled_src, all[i]);
+                    else
+                        main += std::format("if ({}.{} {} 0)\n\t{};\n", cc, swizzle[i], cond, decompiled_src);
                 }
             }
         }

@@ -359,8 +359,8 @@ GLuint RSX::getBlendFactor(u16 fact) {
 }
 
 void RSX::runCommandList(u64 put_addr) {
-    log("Executing commands\n");
-    log("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
+    printf("Executing commands\n");
+    printf("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
 
     // Used to detect hangs
     hanged = false;
@@ -409,7 +409,8 @@ void RSX::runCommandList(u64 put_addr) {
 
             if ((cmd & 0x00000003) == 0x00000002) { // call
                 Helpers::panic("rsx: call\n");
-                return;
+                gcm.ctrl->get = cmd & 0xfffffffc;
+                continue;
             }
 
             if ((cmd & 0xffff0003) == 0x00020000) {
@@ -424,7 +425,7 @@ void RSX::runCommandList(u64 put_addr) {
             args.push_back(fetch32());
 
         if (command_names.contains(cmd_num) && cmd)
-            log("0x%08x: %s\n", (u32)gcm.ctrl->get, command_names[cmd_num].c_str());
+            log("0x%08x: %s\n", (u32)gcm.ctrl->get - 4, command_names[cmd_num].c_str());
 
         switch (cmd_num) {
 
@@ -637,11 +638,6 @@ void RSX::runCommandList(u64 put_addr) {
                     uploadVertexConstants();
                     uploadFragmentUniforms();
 
-                    /*for (auto& i : ps3->thread_manager.threads)
-                        i.status = Thread::ThreadStatus::Sleeping;
-
-                    ps3->thread_manager.getCurrentThread()->sleepForCycles(CPU_FREQ - ps3->curr_block_cycles - ps3->cycle_count);*/
-
                     // Hack for quads
                     if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
@@ -718,9 +714,25 @@ void RSX::runCommandList(u64 put_addr) {
         }
 
         case NV4097_SET_INDEX_ARRAY_ADDRESS: {
-            const u32 location = args[1] & 0xf;   // Local or RSX
-            const u32 addr = offsetAndLocationToAddress(args[0], location);
-            const u8 type = (args[1] >> 4) & 0xf;
+            if (args.size() > 1) {
+                const u32 location = args[1] & 0xf;   // Local or RSX
+                const u32 addr = offsetAndLocationToAddress(args[0], location);
+                const u8 type = (args[1] >> 4) & 0xf;
+                index_array.addr = addr;
+                index_array.type = type;
+                log("Index array: addr: 0x%08x, type: %d, location: %s\n", addr, type, location == 0 ? "RSX" : "MAIN");
+            }
+            else {
+                index_array.addr = args[0];
+                log("Index array: offs: 0x%08x\n", index_array.addr);
+            }
+            break;
+        }
+
+        case NV4097_SET_INDEX_ARRAY_DMA: {
+            const u32 location = args[0] & 0xf;   // Local or RSX
+            const u32 addr = offsetAndLocationToAddress(index_array.addr, location);
+            const u8 type = (args[0] >> 4) & 0xf;
             index_array.addr = addr;
             index_array.type = type;
             log("Index array: addr: 0x%08x, type: %d, location: %s\n", addr, type, location == 0 ? "RSX" : "MAIN");
@@ -807,23 +819,42 @@ void RSX::runCommandList(u64 put_addr) {
 
         case NV4097_SET_TEXTURE_OFFSET: {
             const u32 offs = args[0];
-            const u8 loc = (args[1] & 0x3) - 1;
-            const u32 addr = offsetAndLocationToAddress(offs, loc);
-            const u8 dimension = (args[1] >> 4) & 0xf;
-            const u8 format = (args[1] >> 8) & 0xff;
+            if (args.size() > 1) {
+                const u8 loc = (args[1] & 0x3) - 1;
+                const u32 addr = offsetAndLocationToAddress(offs, loc);
+                const u8 dimension = (args[1] >> 4) & 0xf;
+                const u8 format = (args[1] >> 8) & 0xff;
+                // TODO: mipmap, cubemap
+                log("Set texture: addr: 0x%08x, dimension: 0x%02x, format: 0x%02x, location: %s\n", addr, dimension, format, loc == 0 ? "RSX" : "MAIN");
+
+                texture.addr = addr;
+                texture.format = format;
+
+                // TODO: Figure out what all the other arguments mean???????
+                if (args.size() >= 7) {
+                    texture.width = args[6] >> 16;
+                    texture.height = args[6] & 0xffff;
+                    log("Width: %d, height: %d\n", texture.width, texture.height);
+                    uploadTexture();
+                }
+            }
+            else {
+                log("Set texture: offset: 0x%08x\n", offs);
+                texture.addr = offs;
+            }
+            break;
+        }
+
+        case NV4097_SET_TEXTURE_FORMAT: {
+            const u8 loc = (args[0] & 0x3) - 1;
+            const u32 addr = offsetAndLocationToAddress(texture.addr, loc);
+            const u8 dimension = (args[0] >> 4) & 0xf;
+            const u8 format = (args[0] >> 8) & 0xff;
             // TODO: mipmap, cubemap
             log("Set texture: addr: 0x%08x, dimension: 0x%02x, format: 0x%02x, location: %s\n", addr, dimension, format, loc == 0 ? "RSX" : "MAIN");
 
             texture.addr = addr;
             texture.format = format;
-
-            // TODO: Figure out what all the other arguments mean???????
-            if (args.size() >= 7) {
-                texture.width = args[6] >> 16;
-                texture.height = args[6] & 0xffff;
-                log("Width: %d, height: %d\n", texture.width, texture.height);
-                uploadTexture();
-            }
             break;
         }
 

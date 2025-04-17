@@ -65,6 +65,9 @@ void PlayStation3::setFlipHandler(std::function<void(void)> const& handler) {
 }
 
 void PlayStation3::init() {
+    // Only init if we aren't replaying an RSX capture (aka if we actually booted something)
+    if (!rsx_capture_path.empty()) return;
+
     // Load ELF file
     ELFLoader elf = ELFLoader(this, mem);
     std::unordered_map<u32, u32> imports = {};

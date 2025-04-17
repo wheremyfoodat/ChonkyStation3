@@ -47,6 +47,8 @@ MainWindow::MainWindow() : QMainWindow() {
         settings->show();
     });
 
+    connect(ui.actionReplay_RSX_Capture, &QAction::triggered, this, &MainWindow::replayRSXCapture);
+
     int row = 0;
     int column = 0;
 
@@ -156,10 +158,19 @@ bool MainWindow::ensureGameNotRunning() {
 void MainWindow::launchELF() {
     if (ensureGameNotRunning()) return;
 
-    const char* filters[1] = { "*.elf" };
-    const char* path;
-    if (path = tinyfd_openFileDialog("Select a Playstation 3 ELF", "", 1, filters, "ELF File", false)) {
+    const fs::path path = QFileDialog::getOpenFileName(this, "Select a PlayStation3 ELF", "", "ELF File (*.elf)").toStdString();
+    if (!path.empty()) {
         ps3->elf_path = path;
+        launchGame();
+    }
+}
+
+void MainWindow::replayRSXCapture() {
+    if (ensureGameNotRunning()) return;
+
+    const fs::path path = QFileDialog::getExistingDirectory(this, "Select a ChonkyStation3 RSX Capture folder", ".").toStdString();
+    if (!path.empty()) {
+        ps3->rsx_capture_path = path;
         launchGame();
     }
 }
@@ -202,7 +213,7 @@ void MainWindow::launchGame() {
 }
 
 void MainWindow::gameThread() {
-    game_window->run(ps3);
+    game_window->run(ps3, !ps3->rsx_capture_path.empty());
 
     is_game_running = false;
     delete ps3;

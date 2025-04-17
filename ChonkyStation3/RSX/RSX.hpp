@@ -438,7 +438,7 @@ public:
         NV4097_DRAW_ARRAYS                                      = 0x00001814,   // I
         NV4097_INLINE_ARRAY                                     = 0x00001818,
         NV4097_SET_INDEX_ARRAY_ADDRESS                          = 0x0000181c,   // I
-        NV4097_SET_INDEX_ARRAY_DMA                              = 0x00001820,
+        NV4097_SET_INDEX_ARRAY_DMA                              = 0x00001820,   // I
         NV4097_DRAW_INDEX_ARRAY                                 = 0x00001824,   // I
         NV4097_SET_FRONT_POLYGON_MODE                           = 0x00001828,
         NV4097_SET_BACK_POLYGON_MODE                            = 0x0000182c,
@@ -452,7 +452,7 @@ public:
         NV4097_SET_VERTEX_DATA4UB_M                             = 0x00001940,
         NV4097_SET_VERTEX_DATA4S_M                              = 0x00001980,
         NV4097_SET_TEXTURE_OFFSET                               = 0x00001a00,   // I
-        NV4097_SET_TEXTURE_FORMAT                               = 0x00001a04,
+        NV4097_SET_TEXTURE_FORMAT                               = 0x00001a04,   // I
         NV4097_SET_TEXTURE_ADDRESS                              = 0x00001a08,
         NV4097_SET_TEXTURE_CONTROL0                             = 0x00001a0c,
         NV4097_SET_TEXTURE_CONTROL1                             = 0x00001a10,   // I

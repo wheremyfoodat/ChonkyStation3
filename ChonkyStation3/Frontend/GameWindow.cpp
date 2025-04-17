@@ -22,7 +22,7 @@ GameWindow::GameWindow() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 }
 
-void GameWindow::run(PlayStation3* ps3) {
+void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
     this->ps3 = ps3;
 
     std::string title = "ChonkyStation3";
@@ -40,6 +40,9 @@ void GameWindow::run(PlayStation3* ps3) {
 
     if (ps3->curr_game.id != "") {
         title_game = ps3->curr_game.title;
+    }
+    else if (is_rsx_replay) {
+        title_game = "RSX Capture Replay";
     }
     else {
         title_game = ps3->elf_path.filename().generic_string();
@@ -65,9 +68,25 @@ void GameWindow::run(PlayStation3* ps3) {
 
     ps3->setFlipHandler(std::bind(&GameWindow::flipHandler, this));
     ps3->rsx.initGL();
-    while (!quit) {
-        ps3->run();
-        //ps3->vblank();
+
+    if (!is_rsx_replay) {
+        while (!quit) {
+            ps3->run();
+            //ps3->vblank();
+        }
+    }
+    else {
+        RSXCaptureReplayer* capture = new RSXCaptureReplayer(ps3);
+
+        try {
+            capture->load(ps3->rsx_capture_path);
+        }
+        catch (std::runtime_error e) {
+            printf("FATAL: %s\n", e.what());
+            //exit(0);
+        }
+
+        while (!quit) flipHandler();
     }
     
     SDL_GL_DeleteContext(context);

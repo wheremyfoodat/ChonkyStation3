@@ -83,8 +83,15 @@
     <addaction name="separator"/>
     <addaction name="actionDebug"/>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>Debug</string>
+    </property>
+    <addaction name="actionReplay_RSX_Capture"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuDebug"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen_ELF">
@@ -125,6 +132,11 @@
   <action name="actionRSX">
    <property name="text">
     <string>RSX</string>
+   </property>
+  </action>
+  <action name="actionReplay_RSX_Capture">
+   <property name="text">
+    <string>Replay RSX Capture</string>
    </property>
   </action>
  </widget>

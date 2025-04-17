@@ -5,7 +5,6 @@
 #include <atomic>
 #include <thread>
 
-#include <tinyfiledialogs.h>
 #include <Frontend/GameWindow.hpp>
 #include "Frontend/UI/ui_mainwindow.h"
 #include <QtWidgets>
@@ -32,6 +31,7 @@ public:
 
     // Actions
     void launchELF();
+    void replayRSXCapture();
     void loadAndLaunchGame(int idx);
     void updateBackgroundImage();
 

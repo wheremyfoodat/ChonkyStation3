@@ -12,7 +12,7 @@
 class GameWindow {
 public:
     GameWindow();
-    void run(PlayStation3* ps3);
+    void run(PlayStation3* ps3, bool is_rsx_replay = false);
     void flipHandler();
 
     PlayStation3* ps3;
