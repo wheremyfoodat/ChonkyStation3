@@ -59,6 +59,8 @@ void ThreadManager::reschedule() {
 
             // Does the thread have low priority?
             if (t.low_prio) continue;
+            // Is this the idle thread?
+            if (t.is_idle_thread) continue;
 
             if (t.status == Thread::ThreadStatus::Running) {
                 if (!switch_to) {
@@ -84,8 +86,10 @@ void ThreadManager::reschedule() {
         // - Try to find low priority threads and set them back to high priority.
         // - If we did not find any low priority threads:
         //   - If our current thread was running, keep running it.
-        //   - If our current thread was NOT running, skip to the next event and hope a thread wakes up.
-        //   - If there is no next event, something is wrong. The emulator will panic.
+        //   - If our current thread was NOT running:
+        //     - If at least 1 SPU thread is active, switch to the idle thread.
+        //     - If no SPU thread is active, skip to the next event and hope a thread wakes up.
+        //     - If there is no next event, something is wrong. The emulator will panic.
         else {
             bool found_low_prio = false;
             for (auto& i : threads) {
@@ -97,6 +101,7 @@ void ThreadManager::reschedule() {
 
             if (!found_low_prio) {
                 if (getCurrentThread()->status == Thread::ThreadStatus::Running) break;
+                else if (ps3->spu->enabled) contextSwitch(*getThreadByID(idle_thread_id));
                 else ps3->skipToNextEvent(); // Will panic if there are no events
             }
         }

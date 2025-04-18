@@ -27,6 +27,7 @@ public:
     void setAllHighPriority();
     std::vector<Thread> threads;
     u64 current_thread_id;
+    u64 idle_thread_id;
 
     u64 allocateStack(u64 stack_size);
 

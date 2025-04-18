@@ -30,11 +30,14 @@ public:
     // flag will be set to allow other threads to execute.
     bool low_prio = false;
     u64 exec_cnt = 0;
+
+    // The idle thread is the thread that runs when no PPU thread is active, but at least 1 SPU thread is running.
+    bool is_idle_thread = false;
     
     // ID of the thread that called sys_ppu_thread_join on this thread, or 0 if none.
     // At most 1 thread can attempt to join another thread.
     u32 waiter = 0;
-    u32 vptr = 0;   // Pointer to store the exit status in when terminated  (v is u64)
+    u32 vptr = 0;   // Pointer to store the exit status to when terminated (v is u64)
 
     void addArg(u64 arg);
     void finalizeArgs();

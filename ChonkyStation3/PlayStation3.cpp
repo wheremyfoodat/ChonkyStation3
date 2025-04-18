@@ -100,6 +100,20 @@ void PlayStation3::init() {
         printCrashInfo(e);
     }
 
+    // Create the idle thread
+    // This thread will run when no PPU thread is active but at least 1 SPU thread is
+    const u32 idle_thread_entry = mem.alloc(1_MB)->vaddr;
+
+    // label:
+    mem.write<u32>(idle_thread_entry + 0, 0x60000000);  // nop
+    mem.write<u32>(idle_thread_entry + 4, 0x4bfffffc);  // b label
+    mem.write<u32>(idle_thread_entry + 10, idle_thread_entry);
+
+    Thread* idle_thread = thread_manager.createThread(idle_thread_entry + 10, DEFAULT_STACK_SIZE, 0, 0, (const u8*)"idle", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize);
+    idle_thread->is_idle_thread = true;
+    // Tell the thread manager the ID of the idle thread
+    thread_manager.idle_thread_id = idle_thread->id;
+
     // SPU Debugging options
     if (!settings.debug.enable_spu_after_pc.empty()) {
         enable_spu_on_pc = std::stoul(settings.debug.enable_spu_after_pc, 0, 16);
