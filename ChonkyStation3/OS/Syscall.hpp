@@ -100,6 +100,7 @@ public:
     u64 sys_spu_thread_initialize();
     u64 sys_spu_thread_group_start();
     u64 sys_spu_thread_group_join();
+    u64 sys_spu_thread_read_ls();
     u64 sys_spu_thread_group_connect_event();
     u64 sys_spu_thread_write_spu_mb();
     u64 sys_spu_thread_connect_event();

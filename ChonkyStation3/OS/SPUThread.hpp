@@ -107,6 +107,9 @@ public:
 
     std::queue<u32> in_mbox = {};
     std::queue<u32> out_mbox = {};
+    bool waiting_in_mbox = false;
+    void writeInMbox(u32 val);
+
     u32 ports[64];
 
     union {

@@ -359,8 +359,8 @@ GLuint RSX::getBlendFactor(u16 fact) {
 }
 
 void RSX::runCommandList(u64 put_addr) {
-    printf("Executing commands\n");
-    printf("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
+    log("Executing commands\n");
+    log("get: 0x%08x, put: 0x%08x\n", (u32)gcm.ctrl->get, (u32)gcm.ctrl->put);
 
     // Used to detect hangs
     hanged = false;

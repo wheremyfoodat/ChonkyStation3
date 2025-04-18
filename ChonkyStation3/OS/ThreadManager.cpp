@@ -101,7 +101,7 @@ void ThreadManager::reschedule() {
 
             if (!found_low_prio) {
                 if (getCurrentThread()->status == Thread::ThreadStatus::Running) break;
-                else if (ps3->spu->enabled) contextSwitch(*getThreadByID(idle_thread_id));
+                else if (idle_thread_id && ps3->spu->enabled) contextSwitch(*getThreadByID(idle_thread_id));
                 else ps3->skipToNextEvent(); // Will panic if there are no events
             }
         }

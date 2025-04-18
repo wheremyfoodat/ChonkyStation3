@@ -70,6 +70,9 @@ void SPUThreadManager::reschedule() {
     
     // No available threads, disable SPU
     if (!found_thread) {
+        log("No thread available, disabling SPU (pc was 0x%08x)\n", ps3->spu->state.pc);
+        // Save the current state
+        getCurrentThread()->state = ps3->spu->state;
         ps3->spu->enabled = false;
         current_thread_id = 0;
     }

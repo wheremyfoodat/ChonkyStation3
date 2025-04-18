@@ -26,7 +26,7 @@ public:
 
     template<typename T, int l>
     T ext(T v) {
-        return (v << ((sizeof(T) * 8) - l)) >> ((sizeof(T) * 8) - l);
+        return (T)(v << ((sizeof(T) * 8) - l)) >> ((sizeof(T) * 8) - l);
     }
 
     template<typename T>

@@ -84,6 +84,14 @@ void SPUThread::wakeUp() {
     reschedule();
 }
 
+void SPUThread::writeInMbox(u32 val) {
+    in_mbox.push(val);
+    if (waiting_in_mbox) {
+        waiting_in_mbox = false;
+        wakeUp();
+    }
+}
+
 void SPUThread::LocklineWaiter::waiter() {
     //printf("waiter\n");
     u64 curr = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -212,7 +220,12 @@ u32 SPUThread::readChannel(u32 ch) {
     case SPU_RdEventMask:   return -1;  // TODO
     case SPU_RdMachStat:    return 0;   // TODO
     case SPU_RdInMbox: {
-        Helpers::debugAssert(in_mbox.size(), "TODO: SPU_RdInMbox with empty queue\n");
+        if (!in_mbox.size()) {
+            // mbox is empty, stall until written
+            waiting_in_mbox = true;
+            wait();
+            return 0;
+        }
         const u32 val = in_mbox.front();
         in_mbox.pop();
         return val;

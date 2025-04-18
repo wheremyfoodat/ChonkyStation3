@@ -111,6 +111,28 @@ u64 Syscall::sys_spu_thread_group_join() {
     return CELL_OK;
 }
 
+u64 Syscall::sys_spu_thread_read_ls() {
+    const u32 id = ARG0;
+    const u32 ls_addr = ARG1;
+    const u32 val_ptr = ARG2;   // val is u64
+    const u32 type = ARG3;
+    //log_sys_spu("sys_spu_thread_read_ls(id: %d, ls_addr: 0x%08x, val_ptr: 0x%08x, type: %d)\n", id, ls_addr, val_ptr, type);
+
+    SPUThread* thread = ps3->spu_thread_manager.getThreadByID(id);
+    Helpers::debugAssert(thread != nullptr,  "sys_spu_thread_read_ls: bad thread id (%d)\n", id);
+    Helpers::debugAssert(ls_addr <= 0x3ffff, "sys_spu_thread_read_ls: ls_addr is out of bounds (0x%08x)\n", ls_addr);
+
+    switch (type) {
+    case 1:     ps3->mem.write<u64>(val_ptr, thread->ls[ls_addr]);      break;
+    case 2:     ps3->mem.write<u64>(val_ptr, Helpers::bswap<u16>(*(u16*)&thread->ls[ls_addr]));      break;
+    case 4:     ps3->mem.write<u64>(val_ptr, Helpers::bswap<u32>(*(u32*)&thread->ls[ls_addr]));      break;
+    case 8:     ps3->mem.write<u64>(val_ptr, Helpers::bswap<u64>(*(u64*)&thread->ls[ls_addr]));      break;
+    default:    Helpers::panic("sys_spu_thread_read_ls: invalid type %d\n", type);
+    }
+
+    return CELL_OK;
+}
+
 u64 Syscall::sys_spu_thread_group_connect_event() {
     const u32 group_id = ARG0;
     const u32 queue_id = ARG1;
@@ -141,7 +163,7 @@ u64 Syscall::sys_spu_thread_write_spu_mb() {
 
     SPUThread* thread = ps3->spu_thread_manager.getThreadByID(id);
     Helpers::debugAssert(thread != nullptr, "sys_spu_thread_write_spu_mb: bad thread id (%d)\n", id);
-    thread->in_mbox.push(val);
+    thread->writeInMbox(val);
 
     return CELL_OK;
 }
