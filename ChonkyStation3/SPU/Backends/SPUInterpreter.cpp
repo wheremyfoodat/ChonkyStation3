@@ -4,7 +4,7 @@
 
 #define UNIMPL_INSTR(name)                                                      \
 void SPUInterpreter::name(const SPUInstruction& instr) {                        \
-    /*Helpers::panic("Unimplemented instruction %s @ 0x%08x\n", #name, state.pc);*/ \
+    Helpers::panic("Unimplemented instruction %s @ 0x%08x\n", #name, state.pc); \
 }
 
 SPUInterpreter::SPUInterpreter(PlayStation3* ps3) : SPU(ps3) {
