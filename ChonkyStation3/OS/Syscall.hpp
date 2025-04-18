@@ -94,6 +94,7 @@ public:
     u64 sys_prx_get_module_id_by_name();
 
     // sys_spu
+    u64 sys_spu_image_open();
     u64 sys_raw_spu_create();
     u64 sys_spu_thread_group_create();
     u64 sys_spu_thread_initialize();

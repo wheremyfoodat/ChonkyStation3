@@ -5,7 +5,6 @@
 
 using namespace ELFIO;
 
-// I am aware that a lot of this code is copy pasted from the ELF loader
 void SPULoader::load(u32 img_ptr, sys_spu_image* img) {
     elfio elf;
     u8* img_src = ps3->mem.getPtr(img_ptr);
@@ -18,29 +17,17 @@ void SPULoader::load(u32 img_ptr, sys_spu_image* img) {
     file.write((char*)img_src, 513_KB);
     file.close();
 
-    if (!elf.load(filename)) {
+    load(filename, img, true);
+}
+
+// I am aware that a lot of this code is copy pasted from the ELF loader
+void SPULoader::load(fs::path path, sys_spu_image* img, bool remove) {
+    elfio elf;
+    const std::string filename = path.filename().generic_string();
+
+    if (!elf.load(path.generic_string())) {
         Helpers::panic("Couldn't load SPU image %s:\n%s\n", filename.c_str(), elf.validate().c_str());
     }
-
-    /*
-    // Calculate size of the ELF
-    size_t elf_size = 0;
-    for (auto& i : elf.segments) {
-        const size_t seg_offs = i.get()->get_offset() + i.get()->get_file_size();
-        if (seg_offs > elf_size) elf_size = seg_offs;
-    }
-    log("SPU image size: %d (0x%x)\n", elf_size, elf_size);
-
-    // Dump again now that we have the actual size (probably unnecessary?)
-    fs::remove(filename);
-    file.open(filename, std::ios::binary);
-    file.write((char*)img_src, elf_size);
-    file.close();
-
-    if (!elf.load(filename)) {
-        Helpers::panic("Couldn't load SPU image %s:\n%s\n", filename.c_str(), elf.validate().c_str());
-    }
-    */
 
     // Allocate segment table (there can be max 32 segments)
     const u32 segs_ptr = ps3->mem.alloc(sizeof(sys_spu_segment) * 32)->vaddr;
@@ -81,13 +68,18 @@ void SPULoader::load(u32 img_ptr, sys_spu_image* img) {
                 segs[n_segs].ls_addr = seg->get_virtual_address() + seg->get_file_size();
                 segs[n_segs].src.addr = 0;
                 segs[n_segs].size = seg->get_memory_size() - seg->get_file_size();
-                
+
                 n_segs++;
             }
 
             if (size < seg->get_file_size()) {
                 Helpers::panic("SPULoader::load: segment file size > memory size\n");
             }
+        }
+        else if (seg->get_type() == INFO) {
+            segs[n_segs].type = SYS_SPU_SEGMENT_TYPE_INFO;
+            // TODO
+            n_segs++;
         }
         else {
             Helpers::panic("SPULoader::load: unimplemented segment type %d\n", seg->get_type());
@@ -100,5 +92,5 @@ void SPULoader::load(u32 img_ptr, sys_spu_image* img) {
     img->segs_ptr = segs_ptr;
     img->n_segs = n_segs;
 
-    fs::remove(filename);
+    if (remove) fs::remove(filename);
 }

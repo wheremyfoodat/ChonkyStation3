@@ -39,6 +39,11 @@ void SPUThread::loadImage(sys_spu_image* img) {
             break;
         }
 
+        case SYS_SPU_SEGMENT_TYPE_INFO: {
+            log("* WARNING: SKIPPING INFO SEGMENT\n");
+            break;
+        }
+
         default: {
             Helpers::panic("Unimplemented segment type %d\n", (u32)segs[i].type);
         }

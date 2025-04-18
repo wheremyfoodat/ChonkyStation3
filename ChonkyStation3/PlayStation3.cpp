@@ -56,8 +56,6 @@ void PlayStation3::loadGame(const GameLoader::InstalledGame& game) {
     // Get path of EBOOT.elf
     elf_path = fs.guestPathToHost(game.content_path / "USRDIR/EBOOT.elf");
     elf_path_encrypted = (game.content_path / "USRDIR/EBOOT.BIN").generic_string();
-    // Mount /app_home
-    fs.mount(Filesystem::Device::APP_HOME, fs.guestPathToHost(game.content_path / "USRDIR"));
 }
 
 void PlayStation3::setFlipHandler(std::function<void(void)> const& handler) {
@@ -73,6 +71,9 @@ void PlayStation3::init() {
     std::unordered_map<u32, u32> imports = {};
     ELFLoader::PROCParam proc_param;
     auto entry = elf.load(elf_path, imports, proc_param, module_manager);
+
+    // Mount /app_home
+    fs.mount(Filesystem::Device::APP_HOME, elf_path.parent_path());
 
     // Register ELF module imports in module manager
     for (auto& i : imports)

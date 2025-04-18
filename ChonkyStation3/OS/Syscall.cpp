@@ -120,6 +120,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         ps3->ppu->state.gprs[3] = 80000000ull;
         break;
     }
+    case 156:   ps3->ppu->state.gprs[3] = sys_spu_image_open();                                 break;
     case 160:   ps3->ppu->state.gprs[3] = sys_raw_spu_create();                                 break;
     case 169:   todo("sys_spu_initialize()");                                                   break;
     case 170:   ps3->ppu->state.gprs[3] = sys_spu_thread_group_create();                        break;

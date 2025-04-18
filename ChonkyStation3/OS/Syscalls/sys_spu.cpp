@@ -9,6 +9,19 @@ MAKE_LOG_FUNCTION(log_sys_spu, sys_spu);
 
 using namespace sys_spu;
 
+u64 Syscall::sys_spu_image_open() {
+    const u32 image_ptr = ARG0;
+    const u32 path_ptr = ARG1;
+    const std::string path = Helpers::readString(ps3->mem.getPtr(path_ptr));
+    log_sys_spu("sys_spu_image_open(image_ptr: 0x%08x, path_ptr: 0x%08x) [path: %s]\n", image_ptr, path_ptr, path.c_str());
+
+    SPULoader loader = SPULoader(ps3);
+    sys_spu_image* image = (sys_spu_image*)ps3->mem.getPtr(image_ptr);
+    loader.load(ps3->fs.guestPathToHost(path), image);
+
+    return CELL_OK;
+}
+
 u64 Syscall::sys_raw_spu_create() {
     const u32 id_ptr = ARG0;
     const u32 attr_ptr = ARG1;
@@ -49,7 +62,7 @@ u64 Syscall::sys_spu_thread_initialize() {
     sys_spu_image* img = (sys_spu_image*)ps3->mem.getPtr(img_ptr);
     sys_spu_thread_attribute* attr = (sys_spu_thread_attribute*)ps3->mem.getPtr(attr_ptr);
     sys_spu_thread_argument* arg = (sys_spu_thread_argument*)ps3->mem.getPtr(arg_ptr);
-    const auto name = Helpers::readString(ps3->mem.getPtr(attr->name_ptr));
+    const auto name = attr->name_ptr ? Helpers::readString(ps3->mem.getPtr(attr->name_ptr)) : "UNNAMED";
     
     // Create thread and load image
     auto thread = ps3->spu_thread_manager.createThread(name);
@@ -93,8 +106,7 @@ u64 Syscall::sys_spu_image_import() {
 u64 Syscall::sys_spu_thread_group_join() {
     log_sys_spu("sys_spu_thread_group_join() UNIMPLEMENTED\n");
 
-    ps3->thread_manager.getCurrentThread()->status = Thread::ThreadStatus::Sleeping;   // Never wake up
-    ps3->thread_manager.getCurrentThread()->reschedule();
+    ps3->thread_manager.getCurrentThread()->wait();   // Never wake up
 
     return CELL_OK;
 }
