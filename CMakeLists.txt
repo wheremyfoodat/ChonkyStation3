@@ -1,14 +1,21 @@
-﻿cmake_minimum_required(VERSION 3.8)
-
-project("ChonkyStation3")
+﻿cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Optimizations
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
 
 add_compile_definitions(SDL_MAIN_HANDLED)
 
-option(ENABLE_USER_BUILD    "Enable user build" OFF)
-option(ENABLE_QT_BUILD      "Enable Qt6 build"  OFF)
+option(ENABLE_USER_BUILD  "Enable user build" OFF)
+option(ENABLE_QT_BUILD    "Enable Qt6 build"  OFF)
+
+project("ChonkyStation3")
 
 if (ENABLE_USER_BUILD)
     add_compile_definitions(CHONKYSTATION3_USER_BUILD)
@@ -66,13 +73,8 @@ if (ENABLE_QT_BUILD)
 endif()
 
 if (WIN32)
-    enable_language("RC")
     target_sources(ChonkyStation3 PRIVATE "Resources/icon.rc")
 endif()
-
-
-#target_compile_options(ChonkyStation3 PUBLIC /fsanitize=address)
-set_target_properties(ChonkyStation3 PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral -Wno-format-security -Wno-invalid-offsetof")
