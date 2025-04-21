@@ -9,6 +9,9 @@
 
 using Instruction = PPUTypes::Instruction;
 
+static inline u64 rotl32(u32 v, u32 sh) { return std::rotl<u64>(v | ((u64)v << 32), sh); }
+static inline u64 rotr32(u32 v, u32 sh) { return std::rotr<u64>(v | ((u64)v << 32), sh); }
+
 PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
     // Generate a rotation mask array - this code is adapted from RPCS3
     for (u32 mb = 0; mb < 64; mb++) {
@@ -250,7 +253,6 @@ void PPUInterpreter::step() {
         case DCBZ:      dcbz(instr);    break;
 
         default:
-            printCallStack();
             Helpers::panic("Unimplemented G_1F instruction 0x%03x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_1f_field, (u32)instr.g_1f_field, instr.raw, state.pc);
         }
         break;
@@ -455,14 +457,14 @@ void PPUInterpreter::b(const Instruction& instr) {
 
 void PPUInterpreter::rlwimi(const Instruction& instr) {
     const u64 mask = rotation_mask[32 + instr.mb_5][32 + instr.me_5];
-    state.gprs[instr.ra] = (state.gprs[instr.ra] & ~mask) | (std::rotl<u32>(state.gprs[instr.rs], instr.sh) & mask);
+    state.gprs[instr.ra] = (state.gprs[instr.ra] & ~mask) | (rotl32(state.gprs[instr.rs], instr.sh) & mask);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::rlwinm(const Instruction& instr) {
     const u64 mask = rotation_mask[32 + instr.mb_5][32 + instr.me_5];
-    state.gprs[instr.ra] = std::rotl<u32>(state.gprs[instr.rs], instr.sh) & mask;
+    state.gprs[instr.ra] = rotl32(state.gprs[instr.rs], instr.sh) & mask;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
 }
@@ -470,7 +472,7 @@ void PPUInterpreter::rlwinm(const Instruction& instr) {
 void PPUInterpreter::rlwnm(const Instruction& instr) {
     const u64 mask = rotation_mask[32 + instr.mb_5][32 + instr.me_5];
     const auto rot = state.gprs[instr.rb] & 0x1f;
-    state.gprs[instr.ra] = std::rotl<u32>(state.gprs[instr.rs], rot) & mask;
+    state.gprs[instr.ra] = rotl32(state.gprs[instr.rs], rot) & mask;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s32>(0, state.gprs[instr.ra], 0);
 }
@@ -1357,7 +1359,7 @@ void PPUInterpreter::subfe(const Instruction& instr) {
     const auto a = state.gprs[instr.ra];
     const auto b = state.gprs[instr.rb];
     const auto res = ~a + b + state.xer.ca;
-    state.xer.ca = res < a;
+    state.xer.ca = res < a + b;
     state.gprs[instr.rt] = res;
 
     if (instr.rc)
@@ -1370,7 +1372,7 @@ void PPUInterpreter::adde(const Instruction& instr) {
     const auto a = state.gprs[instr.ra];
     const auto b = state.gprs[instr.rb];
     const auto res = a + b + state.xer.ca;
-    state.xer.ca = res < a;
+    state.xer.ca = res < a + b;
     state.gprs[instr.rt] = res;
 
     if (instr.rc)
@@ -1504,6 +1506,7 @@ void PPUInterpreter::mfspr(const Instruction& instr) {
     switch (reversed_spr) {
     case 0b01000:   state.gprs[instr.rt] = state.lr;        break;
     case 0b01001:   state.gprs[instr.rt] = state.ctr;       break;
+    case 0x001:     state.gprs[instr.rt] = state.xer.get(); break;
     case 0x100:     state.gprs[instr.rt] = state.vrsave;    break;
     default: Helpers::panic("mfspr: unimplemented register 0x%04x\n", reversed_spr);
     }
@@ -1533,7 +1536,11 @@ void PPUInterpreter::divdu(const Instruction& instr) {
     const auto a = state.gprs[instr.ra];
     const auto b = state.gprs[instr.rb];
     Helpers::debugAssert(!instr.oe, "divdu: oe bit set\n");
-    Helpers::debugAssert(b != 0, "divdu: division by 0 @ 0x%08x\n", (u32)state.pc);
+
+    if (b == 0) {
+        state.gprs[instr.rt] = 0;
+        return;
+    }
 
     state.gprs[instr.rt] = a / b;
     if (instr.rc)
@@ -1544,7 +1551,11 @@ void PPUInterpreter::divwu(const Instruction& instr) {
     const u32 a = state.gprs[instr.ra];
     const u32 b = state.gprs[instr.rb];
     Helpers::debugAssert(!instr.oe, "divwu: oe bit set\n");
-    Helpers::debugAssert(b != 0, "divwu: division by 0 @ 0x%08x\n", (u32)state.pc);
+
+    if (b == 0) {
+        state.gprs[instr.rt] = 0;
+        return;
+    }
 
     state.gprs[instr.rt] = a / b;
     if (instr.rc)
@@ -1554,7 +1565,7 @@ void PPUInterpreter::divwu(const Instruction& instr) {
 void PPUInterpreter::mtspr(const Instruction& instr) {
     auto reversed_spr = ((instr.spr & 0x1f) << 5) | (instr.spr >> 5);
     switch (reversed_spr) {
-    case 0b01000:   state.lr     = state.gprs[instr.rs];   break;
+    case 0b01000:   state.lr     = state.gprs[instr.rs];    break;
     case 0b01001:   state.ctr    = state.gprs[instr.rs];    break;
     case 0x100:     state.vrsave = state.gprs[instr.rs];    break;
     default: Helpers::panic("mtspr: unimplemented register 0x%04x\n", reversed_spr);
@@ -1571,7 +1582,11 @@ void PPUInterpreter::divd(const Instruction& instr) {
     const s64 a = state.gprs[instr.ra];
     const s64 b = state.gprs[instr.rb];
     Helpers::debugAssert(!instr.oe, "divd: oe bit set\n");
-    Helpers::debugAssert(b != 0, "divd: division by 0 @ 0x%08x\n", (u32)state.pc);
+
+    if (b == 0 || (a == 0x8000000000000000 && b == -1)) {
+        state.gprs[instr.rt] = 0;
+        return;
+    }
 
     state.gprs[instr.rt] = a / b;
     if (instr.rc)
@@ -1582,13 +1597,14 @@ void PPUInterpreter::divw(const Instruction& instr) {
     const s32 a = state.gprs[instr.ra];
     const s32 b = state.gprs[instr.rb];
     Helpers::debugAssert(!instr.oe, "divw: oe bit set\n");
-    //Helpers::debugAssert(b != 0, "divw: division by 0 @ 0x%08x\n", (u32)state.pc);
-    if (b == 0) {
+
+    if (b == 0 || (a == 0x80000000 && b == -1)) {
         // This happens in Doom Classic
-        printf("WARNING: DIVW DIVISION BY 0!!!!!\n");
         state.gprs[instr.rt] = 0;
-    } else
-        state.gprs[instr.rt] = (u32)(a / b);
+        return;
+    }
+    
+    state.gprs[instr.rt] = (u32)(a / b);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
 }

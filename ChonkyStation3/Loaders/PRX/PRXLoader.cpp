@@ -55,8 +55,8 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
                 Helpers::debugAssert(reloc->addr_idx < elf.segments.size(), "PRXLoader: addr segment idx is out of range\n");
                 Helpers::debugAssert(reloc->data_idx < elf.segments.size(), "PRXLoader: data segment idx is out of range\n");
 
-                const u32 base = allocations[reloc->data_idx];
-                const u32 data = base + reloc->ptr;
+                const u32 base = reloc->data_idx != 0xff ? allocations[reloc->data_idx] : 0;
+                const u64 data = base + reloc->ptr;
                 const u32 reloc_addr = allocations[reloc->addr_idx] + reloc->offs;
 
                 //log("Relocated address: ");

@@ -707,6 +707,13 @@ void SPUInterpreter::addx(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[3] = state.gprs[instr.ra].w[3] + state.gprs[instr.rb].w[3] + (state.gprs[instr.rt0].w[3] & 1);
 }
 
+void SPUInterpreter::sfx(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].w[0] = ~state.gprs[instr.ra].w[0] + state.gprs[instr.rb].w[0] + (state.gprs[instr.rt0].w[0] & 1);
+    state.gprs[instr.rt0].w[1] = ~state.gprs[instr.ra].w[1] + state.gprs[instr.rb].w[1] + (state.gprs[instr.rt0].w[1] & 1);
+    state.gprs[instr.rt0].w[2] = ~state.gprs[instr.ra].w[2] + state.gprs[instr.rb].w[2] + (state.gprs[instr.rt0].w[2] & 1);
+    state.gprs[instr.rt0].w[3] = ~state.gprs[instr.ra].w[3] + state.gprs[instr.rb].w[3] + (state.gprs[instr.rt0].w[3] & 1);
+}
+
 void SPUInterpreter::fscrrd(const SPUInstruction& instr) {
     // TODO
     printf("SPU: TODO FSCRRD\n");
@@ -1144,7 +1151,7 @@ UNIMPL_INSTR(dfnma);
 //UNIMPL_INSTR(ceq);
 UNIMPL_INSTR(mpyhhu);
 //UNIMPL_INSTR(addx);
-UNIMPL_INSTR(sfx);
+//UNIMPL_INSTR(sfx);
 UNIMPL_INSTR(cgx);
 UNIMPL_INSTR(bgx);
 UNIMPL_INSTR(mpyhha);

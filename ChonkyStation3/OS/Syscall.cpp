@@ -46,10 +46,24 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
 
     case 1: {
         log_misc("sys_process_getpid()\n");
-        ps3->ppu->state.gprs[3] = 1;
+        ps3->ppu->state.gprs[3] = 0x1000500;
         break;
     }
-    case 14:    todo("sys_process_is_spu_lock_line_reservation_address()");   break;
+    case 14: {
+        const u32 addr = ARG0;
+        const u64 flags = ARG1;
+        log_misc("sys_process_is_spu_lock_line_reservation_address(addr: 0x%08x, flags: 0x%016llx)\n", addr, flags);
+
+        u32 ret = CELL_OK;
+        switch (addr >> 28) {
+        case 0xd:
+        case 0xf:
+            ret = CELL_EPERM;
+        }
+
+        ps3->ppu->state.gprs[3] = ret;
+        break;
+    }
     case 25: {
         const u32 pid = ARG0;
         const u32 ver_ptr = ARG1;
@@ -122,7 +136,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
     case 156:   ps3->ppu->state.gprs[3] = sys_spu_image_open();                                 break;
     case 160:   ps3->ppu->state.gprs[3] = sys_raw_spu_create();                                 break;
-    case 169:   todo("sys_spu_initialize()");                                                   break;
+    case 169:   todo("sys_spu_initialize()");   /* Doesn't do anything important */             break;
     case 170:   ps3->ppu->state.gprs[3] = sys_spu_thread_group_create();                        break;
     case 172:   ps3->ppu->state.gprs[3] = sys_spu_thread_initialize();                          break;
     case 173:   ps3->ppu->state.gprs[3] = sys_spu_thread_group_start();                         break;
@@ -151,7 +165,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 342:   todo("sys_memory_container_destroy()");                                         break;
     case 348:   ps3->ppu->state.gprs[3] = sys_memory_allocate();                                break;
     case 349:   ps3->ppu->state.gprs[3] = sys_memory_free();                                    break;
-    case 351:   todo("sys_memory_get_page_attribute()");                                        break;
+    //case 351:   todo("sys_memory_get_page_attribute()");                                        break;
     case 352:   ps3->ppu->state.gprs[3] = sys_memory_get_user_memory_size();                    break;
     case 403: {   // puts
         std::string str;
@@ -168,22 +182,22 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
         const u64 flags = ARG1;
         const u32 opt_ptr = ARG2;
         std::string name = Helpers::readString(ps3->mem.getPtr(name_ptr));
-        unimpl("_sys_prx_load_module(name_ptr: 0x%08x, flags: 0x%016llx, opt_ptr: 0x%08x) [name: %s] UNIMPLEMENTED\n", name_ptr, flags, opt_ptr, name.c_str());
+        unimpl("sys_prx_load_module(name_ptr: 0x%08x, flags: 0x%016llx, opt_ptr: 0x%08x) [name: %s] UNIMPLEMENTED\n", name_ptr, flags, opt_ptr, name.c_str());
 
         ps3->ppu->state.gprs[3] = ps3->handle_manager.request();
         break;
     }
-    case 481:   ps3->ppu->state.gprs[3] = CELL_OK;    unimpl("_sys_prx_start_module() UNIMPLEMENTED\n");  break;
+    case 481:   ps3->ppu->state.gprs[3] = CELL_OK;    unimpl("sys_prx_start_module() UNIMPLEMENTED\n");  break;
     case 484: {
         const u32 name_ptr = ARG0;
         const u32 opt_ptr = ARG1;
         std::string name = Helpers::readString(ps3->mem.getPtr(name_ptr));
-        unimpl("_sys_prx_register_module(name_ptr: 0x%08x, opt_ptr: 0x%08x) [name: %s] UNIMPLEMENTED\n", name_ptr, opt_ptr, name.c_str());
+        unimpl("sys_prx_register_module(name_ptr: 0x%08x, opt_ptr: 0x%08x) [name: %s] UNIMPLEMENTED\n", name_ptr, opt_ptr, name.c_str());
 
         ps3->ppu->state.gprs[3] = CELL_OK;
         break;
     }
-    case 486:   todo("_sys_prx_register_library()");                                    break;
+    case 486:   todo("sys_prx_register_library()");                                    break;
     case 494:   ps3->ppu->state.gprs[3] = sys_prx_get_module_list();                    break;
     case 495:   ps3->ppu->state.gprs[3] = sys_prx_get_module_info();                    break;
     case 496:   ps3->ppu->state.gprs[3] = sys_prx_get_module_id_by_name();              break;

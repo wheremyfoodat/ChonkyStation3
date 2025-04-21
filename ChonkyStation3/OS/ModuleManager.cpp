@@ -61,7 +61,6 @@ void ModuleManager::printReturnValue(u64 addr) {
 
 u64 ModuleManager::stub() {
     unimpl("%s() UNIMPLEMENTED @ 0x%08x\n", last_call.c_str(), ps3->ppu->state.lr);
-    //if (last_call == "sysNetInitializeNetworkEx")   ps3->ppu->should_log = true;
     return CELL_OK;
 }
 
@@ -189,9 +188,13 @@ void ModuleManager::init() {
         { 0x78d05e08, { "cellFontSetupRenderEffectSlant",                   std::bind(&ModuleManager::stub, this) }},
         { 0x7a0a83c4, { "cellFontInitLibraryFreeTypeWithRevision",          std::bind(&ModuleManager::stub, this) }},
         { 0x8657c8f5, { "cellFontSetEffectSlant",                           std::bind(&ModuleManager::stub, this) }},
+        { 0x88be4799, { "cellFontRenderCharGlyphImage",                     std::bind(&ModuleManager::stub, this) }},
         { 0x90b9465e, { "cellFontRenderSurfaceInit",                        std::bind(&ModuleManager::stub, this) }},
+        { 0x9e19072b, { "cellFontOpenFontMemory",                           std::bind(&ModuleManager::stub, this) }},
         { 0xa6dc25d1, { "cellFontSetupRenderEffectWeight",                  std::bind(&ModuleManager::stub, this) }},
         { 0xa885cc9b, { "cellFontOpenFontset",                              std::bind(&ModuleManager::stub, this) }},
+        { 0xb422b005, { "cellFontRenderSurfaceSetScissor",                  std::bind(&ModuleManager::stub, this) }},
+        { 0xd8eaee9f, { "cellFontGetCharGlyphMetrics",                      std::bind(&ModuleManager::stub, this) }},
         { 0xf03dcc29, { "cellFontInitializeWithRevision",                   std::bind(&ModuleManager::stub, this) }},
         { 0xfb3341ba, { "cellFontSetResolutionDpi",                         std::bind(&ModuleManager::stub, this) }},
 
@@ -210,10 +213,11 @@ void ModuleManager::init() {
         { 0x1051d134, { "cellSpursAttributeEnableSpuPrintfIfAvailable",     std::bind(&CellSpurs::cellSpursAttributeEnableSpuPrintfIfAvailable, &cellSpurs) }},
         { 0x16394a4e, { "_cellSpursTasksetAttributeInitialize",             std::bind(&CellSpurs::_cellSpursTasksetAttributeInitialize, &cellSpurs) }},
         { 0x1656d49f, { "cellSpursLFQueueAttachLv2EventQueue",              std::bind(&CellSpurs::cellSpursLFQueueAttachLv2EventQueue, &cellSpurs) }},
-        { 0x182d9890, { "cellSpursRequestIdleSpu",                          std::bind(&CellSpurs::cellSpursRequestIdleSpu, &cellSpurs) }},
+        { 0x182d9890, { "cellSpursRequestIdleSpu",                          std::bind(&CellSpurs::cellSpursRequestIdleSpu, &cellSpurs), true }},
         { 0x1d46fedf, { "cellSpursCreateTaskWithAttribute",                 std::bind(&CellSpurs::cellSpursCreateTaskWithAttribute, &cellSpurs) }},
         { 0x1f402f8f, { "cellSpursGetInfo",                                 std::bind(&CellSpurs::cellSpursGetInfo, &cellSpurs) }},
         { 0x30aa96c4, { "cellSpursInitializeWithAttribute2",                std::bind(&CellSpurs::cellSpursInitializeWithAttribute2, &cellSpurs) }},
+        { 0x373523d4, { "cellSpursEventFlagWait",                           std::bind(&ModuleManager::stub, this) } },
         { 0x4a5eab63, { "cellSpursWorkloadAttributeSetName",                std::bind(&CellSpurs::cellSpursWorkloadAttributeSetName, &cellSpurs) }},
         { 0x4a6465e3, { "cellSpursCreateTaskset2",                          std::bind(&CellSpurs::cellSpursCreateTaskset2, &cellSpurs) }},
         { 0x4ac7bae4, { "cellSpursEventFlagClear",                          std::bind(&CellSpurs::cellSpursEventFlagClear, &cellSpurs) }},
@@ -237,6 +241,7 @@ void ModuleManager::init() {
         { 0xc2acdf43, { "_cellSpursTasksetAttribute2Initialize",            std::bind(&CellSpurs::_cellSpursTasksetAttribute2Initialize, &cellSpurs) }},
         { 0xc765b995, { "cellSpursGetWorkloadFlag",                         std::bind(&CellSpurs::cellSpursGetWorkloadFlag, &cellSpurs) }},
         { 0xd2e23fa9, { "cellSpursSetExceptionEventHandler",                std::bind(&CellSpurs::cellSpursSetExceptionEventHandler, &cellSpurs) }},
+        { 0xe0a6dbe4, { "_cellSpursSendSignal",                             std::bind(&ModuleManager::stub, this) } },
         { 0xefeb2679, { "_cellSpursWorkloadAttributeInitialize",            std::bind(&CellSpurs::_cellSpursWorkloadAttributeInitialize, &cellSpurs) }},
 
         { 0x2cce9cf5, { "cellRtcGetCurrentClockLocalTime",                  std::bind(&CellRtc::cellRtcGetCurrentClockLocalTime, &cellRtc) }},
@@ -323,6 +328,7 @@ void ModuleManager::init() {
         { 0xe97c9bd4, { "cellPngDecSetParameter",                           std::bind(&CellPngDec::cellPngDecSetParameter, &cellPngDec) }},
 
         { 0x8b300f66, { "cellJpgDecExtCreate",                              std::bind(&ModuleManager::stub, this) } },
+        { 0x976ca5c2, { "cellJpgDecOpen",                                   std::bind(&ModuleManager::stub, this) } },
         { 0xa7978f59, { "cellJpgDecCreate",                                 std::bind(&ModuleManager::stub, this) } },
 
         { 0x1197b52c, { "sceNpTrophyRegisterContext",                       std::bind(&SceNpTrophy::sceNpTrophyRegisterContext, &sceNpTrophy) } },

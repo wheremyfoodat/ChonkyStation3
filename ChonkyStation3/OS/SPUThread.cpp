@@ -67,9 +67,14 @@ void SPUThread::reschedule() {
 }
 
 void SPUThread::halt() {
+    std::ofstream file("spu-dump-cs3.bin", std::ios::binary);
+    //for (int i = 0; i < 256_KB; i += 4) {
+        //const u32 v = Helpers::bswap<u32>(*(u32*)&ls[i]);
+        //file.write((char*)&v, 4);
+    //}
     Helpers::panic("Halting thread %d \"%s\"\n", id, name.c_str());
-    status = ThreadStatus::Terminated;
-    reschedule();
+    //status = ThreadStatus::Terminated;
+    //reschedule();
 }
 
 void SPUThread::wait() {
@@ -307,7 +312,7 @@ void SPUThread::doCmd(u32 cmd) {
         break;
     }
 
-    //case GETB:
+    case GETB:
     case GET: {
         log("GET @ 0x%08x\n", ps3->spu->state.pc);
         std::memcpy(&ls[lsa & 0x3ffff], ps3->mem.getPtr(eal), size);
