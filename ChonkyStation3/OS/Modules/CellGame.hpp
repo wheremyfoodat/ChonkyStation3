@@ -14,10 +14,25 @@ class PlayStation3;
 
 using namespace CellTypes;
 
-static constexpr u64 CELL_GAME_ERROR_NOTPATCH = 0x8002cb27;
-static constexpr u64 CELL_DISCGAME_ERROR_NOT_DISCBOOT = 0x8002bd02;
-static constexpr u64 CELL_GAME_RET_NONE = 2;
-static constexpr u64 CELL_GAME_ERROR_PARAM = 0x8002cb07;
+static constexpr u64 CELL_GAME_ERROR_NOTPATCH           = 0x8002cb27;
+static constexpr u64 CELL_DISCGAME_ERROR_NOT_DISCBOOT   = 0x8002bd02;
+static constexpr u64 CELL_GAME_RET_NONE                 = 2;
+static constexpr u64 CELL_GAME_ERROR_PARAM              = 0x8002cb07;
+
+static constexpr u32 CELL_GAMEDATA_CBRESULT_OK_CANCEL   = 1;
+static constexpr u32 CELL_GAMEDATA_CBRESULT_OK          = 0;
+static constexpr u32 CELL_GAMEDATA_CBRESULT_ERR_NOSPACE = -1;
+static constexpr u32 CELL_GAMEDATA_CBRESULT_ERR_BROKEN  = -3;
+static constexpr u32 CELL_GAMEDATA_CBRESULT_ERR_NODATA  = -4;
+static constexpr u32 CELL_GAMEDATA_CBRESULT_ERR_INVALID = -5;
+
+static constexpr u32 CELL_GAMEDATA_SIZEKB_NOTCALC = -1;
+
+static constexpr u32 CELL_GAMEDATA_PATH_MAX             = 1055;
+static constexpr u32 CELL_GAMEDATA_SYSP_LANGUAGE_NUM    = 20;
+static constexpr u32 CELL_GAMEDATA_SYSP_TITLE_SIZE      = 128;
+static constexpr u32 CELL_GAMEDATA_SYSP_TITLEID_SIZE    = 10;
+static constexpr u32 CELL_GAMEDATA_SYSP_VERSION_SIZE    = 6;
 
 class CellGame {
 public:
@@ -108,6 +123,52 @@ public:
         BEField<s32> sys_size;
     };
 
+    struct CellGameDataSystemFileParam {
+        char title[CELL_GAMEDATA_SYSP_TITLE_SIZE];
+        char title_lang[CELL_GAMEDATA_SYSP_LANGUAGE_NUM][CELL_GAMEDATA_SYSP_TITLE_SIZE];
+        char title_id[CELL_GAMEDATA_SYSP_TITLEID_SIZE];
+        char reserved0[2];
+        char data_ver[CELL_GAMEDATA_SYSP_VERSION_SIZE];
+        char reserved1[2];
+        BEField<u32> parental_level;
+        BEField<u32> attribute;
+        BEField<u32> resolution;
+        BEField<u32> sound_format;
+        char reserved2[248];
+    };
+
+    struct CellGameDataStatGet {
+        BEField<s32> hdd_free_size_kb;
+        BEField<u32> is_new_data;
+        char content_info_path[CELL_GAMEDATA_PATH_MAX];
+        char game_data_path[CELL_GAMEDATA_PATH_MAX];
+        char reserved0[2];
+        BEField<s64> st_atime;
+        BEField<s64> st_mtime;
+        BEField<s64> st_ctime;
+        CellGameDataSystemFileParam get_param;
+        BEField<s32> size_kb;
+        BEField<s32> sys_size_kb;
+        char reserved1[68];
+    };
+
+    struct CellGameDataStatSet
+    {
+        BEField<u32> set_param_ptr;
+        BEField<u32> reserved;
+    };
+
+    struct CellGameDataCBResult {
+        BEField<s32> result;
+        BEField<s32> err_need_size_kb;
+        BEField<u32> invalid_msg_ptr;
+        BEField<u32> reserved;
+    };
+
+    u32 stat_get_ptr  = 0;
+    u32 stat_set_ptr  = 0;
+    u32 cb_result_ptr = 0;
+
     std::string content_path = "/dev_hdd0/game/STUB12345\0\0";
     void setContentPath(fs::path path);
 
@@ -115,6 +176,7 @@ public:
     u64 cellGameContentPermit();
     u64 cellGameContentErrorDialog();
     u64 cellGameGetParamInt();
+    u64 cellGameDataCheckCreate2();
     u64 cellGamePatchCheck();
     u64 cellGameDataCheck();
     u64 cellGameBootCheck();

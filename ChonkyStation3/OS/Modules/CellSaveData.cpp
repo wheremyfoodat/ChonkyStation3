@@ -60,7 +60,7 @@ u64 CellSaveData::cellSaveDataAutoLoad2() {
     // Check if a PARAM.SFO file already exists (if not, it means there is no savedata)
     bool is_new_data = !ps3->fs.exists(savedata_path / "PARAM.SFO");
     stat_get->is_new_data = is_new_data;
-    stat_get->hdd_free_size_kb = 40_GB - 1_GB;
+    stat_get->hdd_free_size_kb = 120_GB / 1024;
 
     // TODO: atime, mtime, ctime
     stat_get->dir.atime = 123456789;

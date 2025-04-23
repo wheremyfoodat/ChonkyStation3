@@ -204,7 +204,7 @@ void ModuleManager::init() {
         { 0x70acec67, { "cellGameContentPermit",                            std::bind(&CellGame::cellGameContentPermit, &cellGame) }},
         { 0xb0a1f8c6, { "cellGameContentErrorDialog",                       std::bind(&CellGame::cellGameContentErrorDialog, &cellGame) }},
         { 0xb7a45caf, { "cellGameGetParamInt",                              std::bind(&CellGame::cellGameGetParamInt, &cellGame) }},
-        { 0xc9645c41, { "cellGameDataCheckCreate2",                         std::bind(&ModuleManager::stub, this) } },  // TODO: Important
+        { 0xc9645c41, { "cellGameDataCheckCreate2",                         std::bind(&CellGame::cellGameDataCheckCreate2, &cellGame) } },
         { 0xce4374f6, { "cellGamePatchCheck",                               std::bind(&CellGame::cellGamePatchCheck, &cellGame) }},
         { 0xdb9819f3, { "cellGameDataCheck",                                std::bind(&CellGame::cellGameDataCheck, &cellGame) }},
         { 0xf52639ea, { "cellGameBootCheck",                                std::bind(&CellGame::cellGameBootCheck, &cellGame) }},
@@ -249,6 +249,7 @@ void ModuleManager::init() {
 
         { 0x2cce9cf5, { "cellRtcGetCurrentClockLocalTime",                  std::bind(&CellRtc::cellRtcGetCurrentClockLocalTime, &cellRtc) }},
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                            std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
+        { 0xbb543189, { "cellRtcSetTime_t",                                 std::bind(&ModuleManager::stub, this) } },
         { 0xcb90c761, { "cellRtcGetTime_t",                                 std::bind(&CellRtc::cellRtcGetTime_t, &cellRtc) }},
 
         { 0x2cb51f0d, { "cellFsClose",                                      std::bind(&CellFs::cellFsClose, &cellFs) }},
