@@ -103,6 +103,7 @@ void ModuleManager::init() {
         { 0xdc578057, { "sysMMapperMapMemory",                              std::bind(&SysMMapper::sysMMapperMapMemory, &sysMMapper) }},
 
         { 0x055bd74d, { "cellGcmGetTiledPitchSize",                         std::bind(&CellGcmSys::cellGcmGetTiledPitchSize, &cellGcmSys) }},
+        { 0x06edea9e, { "cellGcmSetUserHandler",                            std::bind(&ModuleManager::stub, this) } },
         { 0x0e6b0dae, { "cellGcmGetDisplayInfo",                            std::bind(&CellGcmSys::cellGcmGetDisplayInfo, &cellGcmSys) }},
         { 0x15bae46b, { "cellGcmInitBody",                                  std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
         { 0x21397818, { " _cellGcmSetFlipCommand",                          std::bind(&CellGcmSys::_cellGcmSetFlipCommand, &cellGcmSys) }},
@@ -160,6 +161,7 @@ void ModuleManager::init() {
         { 0x32267a31, { "cellSysmoduleLoadModule",                          std::bind(&CellSysmodule::cellSysmoduleLoadModule, &cellSysmodule) }},
         { 0x5a59e258, { "cellSysmoduleIsLoaded",                            std::bind(&ModuleManager::stub, this) }},
         { 0x63ff6ff9, { "cellSysmoduleInitialize",                          std::bind(&ModuleManager::stub, this) }},
+        { 0xa193143c, { "cellSysmoduleSetMemcontainer",                     std::bind(&ModuleManager::stub, this) }},
 
         { 0x01220224, { "cellRescGcmSurface2RescSrc",                       std::bind(&ModuleManager::stub, this) }},
         { 0x0d3c22ce, { "cellRescSetWaitFlip",                              std::bind(&CellResc::cellRescSetWaitFlip, &cellResc) }},
@@ -270,6 +272,7 @@ void ModuleManager::init() {
         { 0x2beac488, { "cellAudioOutGetSoundAvailability2",                std::bind(&ModuleManager::stub, this) }},
         { 0x4692ab35, { "cellAudioOutConfigure",                            std::bind(&ModuleManager::stub, this) }},
         { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",                 std::bind(&ModuleManager::stub, this) }},
+        { 0xc96e89e9, { "cellAudioOutSetCopyControl",                       std::bind(&ModuleManager::stub, this) }},
         { 0xe5e2b09d, { "cellAudioOutGetNumberOfDevice",                    std::bind(&ModuleManager::stub, this) }},
         { 0xf4e3caa0, { "cellAudioOutGetState",                             std::bind(&CellAudioOut::cellAudioOutGetState, &cellAudioOut) }},
 
@@ -327,9 +330,13 @@ void ModuleManager::init() {
         { 0xd2bc5bfd, { "cellPngDecOpen",                                   std::bind(&CellPngDec::cellPngDecOpen, &cellPngDec) }},
         { 0xe97c9bd4, { "cellPngDecSetParameter",                           std::bind(&CellPngDec::cellPngDecSetParameter, &cellPngDec) }},
 
+        { 0x6d9ebccf, { "cellJpgDecReadHeader",                             std::bind(&ModuleManager::stub, this) } },
         { 0x8b300f66, { "cellJpgDecExtCreate",                              std::bind(&ModuleManager::stub, this) } },
+        { 0x9338a07a, { "cellJpgDecClose",                                  std::bind(&ModuleManager::stub, this) } },
         { 0x976ca5c2, { "cellJpgDecOpen",                                   std::bind(&ModuleManager::stub, this) } },
         { 0xa7978f59, { "cellJpgDecCreate",                                 std::bind(&ModuleManager::stub, this) } },
+        { 0xaf8bb012, { "cellJpgDecDecodeData",                             std::bind(&ModuleManager::stub, this) } },
+        { 0xe08f3910, { "cellJpgDecSetParameter",                           std::bind(&ModuleManager::stub, this) } },
 
         { 0x1197b52c, { "sceNpTrophyRegisterContext",                       std::bind(&SceNpTrophy::sceNpTrophyRegisterContext, &sceNpTrophy) } },
         { 0x1c25470d, { "sceNpTrophyCreateHandle",                          std::bind(&SceNpTrophy::sceNpTrophyCreateHandle, &sceNpTrophy) } },

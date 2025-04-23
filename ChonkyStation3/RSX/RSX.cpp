@@ -450,7 +450,7 @@ void RSX::runCommandList(u64 put_addr) {
         case NV406E_SEMAPHORE_ACQUIRE: {
             const auto sema = ps3->mem.read<u32>(gcm.label_addr + semaphore_offset);
             if (sema != args[0]) {
-                Helpers::panic("Could not acquire semaphore\n");
+                //Helpers::panic("Could not acquire semaphore\n");
             }
             break;
         }

@@ -66,6 +66,7 @@ public:
     };
 
     u32 ctx_addr = 0;
+    u32 ctx_ptr = 0;    // Passed to cellGcmInitBody
     CellGcmContextData* ctx;
     u32 ctrl_addr = 0;
     CellGcmControl* ctrl;

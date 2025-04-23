@@ -76,6 +76,7 @@ public:
     void sth        (const Instruction& instr);
     void sthu       (const Instruction& instr);
     void lfs        (const Instruction& instr);
+    void lfsu       (const Instruction& instr);
     void lfd        (const Instruction& instr);
     void lfdu       (const Instruction& instr);
     void stfs       (const Instruction& instr);

@@ -270,6 +270,7 @@ void PPUInterpreter::step() {
     case STH:   sth(instr);     break;
     case STHU:  sthu(instr);    break;
     case LFS:   lfs(instr);     break;
+    case LFSU:  lfsu(instr);     break;
     case LFD:   lfd(instr);     break;
     case LFDU:  lfdu(instr);    break;
     case STFS:  stfs(instr);    break;
@@ -584,6 +585,14 @@ void PPUInterpreter::lfs(const Instruction& instr) {
     const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
     u32 v = mem.read<u32>(addr);
     state.fprs[instr.frt] = reinterpret_cast<float&>(v);
+}
+
+void PPUInterpreter::lfsu(const Instruction& instr) {
+    const s32 sd = (s32)(s16)instr.d;
+    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    u32 v = mem.read<u32>(addr);
+    state.fprs[instr.frt] = reinterpret_cast<float&>(v);
+    state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::lfd(const Instruction& instr) {

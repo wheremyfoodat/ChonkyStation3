@@ -37,6 +37,7 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     ctx_addr = ps3->mem.alloc(sizeof(CellGcmContextData))->vaddr;
     ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
+    this->ctx_ptr = ctx_ptr;
     ps3->mem.write<u32>(ctx_ptr, ctx_addr);
 
     // Setup callback
@@ -367,14 +368,14 @@ u64 CellGcmSys::cellGcmResetFlipStatus() {
     log("cellGcmResetFlipStatus()\n");
 
     flip = 1;
-
     return CELL_OK;
 }
 
 u64 CellGcmSys::cellGcmSetDefaultCommandBuffer() {
     log("cellGcmSetDefaultCommandBuffer()\n");
 
-    ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
+    ps3->mem.write<u32>(ctx_ptr, ctx_addr);
+    //ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
     return CELL_OK;
 }
 
