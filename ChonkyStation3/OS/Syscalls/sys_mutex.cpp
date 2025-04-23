@@ -31,6 +31,21 @@ u64 Syscall::sys_mutex_lock() {
     return CELL_OK;
 }
 
+u64 Syscall::sys_mutex_trylock() {
+    const u32 mutex_id = ARG0;
+    log_sys_mutex("sys_mutex_trylock(mutex_idx: %d)\n", mutex_id);
+
+    if (!mutex_id) {
+        log_sys_mutex("WARNING: sys_mutex_trylock with mutex_id == 0\n");
+        return CELL_ESRCH;
+    }
+
+    Lv2Mutex* mutex = ps3->lv2_obj.get<Lv2Mutex>(mutex_id);
+    if (!mutex->tryLock()) return CELL_EBUSY;
+
+    return CELL_OK;
+}
+
 u64 Syscall::sys_mutex_unlock() {
     const u32 mutex_id = ARG0;
     log_sys_mutex("sys_mutex_unlock(mutex_id: %d)\n", mutex_id);

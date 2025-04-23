@@ -52,6 +52,7 @@ public:
     MapEntry* alloc(size_t size, u64 start_addr = 0);
     bool canAlloc(size_t size);
     void free(MapEntry* entry);
+    void freePhys(Block* block);
     std::pair<bool, Block*> findBlockFromAddr(u64 paddr);
     std::pair<bool, Block*> findNextBlock(u64 start_addr);
     std::pair<bool, Block*> findBlockWithHandle(u64 handle);
@@ -102,6 +103,7 @@ public:
     MemoryRegion::MapEntry* alloc(size_t size, u64 start_addr = 0) { return ram.alloc(size, start_addr); }
     bool canAlloc(size_t size) { return ram.canAlloc(size); }
     void free(MemoryRegion::MapEntry* entry) { ram.free(entry); }
+    void freePhys(MemoryRegion::Block* block) { ram.freePhys(block); }
     std::pair<bool, MemoryRegion::Block*> findBlockFromAddr(u64 paddr) { return ram.findBlockFromAddr(paddr); }
     std::pair<bool, MemoryRegion::Block*> findNextBlock(u64 start_addr) { return ram.findNextBlock(start_addr); }
     std::pair<bool, MemoryRegion::Block*> findBlockWithHandle(u64 handle) { return ram.findBlockWithHandle(handle); }

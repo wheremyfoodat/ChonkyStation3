@@ -344,7 +344,7 @@ enum G_04Opcodes {
     VCMPGTSB_       = 0x706,
     VMULESB         = 0x308,
     VCFUX           = 0x30a,
-    VSPLTISB        = 0x30c,
+    VSPLTISB        = 0x30c,    // Vector Splat Immediate Signed Byte
     VPKPX           = 0x30e,
     VADDSHS         = 0x340,
     VMINSH          = 0x342,

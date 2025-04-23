@@ -107,6 +107,7 @@ public:
     void vcmpgtuw   (const Instruction& instr);
     void vspltw     (const Instruction& instr);
     void vcmpgtfp   (const Instruction& instr);
+    void vspltisb   (const Instruction& instr);
     void vcfsx      (const Instruction& instr);
     void vspltish   (const Instruction& instr);
     void vctuxs     (const Instruction& instr);
@@ -230,6 +231,8 @@ public:
     void std        (const Instruction& instr);
     void stdu       (const Instruction& instr);
     // G_3F
+    void mffs       (const Instruction& instr);
+    void mtfsf      (const Instruction& instr);
     void fcmpu      (const Instruction& instr);
     void frsp       (const Instruction& instr);
     void fctiwz     (const Instruction& instr);

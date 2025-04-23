@@ -90,6 +90,7 @@ void PPUInterpreter::step() {
             case VSPLTW:    vspltw(instr);      break;
             case VCMPGTFP_:
             case VCMPGTFP:  vcmpgtfp(instr);    break;
+            case VSPLTISB:  vspltisb(instr);    break;
             case VCFSX:     vcfsx(instr);       break;
             case VSPLTISH:  vspltish(instr);    break;
             case VCTUXS:    vctuxs(instr);      break;
@@ -330,6 +331,8 @@ void PPUInterpreter::step() {
         default:
             switch (instr.g_3f_field) {
 
+            case MFFS:      mffs(instr);    break;
+            case MTFSF:     mtfsf(instr);   break;
             case FCMPU:     fcmpu(instr);   break;
             case FRSP:      frsp(instr);    break;
             case FCTIW:
@@ -902,6 +905,13 @@ void PPUInterpreter::vcmpgtfp(const Instruction& instr) {
 
     if (instr.rc_v)
         state.cr.setCRField(6, all_equal | none_equal);
+}
+
+void PPUInterpreter::vspltisb(const Instruction& instr) {
+    s8 si = ((s8)(instr.simm << 3)) >> 3; // Sign extend 5 bit field
+
+    for (int i = 0; i < 16; i++)
+        state.vrs[instr.vd].b[i] = si;
 }
 
 void PPUInterpreter::vcfsx(const Instruction& instr) {
@@ -1825,6 +1835,15 @@ void PPUInterpreter::stdu(const Instruction& instr) {
 }
 
 // G_3F
+
+void PPUInterpreter::mffs(const Instruction& instr) {
+    // TODO
+    state.fprs[instr.frt] = 0;
+}
+
+void PPUInterpreter::mtfsf(const Instruction& instr) {
+    // TODO
+}
 
 void PPUInterpreter::fcmpu(const Instruction& instr) {
     state.cr.compareAndUpdateCRField<double>(instr.bf, state.fprs[instr.fra], state.fprs[instr.frb], 0);

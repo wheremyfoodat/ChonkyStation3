@@ -96,17 +96,22 @@ bool MemoryRegion::canAlloc(size_t size) {
 void MemoryRegion::free(MemoryRegion::MapEntry* entry) {
     // Get the block this entry is mapped to
     auto block = findBlockFromAddr(entry->paddr);
-    // Remove block
-    for (int i = 0; i < blocks.size(); i++) {
-        if (blocks[i].start == block.second->start) {
-            blocks.erase(blocks.begin() + i);
-            break;
-        }
-    }
+    // Free the block
+    freePhys(block.second);
     // Remove map entry
     for (int i = 0; i < map.size(); i++) {
         if (map[i].vaddr == entry->vaddr) {
             map.erase(map.begin() + i);
+            break;
+        }
+    }
+}
+
+void MemoryRegion::freePhys(MemoryRegion::Block* block) {
+    // Remove block
+    for (int i = 0; i < blocks.size(); i++) {
+        if (blocks[i].start == block->start) {
+            blocks.erase(blocks.begin() + i);
             break;
         }
     }

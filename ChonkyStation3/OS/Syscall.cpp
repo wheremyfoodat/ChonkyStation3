@@ -93,6 +93,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 100:   ps3->ppu->state.gprs[3] = sys_mutex_create();                       break;
     case 101:   todo("sys_mutex_destroy()");                                        break;
     case 102:   ps3->ppu->state.gprs[3] = sys_mutex_lock();                         break;
+    case 103:   ps3->ppu->state.gprs[3] = sys_mutex_trylock();                      break;
     case 104:   ps3->ppu->state.gprs[3] = sys_mutex_unlock();                       break;
     case 105:   ps3->ppu->state.gprs[3] = sys_cond_create();                        break;
     case 106:   todo("sys_cond_destroy()");                                         break;

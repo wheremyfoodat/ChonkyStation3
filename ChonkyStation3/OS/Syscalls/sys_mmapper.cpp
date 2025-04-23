@@ -27,9 +27,9 @@ u64 Syscall::sys_mmapper_free_shared_memory() {
 
     Helpers::debugAssert(handle, "sys_mmapper_free_shared_memory: handle is 0\n");
     
-    auto block = ps3->mem.findMapEntryWithHandle(handle);
+    auto block = ps3->mem.findBlockWithHandle(handle);
     Helpers::debugAssert(block.first, "sys_mmapper_free_shared_memory: tried to free unmapped memory\n");
-    ps3->mem.free(block.second);
+    ps3->mem.freePhys(block.second);
 
     return CELL_OK;
 }
@@ -76,7 +76,6 @@ u64 Syscall::sys_mmapper_map_shared_memory() {
 }
 
 u64 Syscall::sys_mmapper_unmap_shared_memory() {
-    // TODO: Right now I just free (and unmap) the memory when the free memory function is called
     const u32 addr = ARG0;
     const u32 handle_ptr = ARG1;
     log_sys_mmapper("sys_mmapper_unmap_shared_memory(addr: 0x%08x, handle_ptr: 0x%08x)\n", addr, handle_ptr);
@@ -84,7 +83,10 @@ u64 Syscall::sys_mmapper_unmap_shared_memory() {
     auto info = ps3->mem.isMapped(addr);
     Helpers::debugAssert(info.first, "sys_mmapper_unmap_shared_memory: addr is unmapped\n");
 
-    // Get handle of the physical block
+    // Unmap the entry
+    ps3->mem.unmap(info.second->vaddr);
+
+    // Give back the handle of the physical block
     ps3->mem.write<u32>(handle_ptr, info.second->handle);
 
     return CELL_OK;

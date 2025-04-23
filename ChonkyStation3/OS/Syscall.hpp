@@ -75,6 +75,7 @@ public:
     // sys_mutex
     u64 sys_mutex_create();
     u64 sys_mutex_lock();
+    u64 sys_mutex_trylock();
     u64 sys_mutex_unlock();
 
     // sys_cond

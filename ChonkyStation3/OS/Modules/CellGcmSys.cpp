@@ -62,11 +62,9 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     // Allocate display buffer info
     buffer_info_addr = ps3->mem.alloc(sizeof(CellGcmDisplayInfo) * 8)->vaddr;
-    std::memset(ps3->mem.getPtr(buffer_info_addr), 0, sizeof(CellGcmDisplayInfo) * 8);
     
     // Empty dummy reports area
-    reports_addr = ps3->mem.alloc(1_MB)->vaddr;
-    std::memset(ps3->mem.getPtr(reports_addr), 0, 1_MB);
+    reports_addr = buffer_info_addr + sizeof(CellGcmDisplayInfo) * 8;
 
     // Memory watchpoint to tell the RSX to check if there are commands to run when put is written
     ps3->mem.watchpoints_w[ctrl_addr] = std::bind(&RSX::runCommandList, &ps3->rsx, std::placeholders::_1);
