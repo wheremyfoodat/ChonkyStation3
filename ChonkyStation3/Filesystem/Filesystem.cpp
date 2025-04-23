@@ -7,6 +7,13 @@ void Filesystem::mount(Filesystem::Device device, fs::path path) {
     log("Mounted device %s at %s\n", deviceToString(device).c_str(), path.generic_string().c_str());
 }
 
+void Filesystem::umount(Filesystem::Device device) {
+    if (!mounted_devices.contains(device)) Helpers::panic("Tried to unmount an unmounted device (%s)\n", deviceToString(device).c_str());
+
+    mounted_devices.erase(device);
+    log("Unmounted device %s\n", deviceToString(device).c_str());
+}
+
 void Filesystem::initialize() {
     // Create mount point directories if they don't exist
     for (auto& i : mounted_devices)

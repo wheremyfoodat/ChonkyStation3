@@ -30,6 +30,7 @@ public:
     bool ensureGameNotRunning();
 
     // Actions
+    void launchDiscGame();
     void launchELF();
     void replayRSXCapture();
     void loadAndLaunchGame(int idx);

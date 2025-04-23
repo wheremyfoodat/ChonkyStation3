@@ -67,6 +67,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionLaunch_Disc_Game"/>
     <addaction name="actionOpen_ELF"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
@@ -137,6 +138,11 @@
   <action name="actionReplay_RSX_Capture">
    <property name="text">
     <string>Replay RSX Capture</string>
+   </property>
+  </action>
+  <action name="actionLaunch_Disc_Game">
+   <property name="text">
+    <string>Launch Disc Game</string>
    </property>
   </action>
  </widget>

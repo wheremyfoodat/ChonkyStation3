@@ -24,6 +24,9 @@ public:
     };
     std::vector<InstalledGame> games;
 
+    bool isDiscGameOK();
+    InstalledGame getDiscGame();
+
 private:
     MAKE_LOG_FUNCTION(log, loader_game);
 };

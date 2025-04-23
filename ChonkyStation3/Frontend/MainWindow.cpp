@@ -10,6 +10,7 @@ MainWindow::MainWindow() : QMainWindow() {
     ui.setupUi(this);
 
     // Setup menubar buttons
+    connect(ui.actionLaunch_Disc_Game, &QAction::triggered, this, &MainWindow::launchDiscGame);
     connect(ui.actionOpen_ELF, &QAction::triggered, this, &MainWindow::launchELF);
     
     connect(ui.actionSystem, &QAction::triggered, this, [this]() {
@@ -153,6 +154,26 @@ bool MainWindow::ensureGameNotRunning() {
         dialog->exec();
     }
     return is_game_running;
+}
+
+void MainWindow::launchDiscGame() {
+    if (ensureGameNotRunning()) return;
+
+    const fs::path path = QFileDialog::getExistingDirectory(this, "Select a PlayStation3 Disc Game", ".").toStdString();
+    if (!path.empty()) {
+        ps3->fs.mount(Filesystem::Device::DEV_BDVD, path);
+        if (!game_loader->isDiscGameOK()) {
+            ps3->fs.umount(Filesystem::Device::DEV_BDVD);
+
+            QMessageBox* dialog = new QMessageBox();
+            dialog->setText("The Disc Game is invalid");
+            dialog->exec();
+            return;
+        }
+
+        ps3->loadGame(game_loader->getDiscGame());
+        launchGame();
+    }
 }
 
 void MainWindow::launchELF() {

@@ -40,6 +40,7 @@ public:
     };
     
     void mount(Device device, fs::path path);
+    void umount(Device device);
     void initialize();
     u32 open(fs::path path);
     u32 opendir(fs::path path);
