@@ -35,6 +35,8 @@ public:
     u64 sys_mmapper_search_and_map();
 
     // sys_memory
+    u64 sys_memory_container_create();
+    u64 sys_memory_container_destroy();
     u64 sys_memory_allocate();
     u64 sys_memory_free();
     u64 sys_memory_get_user_memory_size();

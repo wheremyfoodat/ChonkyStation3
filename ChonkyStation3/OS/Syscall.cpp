@@ -153,16 +153,16 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 254:   todo("sys_spu_thread_group_log()");                                             break;
     case 300:   ps3->ppu->state.gprs[3] = sys_vm_memory_map();                                  break;
     case 306:   ps3->ppu->state.gprs[3] = sys_vm_touch();                                       break;
-    case 330:   ps3->ppu->state.gprs[3] = sys_mmapper_allocate_address();                       break;
-    case 324:   todo("sys_memory_container_create()");                                          break;
+    case 324:   ps3->ppu->state.gprs[3] = sys_memory_container_create();                        break;  // Debug
     case 329:   ps3->ppu->state.gprs[3] = sys_mmapper_free_shared_memory();                     break;
+    case 330:   ps3->ppu->state.gprs[3] = sys_mmapper_allocate_address();                       break;
     case 331:   todo("sys_mmapper_free_address()");                                             break;
     case 332:   ps3->ppu->state.gprs[3] = sys_mmapper_allocate_shared_memory();                 break;
     case 334:   ps3->ppu->state.gprs[3] = sys_mmapper_map_shared_memory();                      break;
     case 335:   ps3->ppu->state.gprs[3] = sys_mmapper_unmap_shared_memory();                    break;
     case 337:   ps3->ppu->state.gprs[3] = sys_mmapper_search_and_map();                         break;
-    case 341:   todo("sys_memory_container_create()");                                          break;
-    case 342:   todo("sys_memory_container_destroy()");                                         break;
+    case 341:   ps3->ppu->state.gprs[3] = sys_memory_container_create();                        break;
+    case 342:   ps3->ppu->state.gprs[3] = sys_memory_container_destroy();                       break;
     case 348:   ps3->ppu->state.gprs[3] = sys_memory_allocate();                                break;
     case 349:   ps3->ppu->state.gprs[3] = sys_memory_free();                                    break;
     case 351:   todo("sys_memory_get_page_attribute()");                                        break;

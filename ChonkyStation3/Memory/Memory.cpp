@@ -37,7 +37,7 @@ MemoryRegion::Block* MemoryRegion::allocPhys(size_t size) {
     return &blocks.back();
 }
 
-// Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem. Optionally specify the lowest possible virtual address to allocate
+// Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem. Optionally specify the lowest possible virtual address to allocate.
 MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
     // Page alignment
     size_t aligned_size = pageAlign(size);
@@ -58,6 +58,39 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
 
     log("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
     return entry;
+}
+
+// Returns whether or not it's possible to allocate size bytes.
+bool MemoryRegion::canAlloc(size_t size) {
+    // Page alignment
+    size_t aligned_size = pageAlign(size);
+    // Find the next free block of memory big enough for the given size
+    u64 addr = 0;
+    while (true) {
+        auto next_block = findNextBlock(addr);
+        if (next_block.first) {
+            if (next_block.second->start - addr >= aligned_size) {
+                // addr OK
+                break;
+            }
+            else {
+                // Keep searching
+                addr = next_block.second->start + next_block.second->size;
+                if (addr >= RAM_SIZE)
+                    return false;
+            }
+        }
+        else {
+            // addr OK
+            break;
+        }
+    }
+
+    // Did we run out of memory?
+    if (addr + aligned_size >= RAM_SIZE)
+        return false;
+
+    return true;
 }
 
 void MemoryRegion::free(MemoryRegion::MapEntry* entry) {

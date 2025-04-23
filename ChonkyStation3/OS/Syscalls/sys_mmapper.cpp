@@ -39,7 +39,10 @@ u64 Syscall::sys_mmapper_allocate_shared_memory() {
     const u64 size = ARG1;
     const u64 flags = ARG2;
     const u32 handle_ptr = ARG3;
-    log_sys_mmapper("sys_mmapper_allocate_shared_memory(ipc_key: 0x%08x, size: %d, flags: 0x%016llx, handle_ptr: 0x%08x)\n", ipc_key, size, flags, handle_ptr);
+    log_sys_mmapper("sys_mmapper_allocate_shared_memory(ipc_key: 0x%016llx, size: %d, flags: 0x%016llx, handle_ptr: 0x%08x)\n", ipc_key, size, flags, handle_ptr);
+
+    // Check if we're out of memory
+    if (!ps3->mem.canAlloc(size)) return CELL_ENOMEM;
 
     auto block = ps3->mem.allocPhys(size);
     auto handle = ps3->handle_manager.request();

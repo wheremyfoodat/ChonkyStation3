@@ -1,8 +1,34 @@
 #include <Syscall.hpp>
 #include "PlayStation3.hpp"
+#include <Lv2Objects/Lv2MemoryContainer.hpp>
 
 
 MAKE_LOG_FUNCTION(log_sys_memory, sys_memory);
+
+u64 Syscall::sys_memory_container_create() {
+    const u32 id_ptr = ARG0;
+    const u64 size = ARG1;
+    log_sys_memory("sys_memory_container_create(id_ptr: 0x%08x, size: 0x%016llx)\n", id_ptr, size);
+
+    // Round down to 1MB
+    const u64 rounded_size = size & ~(1_MB - 1);
+
+    Lv2MemoryContainer* container = ps3->lv2_obj.create<Lv2MemoryContainer>();
+    container->create(rounded_size);
+    ps3->mem.write<u32>(id_ptr, container->handle());
+
+    return CELL_OK;
+}
+
+u64 Syscall::sys_memory_container_destroy() {
+    const u32 id = ARG0;
+    log_sys_memory("sys_memory_container_destroy(id: 0x%08x)\n", id);
+
+    Lv2MemoryContainer* container = ps3->lv2_obj.get<Lv2MemoryContainer>(id);
+    container->free();
+
+    return CELL_OK;
+}
 
 u64 Syscall::sys_memory_allocate() {
     const u32 size = ARG0;
