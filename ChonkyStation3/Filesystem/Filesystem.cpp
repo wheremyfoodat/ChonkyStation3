@@ -53,8 +53,9 @@ u32 Filesystem::opendir(fs::path path) {
         return 0;
     }
 
-    // TODO
     const u32 new_file_id = ps3->handle_manager.request();
+    open_dirs[new_file_id] = { path, 0 };
+    log("Opened directory %s\n", path.generic_string().c_str());
     return new_file_id;
 }
 
@@ -114,6 +115,12 @@ Filesystem::File& Filesystem::getFileFromID(u32 id) {
     if (!open_files.contains(id))
         Helpers::panic("File id %d does not exist\n", id);
     return open_files[id];
+}
+
+Filesystem::Directory& Filesystem::getDirFromID(u32 id) {
+    if (!open_dirs.contains(id))
+        Helpers::panic("Dir id %d does not exist\n", id);
+    return open_dirs[id];
 }
 
 bool Filesystem::isDeviceMounted(Filesystem::Device device) {

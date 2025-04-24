@@ -258,6 +258,7 @@ void ModuleManager::init() {
         { 0x5c74903d, { "cellFsReaddir",                                    std::bind(&CellFs::cellFsReaddir, &cellFs) }},
         { 0x718bf5f8, { "cellFsOpen",                                       std::bind(&CellFs::cellFsOpen, &cellFs) }},
         { 0x7de6dced, { "cellFsStat",                                       std::bind(&CellFs::cellFsStat, &cellFs) }},
+        { 0x7f4677a8, { "cellFsUnlink",                                     std::bind(&ModuleManager::stub, this) } },
         { 0xa397d042, { "cellFsLseek",                                      std::bind(&CellFs::cellFsLseek, &cellFs) }},
         { 0xaa3b4bcd, { "cellFsGetFreeSize",                                std::bind(&CellFs::cellFsGetFreeSize, &cellFs) }},
         { 0xb1840b53, { "cellFsSdataOpen",                                  std::bind(&CellFs::cellFsSdataOpen, &cellFs) }},

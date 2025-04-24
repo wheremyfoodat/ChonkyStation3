@@ -19,7 +19,9 @@ u64 CellFs::cellFsOpendir() {
 
     if (path == ".") return CELL_ENOENT;    // TODO: why?
     if (path == "") return CELL_ENOENT; // TLOU does this, it's meant to happen
-    if (path == "/http-cache/") return CELL_ENOTMOUNTED;
+
+    if (!ps3->fs.isValidDevice(path))   return CELL_ENOTMOUNTED;
+    if (!ps3->fs.isDeviceMounted(path)) return CELL_ENOTMOUNTED;
 
     const u32 file_id = ps3->fs.opendir(path);
     ps3->mem.write<u32>(file_id_ptr, file_id);
@@ -27,6 +29,7 @@ u64 CellFs::cellFsOpendir() {
     if (file_id == 0) {
         return CELL_ENOENT;
     }
+
     return CELL_OK;
 }
 
@@ -51,19 +54,41 @@ u64 CellFs::cellFsReaddir() {
     log("cellFsReaddir(file_id: %d, dirent_ptr: 0x%08x, bytes_read_ptr: 0x%08x)\n", file_id, dirent_ptr, bytes_read_ptr);
 
     CellFsDirent* dirent = (CellFsDirent*)ps3->mem.getPtr(dirent_ptr);
-    //const std::string filename = ps3->fs.getFileFromID(file_id).path.filename().generic_string();
+    Filesystem::Directory& dir = ps3->fs.getDirFromID(file_id);
+    fs::path host_path = ps3->fs.guestPathToHost(dir.path);
+    
+    fs::path entry = "";
+    // First 2 entries are "." and ".."
+    if (dir.cur == 0)       entry = "."; 
+    else if (dir.cur == 1)  entry = "..";
+    else {
+        int cur = 2;
+        for (auto& i : fs::directory_iterator(host_path)) {
+            if (cur == dir.cur) {
+                entry = i.path();
+            }
+            cur++;
+        }
+    }
+    
+    int bytes_read = 0;
+    bool done = entry.empty();
+    if (!done) {
+        dir.cur++;
+        log("Reading entry %s\n", entry.generic_string().c_str());
+        dirent->type = fs::is_directory(entry) ? CELL_FS_TYPE_DIRECTORY : CELL_FS_TYPE_REGULAR;
+        std::strncpy(dirent->name, entry.filename().generic_string().c_str(), 256);
+        dirent->namelen = entry.filename().generic_string().length();
+        bytes_read = sizeof(CellFsDirent);
+    }
+    else {
+        log("Done reading directory\n");
+        dirent->type = 0;
+        dirent->name[0] = '\0';
+        dirent->namelen = 0;
+    }
 
-    //dirent->type = ps3->fs.isDirectory(file_id) ? CELL_FS_TYPE_DIRECTORY : CELL_FS_TYPE_REGULAR;
-    //std::memset(dirent->name, 0, 256);
-    //std::memcpy(dirent->name, filename.c_str(), filename.length());
-    //dirent->namelen = filename.length();
-
-    // TODO: stub
-    dirent->type = 0;
-    dirent->namelen = 0;
-    dirent->name[0] = '\0';
-    ps3->mem.write<u64>(bytes_read_ptr, 0);
-    //ps3->mem.write<u64>(bytes_read_ptr, sizeof(CellFsDirent));
+    ps3->mem.write<u64>(bytes_read_ptr, bytes_read);
     return CELL_OK;
 }
 
