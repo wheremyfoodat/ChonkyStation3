@@ -83,6 +83,7 @@ void ModuleManager::init() {
         { 0x68b9b011, { "_sys_memset",                                      std::bind(&SysPrxForUser::sysMemset, &sysPrxForUser) }},
         { 0x6bf66ea7, { "_sys_memcpy",                                      std::bind(&SysPrxForUser::sysMemcpy, &sysPrxForUser) }},
         { 0xbdb18f83, { "_sys_malloc",                                      std::bind(&SysPrxForUser::sysMalloc, &sysPrxForUser), true }},
+        { 0xf7f7fb20, { "_sys_free",                                        std::bind(&SysPrxForUser::sysFree, &sysPrxForUser), true }},
         { 0xfb5db080, { "_sys_memcmp",                                      std::bind(&SysPrxForUser::sysMemcmp, &sysPrxForUser) }},
 
         { 0x1573dc3f, { "sysLwMutexLock",                                   std::bind(&SysLwMutex::sysLwMutexLock, &sysLwMutex), true }},
@@ -104,6 +105,7 @@ void ModuleManager::init() {
 
         { 0x055bd74d, { "cellGcmGetTiledPitchSize",                         std::bind(&CellGcmSys::cellGcmGetTiledPitchSize, &cellGcmSys) }},
         { 0x06edea9e, { "cellGcmSetUserHandler",                            std::bind(&ModuleManager::stub, this) } },
+        { 0x0a862772, { "cellGcmSetQueueHandler",                           std::bind(&ModuleManager::stub, this) } },
         { 0x0e6b0dae, { "cellGcmGetDisplayInfo",                            std::bind(&CellGcmSys::cellGcmGetDisplayInfo, &cellGcmSys) }},
         { 0x15bae46b, { "cellGcmInitBody",                                  std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
         { 0x21397818, { " _cellGcmSetFlipCommand",                          std::bind(&CellGcmSys::_cellGcmSetFlipCommand, &cellGcmSys) }},
@@ -113,11 +115,14 @@ void ModuleManager::init() {
         { 0x4ae8d215, { "cellGcmSetFlipMode",                               std::bind(&CellGcmSys::cellGcmSetFlipMode, &cellGcmSys) }},
         { 0x4d7ce993, { "cellGcmSetSecondVFrequency",                       std::bind(&CellGcmSys::cellGcmSetSecondVFrequency, &cellGcmSys) }},
         { 0x51c9d62b, { "cellGcmSetDebugOutputLevel",                       std::bind(&CellGcmSys::cellGcmSetDebugOutputLevel, &cellGcmSys) }},
+        { 0x5e2ee0f0, { "cellGcmGetDefaultCommandWordSize",                 std::bind(&ModuleManager::stub, this) } },
         { 0x626e8518, { "cellGcmMapEaIoAddressWithFlags",                   std::bind(&CellGcmSys::cellGcmMapEaIoAddressWithFlags, &cellGcmSys) }},
         { 0x63441cb4, { "cellGcmMapEaIoAddress",                            std::bind(&CellGcmSys::cellGcmMapEaIoAddress, &cellGcmSys) }},
         { 0x72a577ce, { "cellGcmGetFlipStatus",                             std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
         { 0x8572bce2, { "cellGcmGetReportDataAddressLocation",              std::bind(&CellGcmSys::cellGcmGetReportDataAddressLocation, &cellGcmSys) }},
+        { 0x8cdf8c70, { "cellGcmGetDefaultSegmentWordSize",                 std::bind(&ModuleManager::stub, this) } },
         { 0x983fb9aa, { "cellGcmSetWaitFlip",                               std::bind(&CellGcmSys::cellGcmSetWaitFlip, &cellGcmSys) }},
+        { 0x9ba451e4, { "cellGcmSetDefaultFifoSize",                        std::bind(&ModuleManager::stub, this) } },
         { 0x9dc04436, { "cellGcmBindZcull",                                 std::bind(&CellGcmSys::cellGcmBindZcull, &cellGcmSys) }},
         { 0xa114ec67, { "cellGcmMapMainMemory",                             std::bind(&CellGcmSys::cellGcmMapMainMemory, &cellGcmSys) }},
         { 0xa41ef7e8, { "cellGcmSetFlipHandler",                            std::bind(&CellGcmSys::cellGcmSetFlipHandler, &cellGcmSys) }},
@@ -246,6 +251,7 @@ void ModuleManager::init() {
         { 0xd2e23fa9, { "cellSpursSetExceptionEventHandler",                std::bind(&CellSpurs::cellSpursSetExceptionEventHandler, &cellSpurs) }},
         { 0xe0a6dbe4, { "_cellSpursSendSignal",                             std::bind(&ModuleManager::stub, this) } },
         { 0xefeb2679, { "_cellSpursWorkloadAttributeInitialize",            std::bind(&CellSpurs::_cellSpursWorkloadAttributeInitialize, &cellSpurs) }},
+        { 0xf5507729, { "cellSpursEventFlagSet",                            std::bind(&ModuleManager::stub, this) } },
 
         { 0x2cce9cf5, { "cellRtcGetCurrentClockLocalTime",                  std::bind(&CellRtc::cellRtcGetCurrentClockLocalTime, &cellRtc) }},
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                            std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
@@ -266,7 +272,9 @@ void ModuleManager::init() {
         { 0xef3efa34, { "cellFsFstat",                                      std::bind(&CellFs::cellFsFstat, &cellFs) }},
         { 0xff42dcc3, { "cellFsClosedir",                                   std::bind(&CellFs::cellFsClosedir, &cellFs) }},
 
+        //{ 0x04af134e, { "cellAudioCreateNotifyEventQueue",                  std::bind(&ModuleManager::stub, this) }},
         { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
+        { 0x377e0cd9, { "cellAudioSetNotifyEventQueue",                     std::bind(&ModuleManager::stub, this) } },
         { 0x74a66af0, { "cellAudioGetPortConfig",                           std::bind(&CellAudio::cellAudioGetPortConfig, &cellAudio) }},
         { 0x56dfe179, { "cellAudioSetPortLevel",                            std::bind(&ModuleManager::stub, this) } },
         { 0x89be28f2, { "cellAudioPortStart",                               std::bind(&CellAudio::cellAudioPortStart, &cellAudio) }},
@@ -340,6 +348,7 @@ void ModuleManager::init() {
         { 0x976ca5c2, { "cellJpgDecOpen",                                   std::bind(&ModuleManager::stub, this) } },
         { 0xa7978f59, { "cellJpgDecCreate",                                 std::bind(&ModuleManager::stub, this) } },
         { 0xaf8bb012, { "cellJpgDecDecodeData",                             std::bind(&ModuleManager::stub, this) } },
+        { 0xd8ea91f8, { "cellJpgDecDestroy",                                std::bind(&ModuleManager::stub, this) } },
         { 0xe08f3910, { "cellJpgDecSetParameter",                           std::bind(&ModuleManager::stub, this) } },
 
         { 0x1197b52c, { "sceNpTrophyRegisterContext",                       std::bind(&SceNpTrophy::sceNpTrophyRegisterContext, &sceNpTrophy) } },
@@ -350,6 +359,7 @@ void ModuleManager::init() {
         { 0xb3ac3478, { "sceNpTrophyGetTrophyUnlockState",                  std::bind(&SceNpTrophy::sceNpTrophyGetTrophyUnlockState, &sceNpTrophy) } },
         { 0xe3bf9a28, { "sceNpTrophyCreateContext",                         std::bind(&SceNpTrophy::sceNpTrophyCreateContext, &sceNpTrophy) } },
 
+        { 0x21425307, { "cellSaveDataListAutoLoad",                         std::bind(&ModuleManager::stub, this) } },
         { 0x8b7ed64b, { "cellSaveDataAutoSave2",                            std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
         { 0xcdc6aefd, { "cellSaveDataUserAutoLoad",                         std::bind(&CellSaveData::cellSaveDataUserAutoLoad, &cellSaveData) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                            std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
@@ -398,6 +408,7 @@ void ModuleManager::init() {
         { 0x5c832bd7, { "cellUsbdSetThreadPriority2",                       std::bind(&ModuleManager::stub, this) } },
         { 0xd0e766fe, { "cellUsbdInit",                                     std::bind(&ModuleManager::stub, this) } },
 
+        { 0x1650aea4, { "cellSslEnd",                                       std::bind(&ModuleManager::stub, this) } },
         { 0x571afaca, { "cellSslCertificateLoader",                         std::bind(&CellSsl::cellSslCertificateLoader, &cellSsl) } },
         { 0xfb02c9d2, { "cellSslInit",                                      std::bind(&ModuleManager::stub, this) } },
         
@@ -429,11 +440,14 @@ void ModuleManager::init() {
         
         { 0xe75c40f2, { "sys_process_get_paramsfo",                         std::bind(&ModuleManager::stub, this) } },
         
+        { 0x051ee3ee, { "socketpoll",                                       std::bind(&ModuleManager::stub, this) } },
         { 0x13efe7f5, { "getsockname",                                      std::bind(&ModuleManager::stub, this) } },
+        { 0x71f4c717, { "gethostbyname",                                    std::bind(&ModuleManager::stub, this) } },
         { 0x88f03575, { "setsockopt",                                       std::bind(&ModuleManager::stub, this) } },
         { 0x8af3825e, { "inet_pton",                                        std::bind(&ModuleManager::stub, this) } },
         { 0x9c056962, { "socket",                                           std::bind(&ModuleManager::stub, this) } },
         { 0xb0a59804, { "bind",                                             std::bind(&ModuleManager::stub, this) } },
+        { 0xc9157d30, { "_sys_net_h_errno_loc",                             std::bind(&ModuleManager::stub, this) } },
         { 0xdabbc2c0, { "inet_addr",                                        std::bind(&ModuleManager::stub, this) } },
 
         { 0x05893e7c, { "cellUserTraceRegister",                            std::bind(&ModuleManager::stub, this) } },

@@ -47,7 +47,7 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
     // Map area
     u64 vaddr = findNextAllocatableVaddr(size, start_addr);
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
-    
+
     // Fastmem
     for (u64 page_addr = entry->vaddr; page_addr < entry->vaddr + entry->size; page_addr += PAGE_SIZE) {
         const u64 page = page_addr >> PAGE_SHIFT;
@@ -285,13 +285,13 @@ std::pair<u64, u8*> Memory::addrToOffsetInMemory(u64 vaddr) {
 
 // Marks a page of memory as fastmem
 void Memory::markAsFastMem(u64 page, u8* ptr, bool r, bool w) {
-    if (r) read_table [page] = ptr;
+    if (r) read_table[page] = ptr;
     if (w) write_table[page] = ptr;
 }
 
 // Marks a page of memory as slowmem (removes it from the fastmem page table)
 void Memory::markAsSlowMem(u64 page, bool r, bool w) {
-    if (r) read_table [page] = 0;
+    if (r) read_table[page] = 0;
     if (w) write_table[page] = 0;
 }
 
@@ -362,7 +362,7 @@ void Memory::reservedWrite(u64 vaddr) {
     const Reservation& reservation = reservations[vaddr];
     if (reservation.thread_id != curr_thread_id) {
         //printf("Thread %d wrote to address 0x%08x reserved by thread %d, deleting reservation\n", curr_thread_id, vaddr, reservations[vaddr]);
-        
+
         for (auto& handler : reservation.reservation_lost_handlers)
             handler();
 
@@ -425,7 +425,7 @@ template u64 Memory::read(u64 vaddr);
 template<typename T>
 void Memory::write(u64 vaddr, T data) {
     data = Helpers::bswap<T>(data);
-    
+
     const u64 page = vaddr >> PAGE_SHIFT;
     const u64 offs = vaddr & PAGE_MASK;
 

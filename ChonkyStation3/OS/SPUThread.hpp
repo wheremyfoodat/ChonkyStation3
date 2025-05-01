@@ -32,6 +32,7 @@ public:
     enum class ThreadStatus {
         Ready,
         Running,
+        Sleeping,
         Waiting,
         Terminated
     };
@@ -43,12 +44,14 @@ public:
     
     void reschedule();
     void halt();
+    void sleep(u64 us);
     void wait();
     void wakeUp();
 
     static std::string threadStatusToString(ThreadStatus status) {
         switch (status) {
         case ThreadStatus::Running:    return "Running";
+        case ThreadStatus::Sleeping:   return "Sleeping";
         case ThreadStatus::Waiting:    return "Waiting";
         case ThreadStatus::Terminated: return "Terminated";
         }

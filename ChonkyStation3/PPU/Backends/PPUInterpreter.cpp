@@ -82,6 +82,7 @@ void PPUInterpreter::step() {
             case VMRGLW:    vmrglw(instr);      break;
             case VCMPGEFP_:
             case VCMPGEFP:  vcmpgefp(instr);    break;
+            case VSPLTB:    vspltb(instr);      break;
             case VCMPGTUH_:
             case VCMPGTUH:  vcmpgtuh(instr);    break;
             case VSRW:      vsrw(instr);        break;
@@ -90,6 +91,7 @@ void PPUInterpreter::step() {
             case VSPLTW:    vspltw(instr);      break;
             case VCMPGTFP_:
             case VCMPGTFP:  vcmpgtfp(instr);    break;
+            case VCFUX:     vcfux(instr);       break;
             case VSPLTISB:  vspltisb(instr);    break;
             case VCFSX:     vcfsx(instr);       break;
             case VSPLTISH:  vspltish(instr);    break;
@@ -327,6 +329,7 @@ void PPUInterpreter::step() {
         case FRSQRTE:   frsqrte(instr); break;
         case FMSUB:     fmsub(instr);   break;
         case FMADD:     fmadd(instr);   break;
+        case FNMSUB:    fnmsub(instr);  break;
 
         default:
             switch (instr.g_3f_field) {
@@ -832,6 +835,15 @@ void PPUInterpreter::vcmpgefp(const Instruction& instr) {
         state.cr.setCRField(6, all_equal | none_equal);
 }
 
+void PPUInterpreter::vspltb(const Instruction& instr) {
+    Helpers::debugAssert(instr.uimm < 16, "spltb: uimm >= 16\n");
+
+    const u8 v = state.vrs[instr.vb].b[15 - instr.uimm];
+
+    for (int i = 0; i < 16; i++)
+        state.vrs[instr.vd].b[i] = v;
+}
+
 void PPUInterpreter::vcmpgtuh(const Instruction& instr) {
     u8 all_equal = 0x8;
     u8 none_equal = 0x2;
@@ -905,6 +917,14 @@ void PPUInterpreter::vcmpgtfp(const Instruction& instr) {
 
     if (instr.rc_v)
         state.cr.setCRField(6, all_equal | none_equal);
+}
+
+void PPUInterpreter::vcfux(const Instruction& instr) {
+    const auto factor = 1 << instr.uimm;
+    state.vrs[instr.vd].f[0] = (float)state.vrs[instr.vb].w[0] / factor;
+    state.vrs[instr.vd].f[1] = (float)state.vrs[instr.vb].w[1] / factor;
+    state.vrs[instr.vd].f[2] = (float)state.vrs[instr.vb].w[2] / factor;
+    state.vrs[instr.vd].f[3] = (float)state.vrs[instr.vb].w[3] / factor;
 }
 
 void PPUInterpreter::vspltisb(const Instruction& instr) {
@@ -1911,6 +1931,11 @@ void PPUInterpreter::fmsub(const Instruction& instr) {
 void PPUInterpreter::fmadd(const Instruction& instr) {
     Helpers::debugAssert(!instr.rc, "fmadd: rc\n");
     state.fprs[instr.frt] = state.fprs[instr.fra] * state.fprs[instr.frc] + state.fprs[instr.frb];
+}
+
+void PPUInterpreter::fnmsub(const Instruction& instr) {
+    Helpers::debugAssert(!instr.rc, "fnmsub: rc\n");
+    state.fprs[instr.frt] = -(state.fprs[instr.fra] * state.fprs[instr.frc] - state.fprs[instr.frb]);
 }
 
 void PPUInterpreter::fneg(const Instruction& instr) {

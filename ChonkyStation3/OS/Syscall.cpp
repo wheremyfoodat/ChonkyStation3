@@ -101,6 +101,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 108:   ps3->ppu->state.gprs[3] = sys_cond_signal();                        break;
     case 109:   ps3->ppu->state.gprs[3] = sys_cond_signal_all();                    break;
     case 114:   ps3->ppu->state.gprs[3] = sys_semaphore_get_value();                break;
+    case 118:   ps3->ppu->state.gprs[3] = sys_event_flag_clear();                   break;
     case 120:   ps3->ppu->state.gprs[3] = sys_rwlock_create();                      break;
     case 122:   ps3->ppu->state.gprs[3] = sys_rwlock_rlock();                       break;
     case 124:   ps3->ppu->state.gprs[3] = sys_rwlock_runlock();                     break;
@@ -154,7 +155,10 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 254:   todo("sys_spu_thread_group_log()");                                             break;
     case 300:   ps3->ppu->state.gprs[3] = sys_vm_memory_map();                                  break;
     case 306:   ps3->ppu->state.gprs[3] = sys_vm_touch();                                       break;
+    case 308:   todo("sys_vm_invalidate()");                                                    break;
+    case 310:   todo("sys_vm_sync()");                                                          break;
     case 324:   ps3->ppu->state.gprs[3] = sys_memory_container_create();                        break;  // Debug
+    case 327:   todo("sys_mmapper_enable_page_fault_notification()");                           break;
     case 329:   ps3->ppu->state.gprs[3] = sys_mmapper_free_shared_memory();                     break;
     case 330:   ps3->ppu->state.gprs[3] = sys_mmapper_allocate_address();                       break;
     case 331:   todo("sys_mmapper_free_address()");                                             break;
@@ -168,6 +172,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 349:   ps3->ppu->state.gprs[3] = sys_memory_free();                                    break;
     case 351:   todo("sys_memory_get_page_attribute()");                                        break;
     case 352:   ps3->ppu->state.gprs[3] = sys_memory_get_user_memory_size();                    break;
+    case 383:   todo("sys_game_get_temperature()");                                             break;
     case 403: {   // puts
         std::string str;
         u8* ptr = ps3->mem.getPtr(ARG1);

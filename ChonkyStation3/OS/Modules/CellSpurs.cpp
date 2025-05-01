@@ -1,5 +1,6 @@
 #include "CellSpurs.hpp"
 #include "PlayStation3.hpp"
+#include <Loaders/SPU/SPULoader.hpp>
 
 
 // TODO: SPU :(
@@ -212,6 +213,11 @@ u64 CellSpurs::cellSpursInitialize() {
     const u8 exit_if_no_work = ARG4;
     log("cellSpursInitialize(spurs_ptr: 0x%08x, n_spus: %d, spu_prio: %d, ppu_prio: %d, exit_if_no_work: %d) UNIMPLEMENTED\n", spurs_ptr, n_spus, spu_prio, ppu_prio, exit_if_no_work);
 
+    // Create SPURS thread
+    auto thread = ps3->spu_thread_manager.createThread("HLE SPURS Thread");
+    spurs_thread_id = thread->id;
+    thread->wait();
+
     return CELL_OK;
 }
 
@@ -240,6 +246,13 @@ u64 CellSpurs::cellSpursCreateTask() {
     const u32 pattern_ptr = ARG5;
     const u32 arg_ptr = ARG6;
     log("cellSpursCreateTask(taskset_ptr: 0x%08x, task_id_ptr: 0x%08x, elf_ptr: 0x%08x, ctx_ptr: 0x%08x, size: 0x%08d, pattern_ptr: 0x%08x, arg_ptr: 0x%08x) UNIMPLEMENTED\n", taskset_ptr, task_id_ptr, elf_ptr, ctx_ptr, size, pattern_ptr, arg_ptr);
+
+    auto thread = ps3->spu_thread_manager.getThreadByID(spurs_thread_id);
+    SPULoader loader = SPULoader(ps3);
+    sys_spu_image* img = new sys_spu_image();
+    loader.load(elf_ptr, img);
+    thread->loadImage(img);
+    thread->wakeUp();
 
     return CELL_OK;
 }

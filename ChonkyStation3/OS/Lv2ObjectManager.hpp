@@ -36,6 +36,14 @@ public:
         Helpers::panic("Object with handle %d does not exist\n", handle);
     }
 
+    bool exists(u64 handle) {
+        for (auto& i : objs) {
+            if (i.handle == handle)
+                return true;
+        }
+        return false;
+    }
+
     std::vector<Lv2Object> objs;
 
 private:

@@ -171,6 +171,17 @@ u64 SysPrxForUser::sysMalloc() {
     return ps3->mem.alloc(size)->vaddr;
 }
 
+u64 SysPrxForUser::sysFree() {
+    const u32 addr = ARG0;
+    log("_sys_free(addr: 0x%08x)\n", addr);
+
+    auto [ok, entry] = ps3->mem.isMapped(addr);
+    Helpers::debugAssert(ok, "_sys_free: addr 0x%08x was not mapped\n", addr);
+    ps3->mem.free(entry);
+
+    return CELL_OK;
+}
+
 u64 SysPrxForUser::sysMemcmp() {
     const u32 buf1 = ARG0;
     const u32 buf2 = ARG1;

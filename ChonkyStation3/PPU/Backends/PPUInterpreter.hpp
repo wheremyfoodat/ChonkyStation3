@@ -102,11 +102,13 @@ public:
     void vslw       (const Instruction& instr);
     void vmrglw     (const Instruction& instr);
     void vcmpgefp   (const Instruction& instr);
+    void vspltb     (const Instruction& instr);
     void vcmpgtuh   (const Instruction& instr);
     void vsrw       (const Instruction& instr);
     void vcmpgtuw   (const Instruction& instr);
     void vspltw     (const Instruction& instr);
     void vcmpgtfp   (const Instruction& instr);
+    void vcfux      (const Instruction& instr);
     void vspltisb   (const Instruction& instr);
     void vcfsx      (const Instruction& instr);
     void vspltish   (const Instruction& instr);
@@ -246,6 +248,7 @@ public:
     void fmr        (const Instruction& instr);
     void fmsub      (const Instruction& instr);
     void fmadd      (const Instruction& instr);
+    void fnmsub     (const Instruction& instr);
     void fneg       (const Instruction& instr);
     void fabs_      (const Instruction& instr);
     void fctidz     (const Instruction& instr);

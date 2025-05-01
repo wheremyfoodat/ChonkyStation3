@@ -37,6 +37,7 @@ public:
     u64 sysMemset();
     u64 sysMemcpy();
     u64 sysMalloc();
+    u64 sysFree();
     u64 sysMemcmp();
 
     // sys_spu (forwarded to lv2 syscalls)

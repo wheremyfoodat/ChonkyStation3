@@ -383,7 +383,7 @@ void RSX::runCommandList(u64 put_addr) {
                 if (gcm.ctrl->get == last_jump_dst && old_get == last_jump_addr) {
                     log("RSX hanged, aborting...\n");
                     hanged = true;
-                    exit(0);
+                    //exit(0);
                     break;
                 }
                 last_jump_addr = old_get;

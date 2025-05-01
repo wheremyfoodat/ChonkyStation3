@@ -14,7 +14,9 @@ u64 Syscall::sys_vm_memory_map() {
     log_sys_vm("sys_vm_memory_map(vsize: 0x%016llx, psize: 0x%016llx, ct_id: %d, flag: 0x%016llx, policy: 0x%016llx, addr_ptr: 0x%08x)\n", vsize, psize, ct_id, flag, policy, addr_ptr);
 
     // TODO: We just treat this as a normal alloc for now (always allocate from the "main" memory container)
-    auto block = ps3->mem.alloc(psize, 0x20000000);
+    // HACK: If we can't allocate vsize, allocate psize
+    const auto size = ps3->mem.canAlloc(vsize) ? vsize : psize;
+    auto block = ps3->mem.alloc(size, 0x20000000);
     ps3->mem.write<u32>(addr_ptr, block->vaddr);
 
     return CELL_OK;

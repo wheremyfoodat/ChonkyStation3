@@ -65,6 +65,7 @@ public:
 
     // sys_event_flag
     u64 sys_event_flag_wait();
+    u64 sys_event_flag_clear();
 
     // sys_semaphore
     u64 sys_semaphore_create();

@@ -75,9 +75,11 @@ u64 Syscall::sys_spu_thread_initialize() {
 
     // Register this thread in the SPU thread group
     Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);
+    //const u32 id = ((group->threads.size() & 0xff) << 24) | (group_id & 0xffffff);
+    const u32 id = thread->id;
     group->threads.push_back(thread->id);
 
-    ps3->mem.write<u32>(id_ptr, thread->id);
+    ps3->mem.write<u32>(id_ptr, id);
 
     return CELL_OK;
 }
@@ -123,7 +125,7 @@ u64 Syscall::sys_spu_thread_read_ls() {
     Helpers::debugAssert(ls_addr <= 0x3ffff, "sys_spu_thread_read_ls: ls_addr is out of bounds (0x%08x)\n", ls_addr);
 
     switch (type) {
-    case 1:     ps3->mem.write<u64>(val_ptr, thread->ls[ls_addr]);      break;
+    case 1:     ps3->mem.write<u64>(val_ptr, thread->ls[ls_addr]);                                   break;
     case 2:     ps3->mem.write<u64>(val_ptr, Helpers::bswap<u16>(*(u16*)&thread->ls[ls_addr]));      break;
     case 4:     ps3->mem.write<u64>(val_ptr, Helpers::bswap<u32>(*(u32*)&thread->ls[ls_addr]));      break;
     case 8:     ps3->mem.write<u64>(val_ptr, Helpers::bswap<u64>(*(u64*)&thread->ls[ls_addr]));      break;

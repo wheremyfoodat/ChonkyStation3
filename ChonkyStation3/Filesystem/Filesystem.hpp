@@ -37,6 +37,7 @@ public:
     struct File {
         FILE* file;
         fs::path path;
+        fs::path guest_path;
     };
 
     struct Directory {

@@ -19,6 +19,18 @@ public:
     CellSpurs(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
+    struct alignas(8) CellSpursTasksetAttribute {
+        BEField<u32> revision;           
+        BEField<u32> sdk_version;        
+        BEField<u64> args;               
+        u8 priority[8];               
+        BEField<u32> max_contention;     
+        BEField<u32> name_ptr;         
+        BEField<u32> taskset_size;       
+        BEField<s32> enable_clear_ls;    
+        u8 reserved[472];
+    };
+
     struct CellSpursWorkloadAttribute {
         BEField<u32> revision;
         BEField<u32> sdk_ver;
@@ -41,6 +53,35 @@ public:
         BEField<u32> unused1;
         BEField<u32> flag;
     };
+
+
+    u32 spurs_thread_id = 0;
+
+    struct Task {
+        u32 handle = 0;
+        u32 elf_ptr = 0;
+        u32 arg_ptr = 0;
+    };
+
+    struct Taskset {
+        u32 handle = 0;
+        std::vector<Task> tasks;
+
+        Task* getTask(u32 handle) {
+            for (auto& i : tasks) {
+                if (i.handle == handle) return &i;
+            }
+            return nullptr;
+        }
+    };
+
+    std::vector<Taskset> tasksets;
+    Taskset* getTaskset(u32 handle) {
+        for (auto& i : tasksets) {
+            if (i.handle == handle) return &i;
+        }
+        return nullptr;
+    }
 
     u64 _cellSpursLFQueueInitialize();
     u64 cellSpursAttributeSetNamePrefix();

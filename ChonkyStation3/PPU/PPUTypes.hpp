@@ -313,7 +313,7 @@ enum G_04Opcodes {
     VCMPGTUB_       = 0x606,
     VMULEUB         = 0x208,
     VRFIN           = 0x20a,
-    VSPLTB          = 0x20c,
+    VSPLTB          = 0x20c,    // Vector Splat Byte
     VUPKHSB         = 0x20e,
     VADDUHS         = 0x240,
     VMINUH          = 0x242,
@@ -343,7 +343,7 @@ enum G_04Opcodes {
     VCMPGTSB        = 0x306,
     VCMPGTSB_       = 0x706,
     VMULESB         = 0x308,
-    VCFUX           = 0x30a,
+    VCFUX           = 0x30a,    // Vector Convert from Unsigned Fixed-Point Word
     VSPLTISB        = 0x30c,    // Vector Splat Immediate Signed Byte
     VPKPX           = 0x30e,
     VADDSHS         = 0x340,

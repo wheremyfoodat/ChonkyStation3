@@ -41,7 +41,7 @@ u32 Filesystem::open(fs::path path) {
 
     const u32 new_file_id = ps3->handle_manager.request();
     FILE* file = std::fopen(host_path.generic_string().c_str(), "rb");
-    open_files[new_file_id] = { file, host_path };
+    open_files[new_file_id] = { file, host_path, path };
     log("Opened file %s\n", host_path.generic_string().c_str());
     return new_file_id;
 }

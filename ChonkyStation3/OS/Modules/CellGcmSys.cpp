@@ -359,6 +359,7 @@ u64 CellGcmSys::cellGcmSetVBlankHandler() {
     log("cellGcmSetVBlankHandler(handler_ptr: 0x%08x)\n", handler_ptr);
 
     vblank_handler = handler_ptr;
+    ps3->vblank();
     return CELL_OK;
 }
 

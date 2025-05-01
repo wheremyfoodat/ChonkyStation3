@@ -10,7 +10,10 @@ SPUThread::SPUThread(PlayStation3* ps3, std::string name) : ps3(ps3) {
     std::memset(ls, 0, 256_KB);
     lockline_waiter = new LocklineWaiter(ps3, id);
 
+    // Disconnect all ports
     for (auto& i : ports) i = -1;
+
+    state.gprs[1].w[3] = 0x3fff0;   // Default stack pointer
 }
 
 bool SPUThread::isRunning() {
@@ -70,6 +73,14 @@ void SPUThread::halt() {
     Helpers::panic("Halting thread %d \"%s\"\n", id, name.c_str());
     //status = ThreadStatus::Terminated;
     //reschedule();
+}
+
+void SPUThread::sleep(u64 us) {
+    const u64 cycles = Scheduler::uSecondsToCycles(us);
+    ps3->scheduler.push(std::bind(&SPUThread::wakeUp, this), ps3->curr_block_cycles + cycles, "spu thread wakeup");
+    status = ThreadStatus::Sleeping;
+    reschedule();
+    log("Sleeping SPU thread %d for %d us\n", id, us);
 }
 
 void SPUThread::wait() {
