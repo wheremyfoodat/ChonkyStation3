@@ -103,8 +103,7 @@ void RSX::compileProgram() {
 
         // Texture samplers
         const int loc = glGetUniformLocation(program.handle(), "tex");
-        if (loc >= 0)
-            glUniform1i(loc, 0);
+        glUniform1i(loc, 0);
 
         // Cache it
         cache.cacheProgram(hash_program, new_program);
@@ -219,9 +218,9 @@ void RSX::uploadTexture() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glActiveTexture(GL_TEXTURE0 + 0);
-
         if (!isCompressedFormat(texture.format)) {
             glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, type, (void*)ps3->mem.getPtr(texture.addr));
+            checkGLError();
         }
         else {
             glCompressedTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, getCompressedTextureSize(texture.format, texture.width, texture.height), (void*)ps3->mem.getPtr(texture.addr));
@@ -239,8 +238,8 @@ GLuint RSX::getTextureInternalFormat(u8 fmt) {
     switch (getRawTextureFormat(fmt)) {
 
     case CELL_GCM_TEXTURE_B8:               return GL_RED;
-    case CELL_GCM_TEXTURE_A8R8G8B8:         return GL_BGRA;
-    case CELL_GCM_TEXTURE_D8R8G8B8:         return GL_BGRA;
+    case CELL_GCM_TEXTURE_A8R8G8B8:         return GL_RGBA;
+    case CELL_GCM_TEXTURE_D8R8G8B8:         return GL_RGBA;
     case CELL_GCM_TEXTURE_COMPRESSED_DXT1:  return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
     case CELL_GCM_TEXTURE_COMPRESSED_DXT23: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
     case CELL_GCM_TEXTURE_COMPRESSED_DXT45: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
