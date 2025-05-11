@@ -1,4 +1,7 @@
 #include "GameWindow.hpp"
+#ifdef __APPLE__
+#include "MainWindow.hpp"
+#endif
 
 
 static constexpr double MS_PER_FRAME = 1000.0 / 60.0;
@@ -13,7 +16,7 @@ SDL_GameController* findController() {
     return nullptr;
 }
 
-GameWindow::GameWindow() {
+GameWindow::GameWindow(MainWindow* main_window) : main_window(main_window) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
         Helpers::panic("Failed to initialize SDL\n");
 
@@ -22,18 +25,30 @@ GameWindow::GameWindow() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 }
 
+void GameWindow::init() {
+    window = SDL_CreateWindow("ChonkyStation3", 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    if (window == nullptr) {
+        Helpers::panic("Failed to create SDL window: %s\n", SDL_GetError());
+    }
+    
+    context = SDL_GL_CreateContext(window);
+    if (context == nullptr)
+        Helpers::panic("Failed to create OpenGL context: %s\n", SDL_GetError());
+}
+
 void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
     this->ps3 = ps3;
-
     std::string title = "ChonkyStation3";
-    window = SDL_CreateWindow(title.c_str(), 100, 100, 1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    SDL_GLContext context = SDL_GL_CreateContext(window);
+
+#ifndef __APPLE__
+    createWindow();
+#else
+    QMetaObject::invokeMethod(main_window, "createGameWindow", Qt::BlockingQueuedConnection);
+#endif
+    
     SDL_GL_MakeCurrent(window, context);
     SDL_GL_SetSwapInterval(0);
-
-    if (context == nullptr)
-        Helpers::panic("Failed to create OpenGL context\n");
-
+    
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(SDL_GL_GetProcAddress))) {
         Helpers::panic("OpenGL init failed");
     }
@@ -48,8 +63,10 @@ void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
         title_game = ps3->elf_path.filename().generic_string();
     }
     title = std::format("ChonkyStation3 | {}", title_game);
+#ifndef __APPLE__
     SDL_SetWindowTitle(window, title.c_str());
-
+#endif
+    
     printf("\nEXECUTING\n");
     printf("---------\n\n");
 
@@ -89,69 +106,23 @@ void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
         while (!quit) flipHandler();
     }
     
-    SDL_GL_DeleteContext(context);
-    SDL_DestroyWindow(window);
+#ifndef __APPLE__
+    destroyWindow();
+#else
+    QMetaObject::invokeMethod(main_window, "destroyGameWindow", Qt::AutoConnection);
+#endif
     return;
 }
 
 // Will be called on every RSX flip
 void GameWindow::flipHandler() {
-    frame_count++;
-
-    const u64 curr_ticks = SDL_GetTicks64();
-    curr_time = curr_ticks / 1000.0;
-
-    std::string title;
-    if (curr_time - last_time > 1.0) {
-        //ppu_usage = ((CPU_FREQ - ps3->skipped_cycles) * 100.0f) / CPU_FREQ;
-        ppu_usage = std::min(((ps3->scheduler.time - last_timestamp) * 100.0f) / CPU_FREQ, 100.0f);
-        title = std::format("ChonkyStation3 | {} | {} FPS | PPU: {:.2f}%", title_game, frame_count, std::ceil(ppu_usage * 100.0f) / 100.0f);
-        SDL_SetWindowTitle(window, title.c_str());
-        last_time = curr_time;
-        frame_count = 0;
-    }
-    last_timestamp = ps3->scheduler.time;
-
+#ifndef __APPLE__
+    updateWindow();
+#else
+    QMetaObject::invokeMethod(main_window, "updateGameWindow", Qt::AutoConnection);
+#endif
+    
     ps3->resetButtons();
-
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-        switch (e.type) {
-        case SDL_QUIT: {
-            quit = true;
-            ps3->cycle_count = CPU_FREQ;
-            break;
-        }
-
-        case SDL_MOUSEBUTTONDOWN: {
-            if (e.button.button == SDL_BUTTON_LEFT && e.button.clicks == 2) {
-                fullscreen = !fullscreen;
-                SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
-                SDL_ShowCursor(fullscreen ? SDL_DISABLE : SDL_ENABLE);
-            }
-            else if (e.button.button == SDL_BUTTON_RIGHT) {
-                vsync_enabled = !vsync_enabled;
-                SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
-            }
-            break;
-        }
-
-        case SDL_CONTROLLERDEVICEADDED: {
-            if (!controller) {
-                controller = SDL_GameControllerOpen(e.cdevice.which);
-            }
-            break;
-        }
-        case SDL_CONTROLLERDEVICEREMOVED: {
-            if (controller && e.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
-                SDL_GameControllerClose(controller);
-                controller = findController();
-            }
-            break;
-        }
-        }
-    }
-
     if (!controller) {
         const u8* keystate = SDL_GetKeyboardState(NULL);
         if (keystate[SDL_SCANCODE_M])      ps3->pressButton(CELL_PAD_CTRL_START);
@@ -194,4 +165,68 @@ void GameWindow::flipHandler() {
     }
 
     SDL_GL_SwapWindow(window);
+}
+
+void GameWindow::createWindow() {
+    init();
+}
+
+void GameWindow::updateWindow() {
+    frame_count++;
+
+    const u64 curr_ticks = SDL_GetTicks64();
+    curr_time = curr_ticks / 1000.0;
+
+    std::string title;
+    if (curr_time - last_time > 1.0) {
+        ppu_usage = std::min(((ps3->scheduler.time - last_timestamp) * 100.0f) / CPU_FREQ, 100.0f);
+        title = std::format("ChonkyStation3 | {} | {} FPS | PPU: {:.2f}%", title_game, frame_count, std::ceil(ppu_usage * 100.0f) / 100.0f);
+        SDL_SetWindowTitle(window, title.c_str());
+        last_time = curr_time;
+        frame_count = 0;
+    }
+    last_timestamp = ps3->scheduler.time;
+
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        switch (e.type) {
+        case SDL_QUIT: {
+            quit = true;
+            ps3->cycle_count = CPU_FREQ;
+            break;
+        }
+
+        case SDL_MOUSEBUTTONDOWN: {
+            if (e.button.button == SDL_BUTTON_LEFT && e.button.clicks == 2) {
+                fullscreen = !fullscreen;
+                SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+                SDL_ShowCursor(fullscreen ? SDL_DISABLE : SDL_ENABLE);
+            }
+            else if (e.button.button == SDL_BUTTON_RIGHT) {
+                vsync_enabled = !vsync_enabled;
+                SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
+            }
+            break;
+        }
+
+        case SDL_CONTROLLERDEVICEADDED: {
+            if (!controller) {
+                controller = SDL_GameControllerOpen(e.cdevice.which);
+            }
+            break;
+        }
+        case SDL_CONTROLLERDEVICEREMOVED: {
+            if (controller && e.cdevice.which == SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller))) {
+                SDL_GameControllerClose(controller);
+                controller = findController();
+            }
+            break;
+        }
+        }
+    }
+}
+
+void GameWindow::destroyWindow() {
+    SDL_GL_DeleteContext(context);
+    SDL_DestroyWindow(window);
 }

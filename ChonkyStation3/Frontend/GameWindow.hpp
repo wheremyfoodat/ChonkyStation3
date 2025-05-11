@@ -5,19 +5,33 @@
 #include <string>
 #include <format>
 
+#ifdef CHONKYSTATION3_QT_BUILD && __APPLE__
+#include <QtWidgets>
+#endif
+
 #include <SDL.h>
 #include <PlayStation3.hpp>
 
 
+// Circular dependency
+class MainWindow;
+
 class GameWindow {
 public:
-    GameWindow();
+    GameWindow(MainWindow* main_window);
+    void init();
     void run(PlayStation3* ps3, bool is_rsx_replay = false);
     void flipHandler();
+    
+    void createWindow();
+    void updateWindow();
+    void destroyWindow();
 
     PlayStation3* ps3;
+    MainWindow* main_window;
     std::string title_game;
     SDL_Window* window;
+    SDL_GLContext context;
     SDL_GameController* controller;
 
     bool quit = false;

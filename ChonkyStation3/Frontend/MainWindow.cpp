@@ -3,7 +3,7 @@
 MainWindow::MainWindow() : QMainWindow() {
     ps3 = new PlayStation3();
     game_loader = new GameLoader(ps3);
-    game_window = new GameWindow();
+    game_window = new GameWindow(this);
     settings = new SettingsWidget(ps3);
     
     // Qt6 UI
@@ -239,6 +239,18 @@ void MainWindow::gameThread() {
     is_game_running = false;
     delete ps3;
     ps3 = new PlayStation3();
+}
+
+void MainWindow::createGameWindow() {
+    game_window->createWindow();
+}
+
+void MainWindow::updateGameWindow() {
+    game_window->updateWindow();
+}
+
+void MainWindow::destroyGameWindow() {
+    game_window->destroyWindow();
 }
 
 void MainWindow::onExit() {}

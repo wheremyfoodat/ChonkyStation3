@@ -45,6 +45,12 @@ public:
     std::thread game_thread;
     void launchGame();
     void gameThread();
+    
+public slots:
+    // MacOS-only functions to manage the SDL window on the main thread
+    void createGameWindow();
+    void updateGameWindow();
+    void destroyGameWindow();
 
 private:
     // Overrides
