@@ -5,7 +5,7 @@
 #include <string>
 #include <format>
 
-#ifdef CHONKYSTATION3_QT_BUILD && __APPLE__
+#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
 #include <QtWidgets>
 #endif
 

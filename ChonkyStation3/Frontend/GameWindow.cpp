@@ -1,5 +1,5 @@
 #include "GameWindow.hpp"
-#ifdef __APPLE__
+#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
 #include "MainWindow.hpp"
 #endif
 
@@ -40,10 +40,10 @@ void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
     this->ps3 = ps3;
     std::string title = "ChonkyStation3";
 
-#ifndef __APPLE__
-    createWindow();
-#else
+#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
     QMetaObject::invokeMethod(main_window, "createGameWindow", Qt::BlockingQueuedConnection);
+#else
+    createWindow();
 #endif
     
     SDL_GL_MakeCurrent(window, context);
@@ -106,20 +106,20 @@ void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
         while (!quit) flipHandler();
     }
     
-#ifndef __APPLE__
-    destroyWindow();
-#else
+#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
     QMetaObject::invokeMethod(main_window, "destroyGameWindow", Qt::AutoConnection);
+#else
+    destroyWindow();
 #endif
     return;
 }
 
 // Will be called on every RSX flip
 void GameWindow::flipHandler() {
-#ifndef __APPLE__
-    updateWindow();
-#else
+#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
     QMetaObject::invokeMethod(main_window, "updateGameWindow", Qt::AutoConnection);
+#else
+    updateWindow();
 #endif
     
     ps3->resetButtons();
