@@ -18,7 +18,7 @@ class MainWindow;
 
 class GameWindow {
 public:
-    GameWindow(MainWindow* main_window);
+    GameWindow(MainWindow* main_window = nullptr);
     void init();
     void run(PlayStation3* ps3, bool is_rsx_replay = false);
     void flipHandler();
