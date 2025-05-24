@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>820</width>
-     <height>21</height>
+     <height>37</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -88,6 +88,7 @@
     <property name="title">
      <string>Debug</string>
     </property>
+    <addaction name="actionThread_Debugger"/>
     <addaction name="actionReplay_RSX_Capture"/>
    </widget>
    <addaction name="menuFile"/>
@@ -143,6 +144,11 @@
   <action name="actionLaunch_Disc_Game">
    <property name="text">
     <string>Launch Disc Game</string>
+   </property>
+  </action>
+  <action name="actionThread_Debugger">
+   <property name="text">
+    <string>Thread Debugger</string>
    </property>
   </action>
  </widget>

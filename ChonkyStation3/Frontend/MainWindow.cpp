@@ -5,6 +5,7 @@ MainWindow::MainWindow() : QMainWindow() {
     game_loader = new GameLoader(ps3);
     game_window = new GameWindow(this);
     settings = new SettingsWidget(ps3);
+    thread_debugger = new ThreadDebuggerWidget(ps3);
     
     // Qt6 UI
     ui.setupUi(this);
@@ -48,6 +49,10 @@ MainWindow::MainWindow() : QMainWindow() {
         settings->show();
     });
 
+    connect(ui.actionThread_Debugger, &QAction::triggered, this, [this]() {
+        thread_debugger->show();
+    });
+    
     connect(ui.actionReplay_RSX_Capture, &QAction::triggered, this, &MainWindow::replayRSXCapture);
 
     int row = 0;

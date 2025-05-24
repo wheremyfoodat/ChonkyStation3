@@ -12,6 +12,7 @@
 #include <Loaders/Game/GameLoader.hpp>
 
 #include "SettingsWidget.hpp"
+#include "ThreadDebuggerWidget.hpp"
 
 
 class MainWindow : public QMainWindow {
@@ -21,6 +22,7 @@ public:
     MainWindow();
     Ui::Main ui;
     SettingsWidget* settings;
+    ThreadDebuggerWidget* thread_debugger;
 
     void setListItem(int row, int column, std::string str);
     void setListIcon(int row, fs::path icon);
