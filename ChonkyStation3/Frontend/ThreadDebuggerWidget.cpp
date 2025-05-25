@@ -24,6 +24,10 @@ void ThreadDebuggerWidget::closeEvent(QCloseEvent* event) {
 }
 
 void ThreadDebuggerWidget::update() {
+    // Create copies of the 2 thread lists to avoid possible synchronization issues
+    auto ppu_threads = ps3->thread_manager.threads;
+    auto spu_threads = ps3->spu_thread_manager.threads;
+
     // ***** PPU *****
     // Clear table
     ui.ppuTable->clear();
@@ -43,8 +47,8 @@ void ThreadDebuggerWidget::update() {
     //ui.ppuTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.ppuTable->setHorizontalHeaderLabels(QStringList({ "Name", "Status", "ID", "pc"}));
     
-    for (int i = 0; i < ps3->thread_manager.threads.size(); i++) {
-        auto& thread = ps3->thread_manager.threads[i];
+    for (int i = 0; i < ppu_threads.size(); i++) {
+        auto& thread = ppu_threads[i];
         setListItem(ui.ppuTable, i, 0, thread.name);
         setListItem(ui.ppuTable, i, 1, Thread::threadStatusToString(thread.status));
         setListItem(ui.ppuTable, i, 2, std::format("{:d}", thread.id));
@@ -69,8 +73,8 @@ void ThreadDebuggerWidget::update() {
     //ui.spuTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.spuTable->setHorizontalHeaderLabels(QStringList({ "Name", "Status", "ID", "pc"}));
     
-    for (int i = 0; i < ps3->spu_thread_manager.threads.size(); i++) {
-        auto& thread = ps3->spu_thread_manager.threads[i];
+    for (int i = 0; i < spu_threads.size(); i++) {
+        auto& thread = spu_threads[i];
         setListItem(ui.spuTable, i, 0, thread.name);
         setListItem(ui.spuTable, i, 1, SPUThread::threadStatusToString(thread.status));
         setListItem(ui.spuTable, i, 2, std::format("{:d}", thread.id));

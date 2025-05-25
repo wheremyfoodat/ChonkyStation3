@@ -51,6 +51,7 @@ public:
     static std::string threadStatusToString(ThreadStatus status) {
         switch (status) {
         case ThreadStatus::Running:    return "Running";
+        case ThreadStatus::Ready:      return "Ready";
         case ThreadStatus::Sleeping:   return "Sleeping";
         case ThreadStatus::Waiting:    return "Waiting";
         case ThreadStatus::Terminated: return "Terminated";
