@@ -337,6 +337,10 @@ void CellSpurs::spursTasksetProcessRequest() {
 
     SpursTasksetContext* taskset_ctxt = (SpursTasksetContext*)&ps3->spu->ls[0x2700];
     log("taskset addr: 0x%08x\n", (u64)taskset_ctxt->taskset_ptr);
+    if (!ps3->mem.isMapped(taskset_ctxt->taskset_ptr).first) {
+        log("taskset addr is unmapped, this is not a real call, returning\n");
+        return;
+    }
 
     auto read128 = [this](u32 addr) {
         v128 v;
@@ -373,11 +377,21 @@ void CellSpurs::spursTasksetProcessRequest() {
     // TODO: This is a temporary hack
     for (int i = 0; i < 2; i++) {
         for (int task = 0; task < 64; task++) {
-            // If the task is waiting but it is not enabled (invalid state)
+            // If the task is running but it is not enabled (invalid state)
             if (((running.dw[i] >> task) & 1) && !((enabled.dw[i] >> task) & 1)) {
                 log("Correcting invalid taskset state\n");
-                running.dw[i] &= ~(1 << task);
-                write128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, running), running);
+                //running.dw[i] &= ~(1 << task);
+                //write128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, running), running);
+                enabled.dw[i] |= 1 << task;
+                write128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, enabled), enabled);
+            }
+            // If the task is waiting but it is not enabled (invalid state)
+            if (((waiting.dw[i] >> task) & 1) && !((enabled.dw[i] >> task) & 1)) {
+                log("Correcting invalid taskset state\n");
+                //waiting.dw[i] &= ~(1 << task);
+                //write128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, waiting), waiting);
+                enabled.dw[i] |= 1 << task;
+                write128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, enabled), enabled);
             }
         }
     }

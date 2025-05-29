@@ -4,7 +4,7 @@
 ThreadDebuggerWidget::ThreadDebuggerWidget(PlayStation3* ps3, QWidget* parent) : QWidget(parent, Qt::Window), ps3(ps3) {
     ui.setupUi(this);
     
-    timer.setInterval(1000);
+    timer.setInterval(10);
     connect(&timer, &QTimer::timeout, this, &ThreadDebuggerWidget::update);
     
     setWindowTitle("Thread Debugger");
