@@ -13,7 +13,7 @@ bool Lv2SPUThreadGroup::start() {
             auto thread = ps3->spu_thread_manager.getThreadByID(i);
             thread->status = SPUThread::ThreadStatus::Running;
             // Delay waking the thread up
-            thread->sleep(50000);
+            //thread->sleep(50000);
         }
     }
 

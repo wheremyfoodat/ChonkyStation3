@@ -325,3 +325,43 @@ u64 CellSpurs::_cellSpursWorkloadAttributeInitialize() {
 
     return CELL_OK;
 }
+
+// ***** SPU SIDE *****
+
+void CellSpurs::spursTasksetProcessRequest() {
+    const s32 request = ps3->spu->state.gprs[3].w[3];
+    const u32 task_id_ptr = ps3->spu->state.gprs[4].w[3];
+    const u32 is_waiting_ptr = ps3->spu->state.gprs[5].w[3];
+    log("spursTasksetProcessRequest(request: %d, task_id_ptr: 0x%08x, is_waiting_ptr: 0x%08x)\n", request, task_id_ptr, is_waiting_ptr);
+    log("request: %s\n", requestToString(request).c_str());
+
+    SpursTasksetContext* taskset_ctxt = (SpursTasksetContext*)&ps3->spu->ls[0x2700];
+    log("taskset addr: 0x%08x\n", (u64)taskset_ctxt->taskset_ptr);
+
+    auto read128 = [this](u32 addr) {
+        v128 v;
+        v.dw[1] = ps3->mem.read<u64>(addr + 0);
+        v.dw[0] = ps3->mem.read<u64>(addr + 8);
+        return v;
+    };
+
+    auto print = [](v128 v) {
+        for (int j = 0; j < 16; j++)
+            printf("%02x", v.b[15 - j]);
+        printf("\n");
+    };
+    
+    v128 waiting = read128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, waiting));
+    v128 running = read128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, running));
+    v128 ready = read128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, ready));
+    v128 pending_ready = read128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, pending_ready));
+    v128 enabled = read128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, enabled));
+    v128 signalled = read128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, signalled));
+
+    log("waiting        : "); print(waiting);
+    log("running        : "); print(running);
+    log("ready          : "); print(ready);
+    log("pending_ready  : "); print(pending_ready);
+    log("enabled        : "); print(enabled);
+    log("signalled      : "); print(signalled);
+}

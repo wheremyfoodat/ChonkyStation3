@@ -26,6 +26,15 @@ using s64 = std::int64_t;
 
 using uptr = std::uintptr_t;
 
+union v128 {
+    u8 b[16];
+    u16 h[8];
+    u32 w[4];
+    u64 dw[2];
+    float f[4];
+    double d[2];
+};
+
 constexpr size_t operator""_KB(unsigned long long int x) { return 1024ULL * x; }
 constexpr size_t operator""_MB(unsigned long long int x) { return 1024_KB * x; }
 constexpr size_t operator""_GB(unsigned long long int x) { return 1024_MB * x; }

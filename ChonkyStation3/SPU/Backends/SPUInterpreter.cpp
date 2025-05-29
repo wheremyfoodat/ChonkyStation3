@@ -2,6 +2,15 @@
 #include <PlayStation3.hpp>
 
 
+#define SPURS_TRACE
+
+#ifdef SPURS_TRACE
+
+#include <logger.hpp>
+MAKE_LOG_FUNCTION(logSpurs, cellSpurs)
+
+#endif
+
 #define UNIMPL_INSTR(name)                                                      \
 void SPUInterpreter::name(const SPUInstruction& instr) {                        \
     Helpers::panic("Unimplemented instruction %s @ 0x%08x\n", #name, state.pc); \
@@ -221,7 +230,27 @@ void SPUInterpreter::step() {
     const auto opc = (instr.raw >> (32 - INSTR_BITS)) & INSTR_MASK;
     (*this.*instr_table[opc])(instr);
 
+#ifndef CHONKYSTATION3_USER_BUILD
+
+#ifdef SPURS_TRACE
+    
+    if (state.pc == 0xa00) {
+        logSpurs("spursTasksetEntry()\n");
+    }
+    else if (state.pc == 0xa70) {
+        logSpurs("spursTasksetSyscallEntry()\n");
+    }
+    else if (state.pc == 0xe40) {
+        // spursTasksetProcessRequest
+        //logSpurs("spursTasksetProcessRequest(request: %d, task_id_ptr: 0x%08x, is_waiting_ptr: 0x%08x)\n", state.gprs[3].w[3], state.gprs[4].w[3], state.gprs[5].w[3]);
+        ps3->module_manager.cellSpurs.spursTasksetProcessRequest();
+    }
+
+#endif
+
     //printState();
+#endif
+
     state.pc += 4;
 }
 

@@ -75,8 +75,8 @@ u64 Syscall::sys_spu_thread_initialize() {
 
     // Register this thread in the SPU thread group
     Lv2SPUThreadGroup* group = ps3->lv2_obj.get<Lv2SPUThreadGroup>(group_id);
-    //const u32 id = ((group->threads.size() & 0xff) << 24) | (group_id & 0xffffff);
-    const u32 id = thread->id;
+    const u32 id = ((group->threads.size() & 0xff) << 24) | (group_id & 0xffffff);
+    //const u32 id = thread->id;
     group->threads.push_back(thread->id);
 
     ps3->mem.write<u32>(id_ptr, id);
