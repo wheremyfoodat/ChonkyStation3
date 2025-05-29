@@ -344,6 +344,11 @@ void CellSpurs::spursTasksetProcessRequest() {
         v.dw[0] = ps3->mem.read<u64>(addr + 8);
         return v;
     };
+    
+    auto write128 = [this](u32 addr, v128 v) {
+        ps3->mem.write<u64>(addr + 0, v.dw[1]);
+        ps3->mem.write<u64>(addr + 8, v.dw[0]);
+    };
 
     auto print = [](v128 v) {
         for (int j = 0; j < 16; j++)
@@ -364,4 +369,16 @@ void CellSpurs::spursTasksetProcessRequest() {
     log("pending_ready  : "); print(pending_ready);
     log("enabled        : "); print(enabled);
     log("signalled      : "); print(signalled);
+    
+    // TODO: This is a temporary hack
+    for (int i = 0; i < 2; i++) {
+        for (int task = 0; task < 64; task++) {
+            // If the task is waiting but it is not enabled (invalid state)
+            if (((running.dw[i] >> task) & 1) && !((enabled.dw[i] >> task) & 1)) {
+                log("Correcting invalid taskset state\n");
+                running.dw[i] &= ~(1 << task);
+                write128(taskset_ctxt->taskset_ptr + offsetof(CellSpursTaskset, running), running);
+            }
+        }
+    }
 }
