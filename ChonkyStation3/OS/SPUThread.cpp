@@ -299,7 +299,17 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
      
     case SPU_WrEventMask:   event_mask      = val;      break;
     case SPU_WrEventAck:    event_stat.raw &= ~val;     break;
-    case SPU_WrOutMbox:     out_mbox.push(val);         break;
+    case SPU_WrOutMbox: {
+        // Stall if it's full
+        if (out_mbox.size()) {
+            log("Out mbox was full, stalling\n");
+            waiting_out_mbox = true;
+            wait();
+            break;
+        }
+        out_mbox.push(val);
+        break;
+    }
     case SPU_WrOutIntrMbox: {
         const u32 spup = val >> 24;
         if (spup < 64) {
@@ -422,9 +432,24 @@ void SPUThread::readProblemState(u32 addr) {
         break;
     }
     case Prxy_QueryType_offs:   val = 0;    /* All completed */ break;
+    case SPU_Out_MBox_offs: {
+        Helpers::debugAssert(out_mbox.size(), "Tried to read the out mbox, but it was empty\n");
+        const u32 mbox_val = out_mbox.front();
+        out_mbox.pop();
+        log("Read out mbox: 0x%08x\n", mbox_val);
+        
+        // Wake up the thread if necessary
+        if (waiting_out_mbox) {
+            waiting_out_mbox = false;
+            wakeUp();
+        }
+        
+        val = mbox_val;
+        break;
+    }
     case SPU_MBox_Stat_offs: {
         const u8 out_intr_mbox_cnt = 0; // TODO
-        const u8 in_mbox_cnt = in_mbox.size();
+        const u8 in_mbox_cnt = 4 - in_mbox.size();
         const u8 out_mbox_cnt = out_mbox.size();
         val = (out_intr_mbox_cnt << 16) | (in_mbox_cnt << 8) | out_mbox_cnt;
         break;

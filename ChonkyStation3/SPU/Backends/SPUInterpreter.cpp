@@ -399,6 +399,10 @@ void SPUInterpreter::ah(const SPUInstruction& instr) {
 
 void SPUInterpreter::wrch(const SPUInstruction& instr) {
     ps3->spu_thread_manager.getCurrentThread()->writeChannel(instr.ch, state.gprs[instr.rt0].w[3]);
+    
+    // Read rdch for explanation
+    if (ps3->spu_thread_manager.getCurrentThread() == nullptr)         state.pc -= 4;
+    else if (!ps3->spu_thread_manager.getCurrentThread()->isRunning()) state.pc -= 4;
 }
 
 void SPUInterpreter::biz(const SPUInstruction& instr) {
