@@ -243,7 +243,7 @@ void SPUInterpreter::step() {
     else if (state.pc == 0xe40) {
         // spursTasksetProcessRequest
         //logSpurs("spursTasksetProcessRequest(request: %d, task_id_ptr: 0x%08x, is_waiting_ptr: 0x%08x)\n", state.gprs[3].w[3], state.gprs[4].w[3], state.gprs[5].w[3]);
-        ps3->module_manager.cellSpurs.spursTasksetProcessRequest();
+        //ps3->module_manager.cellSpurs.spursTasksetProcessRequest();
     }
 
 #endif
@@ -544,27 +544,27 @@ void SPUInterpreter::cwx(const SPUInstruction& instr) {
 void SPUInterpreter::rotqbi(const SPUInstruction& instr) {
     const s32 sh = state.gprs[instr.rb].w[3] & 7;
     const auto temp = state.gprs[instr.ra];
-    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | (temp.w[2] >> (32 - sh));
-    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | (temp.w[1] >> (32 - sh));
-    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | (temp.w[0] >> (32 - sh));
-    state.gprs[instr.rt0].w[0] = (temp.w[0] << sh) | (temp.w[3] >> (32 - sh));
+    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | safeShr<u32>(temp.w[2], (32 - sh));
+    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | safeShr<u32>(temp.w[1], (32 - sh));
+    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | safeShr<u32>(temp.w[0], (32 - sh));
+    state.gprs[instr.rt0].w[0] = (temp.w[0] << sh) | safeShr<u32>(temp.w[3], (32 - sh));
 }
 
 void SPUInterpreter::rotqmbi(const SPUInstruction& instr) {
     const s32 sh = (0 - state.gprs[instr.rb].w[3]) & 7;
     const auto temp = state.gprs[instr.ra];
     state.gprs[instr.rt0].w[3] = temp.w[3] >> sh;
-    state.gprs[instr.rt0].w[2] = (temp.w[2] >> sh) | (temp.w[3] << (32 - sh));
-    state.gprs[instr.rt0].w[1] = (temp.w[1] >> sh) | (temp.w[2] << (32 - sh));
-    state.gprs[instr.rt0].w[0] = (temp.w[0] >> sh) | (temp.w[1] << (32 - sh));
+    state.gprs[instr.rt0].w[2] = (temp.w[2] >> sh) | safeShl<u32>(temp.w[3], (32 - sh));
+    state.gprs[instr.rt0].w[1] = (temp.w[1] >> sh) | safeShl<u32>(temp.w[2], (32 - sh));
+    state.gprs[instr.rt0].w[0] = (temp.w[0] >> sh) | safeShl<u32>(temp.w[1], (32 - sh));
 }
 
 void SPUInterpreter::shlqbi(const SPUInstruction& instr) {
     const s32 sh = state.gprs[instr.rb].w[3] & 7;
     const auto temp = state.gprs[instr.ra];
-    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | (temp.w[2] >> (32 - sh));
-    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | (temp.w[1] >> (32 - sh));
-    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | (temp.w[0] >> (32 - sh));
+    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | safeShr<u32>(temp.w[2], (32 - sh));
+    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | safeShr<u32>(temp.w[1], (32 - sh));
+    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | safeShr<u32>(temp.w[0], (32 - sh));
     state.gprs[instr.rt0].w[0] = temp.w[0] << sh;
 }
 
@@ -613,18 +613,18 @@ void SPUInterpreter::cdd(const SPUInstruction& instr) {
 void SPUInterpreter::rotqbii(const SPUInstruction& instr) {
     const s32 sh = instr.i7 & 7;
     const auto temp = state.gprs[instr.ra];
-    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | (temp.w[2] >> (32 - sh));
-    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | (temp.w[1] >> (32 - sh));
-    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | (temp.w[0] >> (32 - sh));
-    state.gprs[instr.rt0].w[0] = (temp.w[0] << sh) | (temp.w[3] >> (32 - sh));
+    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | safeShr<u32>(temp.w[2], (32 - sh));
+    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | safeShr<u32>(temp.w[1], (32 - sh));
+    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | safeShr<u32>(temp.w[0], (32 - sh));
+    state.gprs[instr.rt0].w[0] = (temp.w[0] << sh) | safeShr<u32>(temp.w[3], (32 - sh));
 }
 
 void SPUInterpreter::shlqbii(const SPUInstruction& instr) {
     const s32 sh = instr.i7 & 7;
     const auto temp = state.gprs[instr.ra];
-    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | (temp.w[2] >> (32 - sh));
-    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | (temp.w[1] >> (32 - sh));
-    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | (temp.w[0] >> (32 - sh));
+    state.gprs[instr.rt0].w[3] = (temp.w[3] << sh) | safeShr<u32>(temp.w[2], (32 - sh));
+    state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | safeShr<u32>(temp.w[1], (32 - sh));
+    state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | safeShr<u32>(temp.w[0], (32 - sh));
     state.gprs[instr.rt0].w[0] = temp.w[0] << sh;
 }
 
