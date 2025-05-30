@@ -409,10 +409,10 @@ T Memory::read(u64 vaddr) {
         Helpers::debugAssert(mem != nullptr, "Tried to read unmapped vaddr 0x%016llx\n", vaddr);
         T data;
 
-        std::memcpy(&data, &mem[offset], sizeof(T));
-
         if (watchpoints_r.contains(vaddr))
             watchpoints_r[vaddr](vaddr);
+
+        std::memcpy(&data, &mem[offset], sizeof(T));
 
         return Helpers::bswap<T>(data);
     }

@@ -2,8 +2,9 @@
 #include "PlayStation3.hpp"
 
 
-SPUThread* SPUThreadManager::createThread(std::string name) {
-    threads.push_back({ ps3, name });
+SPUThread* SPUThreadManager::createThread(std::string name, bool is_raw, int raw_idx) {
+    threads.push_back({ ps3, name, is_raw, raw_idx });
+    threads.back().init();
     return &threads.back();
 }
 

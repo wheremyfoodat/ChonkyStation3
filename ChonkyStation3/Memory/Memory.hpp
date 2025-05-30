@@ -85,11 +85,11 @@ public:
 
     // I don't explicitly check anywhere, but it is assumed that memory regions don't overlap.
     // Just be careful when creating them
-    MemoryRegion ram    = MemoryRegion(RAM_START,           RAM_SIZE,           *this);
-    MemoryRegion rsx    = MemoryRegion(RSX_VIDEO_MEM_START, RSX_VIDEO_MEM_SIZE, *this);
-    MemoryRegion stack  = MemoryRegion(STACK_REGION_START,  STACK_REGION_SIZE,  *this);
-    MemoryRegion spu    = MemoryRegion(SPU_MEM_START,       SPU_MEM_SIZE,       *this);
-    std::vector<MemoryRegion*> regions = { &ram, &rsx, &stack, &spu };
+    MemoryRegion ram        = MemoryRegion(RAM_START,           RAM_SIZE,           *this);
+    MemoryRegion rsx        = MemoryRegion(RSX_VIDEO_MEM_START, RSX_VIDEO_MEM_SIZE, *this);
+    MemoryRegion stack      = MemoryRegion(STACK_REGION_START,  STACK_REGION_SIZE,  *this);
+    MemoryRegion raw_spu    = MemoryRegion(RAW_SPU_MEM_START,   RAW_SPU_OFFSET * 5, *this);
+    std::vector<MemoryRegion*> regions = { &ram, &rsx, &stack, &raw_spu };
 
     std::pair<u64, u8*> addrToOffsetInMemory(u64 vaddr);
     u8* getPtr(u64 vaddr);
@@ -140,7 +140,9 @@ public:
 
     // Memory watchpoints
     // Call a function when an address is read or written.
+    // In case of reads, the function is called before the read.
     // In case of writes, the function is called after the write.
+    // This allows the watchpoint handler to have access to the data being read or written.
     // In order for the function to be called, the memory page the address is part of must not be in fastmem.
     // For both reads and writes, the address being read/written is passed as an argument to the handler.
     std::unordered_map<u64, std::function<void(u64)>> watchpoints_r;

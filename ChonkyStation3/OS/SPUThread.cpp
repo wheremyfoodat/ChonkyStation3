@@ -2,13 +2,9 @@
 #include "PlayStation3.hpp"
 
 
-SPUThread::SPUThread(PlayStation3* ps3, std::string name) : ps3(ps3) {
+SPUThread::SPUThread(PlayStation3* ps3, std::string name, bool is_raw, int raw_idx) : ps3(ps3), is_raw(is_raw), raw_idx(raw_idx) {
     id = ps3->handle_manager.request();
     this->name = name;
-    log("Created SPU thread %d \"%s\"\n", id, name.c_str());
-
-    std::memset(ls, 0, 256_KB);
-    lockline_waiter = new LocklineWaiter(ps3, id);
 
     // Disconnect all ports
     for (auto& i : ports) i = -1;
@@ -18,6 +14,38 @@ SPUThread::SPUThread(PlayStation3* ps3, std::string name) : ps3(ps3) {
 
 bool SPUThread::isRunning() {
     return status == ThreadStatus::Running;
+}
+
+void SPUThread::init() {
+    // Initialize LS
+    if (!is_raw) {
+        log("Created SPU thread %d \"%s\"\n", id, name.c_str());
+        ls = new u8[256_KB];
+    } else {
+        Helpers::debugAssert(raw_idx >= 0 && raw_idx < 5, "Invalid Raw SPU index %d\n", raw_idx);
+        
+        log("Created Raw SPU thread %d \"%s\"\n", id, name.c_str());
+        auto block = ps3->mem.raw_spu.allocPhys(RAW_SPU_OFFSET);
+        const u32 ls_addr = RAW_SPU_MEM_START + RAW_SPU_OFFSET * raw_idx;
+        ps3->mem.raw_spu.mmap(ls_addr, block->start, RAW_SPU_OFFSET);
+        log("Mapped LS at 0x%08x\n", ls_addr);
+        ls = ps3->mem.getPtr(ls_addr);
+        
+        // Problem State memory
+        problem_addr = ls_addr + RAW_SPU_PROBLEM_OFFSET;
+        problem = ps3->mem.getPtr(problem_addr);
+        log("Mapped Problem State memory at 0x%08x\n", problem_addr);
+        // Setup watchpoints
+        for (u32 addr = problem_addr; addr <= problem_addr + 0x1c00c; addr += 4) { // 0x1c00c is the highest known problem state offset
+            ps3->mem.watchpoints_r[addr] = std::bind(&SPUThread::readProblemState, this, std::placeholders::_1);
+            ps3->mem.watchpoints_w[addr] = std::bind(&SPUThread::writeProblemState, this, std::placeholders::_1);
+        }
+        
+        wait();
+    }
+    
+    std::memset(ls, 0, 256_KB);
+    lockline_waiter = new LocklineWaiter(ps3, id);
 }
 
 void SPUThread::loadImage(sys_spu_image* img) {
@@ -377,5 +405,87 @@ void SPUThread::doCmd(u32 cmd) {
 
     default:
         Helpers::panic("Unimplemented MFC command 0x%02x\n", cmd);
+    }
+}
+
+void SPUThread::readProblemState(u32 addr) {
+    const u32 offs = addr - problem_addr;
+    u32 val = 0;
+    
+    switch (offs) {
+            
+    case MFC_CMDStatus_offs:    val = 0;    /* Status OK */     break;
+    case MFC_QStatus_offs: {
+        const bool complete = true; // TODO
+        const u16 free_space = 0xffff;
+        val = (complete << 31) | free_space;
+        break;
+    }
+    case Prxy_QueryType_offs:   val = 0;    /* All completed */ break;
+    case SPU_MBox_Stat_offs: {
+        const u8 out_intr_mbox_cnt = 0; // TODO
+        const u8 in_mbox_cnt = in_mbox.size();
+        const u8 out_mbox_cnt = out_mbox.size();
+        val = (out_intr_mbox_cnt << 16) | (in_mbox_cnt << 8) | out_mbox_cnt;
+        break;
+    }
+            
+    default:
+        Helpers::panic("Unhandled problem state register read offset 0x%x\n", offs);
+    }
+    
+    *(u32*)ps3->mem.getPtr(addr) = Helpers::bswap<u32>(val);
+}
+
+void SPUThread::writeProblemState(u32 addr) {
+    const u32 offs = addr - problem_addr;
+    // We need to do this instead of just calling mem.read because if we do we'll trigger the read watchpoint
+    const u32 val = Helpers::bswap<u32>(*(u32*)ps3->mem.getPtr(addr));
+    
+    switch (offs) {
+            
+    case MFC_LSA_offs: writeChannel(MFC_LSA, val);  break;
+    case MFC_EAH_offs: writeChannel(MFC_EAH, val);  break;
+    case MFC_EAL_offs: writeChannel(MFC_EAL, val);  break;
+    case MFC_Size_Tag_offs: {
+        u16 size = val >> 16;
+        u16 tag = val & 0xffff;
+        writeChannel(MFC_Size, size);
+        writeChannel(MFC_TagID, tag);
+        break;
+    }
+    case MFC_Class_Cmd_offs: {
+        u16 class_id = val >> 16;
+        u16 cmd = val & 0xffff;
+        // TODO: class_id
+        writeChannel(MFC_Cmd, cmd);
+        break;
+    }
+    case Prxy_QueryType_offs: /* TODO */            break;
+    case Prxy_QueryMask_offs: /* TODO */            break;
+    case SPU_RunCntl_offs: {
+        const auto request = val & 3;
+        
+        switch (request) {
+        case 1: {
+            Helpers::debugAssert(!isRunning(), "Requested Raw SPU thread start, but the thread was already running\n");
+            log("SPU Run requested\n");
+            wakeUp();
+            break;
+        }
+                
+        default:    Helpers::panic("Unhandled SPU_RunCntl request %d\n", request);
+        }
+        
+        break;
+    }
+    case SPU_NPC_offs: {
+        log("Set NPC: 0x%08x\n", val);
+        state.pc = val;
+        break;
+    }
+            
+    default:
+        Helpers::panic("Unhandled problem state register write offset 0x%x (addr: 0x%08x) 0x%08x\n", offs, addr, problem_addr);
     }
 }

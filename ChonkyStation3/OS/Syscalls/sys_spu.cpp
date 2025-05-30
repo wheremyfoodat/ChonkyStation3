@@ -27,9 +27,19 @@ u64 Syscall::sys_raw_spu_create() {
     const u32 attr_ptr = ARG1;
     log_sys_spu("sys_raw_spu_create(id_ptr: 0x%08x, attr_ptr: 0x%08x) STUBBED\n", id_ptr, attr_ptr);
 
-    ps3->mem.write<u32>(id_ptr, 0);
-    ps3->mem.spu.alloc(SPU_MEM_SIZE);
+    // Find an available raw SPU index
+    int idx;
+    for (idx = 0; idx < 5; idx++) {
+        if (!raw_spu_ids[idx]) break;
+    }
+    if (idx == 5)
+        Helpers::panic("Tried to create a raw SPU thread, but no raw SPU index was available\n");
     
+    // Create the thread
+    auto thread = ps3->spu_thread_manager.createThread(std::format("Raw SPU #{:d}", idx), true, idx);
+    raw_spu_ids[idx] = thread->id;
+
+    ps3->mem.write<u32>(id_ptr, idx);
     return CELL_OK;
 }
 

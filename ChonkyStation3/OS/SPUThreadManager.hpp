@@ -13,7 +13,7 @@ public:
     SPUThreadManager(PlayStation3* ps3) : ps3(ps3) {}
     PlayStation3* ps3;
 
-    SPUThread* createThread(std::string name);
+    SPUThread* createThread(std::string name, bool is_raw = false, int raw_idx = -1);
     void contextSwitch(SPUThread& thread);
     SPUThread* getCurrentThread();
     SPUThread* getThreadByID(u32 id);

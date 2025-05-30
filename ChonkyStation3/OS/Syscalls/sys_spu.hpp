@@ -61,4 +61,9 @@ struct sys_spu_thread_argument {
     BEField<u64> arg4;
 };
 
+// List of raw SPU thread IDs.
+// There can be at most 5 raw SPU threads at once.
+// 0 == raw spu index is free
+static u64 raw_spu_ids[5] = { 0, 0, 0, 0, 0 };
+
 }   // End namespace sys_spu

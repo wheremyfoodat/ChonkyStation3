@@ -20,14 +20,18 @@ class PlayStation3;
 
 class SPUThread {
 public:
-    SPUThread(PlayStation3* ps3, std::string name);
+    SPUThread(PlayStation3* ps3, std::string name, bool is_raw = false, int raw_idx = -1);
     PlayStation3* ps3;
 
     SPUTypes::State state;
-    u8* ls = new u8[256_KB];
+    u8* ls;
+    u8* problem;
+    u32 problem_addr;
 
     u32 id;
     std::string name;
+    bool is_raw = false;
+    int raw_idx = -1;
 
     enum class ThreadStatus {
         Ready,
@@ -40,6 +44,7 @@ public:
     ThreadStatus status = ThreadStatus::Ready;
     bool isRunning();
 
+    void init();
     void loadImage(sys_spu_image* img);
     
     void reschedule();
@@ -99,6 +104,27 @@ public:
         GETB    = 0x41,
         PUTLLC  = 0xb4,
         GETLLAR = 0xd0,
+    };
+    
+    enum ProblemStateOffset : u32 {
+        MFC_LSA_offs            = 0x3004,
+        MFC_EAH_offs            = 0x3008,
+        MFC_EAL_offs            = 0x300C,
+        MFC_Size_Tag_offs       = 0x3010,
+        MFC_Class_Cmd_offs      = 0x3014,
+        MFC_CMDStatus_offs      = 0x3014,
+        MFC_QStatus_offs        = 0x3104,
+        Prxy_QueryType_offs     = 0x3204,
+        Prxy_QueryMask_offs     = 0x321C,
+        Prxy_TagStatus_offs     = 0x322C,
+        SPU_Out_MBox_offs       = 0x4004,
+        SPU_In_MBox_offs        = 0x400C,
+        SPU_MBox_Stat_offs      = 0x4014,
+        SPU_RunCntl_offs        = 0x401C,
+        SPU_Status_offs         = 0x4024,
+        SPU_NPC_offs            = 0x4034,
+        SPU_RdSigNotify1_offs   = 0x1400C,
+        SPU_RdSigNotify2_offs   = 0x1C00C,
     };
 
     u32 lsa = 0;
@@ -168,7 +194,10 @@ public:
     u32  readChannelCount(u32 ch);
     void writeChannel(u32 ch, u32 val);
     void doCmd(u32 cmd);
-
+    
+    void readProblemState(u32 addr);
+    void writeProblemState(u32 addr);
+    
 private:
     MAKE_LOG_FUNCTION(log, thread_spu);
 };
