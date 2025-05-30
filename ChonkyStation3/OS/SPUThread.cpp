@@ -124,6 +124,7 @@ void SPUThread::wakeUp() {
 }
 
 void SPUThread::writeInMbox(u32 val) {
+    Helpers::debugAssert(in_mbox.size() < 4, "Tried to write to the in mbox, but it was full\n");
     in_mbox.push(val);
     if (waiting_in_mbox) {
         waiting_in_mbox = false;
@@ -350,12 +351,15 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
 void SPUThread::doCmd(u32 cmd) {
     switch (cmd) {
      
+    case PUTF:
+    case PUTB:
     case PUT: {
         log("PUT @ 0x%08x\n", ps3->spu->state.pc);
         std::memcpy(ps3->mem.getPtr(eal), &ls[lsa & 0x3ffff], size);
         break;
     }
 
+    case GETF:
     case GETB:
     case GET: {
         log("GET @ 0x%08x\n", ps3->spu->state.pc);
@@ -488,6 +492,7 @@ void SPUThread::writeProblemState(u32 addr) {
     }
     case Prxy_QueryType_offs: /* TODO */            break;
     case Prxy_QueryMask_offs: /* TODO */            break;
+    case SPU_In_MBox_offs:  writeInMbox(val);       break;
     case SPU_RunCntl_offs: {
         const auto request = val & 3;
         

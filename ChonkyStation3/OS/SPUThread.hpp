@@ -100,8 +100,11 @@ public:
 
     enum MFC_Command : u32 {
         PUT     = 0x20,
+        PUTB    = 0x21,
+        PUTF    = 0x22,
         GET     = 0x40,
         GETB    = 0x41,
+        GETF    = 0x42,
         PUTLLC  = 0xb4,
         GETLLAR = 0xd0,
     };
