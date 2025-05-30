@@ -27,6 +27,11 @@ PlayStation3::~PlayStation3() {
     // Free memory
     for (auto& i : mem.regions)
         free(i->mem);
+    
+    // Join lockline waiter thread
+    for (auto& thread : spu_thread_manager.threads) {
+        thread.lockline_waiter->end();
+    }
 }
 
 void PlayStation3::gameSelector() {

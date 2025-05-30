@@ -46,6 +46,7 @@ public:
 
     void init();
     void loadImage(sys_spu_image* img);
+    void setID(u64 id);
     
     void reschedule();
     void halt();

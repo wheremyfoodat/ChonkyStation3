@@ -92,6 +92,11 @@ void SPUThread::loadImage(sys_spu_image* img) {
     */
 }
 
+void SPUThread::setID(u64 id) {
+    this->id = id;
+    lockline_waiter->waiter_id = id;
+}
+
 void SPUThread::reschedule() {
     ps3->scheduler.push(std::bind(&SPUThreadManager::reschedule, &ps3->spu_thread_manager), ps3->curr_block_cycles, "spu thread reschedule");
     ps3->forceSchedulerUpdate();
@@ -271,7 +276,7 @@ u32 SPUThread::readChannel(u32 ch) {
         return val;
     }
     case MFC_RdTagMask:     return tag_mask;
-    case MFC_RdTagStat:     return 1 << tag_mask;   // TODO
+    case MFC_RdTagStat:     return tag_mask;  // TODO
     case MFC_RdAtomicStat:  return atomic_stat;             
 
     default:
