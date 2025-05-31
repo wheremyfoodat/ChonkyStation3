@@ -27,10 +27,10 @@ u64 Scheduler::tickToNextEvent() {
     return elapsed;
 }
 
-void Scheduler::push(std::function<void(void)> const& func, u64 time, std::string name) {
+void Scheduler::push(std::function<void(void)> func, u64 time, std::string name) {
     Helpers::debugAssert(events.size() < schedulerMaxEntries, "Scheduler: queued more than %d scheduler events\n", schedulerMaxEntries);
 
-    events.push({ func, this->time + time, name, next_event_id++});
+    events.push({ func, this->time + time, next_event_id++, name });
 }
 
 void Scheduler::deleteAllEventsOfName(std::string name) {

@@ -49,10 +49,11 @@ public:
     u64 tickToNextEvent();
 
     struct Event {
+        Event(std::function<void(void)> func, u64 time, u64 id, std::string name = "Unnamed") : func(func), time(time), id(id), name(name) {}
         std::function<void(void)> func;
         u64 time = 0;
-        std::string name = "Default";
-        u64 id;
+        std::string name = "Unnamed";
+        u64 id = 0;
 
         bool operator>(const Event& other) const {
             return time > other.time;
@@ -64,7 +65,7 @@ public:
     };
 
     pqueue<Event> events;
-    void push(std::function<void(void)> const& func, u64 time, std::string name = "Unnamed event");
+    void push(std::function<void(void)> func, u64 time, std::string name = "Unnamed event");
     void deleteAllEventsOfName(std::string name);
 
     static u64 uSecondsToCycles(double us);

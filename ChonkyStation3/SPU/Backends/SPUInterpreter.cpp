@@ -575,6 +575,22 @@ void SPUInterpreter::rotqby(const SPUInstruction& instr) {
         state.gprs[instr.rt0].b[15 - i] = temp.b[(15 - (i + sh)) & 0xf];
 }
 
+void SPUInterpreter::rotqmby(const SPUInstruction& instr) {
+    const s32 sh = (0 - state.gprs[instr.rb].w[3]) & 0x1f;
+    const auto temp = state.gprs[instr.ra];
+    clr(state.gprs[instr.rt0]);
+    for (int i = 0; i < 16 - sh; i++)
+        state.gprs[instr.rt0].b[i] = temp.b[i + sh];
+}
+
+void SPUInterpreter::shlqby(const SPUInstruction& instr) {
+    const s32 sh = state.gprs[instr.rb].w[3] & 0xf;
+    const auto temp = state.gprs[instr.ra];
+    clr(state.gprs[instr.rt0]);
+    for (int i = sh; i < 16; i++)
+        state.gprs[instr.rt0].b[i] = temp.b[i - sh];
+}
+
 void SPUInterpreter::orx(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[3] = state.gprs[instr.ra].w[0] | state.gprs[instr.ra].w[1] | state.gprs[instr.ra].w[2] | state.gprs[instr.ra].w[3];
     state.gprs[instr.rt0].w[2] = 0;
@@ -1135,8 +1151,8 @@ UNIMPL_INSTR(cdx);
 //UNIMPL_INSTR(rotqmbi);
 //UNIMPL_INSTR(shlqbi);
 //UNIMPL_INSTR(rotqby);
-UNIMPL_INSTR(rotqmby);
-UNIMPL_INSTR(shlqby);
+//UNIMPL_INSTR(rotqmby);
+//UNIMPL_INSTR(shlqby);
 //UNIMPL_INSTR(orx);
 //UNIMPL_INSTR(cbd);
 //UNIMPL_INSTR(chd);
