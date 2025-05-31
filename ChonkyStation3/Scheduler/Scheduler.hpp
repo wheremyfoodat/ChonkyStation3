@@ -5,6 +5,7 @@
 #include <queue>
 #include <set>
 #include <functional>
+#include <mutex>
 
 
 // Scheduler class ported from ChonkyStation (rewrite)
@@ -69,4 +70,7 @@ public:
     void deleteAllEventsOfName(std::string name);
 
     static u64 uSecondsToCycles(double us);
+    
+private:
+    std::recursive_mutex mutex;
 };

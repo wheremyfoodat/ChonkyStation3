@@ -2,6 +2,7 @@
 
 
 void Scheduler::tick(u64 cycles) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
     time += cycles;
 
     while (events.size() && time >= events.top().time) {
@@ -12,6 +13,7 @@ void Scheduler::tick(u64 cycles) {
 }
 
 u64 Scheduler::tickToNextEvent() {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
     if (events.empty()) {
         Helpers::panic("Tried to tick to the next scheduler event, but there are none in the queue\n");
     }
@@ -23,14 +25,15 @@ u64 Scheduler::tickToNextEvent() {
 
     //printf("Skipped to event \"%s\"\n", event.name.c_str());
     event.func();
-
     return elapsed;
 }
 
 void Scheduler::push(std::function<void(void)> func, u64 time, std::string name) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
     Helpers::debugAssert(events.size() < schedulerMaxEntries, "Scheduler: queued more than %d scheduler events\n", schedulerMaxEntries);
 
-    events.push({ func, this->time + time, next_event_id++, name });
+    Event event = { func, this->time + time, next_event_id++, name };
+    events.push(event);
 }
 
 void Scheduler::deleteAllEventsOfName(std::string name) {
