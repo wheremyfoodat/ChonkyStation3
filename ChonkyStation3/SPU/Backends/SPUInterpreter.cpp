@@ -419,6 +419,13 @@ void SPUInterpreter::binz(const SPUInstruction& instr) {
     }
 }
 
+void SPUInterpreter::bihnz(const SPUInstruction& instr) {
+    if (state.gprs[instr.rt0].h[6] != 0) {
+        const u32 addr = state.gprs[instr.ra].w[3] & 0x3fffc;
+        state.pc = addr - 4;
+    }
+}
+
 void SPUInterpreter::stqx(const SPUInstruction& instr) {
     const u32 addr = (state.gprs[instr.ra].w[3] + state.gprs[instr.rb].w[3]) & 0x3fff0;
     write128(addr, state.gprs[instr.rt0]);
@@ -539,6 +546,13 @@ void SPUInterpreter::cwx(const SPUInstruction& instr) {
     state.gprs[instr.rt0].dw[1] = 0x1011121314151617;
     state.gprs[instr.rt0].dw[0] = 0x18191A1B1C1D1E1F;
     state.gprs[instr.rt0].w[3 - (t >> 2)] = 0x00010203;
+}
+
+void SPUInterpreter::cdx(const SPUInstruction& instr) {
+    const u32 t = (state.gprs[instr.ra].w[3] + state.gprs[instr.rb].w[3]) & 0x8;
+    state.gprs[instr.rt0].dw[1] = 0x1011121314151617;
+    state.gprs[instr.rt0].dw[0] = 0x18191A1B1C1D1E1F;
+    state.gprs[instr.rt0].dw[1 - (t >> 3)] = 0x0001020304050607;
 }
 
 void SPUInterpreter::rotqbi(const SPUInstruction& instr) {
@@ -1123,7 +1137,7 @@ UNIMPL_INSTR(mtspr);
 //UNIMPL_INSTR(biz);
 //UNIMPL_INSTR(binz);
 UNIMPL_INSTR(bihz);
-UNIMPL_INSTR(bihnz);
+//UNIMPL_INSTR(bihnz);
 UNIMPL_INSTR(stopd);
 //UNIMPL_INSTR(stqx);
 //UNIMPL_INSTR(bi);
@@ -1146,7 +1160,7 @@ UNIMPL_INSTR(frsqest);
 //UNIMPL_INSTR(cbx);
 //UNIMPL_INSTR(chx);
 //UNIMPL_INSTR(cwx);
-UNIMPL_INSTR(cdx);
+//UNIMPL_INSTR(cdx);
 //UNIMPL_INSTR(rotqbi);
 //UNIMPL_INSTR(rotqmbi);
 //UNIMPL_INSTR(shlqbi);
