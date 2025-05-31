@@ -79,6 +79,9 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 47:    todo("sys_ppu_thread_set_priority()");                              break;
     case 48:    ps3->ppu->state.gprs[3] = sys_ppu_thread_get_priority();            break;
     case 49:    ps3->ppu->state.gprs[3] = sys_ppu_thread_get_stack_information();   break;
+    case 70:    todo("sys_timer_create()");                                         break;
+    case 73:    todo("sys_timer_start()");                                          break;
+    case 75:    todo("sys_timer_connect_event_queue()");                            break;
     case 82:    todo("sys_event_flag_create()");                                    break;
     case 85:    ps3->ppu->state.gprs[3] = sys_event_flag_wait();                    break;
     case 87:    todo("sys_event_flag_set()");                                       break;

@@ -194,7 +194,6 @@ u64 Syscall::sys_spu_thread_connect_event() {
 
     if (thread->ports[spup] != -1) Helpers::panic("sys_spu_thread_connect_event: port was already connected\n");
     thread->ports[spup] = equeue_id;
-    
     return CELL_OK;
 }
 
