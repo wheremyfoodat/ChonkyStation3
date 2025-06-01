@@ -339,7 +339,7 @@ void ModuleManager::init() {
         { 0x0ce13c6b, { "cellNetCtlAddHandler",                             std::bind(&ModuleManager::stub, this) }},
         { 0x105ee2cb, { "cellNetCtlTerm",                                   std::bind(&ModuleManager::stub, this) }},
         { 0x1e585b5d, { "cellNetCtlGetInfo",                                std::bind(&ModuleManager::stub, this) }},
-        { 0x8b3eba69, { "cellNetCtlGetState",                               std::bind(&ModuleManager::stub, this) }},
+        { 0x8b3eba69, { "cellNetCtlGetState",                               std::bind(&CellNetCtl::cellNetCtlGetState, &cellNetCtl) } },
         { 0xbd5a59fc, { "cellNetCtlInit",                                   std::bind(&ModuleManager::stub, this) }},
 
         { 0x157d30c5, { "cellPngDecCreate",                                 std::bind(&CellPngDec::cellPngDecCreate, &cellPngDec) }},

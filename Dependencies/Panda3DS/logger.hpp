@@ -42,6 +42,7 @@ public:
 #endif
 
 // Modules
+static Logger cellNetCtl            = Logger<true> ("[Module ][cellNetCtl    ] ");
 static Logger cellAudioOut          = Logger<true> ("[Module ][cellAudioOut  ] ");
 static Logger cellAudio             = Logger<true> ("[Module ][cellAudio     ] ");
 static Logger cellMsgDialog         = Logger<true> ("[Module ][cellMsgDialog ] ");
