@@ -501,6 +501,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     LFSX    = 0x217,
     SRW     = 0x218,
     SRD     = 0x21b,
+    LVRX    = 0x227,
     LFSUX   = 0x237,
     SYNC    = 0x256,
     LFDX    = 0x257,

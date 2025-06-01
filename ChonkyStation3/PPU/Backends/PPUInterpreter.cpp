@@ -237,6 +237,7 @@ void PPUInterpreter::step() {
         case LFSX:      lfsx(instr);    break;
         case SRW:       srw(instr);     break;
         case SRD:       srd(instr);     break;
+        case LVRX:      lvrx(instr);    break;
         case SYNC:      break;
         case LFDX:      lfdx(instr);    break;
         case STVLX:     stvlx(instr);   break;
@@ -1677,6 +1678,16 @@ void PPUInterpreter::srd(const Instruction& instr) {
     state.gprs[instr.ra] = safeShr<u64>(state.gprs[instr.rs], state.gprs[instr.rb] & 0x7f);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
+}
+
+void PPUInterpreter::lvrx(const Instruction& instr) {
+    const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
+    const u32 b = addr & 0xf;
+
+    state.vrs[instr.vd].dw[0] = 0;
+    state.vrs[instr.vd].dw[1] = 0;
+    for (int i = 16 - b; i < 16; i++)
+        state.vrs[instr.vd].b[15 - i] = ps3->mem.read<u8>(addr + i - 16);
 }
 
 void PPUInterpreter::lfdx(const Instruction& instr) {

@@ -201,6 +201,7 @@ public:
     void lfsx       (const Instruction& instr);
     void srw        (const Instruction& instr);
     void srd        (const Instruction& instr);
+    void lvrx       (const Instruction& instr);
     void lfdx       (const Instruction& instr);
     void stvlx      (const Instruction& instr);
     void stfsx      (const Instruction& instr);
