@@ -128,6 +128,7 @@ void ModuleManager::init() {
         { 0xa41ef7e8, { "cellGcmSetFlipHandler",                            std::bind(&CellGcmSys::cellGcmSetFlipHandler, &cellGcmSys) }},
         { 0xa53d12ae, { "cellGcmSetDisplayBuffer",                          std::bind(&CellGcmSys::cellGcmSetDisplayBuffer, &cellGcmSys) }},
         { 0xa547adde, { "cellGcmGetControlRegister",                        std::bind(&CellGcmSys::cellGcmGetControlRegister, &cellGcmSys) }},
+        { 0xa6b180ac, { "cellGcmGetReportDataLocation",                     std::bind(&ModuleManager::stub, this) } },
         { 0xa91b0402, { "cellGcmSetVBlankHandler",                          std::bind(&CellGcmSys::cellGcmSetVBlankHandler, &cellGcmSys) }},
         { 0xb2e761d4, { "cellGcmResetFlipStatus",                           std::bind(&CellGcmSys::cellGcmResetFlipStatus, &cellGcmSys) }},
         { 0xbc982946, { "cellGcmSetDefaultCommandBuffer",                   std::bind(&CellGcmSys::cellGcmSetDefaultCommandBuffer, &cellGcmSys) }},
@@ -272,7 +273,7 @@ void ModuleManager::init() {
         { 0xef3efa34, { "cellFsFstat",                                      std::bind(&CellFs::cellFsFstat, &cellFs) }},
         { 0xff42dcc3, { "cellFsClosedir",                                   std::bind(&CellFs::cellFsClosedir, &cellFs) }},
 
-        //{ 0x04af134e, { "cellAudioCreateNotifyEventQueue",                  std::bind(&ModuleManager::stub, this) }},
+        { 0x04af134e, { "cellAudioCreateNotifyEventQueue",                  std::bind(&CellAudio::cellAudioCreateNotifyEventQueue, &cellAudio) }},
         { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
         { 0x377e0cd9, { "cellAudioSetNotifyEventQueue",                     std::bind(&ModuleManager::stub, this) } },
         { 0x74a66af0, { "cellAudioGetPortConfig",                           std::bind(&CellAudio::cellAudioGetPortConfig, &cellAudio) }},
@@ -303,7 +304,7 @@ void ModuleManager::init() {
         
         { 0xc9030138, { "cellMouseInit",                                    std::bind(&ModuleManager::stub, this) } },
 
-        { 0x2ecd48ed, { "sceNpDrmVerifyUpgradeLicense",                     std::bind(&ModuleManager::stub, this) }},
+        { 0x2ecd48ed, { "sceNpDrmVerifyUpgradeLicense",                     std::bind(&SceNp::sceNpDrmVerifyUpgradeLicense, &sceNp) }},
         { 0x32cf311f, { "sceNpScoreInit",                                   std::bind(&ModuleManager::stub, this) }},
         { 0x3539d233, { "sceNpCommerce2Init",                               std::bind(&ModuleManager::stub, this) }},
         { 0x4026eac5, { "sceNpBasicRegisterContextSensitiveHandler",        std::bind(&ModuleManager::stub, this) }},
@@ -318,6 +319,7 @@ void ModuleManager::init() {
         { 0xbd28fdbf, { "sceNpInit",                                        std::bind(&ModuleManager::stub, this) }},
         { 0xe035f7d6, { "sceNpBasicGetEvent",                               std::bind(&SceNp::sceNpBasicGetEvent, &sceNp) } },
         { 0xe7dcd3b4, { "sceNpManagerRegisterCallback",                     std::bind(&ModuleManager::stub, this) }},
+        { 0xf042b14f, { "sceNpDrmIsAvailable2",                             std::bind(&ModuleManager::stub, this) }},
         { 0xf4babd3f, { "sceNpMatching2Init2",                              std::bind(&ModuleManager::stub, this) }},
         { 0xfe37a7f4, { "sceNpManagerGetNpId",                              std::bind(&SceNp::sceNpManagerGetNpId, &sceNp) }},
 
@@ -426,7 +428,8 @@ void ModuleManager::init() {
         
         { 0x1e7bff94, { "cellSysCacheMount",                                std::bind(&CellSysCache::cellSysCacheMount, &cellSysCache) } },
         { 0x744c1544, { "cellSysCacheClear",                                std::bind(&CellSysCache::cellSysCacheClear, &cellSysCache) } },
-        
+    
+        { 0x62b0f803, { "cellMsgDialogAbort",                               std::bind(&ModuleManager::stub, this) } },
         { 0x7603d3db, { "cellMsgDialogOpen2",                               std::bind(&CellMsgDialog::cellMsgDialogOpen2, &cellMsgDialog) } },
 
         { 0x45fe2fce, { "_sys_spu_printf_initialize",                       std::bind(&ModuleManager::stub, this) } },

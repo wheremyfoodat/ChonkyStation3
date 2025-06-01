@@ -1,6 +1,18 @@
 #include "CellAudio.hpp"
 #include "PlayStation3.hpp"
+#include <Lv2Objects/Lv2EventQueue.hpp>
 
+
+u64 CellAudio::cellAudioCreateNotifyEventQueue() {
+    const u32 equeue_id_ptr = ARG0;
+    const u32 key_ptr = ARG1;   // key is u32
+    log("cellAudioCreateNotifyEventQueue(equeue_id_ptr: 0x%08x, key_ptr: 0%08x)\n", equeue_id_ptr, key_ptr);
+    
+    Lv2EventQueue* equeue = ps3->lv2_obj.create<Lv2EventQueue>();
+    ps3->mem.write<u32>(equeue_id_ptr, equeue->handle());
+    
+    return CELL_OK;
+}
 
 u64 CellAudio::cellAudioGetPortConfig() {
     u32 port_num = ARG0;

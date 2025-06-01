@@ -70,13 +70,16 @@ u64 CellSaveData::cellSaveDataAutoLoad2() {
 
     stat_get->bind = 0;  // ?
 
-    // Grab data from the SFO
-    auto sfo = sfo_loader.parse(savedata_path / "PARAM.SFO");
+    SFOLoader::SFOData sfo;
     if (!is_new_data) {
-        std::strcpy(stat_get->get_param.title, (char*)sfo.strings["TITLE"].c_str());
-        std::strcpy(stat_get->get_param.sub_title, (char*)sfo.strings["SUB_TITLE"].c_str());
-        std::strcpy(stat_get->get_param.detail, (char*)sfo.strings["DETAIL"].c_str());
-        std::strcpy(stat_get->get_param.list_param, (char*)sfo.strings["SAVEDATA_LIST_PARAM"].c_str());
+        // Grab data from the SFO
+        sfo = sfo_loader.parse(savedata_path / "PARAM.SFO");
+        if (!is_new_data) {
+            std::strcpy(stat_get->get_param.title, (char*)sfo.strings["TITLE"].c_str());
+            std::strcpy(stat_get->get_param.sub_title, (char*)sfo.strings["SUB_TITLE"].c_str());
+            std::strcpy(stat_get->get_param.detail, (char*)sfo.strings["DETAIL"].c_str());
+            std::strcpy(stat_get->get_param.list_param, (char*)sfo.strings["SAVEDATA_LIST_PARAM"].c_str());
+        }
     }
 
     // Iterate over files in the savedata directory and populate the file list

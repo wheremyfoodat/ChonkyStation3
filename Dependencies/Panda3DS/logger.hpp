@@ -87,7 +87,7 @@ static Logger misc_sc               = Logger<true> ("[Syscall][Misc          ] "
 static Logger tty                   = Logger<1>    ();
 
 // RSX
-static Logger rsx                   = Logger<0>    ("[RSX    ][Command       ] ");
+static Logger rsx                   = Logger<true> ("[RSX    ][Command       ] ");
 static Logger rsx_capture_replayer  = Logger<true> ("[RSX    ][Capture Replay] ");
 static Logger vertex_shader         = Logger<true> ("[Shader ][Vertex        ] ");
 static Logger fragment_shader       = Logger<true> ("[Shader ][Fragment      ] ");

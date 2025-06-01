@@ -57,6 +57,7 @@ public:
 
     Port ports[8];
 
+    u64 cellAudioCreateNotifyEventQueue();
     u64 cellAudioGetPortConfig();
     u64 cellAudioPortStart();
     u64 cellAudioPortOpen();

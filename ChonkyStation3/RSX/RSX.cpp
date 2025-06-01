@@ -407,14 +407,15 @@ void RSX::runCommandList(u64 put_addr) {
             }
 
             if ((cmd & 0x00000003) == 0x00000002) { // call
-                Helpers::panic("rsx: call\n");
+                call_stack.push(gcm.ctrl->get);
                 gcm.ctrl->get = cmd & 0xfffffffc;
                 continue;
             }
 
-            if ((cmd & 0xffff0003) == 0x00020000) {
-                Helpers::panic("rsx: return\n");
-                gcm.ctrl->get = gcm.ctrl->put;
+            if ((cmd & 0xffff0003) == 0x00020000) { // return
+                Helpers::debugAssert(call_stack.size(), "RSX: Tried to return but the call stack was empty\n");
+                gcm.ctrl->get = call_stack.top();
+                call_stack.pop();
                 return;
             }
         }

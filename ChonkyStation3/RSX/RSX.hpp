@@ -5,6 +5,7 @@
 #include <opengl.hpp>
 
 #include <unordered_map>
+#include <stack>
 
 #include <VertexShaderDecompiler.hpp>
 #include <FragmentShaderDecompiler.hpp>
@@ -36,6 +37,7 @@ public:
     u32 fetch32();
     u32 offsetAndLocationToAddress(u32 offset, u8 location);
 
+    std::stack<u32> call_stack;
     bool hanged = false;
     bool flipped = false;
 

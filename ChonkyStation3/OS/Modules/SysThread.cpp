@@ -17,13 +17,6 @@ u64 SysThread::sysPPUThreadCreate() {
         name = Helpers::readString(ps3->mem.getPtr(thread_name_ptr));
     
     Thread* thread = ps3->thread_manager.createThread(entry, stack_size, arg, prio, (const u8*)name.c_str(), ps3->thread_manager.tls_vaddr, ps3->thread_manager.tls_filesize, ps3->thread_manager.tls_memsize);
-    // HACK: sleep SPU / audio threads
-    if (thread->name == "spu_printf_handler"
-        || thread->name == "_SPU_printf_server"
-        || thread->name == "SpuPrintfHandler"
-        || thread->name == "SNKTrophy_Event_Thread"
-       )
-        thread->status = Thread::ThreadStatus::Sleeping;
 
     ps3->mem.write<u64>(thread_id_ptr, thread->id);
     return CELL_OK;
