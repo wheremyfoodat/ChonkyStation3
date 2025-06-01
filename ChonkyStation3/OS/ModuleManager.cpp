@@ -462,6 +462,7 @@ void ModuleManager::init() {
         { 0x05893e7c, { "cellUserTraceRegister",                            std::bind(&ModuleManager::stub, this) } },
         
         { 0x2b761140, { "cellUserInfoGetStat",                              std::bind(&ModuleManager::stub, this) } },
+        { 0xc55e338b, { "cellUserInfoGetList",                              std::bind(&ModuleManager::stub, this) } },
         
         { 0x55870804, { "_cellFiberPpuInitialize",                          std::bind(&ModuleManager::stub, this) } },
         { 0x9e25c72d, { "_cellFiberPpuSchedulerAttributeInitialize",        std::bind(&ModuleManager::stub, this) } },

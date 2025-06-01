@@ -289,7 +289,8 @@ u32 SPUThread::readChannelCount(u32 ch) {
 
     switch (ch) {
 
-    case SPU_RdInMbox:  return in_mbox.size();
+    case SPU_RdInMbox:      return in_mbox.size();
+    case SPU_WrOutIntrMbox: return 1;
 
     case MFC_WrTagUpdate:   return 1;
 
@@ -317,14 +318,14 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
         break;
     }
     case SPU_WrOutIntrMbox: {
-        const u32 spup = val >> 24;
+        u32 spup = val >> 24;
         if (spup < 64) {
             Helpers::debugAssert(ports[spup] != -1, "sys_spu_thread_send_event: port %d was not connected\n", spup);
             Helpers::debugAssert(out_mbox.size(), "sys_spu_thread_send_event: out_mbox is empty\n");
-            const u32 data0 = val & 0xffffff;
-            const u32 data1 = out_mbox.front();
+            const u64 data0 = (val & 0xffffff) | ((u64)spup << 32);
+            const u64 data1 = out_mbox.front();
             out_mbox.pop();
-            log("sys_spu_thread_send_event(spup: %d, data0: 0x%08x, data1: 0x%08x)\n", spup, data0, data1);
+            log("sys_spu_thread_send_event(spup: %d, data0: 0x%016llx, data1: 0x%016llx)\n", spup, data0, data1);
 
             // Send the event
             Lv2EventQueue* equeue = ps3->lv2_obj.get<Lv2EventQueue>(ports[spup]);
@@ -332,6 +333,20 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
 
             // Write response to in mbox
             in_mbox.push(CELL_OK);
+        }
+        else if (spup < 128) {
+            // throw_event is same as send_event except no response is written in the inbound mailbox
+            spup &= 63;
+            Helpers::debugAssert(ports[spup] != -1, "sys_spu_thread_throw_event: port %d was not connected\n", spup);
+            Helpers::debugAssert(out_mbox.size(), "sys_spu_thread_throw_event: out_mbox is empty\n");
+            const u64 data0 = (val & 0xffffff) | ((u64)spup << 32);
+            const u64 data1 = out_mbox.front();
+            out_mbox.pop();
+            log("sys_spu_thread_throw_event(spup: %d, data0: 0x%016llx, data1: 0x%016llx)\n", spup, data0, data1);
+
+            // Send the event
+            Lv2EventQueue* equeue = ps3->lv2_obj.get<Lv2EventQueue>(ports[spup]);
+            equeue->send({ SYS_SPU_THREAD_EVENT_USER_KEY, id, data0, data1 });
         }
         else {
             Helpers::panic("Unhandled SPU_WrOutIntrMbox write with spup %d\n", spup);

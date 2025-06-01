@@ -512,7 +512,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     STFDX   = 0x2d7,
     LHBRX   = 0x316,
     SRAW    = 0x318,
-    SRAD    = 0x31A,
+    SRAD    = 0x31a,
     SRAWI   = 0x338,
     SRADI1  = 0x33a, 
     SRADI2  = 0x33b, 

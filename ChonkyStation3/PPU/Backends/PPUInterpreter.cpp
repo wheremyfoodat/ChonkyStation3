@@ -246,6 +246,7 @@ void PPUInterpreter::step() {
         case STFDX:     stfdx(instr);   break;
         case LHBRX:     lhbrx(instr);   break;
         case SRAW:      sraw(instr);    break;
+        case SRAD:      srad(instr);    break;
         case SRAWI:     srawi(instr);   break;
         case SRADI1:
         case SRADI2:    sradi(instr);   break;
@@ -1727,13 +1728,25 @@ void PPUInterpreter::lhbrx(const Instruction& instr) {
 }
 
 void PPUInterpreter::sraw(const Instruction& instr) {
-    const u32 shift = state.gprs[instr.rb] & 0x7f;
+    const u32 sh = state.gprs[instr.rb] & 0x3f;
     //Helpers::debugAssert(shift <= 32, "sraw: shift > 31");
     // TODO: XER
-    if (shift > 31)
+    if (sh > 31)
         state.gprs[instr.ra] = ((s32)state.gprs[instr.rs] < 0) ? -1 : 0;
     else
-        state.gprs[instr.ra] = (s32)state.gprs[instr.rs] >> shift;
+        state.gprs[instr.ra] = (s32)state.gprs[instr.rs] >> sh;
+    if (instr.rc)
+        state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
+}
+
+void PPUInterpreter::srad(const Instruction& instr) {
+    const u32 sh = state.gprs[instr.rb] & 0x7f;
+    //Helpers::debugAssert(shift <= 32, "sraw: shift > 31");
+    // TODO: XER
+    if (sh > 63)
+        state.gprs[instr.ra] = ((s64)state.gprs[instr.rs] < 0) ? -1 : 0;
+    else
+        state.gprs[instr.ra] = (s64)state.gprs[instr.rs] >> sh;
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }

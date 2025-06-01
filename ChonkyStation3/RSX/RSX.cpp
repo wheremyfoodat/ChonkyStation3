@@ -56,7 +56,8 @@ u32 RSX::fetch32() {
 }
 
 u32 RSX::offsetAndLocationToAddress(u32 offset, u8 location) {
-    return offset + ((location == 0) ? ps3->module_manager.cellGcmSys.gcm_config.local_addr : ps3->module_manager.cellGcmSys.gcm_config.io_addr);
+    if (location == 0) return ps3->module_manager.cellGcmSys.gcm_config.local_addr + offset;
+    else return ioToEa(offset);
 }
 
 void RSX::compileProgram() {
@@ -65,7 +66,7 @@ void RSX::compileProgram() {
     const u64 hash_vertex = cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
     if (!cache.getShader(hash_vertex, cached_shader)) {
         // Shader wasn't cached, compile it and add it to the cache
-        std::vector<u32> required_constants;
+        required_constants.clear();
         auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, required_constants);
         OpenGL::Shader new_shader;
         if(!new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex))

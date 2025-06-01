@@ -209,6 +209,7 @@ public:
     void stfdx      (const Instruction& instr);
     void lhbrx      (const Instruction& instr);
     void sraw       (const Instruction& instr);
+    void srad       (const Instruction& instr);
     void srawi      (const Instruction& instr);
     void sradi      (const Instruction& instr);
     void extsh      (const Instruction& instr);
