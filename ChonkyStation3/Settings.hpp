@@ -53,7 +53,8 @@ public:
             else if (name == "cellL10n")        return cellL10n;
             else if (name == "cellFiber")       return cellFiber;
             else if (name == "cellSail")        return cellSail;
-            else Helpers::panic("Tried to get LLE configuration of unknown module %s\n", name.c_str());
+            //else Helpers::panic("Tried to get LLE configuration of unknown module %s\n", name.c_str());
+            else return true;
         }
     } lle;
 

@@ -244,8 +244,8 @@ enum G_04Opcodes {
     VMRGHB          = 0xc, 
     VPKUHUM         = 0xe, 
     VMHADDSHS       = 0x20,
-    VMHRADDSHS      = 0x21,
-    VMLADDUHM       = 0x22,
+    VMHRADDSHS      = 0x21,     // Vector Multiply High Round and Add Signed Half Word Saturate
+    VMLADDUHM       = 0x22,     // Vector Multiply Low and Add Unsigned Half Word Modulo
     VMSUMUBM        = 0x24,
     VMSUMMBM        = 0x25,
     VMSUMUHM        = 0x26,
@@ -264,7 +264,7 @@ enum G_04Opcodes {
     VCMPEQUH_       = 0x446,
     VMULOUH         = 0x48,
     VSUBFP          = 0x4a,     // Vector Subtract Floating-Point
-    VMRGHH          = 0x4c,
+    VMRGHH          = 0x4c,     // Vector Merge High Half word
     VPKUWUM         = 0x4e,
     VADDUWM         = 0x80,     // Vector Add Unsigned Word Modulo
     VMAXUW          = 0x82,
@@ -286,7 +286,7 @@ enum G_04Opcodes {
     VSLH            = 0x144,              
     VMULOSH         = 0x148,
     VRSQRTEFP       = 0x14a,    // Vector Reciprocal Square Root Estimate Floating-Point
-    VMRGLH          = 0x14c,
+    VMRGLH          = 0x14c,    // Vector Merge Low Half Word
     VPKSWUS         = 0x14e,
     VADDCUW         = 0x180,
     VMAXSW          = 0x182,
@@ -315,7 +315,7 @@ enum G_04Opcodes {
     VCMPGTUH_       = 0x646,
     VMULEUH         = 0x248,
     VRFIZ           = 0x24a,
-    VSPLTH          = 0x24c,
+    VSPLTH          = 0x24c,    // Vector Splat Half Word
     VUPKHSH         = 0x24e,
     VADDUWS         = 0x280,
     VMINUW          = 0x282,
@@ -339,7 +339,7 @@ enum G_04Opcodes {
     VCFUX           = 0x30a,    // Vector Convert from Unsigned Fixed-Point Word
     VSPLTISB        = 0x30c,    // Vector Splat Immediate Signed Byte
     VPKPX           = 0x30e,
-    VADDSHS         = 0x340,
+    VADDSHS         = 0x340,    // Vector Add Signed Half Word Saturate
     VMINSH          = 0x342,
     VSRAH           = 0x344,
     VCMPGTSH        = 0x346,
@@ -388,7 +388,7 @@ enum G_04Opcodes {
     VSUM2SWS        = 0x688,
     VSUBSBS         = 0x700,
     VSUM4SBS        = 0x708,
-    VSUBSHS         = 0x740,
+    VSUBSHS         = 0x740,    // Vector Subtract Signed Half Word Saturate
     VSUBSWS         = 0x780,
     VSUMSWS         = 0x788,
 };

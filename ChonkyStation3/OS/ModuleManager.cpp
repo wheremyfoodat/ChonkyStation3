@@ -6,7 +6,7 @@
 
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {
-        Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
+        //Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
         last_call = getImportName(nid);
         ps3->ppu->state.gprs[3] = stub();
         return;
@@ -139,6 +139,7 @@ void ModuleManager::init() {
         { 0xd01b570d, { "cellGcmSetGraphicsHandler",                        std::bind(&CellGcmSys::cellGcmSetGraphicsHandler, &cellGcmSys) }},
         { 0xd0b1d189, { "cellGcmSetTile",                                   std::bind(&CellGcmSys::cellGcmSetTile, &cellGcmSys) }},
         { 0xd34a420d, { "cellGcmSetZcull",                                  std::bind(&CellGcmSys::cellGcmSetZcull, &cellGcmSys) }},
+        { 0xd8f88e1a, { "_cellGcmSetFlipCommandWithWaitLabel",              std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},  // TODO: I don't know what the "with wait label" part means
         { 0xd9b7653e, { "cellGcmUnbindTile",                                std::bind(&CellGcmSys::cellGcmUnbindTile, &cellGcmSys) }},
         { 0xdb23e867, { "cellGcmUnmapIoAddress",                            std::bind(&CellGcmSys::cellGcmUnmapIoAddress, &cellGcmSys) }},
         { 0xdc09357e, { "cellGcmSetFlip",                                   std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
@@ -290,6 +291,7 @@ void ModuleManager::init() {
         { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",                 std::bind(&ModuleManager::stub, this) }},
         { 0xc96e89e9, { "cellAudioOutSetCopyControl",                       std::bind(&ModuleManager::stub, this) }},
         { 0xe5e2b09d, { "cellAudioOutGetNumberOfDevice",                    std::bind(&ModuleManager::stub, this) }},
+        { 0xed5d96af, { "cellAudioOutGetConfiguration",                     std::bind(&ModuleManager::stub, this) }},
         { 0xf4e3caa0, { "cellAudioOutGetState",                             std::bind(&CellAudioOut::cellAudioOutGetState, &cellAudioOut) }},
 
         { 0x0d5f2c14, { "cellPadClearBuf",                                  std::bind(&ModuleManager::stub, this) } },
@@ -368,6 +370,7 @@ void ModuleManager::init() {
         { 0x370136fe, { "sceNpTrophyGetRequiredDiskSpace",                  std::bind(&SceNpTrophy::sceNpTrophyGetRequiredDiskSpace, &sceNpTrophy) } },
         { 0x39567781, { "sceNpTrophyInit",                                  std::bind(&ModuleManager::stub, this) } },
         { 0x49d18217, { "sceNpTrophyGetGameInfo",                           std::bind(&SceNpTrophy::sceNpTrophyGetGameInfo, &sceNpTrophy) } },
+        { 0x623cd2dc, { "sceNpTrophyDestroyHandle",                         std::bind(&ModuleManager::stub, this) } },
         { 0xb3ac3478, { "sceNpTrophyGetTrophyUnlockState",                  std::bind(&SceNpTrophy::sceNpTrophyGetTrophyUnlockState, &sceNpTrophy) } },
         { 0xe3bf9a28, { "sceNpTrophyCreateContext",                         std::bind(&SceNpTrophy::sceNpTrophyCreateContext, &sceNpTrophy) } },
 
@@ -413,6 +416,11 @@ void ModuleManager::init() {
         { 0x4cc54f8e, { "cellSailFutureInitialize",                         std::bind(&ModuleManager::stub, this) } },
         { 0x5f7c7a6f, { "cellSailPlayerSetParameter",                       std::bind(&ModuleManager::stub, this) } },
         { 0xbdf21b0f, { "cellSailPlayerBoot",                               std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x13ea7c64, { "cellGemInit",                                      std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x7e063bbc, { "cellCameraIsAttached",                             std::bind(&ModuleManager::stub, this) } },
+        { 0xbf47c5dd, { "cellCameraInit",                                   std::bind(&ModuleManager::stub, this) } },
         
         { 0x0a563878, { "cellVoiceStart",                                   std::bind(&ModuleManager::stub, this) } },
         { 0x2de54871, { "cellVoiceCreatePort",                              std::bind(&ModuleManager::stub, this) } },

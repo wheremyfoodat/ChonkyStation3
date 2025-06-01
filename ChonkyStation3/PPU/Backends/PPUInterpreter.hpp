@@ -86,6 +86,8 @@ public:
     // G_04
     void vcmpequb   (const Instruction& instr);
     void vaddfp     (const Instruction& instr);
+    void vmhraddshs (const Instruction& instr);
+    void vmladduhm  (const Instruction& instr);
     void vsel       (const Instruction& instr);
     void vperm      (const Instruction& instr);
     void vsldoi     (const Instruction& instr);
@@ -93,23 +95,27 @@ public:
     void vnmsubfp   (const Instruction& instr);
     void vadduhm    (const Instruction& instr);
     void vsubfp     (const Instruction& instr);
+    void vmrghh     (const Instruction& instr);
     void vadduwm    (const Instruction& instr);
     void vcmpequw   (const Instruction& instr);
     void vmrghw     (const Instruction& instr);
     void vcmpeqfp   (const Instruction& instr);
     void vrefp      (const Instruction& instr);
     void vrsqrtefp  (const Instruction& instr);
+    void vmrglh     (const Instruction& instr);
     void vslw       (const Instruction& instr);
     void vmrglw     (const Instruction& instr);
     void vcmpgefp   (const Instruction& instr);
     void vspltb     (const Instruction& instr);
     void vcmpgtuh   (const Instruction& instr);
+    void vsplth     (const Instruction& instr);
     void vsrw       (const Instruction& instr);
     void vcmpgtuw   (const Instruction& instr);
     void vspltw     (const Instruction& instr);
     void vcmpgtfp   (const Instruction& instr);
     void vcfux      (const Instruction& instr);
     void vspltisb   (const Instruction& instr);
+    void vaddshs    (const Instruction& instr);
     void vcfsx      (const Instruction& instr);
     void vspltish   (const Instruction& instr);
     void vctuxs     (const Instruction& instr);
@@ -124,6 +130,7 @@ public:
     void vor        (const Instruction& instr);
     void vnor       (const Instruction& instr);
     void vxor       (const Instruction& instr);
+    void vsubshs    (const Instruction& instr);
     // G_13
     void mcrf       (const Instruction& instr);
     void bclr       (const Instruction& instr);
