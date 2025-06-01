@@ -1267,6 +1267,7 @@ void PPUInterpreter::lwzx(const Instruction& instr) {
 }
 
 void PPUInterpreter::cntlzw(const Instruction& instr) {
+    Helpers::debugAssert(!instr.rc, "cntlzw: rc bit set\n");
     u8 n = 0;
     for (int i = 31; i >= 0; i--) {
         if ((state.gprs[instr.rs] >> i) & 1)
@@ -1318,6 +1319,7 @@ void PPUInterpreter::subf(const Instruction& instr) {
 }
 
 void PPUInterpreter::cntlzd(const Instruction& instr) {
+    Helpers::debugAssert(!instr.rc, "cntlzd: rc bit set\n");
     u8 n = 0;
     for (int i = 63; i >= 0; i--) {
         if ((state.gprs[instr.rs] >> i) & 1)

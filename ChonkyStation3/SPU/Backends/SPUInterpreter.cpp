@@ -2,7 +2,7 @@
 #include <PlayStation3.hpp>
 
 
-#define SPURS_TRACE
+//#define SPURS_TRACE
 
 #ifdef SPURS_TRACE
 

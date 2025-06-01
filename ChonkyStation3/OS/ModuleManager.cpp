@@ -6,7 +6,7 @@
 
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {
-        //Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
+        Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
         last_call = getImportName(nid);
         ps3->ppu->state.gprs[3] = stub();
         return;
