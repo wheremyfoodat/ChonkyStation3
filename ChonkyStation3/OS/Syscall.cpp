@@ -252,8 +252,9 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 811:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsMkdir();     break;
     case 817:   ps3->ppu->state.gprs[3] = sys_fs_fcntl();                               break;
     case 818:   ps3->ppu->state.gprs[3] = ps3->module_manager.cellFs.cellFsLseek();     break;
+    case 871:   todo("sys_ss_access_control_engine()");                                 break;  // Debug
     case 872:   todo("sys_ss_get_open_psid()");                                         break;
-    case 988:   ps3->ppu->state.gprs[3] = CELL_OK;                              break;
+    //case 988:   ps3->ppu->state.gprs[3] = CELL_OK;                                      break;
 
     default:
         Helpers::panic("Unimplemented syscall number 0x%02x (%d) @ 0x%016llx\n", syscall_num, syscall_num, ps3->ppu->state.pc);

@@ -6,7 +6,7 @@
 
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {
-        Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
+        //Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
         last_call = getImportName(nid);
         ps3->ppu->state.gprs[3] = stub();
         return;
@@ -326,6 +326,7 @@ void ModuleManager::init() {
         { 0xad218faf, { "sceNpDrmIsAvailable",                              std::bind(&ModuleManager::stub, this) }},
         { 0xbcc09fe7, { "sceNpBasicRegisterHandler",                        std::bind(&ModuleManager::stub, this) }},
         { 0xbd28fdbf, { "sceNpInit",                                        std::bind(&ModuleManager::stub, this) }},
+        { 0xbe0e3ee2, { "sceNpDrmVerifyUpgradeLicense2",                    std::bind(&ModuleManager::stub, this) }},
         { 0xe035f7d6, { "sceNpBasicGetEvent",                               std::bind(&SceNp::sceNpBasicGetEvent, &sceNp) } },
         { 0xe7dcd3b4, { "sceNpManagerRegisterCallback",                     std::bind(&ModuleManager::stub, this) }},
         { 0xf042b14f, { "sceNpDrmIsAvailable2",                             std::bind(&ModuleManager::stub, this) }},
@@ -403,12 +404,14 @@ void ModuleManager::init() {
         { 0x1139a206, { "cellSailPlayerSetSoundAdapter",                    std::bind(&ModuleManager::stub, this) } },
         { 0x18bcd21b, { "cellSailPlayerSetGraphicsAdapter",                 std::bind(&ModuleManager::stub, this) } },
         { 0x1c983864, { "cellSailGraphicsAdapterInitialize",                std::bind(&ModuleManager::stub, this) } },
+        { 0x1c9d5e5a, { "cellSailSoundAdapterSetPreferredFormat",           std::bind(&ModuleManager::stub, this) } },
         { 0x23654375, { "cellSailPlayerInitialize2",                        std::bind(&ModuleManager::stub, this) } },
         { 0x2e3ccb5e, { "cellSailGraphicsAdapterSetPreferredFormat",        std::bind(&ModuleManager::stub, this) } },
         { 0x346ebba3, { "cellSailMemAllocatorInitialize",                   std::bind(&ModuleManager::stub, this) } },
         { 0x3a2d806c, { "cellSailFutureGet",                                std::bind(&ModuleManager::stub, this) } },
         { 0x3d0d3b72, { "cellSailSoundAdapterInitialize",                   std::bind(&ModuleManager::stub, this) } },
         { 0x4cc54f8e, { "cellSailFutureInitialize",                         std::bind(&ModuleManager::stub, this) } },
+        { 0x5f7c7a6f, { "cellSailPlayerSetParameter",                       std::bind(&ModuleManager::stub, this) } },
         { 0xbdf21b0f, { "cellSailPlayerBoot",                               std::bind(&ModuleManager::stub, this) } },
         
         { 0x0a563878, { "cellVoiceStart",                                   std::bind(&ModuleManager::stub, this) } },

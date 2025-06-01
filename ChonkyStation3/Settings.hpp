@@ -36,9 +36,10 @@ public:
         bool cellKey2char = true;
         bool cellL10n = true;
         bool cellFiber = true;
+        bool cellSail = false;
 
         inline bool isLLEEnabled(std::string name) {
-            if (name == "sys_fs")          return sys_fs;
+            if (name == "sys_fs")               return sys_fs;
             else if (name == "cellResc")        return cellResc;
             else if (name == "cellPngDec")      return cellPngDec;
             else if (name == "cellFont")        return cellFont;
@@ -51,6 +52,7 @@ public:
             else if (name == "cellKey2char")    return cellKey2char;
             else if (name == "cellL10n")        return cellL10n;
             else if (name == "cellFiber")       return cellFiber;
+            else if (name == "cellSail")        return cellSail;
             else Helpers::panic("Tried to get LLE configuration of unknown module %s\n", name.c_str());
         }
     } lle;

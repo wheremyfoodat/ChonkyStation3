@@ -43,6 +43,7 @@ void Settings::load() {
     lle.cellKey2char    = cfg["LLEModules"]["cellKey2char"].as_boolean();
     lle.cellL10n        = cfg["LLEModules"]["cellL10n"].as_boolean();
     lle.cellFiber       = cfg["LLEModules"]["cellFiber"].as_boolean();
+    lle.cellSail        = cfg["LLEModules"]["cellSail"].as_boolean();
     
     filesystem.dev_hdd0_mountpoint      = cfg["Filesystem"]["dev_hdd0_mountpoint"].as_string();
     filesystem.dev_hdd1_mountpoint      = cfg["Filesystem"]["dev_hdd1_mountpoint"].as_string();
@@ -80,6 +81,7 @@ void Settings::save() {
     cfg["LLEModules"]["cellKey2char"]       = lle.cellKey2char;
     cfg["LLEModules"]["cellL10n"]           = lle.cellL10n;
     cfg["LLEModules"]["cellFiber"]          = lle.cellFiber;
+    cfg["LLEModules"]["cellSail"]           = lle.cellSail;
     
     cfg["Filesystem"]["dev_hdd0_mountpoint"]    = filesystem.dev_hdd0_mountpoint;
     cfg["Filesystem"]["dev_hdd1_mountpoint"]    = filesystem.dev_hdd1_mountpoint;
