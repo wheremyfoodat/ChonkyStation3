@@ -88,6 +88,14 @@ uniform sampler2D tex;
             decompiled_src = std::format("vec4(lessThanEqual({}, {}))", source(instr, 0), source(instr, 1));
             break;
         }
+        case RSXFragment::SEQ: {
+            decompiled_src = std::format("vec4(equal({}, {}))", source(instr, 0), source(instr, 1));
+            break;
+        }
+        case RSXFragment::FLR: {
+            decompiled_src = std::format("floor({})", source(instr, 0));
+            break;
+        }
         case RSXFragment::KIL: {
             decompiled_src = "discard";
             break;

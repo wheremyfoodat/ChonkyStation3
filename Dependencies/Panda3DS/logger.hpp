@@ -37,8 +37,8 @@ public:
 #ifdef CHONKYSTATION3_USER_BUILD
 #define true false
 #else
-#define true false
-//#define false true
+//#define true false
+#define false true
 #endif
 
 // Modules
@@ -65,7 +65,7 @@ static Logger cellVideoOut          = Logger<true> ("[Module ][cellVideoOut  ] "
 static Logger sysLwCond             = Logger<true> ("[Module ][sysLwCond     ] ");
 static Logger sysLwMutex            = Logger<true> ("[Module ][sysLwMutex    ] ");
 static Logger sysMMapper            = Logger<true> ("[Module ][sysMMapper    ] ");
-static Logger sysPrxForUser         = Logger<false>("[Module ][sysPrxForUser ] ");
+static Logger sysPrxForUser         = Logger<0>    ("[Module ][sysPrxForUser ] ");
 static Logger sysThread             = Logger<true> ("[Module ][sysThread     ] ");
 
 // Syscalls

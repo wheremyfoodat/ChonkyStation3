@@ -1337,7 +1337,7 @@ void PPUInterpreter::andc(const Instruction& instr) {
 
 void PPUInterpreter::lvewx(const Instruction& instr) {
     const u32 addr = (instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]) & ~3;
-    const u8 m = (addr >> 2) & 3;   // TODO: is this right?
+    const u8 m = (addr >> 2) & 3;
     state.vrs[instr.vd].w[3 - m] = ps3->mem.read<u32>(addr);
 }
 
@@ -1469,7 +1469,7 @@ void PPUInterpreter::stdux(const Instruction& instr) {
 
 void PPUInterpreter::stvewx(const Instruction& instr) {
     const u32 addr = (instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]) & ~3;
-    const u8 m = (addr >> 2) & 0xf;
+    const u8 m = (addr & 0xf) >> 2;
     ps3->mem.write<u32>(addr, state.vrs[instr.vs].w[3 - m]);
 }
 
