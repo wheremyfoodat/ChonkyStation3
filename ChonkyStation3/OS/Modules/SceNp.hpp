@@ -22,6 +22,7 @@ public:
     PlayStation3* ps3;
 
     u64 sceNpDrmVerifyUpgradeLicense();
+    u64 sceNpManagerGetStatus();
     u64 sceNpBasicGetEvent();
     u64 sceNpManagerGetNpId();
 

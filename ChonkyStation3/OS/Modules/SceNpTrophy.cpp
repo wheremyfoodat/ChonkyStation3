@@ -12,14 +12,21 @@ u64 SceNpTrophy::sceNpTrophyRegisterContext() {
 
     // Call callback
     const PPUTypes::State old_state = ps3->ppu->state;
-    ps3->ppu->state.gprs[3] = 3;    // Installed
-    ps3->ppu->state.gprs[4] = 0;
+    ps3->ppu->state.gprs[3] = ctx;
+    ps3->ppu->state.gprs[4] = 3;    // Installed
     ps3->ppu->state.gprs[5] = 0;
     ps3->ppu->state.gprs[6] = 0;
     ps3->ppu->state.gprs[7] = arg;
-    //ps3->ppu->runFunc(ps3->mem.read<u32>(callback_ptr), ps3->mem.read<u32>(callback_ptr + 4));
-    ps3->ppu->state = old_state;
+    ps3->ppu->runFunc(ps3->mem.read<u32>(callback_ptr), ps3->mem.read<u32>(callback_ptr + 4));
 
+    ps3->ppu->state.gprs[3] = ctx;
+    ps3->ppu->state.gprs[4] = 8;    // Complete
+    ps3->ppu->state.gprs[5] = 0;
+    ps3->ppu->state.gprs[6] = 0;
+    ps3->ppu->state.gprs[7] = arg;
+    ps3->ppu->runFunc(ps3->mem.read<u32>(callback_ptr), ps3->mem.read<u32>(callback_ptr + 4));
+    
+    ps3->ppu->state = old_state;
     return CELL_OK;
 }
 
