@@ -122,6 +122,12 @@ void SPUThread::wait() {
     reschedule();
 }
 
+void SPUThread::stop() {
+    log("Stopped thread %d \"%s\"\n", id, name.c_str());
+    status = ThreadStatus::Terminated;
+    reschedule();
+}
+
 void SPUThread::wakeUp() {
     log("Woke up thread %d \"%s\"\n", id, name.c_str());
     status = ThreadStatus::Running;

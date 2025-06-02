@@ -10,7 +10,9 @@ class PlayStation3;
 
 class SPUThreadManager {
 public:
-    SPUThreadManager(PlayStation3* ps3) : ps3(ps3) {}
+    SPUThreadManager(PlayStation3* ps3) : ps3(ps3) {
+        threads.reserve(128);   // Avoid reallocations
+    }
     PlayStation3* ps3;
 
     SPUThread* createThread(std::string name, bool is_raw = false, int raw_idx = -1);
