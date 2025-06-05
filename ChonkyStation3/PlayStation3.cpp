@@ -87,8 +87,9 @@ void PlayStation3::init() {
     // Create main thread
     thread_manager.setTLS(elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize);
     elf_path_encrypted += '\0';
-    // TODO: Should the main thread have priority 0?
-    Thread* main_thread = thread_manager.createThread(entry, DEFAULT_STACK_SIZE, 0, 0, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true, elf_path_encrypted);
+
+    Helpers::debugAssert(!proc_param.ppc_seg, "Unhandled non-zero ppc_seg\n");
+    Thread* main_thread = thread_manager.createThread(entry, proc_param.primary_stacksize, 0, proc_param.primary_prio, (const u8*)"main", elf.tls_vaddr, elf.tls_filesize, elf.tls_memsize, true, elf_path_encrypted);
     ppu->state.gprs[11] = entry;
     ppu->state.gprs[12] = proc_param.malloc_pagesize ? proc_param.malloc_pagesize : 0x100000;
 

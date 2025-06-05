@@ -17,7 +17,7 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, s32 prio, const u8* name, u32
 
     const u64 sp = stack + stack_size;
     state.pc = real_entry;
-    state.gprs[0] = state.pc;
+    
     state.gprs[1] = sp - 8;
     state.gprs[2] = mgr->ps3->mem.read<u32>(entry + 4);
 
@@ -27,10 +27,6 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, s32 prio, const u8* name, u32
     }
 
     state.gprs[3] = arg;
-    state.gprs[7] = id;
-    state.gprs[8] = tls_vaddr;
-    state.gprs[9] = tls_filesize;
-    state.gprs[10] = tls_memsize;
 }
 
 void Thread::addArg(u64 arg) {
@@ -62,7 +58,7 @@ void Thread::finalizeEnv() {
         mgr->ps3->mem.write<u64>(state.gprs[1], env[i]);
     }
 
-    state.gprs[6] = args.size();
+    state.gprs[6] = env.size();
     state.gprs[5] = state.gprs[1];
     printf("envc for thread \"%s\": %lld\n", name.c_str(), state.gprs[6]);
     printf("envv for thread \"%s\": 0x%08x\n", name.c_str(), (u32)state.gprs[5]);

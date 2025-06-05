@@ -281,9 +281,9 @@ enum G_04Opcodes {
     VMULOSB         = 0x108,
     VREFP           = 0x10a,    // Vector Reciprocal Estimate Floating-Point
     VMRGLB          = 0x10c,
-    VPKSHUS         = 0x10e,
+    VPKSHUS         = 0x10e,    // Vector Pack Signed Half Word Unsigned Saturate
     VMAXSH          = 0x142,
-    VSLH            = 0x144,              
+    VSLH            = 0x144,    // Vector Shift Left Integer Half Word          
     VMULOSH         = 0x148,
     VRSQRTEFP       = 0x14a,    // Vector Reciprocal Square Root Estimate Floating-Point
     VMRGLH          = 0x14c,    // Vector Merge Low Half Word
@@ -307,7 +307,7 @@ enum G_04Opcodes {
     VMULEUB         = 0x208,
     VRFIN           = 0x20a,
     VSPLTB          = 0x20c,    // Vector Splat Byte
-    VUPKHSB         = 0x20e,
+    VUPKHSB         = 0x20e,    // Vector Unpack High Signed Byte
     VADDUHS         = 0x240,
     VMINUH          = 0x242,
     VSRH            = 0x244,
@@ -324,7 +324,7 @@ enum G_04Opcodes {
     VCMPGTUW_       = 0x686,
     VRFIP           = 0x28a,
     VSPLTW          = 0x28c,    // Vector Splat Word
-    VUPKLSB         = 0x28e,
+    VUPKLSB         = 0x28e,    // Vector Unpack Low Signed Byte
     VSR             = 0x2c4,
     VCMPGTFP        = 0x2c6,    // Vector Compare Greater-Than Floating-Point
     VCMPGTFP_       = 0x6c6,
@@ -341,7 +341,7 @@ enum G_04Opcodes {
     VPKPX           = 0x30e,
     VADDSHS         = 0x340,    // Vector Add Signed Half Word Saturate
     VMINSH          = 0x342,
-    VSRAH           = 0x344,
+    VSRAH           = 0x344,    // Vector Shift Right Algebraic Half Word
     VCMPGTSH        = 0x346,
     VCMPGTSH_       = 0x746,
     VMULESH         = 0x348,

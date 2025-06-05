@@ -6,7 +6,7 @@
 
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {
-        //Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
+        Helpers::panic("Unimplemented function unk_0x%08x\n", nid);
         last_call = getImportName(nid);
         ps3->ppu->state.gprs[3] = stub();
         return;
@@ -31,7 +31,7 @@ void ModuleManager::lle(u32 nid) {
 
 #endif
 
-    log("%s @ 0x%08x\n", getImportName(nid).c_str(), (u32)ps3->ppu->state.lr);
+    log("%s @ 0x%08x pc 0x%08x\n", getImportName(nid).c_str(), (u32)ps3->ppu->state.lr, (u32)ps3->ppu->state.pc);
     ps3->ppu->runFunc(ps3->mem.read<u32>(exports.funcs[nid].addr), ps3->mem.read<u32>(exports.funcs[nid].addr + 4), false);
 }
 
@@ -67,10 +67,10 @@ u64 ModuleManager::stub() {
 void ModuleManager::init() {
     import_map = {
         { 0xe6f2c1e7, { "sysProcessExit",                                   std::bind(&SysPrxForUser::sysProcessExit, &sysPrxForUser), true }},
-        { 0x2c847572, { "sysProcessAtExitSpawn",                            std::bind(&SysPrxForUser::sysProcessAtExitSpawn, &sysPrxForUser) }},
+        { 0x2c847572, { "sysProcessAtExitSpawn",                            std::bind(&SysPrxForUser::sysProcessAtExitSpawn, &sysPrxForUser), true }},
         { 0x2d36462b, { "_sys_strlen",                                      std::bind(&SysPrxForUser::sysStrlen, &sysPrxForUser) }},
         { 0x8461e528, { "sysGetSystemTime",                                 std::bind(&SysPrxForUser::sysGetSystemTime, &sysPrxForUser), true }},
-        { 0x96328741, { "sysProcess_At_ExitSpawn",                          std::bind(&SysPrxForUser::sysProcess_At_ExitSpawn, &sysPrxForUser) }},
+        { 0x96328741, { "sysProcess_At_ExitSpawn",                          std::bind(&SysPrxForUser::sysProcess_At_ExitSpawn, &sysPrxForUser), true }},
         { 0x5267cb35, { "sysSpinlockUnlock",                                std::bind(&SysPrxForUser::sysSpinlockUnlock, &sysPrxForUser) }},
         { 0x8c2bb498, { "sysSpinlockInitialize",                            std::bind(&SysPrxForUser::sysSpinlockInitialize, &sysPrxForUser) }},
         { 0x99c88692, { "_sys_strcpy",                                      std::bind(&SysPrxForUser::sysStrcpy, &sysPrxForUser) }},

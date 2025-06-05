@@ -10,15 +10,22 @@ Thread* ThreadManager::createThread(u64 entry, u64 stack_size, u64 arg, s32 prio
         current_thread_id = threads.back().id;
         ps3->mem.setCurrentThreadID(current_thread_id);
 
+        auto& thread = threads.back();
+        thread.state.gprs[0] = thread.state.pc;
+        thread.state.gprs[7] = thread.id;
+        thread.state.gprs[8] = tls_vaddr;
+        thread.state.gprs[9] = tls_filesize;
+        thread.state.gprs[10] = tls_memsize;
+
         // argc and argv
         auto data = ps3->mem.alloc(1_MB);
         std::memcpy(ps3->mem.getPtr(data->vaddr), executable_path.c_str(), executable_path.length());
 
-        threads.back().addArg(data->vaddr);    // argv[0] should be executable path
-        threads.back().finalizeArgs();
-        threads.back().addEnv(0);
-        threads.back().finalizeEnv();
-        threads.back().finalizeArgsAndEnv();
+        thread.addArg(data->vaddr);    // argv[0] should be executable path
+        thread.finalizeArgs();
+        thread.addEnv(0);
+        thread.finalizeEnv();
+        thread.finalizeArgsAndEnv();
 
         ps3->ppu->state = getCurrentThread()->state;
     }
