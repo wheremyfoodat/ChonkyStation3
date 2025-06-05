@@ -116,6 +116,7 @@ void ModuleManager::init() {
         { 0x4d7ce993, { "cellGcmSetSecondVFrequency",                       std::bind(&CellGcmSys::cellGcmSetSecondVFrequency, &cellGcmSys) }},
         { 0x51c9d62b, { "cellGcmSetDebugOutputLevel",                       std::bind(&CellGcmSys::cellGcmSetDebugOutputLevel, &cellGcmSys) }},
         { 0x5e2ee0f0, { "cellGcmGetDefaultCommandWordSize",                 std::bind(&ModuleManager::stub, this) } },
+        { 0x5a41c10f, { "cellGcmGetTimeStamp",                              std::bind(&ModuleManager::stub, this) } },
         { 0x626e8518, { "cellGcmMapEaIoAddressWithFlags",                   std::bind(&CellGcmSys::cellGcmMapEaIoAddressWithFlags, &cellGcmSys) }},
         { 0x63441cb4, { "cellGcmMapEaIoAddress",                            std::bind(&CellGcmSys::cellGcmMapEaIoAddress, &cellGcmSys) }},
         { 0x72a577ce, { "cellGcmGetFlipStatus",                             std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
