@@ -266,6 +266,11 @@ void SPUInterpreter::unimpl(const SPUInstruction& instr) {
     Helpers::panic("Unimplemented instruction\n");
 }
 
+void SPUInterpreter::stop(const SPUInstruction& instr) {
+    ps3->spu_thread_manager.getCurrentThread()->stop();
+    state.pc -= 4;
+}
+
 void SPUInterpreter::lnop(const SPUInstruction& instr) {}
 
 void SPUInterpreter::sync(const SPUInstruction& instr) {}
@@ -647,6 +652,15 @@ void SPUInterpreter::rotqbii(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[2] = (temp.w[2] << sh) | safeShr<u32>(temp.w[1], (32 - sh));
     state.gprs[instr.rt0].w[1] = (temp.w[1] << sh) | safeShr<u32>(temp.w[0], (32 - sh));
     state.gprs[instr.rt0].w[0] = (temp.w[0] << sh) | safeShr<u32>(temp.w[3], (32 - sh));
+}
+
+void SPUInterpreter::rotqmbii(const SPUInstruction& instr) {
+    const s32 sh = (0 - ext<s32, 7>(instr.i7)) & 7;
+    const auto temp = state.gprs[instr.ra];
+    state.gprs[instr.rt0].w[0] = (temp.w[0] >> sh) | safeShl<u32>(temp.w[1], (32 - sh));
+    state.gprs[instr.rt0].w[1] = (temp.w[1] >> sh) | safeShl<u32>(temp.w[2], (32 - sh));
+    state.gprs[instr.rt0].w[2] = (temp.w[2] >> sh) | safeShl<u32>(temp.w[3], (32 - sh));
+    state.gprs[instr.rt0].w[3] = (temp.w[3] >> sh);
 }
 
 void SPUInterpreter::shlqbii(const SPUInstruction& instr) {
@@ -1042,6 +1056,14 @@ void SPUInterpreter::hlgti(const SPUInstruction& instr) {
     }
 }
 
+void SPUInterpreter::mpyui(const SPUInstruction& instr) {
+    const s16 val = ext<s16, 10>(instr.si10);
+    state.gprs[instr.rt0].w[0] = (u16)state.gprs[instr.ra].w[0] * (u16)val;
+    state.gprs[instr.rt0].w[1] = (u16)state.gprs[instr.ra].w[1] * (u16)val;
+    state.gprs[instr.rt0].w[2] = (u16)state.gprs[instr.ra].w[2] * (u16)val;
+    state.gprs[instr.rt0].w[3] = (u16)state.gprs[instr.ra].w[3] * (u16)val;
+}
+
 void SPUInterpreter::ceqi(const SPUInstruction& instr) {
     const s32 val = ext<s32, 10>(instr.si10);
     state.gprs[instr.rt0].w[0] = ((s32)state.gprs[instr.ra].w[0] == val) ? 0xffffffff : 0;
@@ -1097,7 +1119,7 @@ void SPUInterpreter::shufb(const SPUInstruction& instr) {
     }
 }
 
-UNIMPL_INSTR(stop);
+//UNIMPL_INSTR(stop);
 //UNIMPL_INSTR(lnop);
 //UNIMPL_INSTR(sync);
 //UNIMPL_INSTR(dsync);
@@ -1173,7 +1195,7 @@ UNIMPL_INSTR(frsqest);
 //UNIMPL_INSTR(cwd);
 //UNIMPL_INSTR(cdd);
 //UNIMPL_INSTR(rotqbii);
-UNIMPL_INSTR(rotqmbii);
+//UNIMPL_INSTR(rotqmbii);
 //UNIMPL_INSTR(shlqbii);
 //UNIMPL_INSTR(rotqbyi);
 //UNIMPL_INSTR(rotqmbyi);
@@ -1282,7 +1304,7 @@ UNIMPL_INSTR(hgti);
 //UNIMPL_INSTR(clgtbi);
 //UNIMPL_INSTR(hlgti);
 UNIMPL_INSTR(mpyi);
-UNIMPL_INSTR(mpyui);
+//UNIMPL_INSTR(mpyui);
 //UNIMPL_INSTR(ceqi);
 //UNIMPL_INSTR(ceqhi);
 //UNIMPL_INSTR(ceqbi);

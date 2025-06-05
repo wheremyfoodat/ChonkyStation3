@@ -52,6 +52,7 @@ public:
     void halt();
     void sleep(u64 us);
     void wait();
+    void stop();
     void wakeUp();
 
     static std::string threadStatusToString(ThreadStatus status) {

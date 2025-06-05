@@ -234,7 +234,9 @@ void PPUInterpreter::step() {
         case LHZX:      lhzx(instr);    break;
         case XOR:       xor_(instr);    break;
         case MFSPR:     mfspr(instr);   break;
-        case MFTB:      mftb(instr);    break; 
+        case DST:       break;
+        case MFTB:      mftb(instr);    break;
+        case DSTST:     break;
         case STHX:      sthx(instr);    break;
         case ORC:       orc(instr);     break;
         case OR:        or_(instr);     break;
@@ -259,6 +261,7 @@ void PPUInterpreter::step() {
         case LHBRX:     lhbrx(instr);   break;
         case SRAW:      sraw(instr);    break;
         case SRAD:      srad(instr);    break;
+        case DSS:       break;
         case SRAWI:     srawi(instr);   break;
         case SRADI1:
         case SRADI2:    sradi(instr);   break;

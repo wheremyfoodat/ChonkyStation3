@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <BitField.hpp>
 
@@ -481,9 +481,11 @@ enum G_1FOpcodes {      // Field 21 - 30
     LHZUX   = 0x137,
     XOR     = 0x13c,
     MFSPR   = 0x153,
+    DST     = 0x156,
     LHAX    = 0x157,
     ABS     = 0x168,
     MFTB    = 0x173,
+    DSTST   = 0x176,
     LHAUX   = 0x177,
     STHX    = 0x197,    // Store Halfword Indexed
     ORC     = 0x19c,    // OR with Complement
@@ -513,6 +515,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     LHBRX   = 0x316,
     SRAW    = 0x318,
     SRAD    = 0x31a,
+    DSS     = 0x336,
     SRAWI   = 0x338,
     SRADI1  = 0x33a, 
     SRADI2  = 0x33b, 

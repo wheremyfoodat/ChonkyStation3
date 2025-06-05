@@ -15,7 +15,7 @@ public:
         // My code relies on this... I know it's bad. I pass pointers to Thread objects to the scheduler, if we reallocate
         // the pointers will become invalid
         // TODO: definitely find a better way to do this
-        threads.reserve(128);   // More than enough
+        threads.reserve(256);   // More than enough
     }
     PlayStation3* ps3;
 
