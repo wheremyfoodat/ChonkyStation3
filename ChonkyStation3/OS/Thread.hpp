@@ -38,6 +38,9 @@ public:
     // At most 1 thread can attempt to join another thread.
     u32 waiter = 0;
     u32 vptr = 0;   // Pointer to store the exit status to when terminated (v is u64)
+    
+    // For debugging
+    std::string wait_reason;
 
     void addArg(u64 arg);
     void finalizeArgs();
@@ -57,7 +60,7 @@ public:
     void reschedule(u64 cycles = 0);
     void sleep(u64 us);
     void sleepForCycles(u64 cycles);
-    void wait();
+    void wait(std::string wait_reason = "Not specified");
     void wakeUp();
     void join(u32 id, u32 vptr);
     void exit(u64 exit_status);

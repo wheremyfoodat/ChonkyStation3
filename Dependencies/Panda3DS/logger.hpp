@@ -37,8 +37,8 @@ public:
 #ifdef CHONKYSTATION3_USER_BUILD
 #define true false
 #else
-//#define true false
-#define false true
+#define true false
+//#define false true
 #endif
 
 // Modules
@@ -105,7 +105,7 @@ static Logger loader_game           = Logger<1>    ("[Loader ][Game          ] "
 static Logger manager_prx           = Logger<1>    ("[Manager][PRX           ] ");
 
 // Thread
-static Logger thread                = Logger<false>("[Thread ][PPU           ] ");
+static Logger thread                = Logger<true> ("[Thread ][PPU           ] ");
 static Logger thread_spu            = Logger<true> ("[Thread ][SPU           ] ");
 
 // Other

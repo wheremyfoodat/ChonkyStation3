@@ -12,7 +12,10 @@ class PlayStation3;
 
 class Lv2ObjectManager {
 public:
-    Lv2ObjectManager(PlayStation3* ps3, HandleManager* handle_manager) : ps3(ps3), handle_manager(handle_manager) {}
+    Lv2ObjectManager(PlayStation3* ps3, HandleManager* handle_manager) : ps3(ps3), handle_manager(handle_manager) {
+        // Avoid reallocations
+        objs.reserve(1024);
+    }
     PlayStation3* ps3;
     HandleManager* handle_manager;
 

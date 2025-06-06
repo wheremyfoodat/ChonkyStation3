@@ -103,14 +103,16 @@ void Thread::sleepForCycles(u64 cycles) {
     log("Sleeping thread %d for %lld cycles\n", id, cycles);
 }
 
-void Thread::wait() {
+void Thread::wait(std::string wait_reason) {
     status = ThreadStatus::Waiting;
+    this->wait_reason = wait_reason;
     reschedule();
     log("Thread %d \"%s\" is waiting\n", id, name.c_str());
 }
 
 void Thread::wakeUp() {
     status = ThreadStatus::Running;
+    wait_reason = "";
     reschedule();
     log("Woke up thread %d \"%s\"\n", id, name.c_str());
 }

@@ -37,15 +37,11 @@ void ThreadDebuggerWidget::update() {
     ui.ppuTable->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
     ui.ppuTable->setRowCount(ps3->thread_manager.threads.size());
-    ui.ppuTable->setColumnCount(4);
+    ui.ppuTable->setColumnCount(5);
     for (int i = 0; i < ui.ppuTable->rowCount(); i++)
         ui.ppuTable->setRowHeight(i, 20);
-    ui.ppuTable->setColumnWidth(0, 250);
-    ui.ppuTable->setColumnWidth(1, 100);
-    ui.ppuTable->setColumnWidth(2, 80);
-    ui.ppuTable->setColumnWidth(3, 80);
-    //ui.ppuTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui.ppuTable->setHorizontalHeaderLabels(QStringList({ "Name", "Status", "ID", "pc"}));
+    ui.ppuTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui.ppuTable->setHorizontalHeaderLabels(QStringList({ "Name", "Status", "ID", "pc", "Wait reason"}));
     
     for (int i = 0; i < ppu_threads.size(); i++) {
         auto& thread = ppu_threads[i];
@@ -53,6 +49,7 @@ void ThreadDebuggerWidget::update() {
         setListItem(ui.ppuTable, i, 1, Thread::threadStatusToString(thread.status));
         setListItem(ui.ppuTable, i, 2, std::format("{:d}", thread.id));
         setListItem(ui.ppuTable, i, 3, std::format("{:08x}", thread.state.pc));
+        setListItem(ui.ppuTable, i, 4, thread.wait_reason);
     }
     
     // ***** SPU *****
@@ -66,11 +63,7 @@ void ThreadDebuggerWidget::update() {
     ui.spuTable->setColumnCount(4);
     for (int i = 0; i < ui.spuTable->rowCount(); i++)
         ui.spuTable->setRowHeight(i, 20);
-    ui.spuTable->setColumnWidth(0, 250);
-    ui.spuTable->setColumnWidth(1, 100);
-    ui.spuTable->setColumnWidth(2, 80);
-    ui.spuTable->setColumnWidth(3, 80);
-    //ui.spuTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui.spuTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.spuTable->setHorizontalHeaderLabels(QStringList({ "Name", "Status", "ID", "pc"}));
     
     for (int i = 0; i < spu_threads.size(); i++) {

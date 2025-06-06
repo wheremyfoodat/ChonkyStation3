@@ -62,7 +62,7 @@ bool Lv2LwCond::wait() {
         if (mtx->owner != curr_thread->id)
             return false;
 
-        curr_thread->wait();
+        curr_thread->wait(std::format("lwcond {:d}", handle()));
         wait_list.push(curr_thread->id);
 
         // Release the mutex while we are waiting

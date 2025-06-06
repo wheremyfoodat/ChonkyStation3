@@ -20,7 +20,8 @@ void Lv2Semaphore::wait() {
     if (val > 0)
         val--;
     else {
-        ps3->thread_manager.getCurrentThread()->wait();
+        printf("sema %d\n", handle());
+        ps3->thread_manager.getCurrentThread()->wait(std::format("sema {}", handle()));
         wait_list.push(ps3->thread_manager.getCurrentThread()->id);
     } 
 }

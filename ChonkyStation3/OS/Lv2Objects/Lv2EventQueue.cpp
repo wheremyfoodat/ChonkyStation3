@@ -13,7 +13,7 @@ void Lv2EventQueue::receive() {
     }
     else {
         // Wait for an event
-        curr_thread->wait();
+        curr_thread->wait(std::format("equeue {:d}", handle()));
         wait_list.push(curr_thread->id);
     }
 }

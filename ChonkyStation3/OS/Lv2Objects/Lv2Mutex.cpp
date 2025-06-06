@@ -11,7 +11,7 @@ void Lv2Mutex::lock() {
     if (isFree())
         owner = curr_thread->id;
     else if (owner != curr_thread->id) {
-        curr_thread->wait();
+        curr_thread->wait(std::format("mutex {:d} owned by {:s}", handle(), ps3->thread_manager.getThreadByID(owner)->name));
         wait_list.push(curr_thread->id);
         //printf("\"%s\" tried to lock mutex owned by \"%s\", waiting...\n", curr_thread->name.c_str(), ps3->thread_manager.getThreadByID(owner)->name.c_str());
     }
