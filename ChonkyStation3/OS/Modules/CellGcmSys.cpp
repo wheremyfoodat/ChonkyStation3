@@ -82,8 +82,20 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     for (u32 i = 0; i < (gcm_config.io_size >> 20); i++)
         mapEaIo(gcm_config.io_addr + (i << 20), i << 20);
-
     ps3->rsx.setEaTableAddr(ea_table_ptr);
+    
+    // Create vblank thread
+    static const u8 code[] = {
+        0x39, 0x60, 0x00, 0x8d, 0x38, 0x60, 0x03, 0xe8,
+        0x44, 0x00, 0x00, 0x02, 0x39, 0x60, 0x10, 0x00,
+        0x44, 0x00, 0x00, 0x02, 0x4b, 0xff, 0xff, 0xec,
+
+    };
+    u32 vblank_thread_entry = ps3->mem.alloc(1_MB)->vaddr;
+    std::memcpy(ps3->mem.getPtr(vblank_thread_entry), code, sizeof(code));
+        
+    auto thread = ps3->thread_manager.createThread(vblank_thread_entry, 1, 0, 0, (const u8*)"gcm_vblank_thread", 0, 0, 0);
+    thread->state.pc = vblank_thread_entry;
 
     return CELL_OK;
 }

@@ -161,7 +161,6 @@ void PlayStation3::step() {
 
         if (curr_block++ >= reschedule_every_n_blocks) {
             curr_block = 0;
-            //vblank();
             thread_manager.reschedule();
         }
     }
@@ -179,6 +178,10 @@ void PlayStation3::printCrashInfo(std::runtime_error err) {
 #ifndef CHONKYSTATION3_USER_BUILD
     ((PPUInterpreter*)ppu)->printCallStack();
 
+    //for (auto& instr : crash_analyzer.state_queue) {
+    //    PPUDisassembler::disasm(instr.state, instr.instr, &mem);
+    //}
+    
     //printf("The crash happened at the following instruction:\n");
     //PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
     //crash_analyzer.analyzeCrash(error);
