@@ -401,8 +401,16 @@ T Memory::read(u64 vaddr) {
 
     u8* ptr = read_table[page];
     // Fastmem
-    if (ptr)
+    if (ptr) {
+#ifndef __APPLE__
         return Helpers::bswap<T>(*(T*)(&ptr[offs]));
+#else
+        // Avoid misaligned pointers on MacOS (might break on ARM)
+        T data;
+        std::memcpy(&data, &ptr[offs], sizeof(T));
+        return Helpers::bswap<T>(data);
+#endif
+    }
     // Slowmem
     else {
         auto [offset, mem] = addrToOffsetInMemory(vaddr);
@@ -431,8 +439,14 @@ void Memory::write(u64 vaddr, T data) {
 
     u8* ptr = write_table[page];
     // Fastmem
-    if (ptr)
+    if (ptr) {
+#ifndef __APPLE__
         *(T*)(&ptr[offs]) = data;
+#else
+        // Avoid misaligned pointers on MacOS (might break on ARM)
+        std::memcpy(&ptr[offs], &data, sizeof(T));
+#endif
+    }
     // Slowmem
     else {
         auto [offset, mem] = addrToOffsetInMemory(vaddr);

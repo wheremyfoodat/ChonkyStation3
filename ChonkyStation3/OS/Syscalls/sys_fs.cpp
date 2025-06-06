@@ -18,7 +18,7 @@ u64 Syscall::sys_fs_test() {
 
     std::memset((char*)ps3->mem.getPtr(buf_ptr), 0, buf_size);
     std::strncpy((char*)ps3->mem.getPtr(buf_ptr), file.guest_path.generic_string().c_str(), buf_size);
-
+    
     return CELL_OK;
 }
 

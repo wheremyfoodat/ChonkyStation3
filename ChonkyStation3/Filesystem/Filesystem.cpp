@@ -150,6 +150,13 @@ fs::path Filesystem::guestPathToHost(fs::path path) {
     if (!isDeviceMounted(device))
         Helpers::panic("Path %s: device %s is not mounted\n", path_str.c_str(), device_str.c_str());
 
+    // Check if this path contains only the device
+    int count = 0;
+    for (const auto& i : path) count++;
+    if (count == 2 || (count == 3 && path.filename().empty())) {
+        return mounted_devices[device];
+    }
+    
     // Convert to host path
     std::string path_no_device_start = std::next(path.begin(), 2)->generic_string();
     fs::path path_no_device = path_str.substr(path_str.find(path_no_device_start));

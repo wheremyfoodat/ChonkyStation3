@@ -22,7 +22,7 @@ public:
     PlayStation3* ps3;
 
 #pragma pack(push, 1)
-    struct CellFsStat {
+    struct alignas(4) CellFsStat {
         BEField<u32> mode;
         BEField<u32> uid;
         BEField<u32> gid;
@@ -33,7 +33,7 @@ public:
         BEField<u64> blksize;
     };
 #pragma pack(pop)
-
+    
     enum CELL_FS_S : u32 {
         CELL_FS_S_IFDIR = 0040000,	// Directory
         CELL_FS_S_IFREG = 0100000,	// Regular

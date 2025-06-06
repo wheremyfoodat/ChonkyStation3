@@ -161,6 +161,7 @@ void PlayStation3::step() {
 
         if (curr_block++ >= reschedule_every_n_blocks) {
             curr_block = 0;
+            //vblank();
             thread_manager.reschedule();
         }
     }

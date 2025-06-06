@@ -134,12 +134,25 @@ u64 CellFs::cellFsStat() {
     stat->mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);
     stat->uid = 0;
     stat->gid = 0;
+    u64 size = !is_dir ? ps3->fs.getFileSize(path) : 4096;
+    u64 blksize = 4096;
+#ifndef __APPLE__
     stat->atime = 0;
     stat->mtime = 0;
     stat->ctime = 0;
-    stat->size = !is_dir ? ps3->fs.getFileSize(path) : 4096;
-    stat->blksize = 4096;
-
+    stat->size = size;
+    stat->blksize = blksize;
+#else
+    size = Helpers::bswap<u64>(size);
+    blksize = Helpers::bswap<u64>(blksize);
+    // Avoid misaligned pointer accesses on MacOS (might break on ARM)
+    std::memset(&stat->atime, 0, sizeof(u64));
+    std::memset(&stat->mtime, 0, sizeof(u64));
+    std::memset(&stat->ctime, 0, sizeof(u64));
+    std::memcpy(&stat->size, &size, sizeof(u64));
+    std::memcpy(&stat->blksize, &blksize, sizeof(u64));
+#endif
+    
     return CELL_OK;
 }
 
@@ -207,11 +220,24 @@ u64 CellFs::cellFsFstat() {
     stat->mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);
     stat->uid = 0;
     stat->gid = 0;
+    u64 size = !is_dir ? ps3->fs.getFileSize(file_id) : 4096;
+    u64 blksize = 4096;
+#ifndef __APPLE__
     stat->atime = 0;
     stat->mtime = 0;
     stat->ctime = 0;
-    stat->size = !is_dir ? ps3->fs.getFileSize(file_id) : 4096;
-    stat->blksize = 4096;
+    stat->size = size;
+    stat->blksize = blksize;
+#else
+    size = Helpers::bswap<u64>(size);
+    blksize = Helpers::bswap<u64>(blksize);
+    // Avoid misaligned pointer accesses on MacOS (might break on ARM)
+    std::memset(&stat->atime, 0, sizeof(u64));
+    std::memset(&stat->mtime, 0, sizeof(u64));
+    std::memset(&stat->ctime, 0, sizeof(u64));
+    std::memcpy(&stat->size, &size, sizeof(u64));
+    std::memcpy(&stat->blksize, &blksize, sizeof(u64));
+#endif
 
     return CELL_OK;
 }
