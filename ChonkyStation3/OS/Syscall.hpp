@@ -64,7 +64,9 @@ public:
     u64 sys_ppu_thread_get_stack_information();
 
     // sys_event_flag
+    u64 sys_event_flag_create();
     u64 sys_event_flag_wait();
+    u64 sys_event_flag_set();
     u64 sys_event_flag_clear();
 
     // sys_semaphore

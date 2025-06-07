@@ -327,6 +327,14 @@ void SPUInterpreter::rotm(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[3] = safeShr<u32>(state.gprs[instr.ra].w[3], (0 - state.gprs[instr.rb].w[3]) & 0x3f);
 }
 
+void SPUInterpreter::rotma(const SPUInstruction& instr) {
+    for (int i = 0; i < 4; i++) {
+        int sh = (0 - state.gprs[instr.rb].w[i]) & 0x3f;
+        sh = (sh < 32) ? sh : 31;
+        state.gprs[instr.rt0].w[i] = (s32)state.gprs[instr.ra].w[i] >> sh;
+    }
+}
+
 void SPUInterpreter::shl(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[0] = safeShl<u32>(state.gprs[instr.ra].w[0], state.gprs[instr.rb].w[0] & 0x3f);
     state.gprs[instr.rt0].w[1] = safeShl<u32>(state.gprs[instr.ra].w[1], state.gprs[instr.rb].w[1] & 0x3f);
@@ -1134,7 +1142,7 @@ UNIMPL_INSTR(mfspr);
 UNIMPL_INSTR(absdb);
 UNIMPL_INSTR(rot);
 //UNIMPL_INSTR(rotm);
-UNIMPL_INSTR(rotma);
+//UNIMPL_INSTR(rotma);
 //UNIMPL_INSTR(shl);
 UNIMPL_INSTR(roth);
 UNIMPL_INSTR(rothm);
