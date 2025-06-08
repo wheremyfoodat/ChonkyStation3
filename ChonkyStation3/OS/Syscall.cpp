@@ -46,6 +46,9 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     // HLE vblank event
     case 4096: {
         ps3->vblank();
+        if (ps3->module_manager.cellAudio.equeue_id) {
+            ps3->lv2_obj.get<Lv2EventQueue>(ps3->module_manager.cellAudio.equeue_id)->send({ CellAudio::EVENT_QUEUE_KEY, 0, 0, 0 });
+        }
         break;
     }
 

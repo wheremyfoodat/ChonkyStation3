@@ -5,11 +5,20 @@
 
 u64 CellAudio::cellAudioCreateNotifyEventQueue() {
     const u32 equeue_id_ptr = ARG0;
-    const u32 key_ptr = ARG1;   // key is u32
+    const u32 key_ptr = ARG1;   // key is u64
     log("cellAudioCreateNotifyEventQueue(equeue_id_ptr: 0x%08x, key_ptr: 0%08x)\n", equeue_id_ptr, key_ptr);
     
     Lv2EventQueue* equeue = ps3->lv2_obj.create<Lv2EventQueue>();
-    ps3->mem.write<u32>(equeue_id_ptr, equeue->handle());
+    equeue_id = equeue->handle();
+    
+    ps3->mem.write<u32>(equeue_id_ptr, equeue_id);
+    ps3->mem.write<u64>(key_ptr, EVENT_QUEUE_KEY);
+    return CELL_OK;
+}
+
+u64 CellAudio::cellAudioSetNotifyEventQueue() {
+    const u64 key = ARG0;
+    Helpers::debugAssert(key == EVENT_QUEUE_KEY, "TODO: cellAudioSetNotifyEventQueue with custom event queue\n");
     
     return CELL_OK;
 }

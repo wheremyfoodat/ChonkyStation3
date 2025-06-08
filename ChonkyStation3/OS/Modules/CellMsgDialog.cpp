@@ -13,12 +13,12 @@ u64 CellMsgDialog::cellMsgDialogOpen2() {
     // TODO: buttons, non-error dialogs
 
     const auto msg = Helpers::readString(ps3->mem.getPtr(msg_ptr));
-    log("Opened a message dialog:\n");
-    log("%s\n", msg.c_str());
+    printf("Opened a message dialog:\n");
+    printf("%s\n", msg.c_str());
     
     if ((type & 1) == 0) {  // Error
         //Helpers::panic("Error\n");
-        log("WARNING: Error message dialog\n");
+        printf("WARNING: Error message dialog\n");
     }
 
     return CELL_OK;

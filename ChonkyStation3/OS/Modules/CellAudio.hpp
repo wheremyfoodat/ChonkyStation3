@@ -23,6 +23,7 @@ static constexpr u32 CELL_AUDIO_STATUS_CLOSE = 0x1010;
 static constexpr u32 CELL_AUDIO_STATUS_READY = 1;
 static constexpr u32 CELL_AUDIO_STATUS_RUN   = 2;
 
+
 class CellAudio {
 public:
     CellAudio(PlayStation3* ps3) : ps3(ps3) {
@@ -55,9 +56,12 @@ public:
         u32 size = 0;
     };
 
+    static constexpr u64 EVENT_QUEUE_KEY = 0x1234A1BE1234A1BE;
+    u32 equeue_id = 0;
     Port ports[8];
 
     u64 cellAudioCreateNotifyEventQueue();
+    u64 cellAudioSetNotifyEventQueue();
     u64 cellAudioGetPortConfig();
     u64 cellAudioPortStart();
     u64 cellAudioPortOpen();

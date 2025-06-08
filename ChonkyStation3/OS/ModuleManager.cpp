@@ -279,9 +279,14 @@ void ModuleManager::init() {
 
         { 0x04af134e, { "cellAudioCreateNotifyEventQueue",                  std::bind(&CellAudio::cellAudioCreateNotifyEventQueue, &cellAudio) }},
         { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
-        { 0x377e0cd9, { "cellAudioSetNotifyEventQueue",                     std::bind(&ModuleManager::stub, this) } },
+        { 0x377e0cd9, { "cellAudioSetNotifyEventQueue",                     std::bind(&CellAudio::cellAudioSetNotifyEventQueue, &cellAudio) } },
         { 0x74a66af0, { "cellAudioGetPortConfig",                           std::bind(&CellAudio::cellAudioGetPortConfig, &cellAudio) }},
         { 0x56dfe179, { "cellAudioSetPortLevel",                            std::bind(&ModuleManager::stub, this) } },
+        { 0xca5ac370, { "cellAudioQuit",                                    std::bind(&ModuleManager::stub, this) } },
+        { 0xff3626fd, { "cellAudioRemoveNotifyEventQueue",                  std::bind(&ModuleManager::stub, this) } },
+        
+        { 0x4129fe2d, { "cellAudioPortClose",                               std::bind(&ModuleManager::stub, this) } },
+        { 0x5b1e2c73, { "cellAudioPortStop",                                std::bind(&ModuleManager::stub, this) } },
         { 0x89be28f2, { "cellAudioPortStart",                               std::bind(&CellAudio::cellAudioPortStart, &cellAudio) }},
         { 0xcd7bc431, { "cellAudioPortOpen",                                std::bind(&CellAudio::cellAudioPortOpen, &cellAudio) }},
 
@@ -289,7 +294,7 @@ void ModuleManager::init() {
 
         { 0x2beac488, { "cellAudioOutGetSoundAvailability2",                std::bind(&ModuleManager::stub, this) }},
         { 0x4692ab35, { "cellAudioOutConfigure",                            std::bind(&ModuleManager::stub, this) }},
-        { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",                 std::bind(&ModuleManager::stub, this) }},
+        { 0xc01b4e7c, { "cellAudioOutGetSoundAvailability",                 std::bind(&CellAudioOut::cellAudioOutGetSoundAvailability, &cellAudioOut) }},
         { 0xc96e89e9, { "cellAudioOutSetCopyControl",                       std::bind(&ModuleManager::stub, this) }},
         { 0xe5e2b09d, { "cellAudioOutGetNumberOfDevice",                    std::bind(&ModuleManager::stub, this) }},
         { 0xed5d96af, { "cellAudioOutGetConfiguration",                     std::bind(&ModuleManager::stub, this) }},

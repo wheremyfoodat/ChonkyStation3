@@ -432,6 +432,13 @@ void SPUInterpreter::binz(const SPUInstruction& instr) {
     }
 }
 
+void SPUInterpreter::bihz(const SPUInstruction& instr) {
+    if (state.gprs[instr.rt0].h[6] == 0) {
+        const u32 addr = state.gprs[instr.ra].w[3] & 0x3fffc;
+        state.pc = addr - 4;
+    }
+}
+
 void SPUInterpreter::bihnz(const SPUInstruction& instr) {
     if (state.gprs[instr.rt0].h[6] != 0) {
         const u32 addr = state.gprs[instr.ra].w[3] & 0x3fffc;
@@ -801,13 +808,13 @@ void SPUInterpreter::sfx(const SPUInstruction& instr) {
 
 void SPUInterpreter::fscrrd(const SPUInstruction& instr) {
     // TODO
-    printf("SPU: TODO FSCRRD\n");
+    //printf("SPU: TODO FSCRRD\n");
     clr(state.gprs[instr.rt0]);
 }
 
 void SPUInterpreter::fscrwr(const SPUInstruction& instr) {
     // TODO
-    printf("SPU: TODO FSCRWR\n");
+    //printf("SPU: TODO FSCRWR\n");
 }
 
 void SPUInterpreter::mpyh(const SPUInstruction& instr) {
@@ -1166,7 +1173,7 @@ UNIMPL_INSTR(mtspr);
 //UNIMPL_INSTR(wrch);
 //UNIMPL_INSTR(biz);
 //UNIMPL_INSTR(binz);
-UNIMPL_INSTR(bihz);
+//UNIMPL_INSTR(bihz);
 //UNIMPL_INSTR(bihnz);
 UNIMPL_INSTR(stopd);
 //UNIMPL_INSTR(stqx);
