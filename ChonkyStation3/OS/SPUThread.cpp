@@ -147,10 +147,11 @@ void SPUThread::LocklineWaiter::waiter() {
     //printf("waiter\n");
     u64 curr = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     u64 elapsed;
+    u8* ptr = ps3->mem.getPtr(reservation.addr);
     
     while (is_waiting) {
         // Did the data change?
-        if (std::memcmp(reservation.data, ps3->mem.getPtr(reservation.addr), 128)) {
+        if (std::memcmp(reservation.data, ptr, 128)) {
             is_waiting = false;
         }
 
@@ -161,6 +162,8 @@ void SPUThread::LocklineWaiter::waiter() {
             //exit(0);
             //is_waiting = false;
         }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     
     // The lockline reservation was lost, check if it was acquired before losing it. If not, send lockline lost event

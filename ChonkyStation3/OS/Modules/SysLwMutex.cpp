@@ -59,6 +59,10 @@ u64 SysLwMutex::sysLwMutexCreate() {
 
     Lv2Mutex* lv2_mtx = ps3->lv2_obj.create<Lv2Mutex>();
     lv2_mtx->owner = -1;    // free
+    if (attrib->recursive == SYS_SYNC_RECURSIVE) lv2_mtx->recursive = true;
+    else if (attrib->recursive == SYS_SYNC_NOT_RECURSIVE) lv2_mtx->recursive = false;
+    else Helpers::panic("sysLwMutexCreate: invalid attr->recursive\n");
+    
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     mtx->owner = -1;    // free
     mtx->waiter = 0;

@@ -66,7 +66,7 @@ static Logger cellVideoOut          = Logger<true> ("[Module ][cellVideoOut  ] "
 static Logger sysLwCond             = Logger<true> ("[Module ][sysLwCond     ] ");
 static Logger sysLwMutex            = Logger<true> ("[Module ][sysLwMutex    ] ");
 static Logger sysMMapper            = Logger<true> ("[Module ][sysMMapper    ] ");
-static Logger sysPrxForUser         = Logger<0>    ("[Module ][sysPrxForUser ] ");
+static Logger sysPrxForUser         = Logger<false>("[Module ][sysPrxForUser ] ");
 static Logger sysThread             = Logger<true> ("[Module ][sysThread     ] ");
 
 // Syscalls
@@ -77,7 +77,7 @@ static Logger sys_event_flag        = Logger<true> ("[Syscall][sys_event_flag] "
 static Logger sys_prx               = Logger<true> ("[Syscall][sys_prx       ] ");
 static Logger sys_cond              = Logger<true> ("[Syscall][sys_cond      ] ");
 static Logger sys_rwlock            = Logger<true> ("[Syscall][sys_rwlock    ] ");
-static Logger sys_mutex             = Logger<0>    ("[Syscall][sys_mutex     ] ");
+static Logger sys_mutex             = Logger<false>("[Syscall][sys_mutex     ] ");
 static Logger sys_event             = Logger<true> ("[Syscall][sys_event     ] ");
 static Logger sys_vm                = Logger<true> ("[Syscall][sys_vm        ] ");
 static Logger sys_memory            = Logger<true> ("[Syscall][sys_memory    ] ");

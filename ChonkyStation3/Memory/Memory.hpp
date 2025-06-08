@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <functional>
 #include <optional>
+#include <mutex>
 
 #include <MemoryConstants.hpp>
 
@@ -74,6 +75,9 @@ public:
             printf("0x%016llx -> 0x%016llx\n", i.vaddr, i.vaddr + i.size - 1);
         }
     }
+    
+private:
+    std::recursive_mutex mutex;
 };
 
 class Memory {

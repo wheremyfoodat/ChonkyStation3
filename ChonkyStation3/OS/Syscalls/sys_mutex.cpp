@@ -1,6 +1,9 @@
+#include "sys_mutex.hpp"
 #include <Syscall.hpp>
 #include "PlayStation3.hpp"
 
+
+using namespace sys_mutex;
 
 MAKE_LOG_FUNCTION(log_sys_mutex, sys_mutex);
 
@@ -9,9 +12,13 @@ u64 Syscall::sys_mutex_create() {
     const u32 attr_ptr = ARG1;
     log_sys_mutex("sys_mutex_create(mutex_id_ptr: 0x%08x, attr_ptr: 0x%08x)\n", mutex_id_ptr, attr_ptr);
 
+    sys_mutex_attribute* attr = (sys_mutex_attribute*)ps3->mem.getPtr(attr_ptr);
     Lv2Mutex* mutex = ps3->lv2_obj.create<Lv2Mutex>();
+    if (attr->recursive == SYS_SYNC_RECURSIVE) mutex->recursive = true;
+    else if (attr->recursive == SYS_SYNC_NOT_RECURSIVE) mutex->recursive = false;
+    else Helpers::panic("sys_mutex_create: invalid attr->recursive\n");
+    
     ps3->mem.write<u32>(mutex_id_ptr, mutex->handle());
-
     return CELL_OK;
 }
 

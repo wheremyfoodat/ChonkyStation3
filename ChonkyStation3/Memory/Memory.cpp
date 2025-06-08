@@ -3,6 +3,8 @@
 
 // Allocates size bytes of physical memory. Returns physical address of the allocated memory.
 MemoryRegion::Block* MemoryRegion::allocPhys(size_t size) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Find the next free block of memory big enough for the given size
@@ -39,6 +41,8 @@ MemoryRegion::Block* MemoryRegion::allocPhys(size_t size) {
 
 // Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem. Optionally specify the lowest possible virtual address to allocate.
 MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Allocate block of memory
@@ -62,6 +66,8 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
 
 // Returns whether or not it's possible to allocate size bytes.
 bool MemoryRegion::canAlloc(size_t size) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Find the next free block of memory big enough for the given size
@@ -94,6 +100,8 @@ bool MemoryRegion::canAlloc(size_t size) {
 }
 
 void MemoryRegion::free(MemoryRegion::MapEntry* entry) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     // Get the block this entry is mapped to
     auto block = findBlockFromAddr(entry->paddr);
     // Free the block
@@ -108,6 +116,8 @@ void MemoryRegion::free(MemoryRegion::MapEntry* entry) {
 }
 
 void MemoryRegion::freePhys(MemoryRegion::Block* block) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     // Remove block
     for (int i = 0; i < blocks.size(); i++) {
         if (blocks[i].start == block->start) {
@@ -152,6 +162,8 @@ std::pair<bool, MemoryRegion::Block*> MemoryRegion::findBlockWithHandle(u64 hand
 
 // Frees a physical block with the given handle, or does nothing if there is no block with the given handle.
 void MemoryRegion::freeBlockWithHandle(u64 handle) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     // Get the block
     auto block = findBlockWithHandle(handle);
     // Remove the block
@@ -220,6 +232,8 @@ std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::findMapEntryWithHandle(u6
 // Checks if the given virtual address is mapped to a physical address.
 // If it is, also return the map entry.
 std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::isMapped(u64 vaddr) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     for (auto& i : map) {
         if (Helpers::inRange<u32>(vaddr, i.vaddr, i.vaddr + i.size - 1)) return { true, &i };
     }
@@ -229,6 +243,8 @@ std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::isMapped(u64 vaddr) {
 
 // Maps a virtual address to a physical one.
 MemoryRegion::MapEntry* MemoryRegion::mmap(u64 vaddr, u64 paddr, size_t size) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     if (isMapped(vaddr).first) {
         printAddressMap();
         Helpers::panic("Tried to map an already mapped virtual address at 0x%016llx\n", vaddr);
@@ -243,6 +259,8 @@ MemoryRegion::MapEntry* MemoryRegion::mmap(u64 vaddr, u64 paddr, size_t size) {
 
 // Unmaps the region starting at the given virtual address.
 void MemoryRegion::unmap(u64 vaddr) {
+    std::lock_guard<std::recursive_mutex> lock(mutex);
+    
     for (int i = 0; i < map.size(); i++) {
         if (map[i].vaddr == vaddr) {
             map.erase(map.begin() + i);
@@ -253,7 +271,10 @@ void MemoryRegion::unmap(u64 vaddr) {
 // Translates a virtual address.
 u64 MemoryRegion::translateAddr(u64 vaddr) {
     auto [mapped, map] = isMapped(vaddr);
-    if (!mapped) Helpers::panic("Tried to access unmapped vaddr 0x%016x\n", vaddr);
+    if (!mapped) {
+        printAddressMap();
+        Helpers::panic("Tried to access unmapped vaddr 0x%016x\n", vaddr);
+    }
 
     return map->paddr + (vaddr - map->vaddr);
 }

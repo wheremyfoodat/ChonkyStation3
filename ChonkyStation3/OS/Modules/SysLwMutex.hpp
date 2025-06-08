@@ -6,12 +6,14 @@
 
 #include <CellTypes.hpp>
 #include <Lv2Objects/Lv2Mutex.hpp>
+#include "Syscalls/sys_mutex.hpp"
 
 
 // Circular dependency
 class PlayStation3;
 
 using namespace CellTypes;
+using namespace sys_mutex;
 
 class SysLwMutex {
 public:
