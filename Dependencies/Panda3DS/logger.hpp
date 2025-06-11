@@ -38,7 +38,7 @@ public:
 #define true false
 #else
 //#define true false
-#define false true
+//#define false true
 #endif
 
 // Modules

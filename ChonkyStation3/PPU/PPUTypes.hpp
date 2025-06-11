@@ -472,6 +472,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     ADDME   = 0x0ea,
     MULLW   = 0x0eb,
     DCBTST  = 0x0f6,
+    STBUX   = 0x0f7,
     DOZ     = 0x108,
     ADD     = 0x10a,
     DCBT    = 0x116,

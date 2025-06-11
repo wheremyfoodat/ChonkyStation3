@@ -87,6 +87,20 @@ vec4 r[16];
             main += std::format("{}{} = {}(dot({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
             break;
         }
+        case RSXVertex::VECTOR::MIN: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            const auto type = getType(num_lanes);
+            main += std::format("{}{} = {}(min({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            break;
+        }
+        case RSXVertex::VECTOR::MAX: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            const auto type = getType(num_lanes);
+            main += std::format("{}{} = {}(max({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            break;
+        }
         case RSXVertex::VECTOR::FRC: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);

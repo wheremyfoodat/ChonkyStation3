@@ -194,6 +194,7 @@ public:
     void stvx       (const Instruction& instr);
     void mulld      (const Instruction& instr);
     void mullw      (const Instruction& instr);
+    void stbux      (const Instruction& instr);
     void add        (const Instruction& instr);
     void lhzx       (const Instruction& instr);
     void xor_       (const Instruction& instr);

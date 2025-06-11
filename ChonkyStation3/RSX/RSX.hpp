@@ -125,7 +125,7 @@ public:
     struct AttributeBinding {
         u8 index;
         u8 stride;
-        u8 size;
+        u8 size = 0;
         u32 offset;
         u8 type;
 
@@ -159,6 +159,7 @@ public:
         u32 getBase() {
             u32 lowest = -1;
             for (auto& binding : bindings) {
+                if (!binding.size) continue;
                 if (binding.offset < lowest)
                     lowest = binding.offset;
             }
@@ -170,6 +171,7 @@ public:
             u32 highest = 0;
             AttributeBinding* highest_binding = nullptr;
             for (auto& binding : bindings) {
+                if (!binding.size) continue;
                 if (binding.offset > highest) {
                     highest = binding.offset;
                     highest_binding = &binding;

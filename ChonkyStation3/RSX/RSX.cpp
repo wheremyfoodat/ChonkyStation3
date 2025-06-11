@@ -8,6 +8,7 @@ RSX::RSX(PlayStation3* ps3) : ps3(ps3), gcm(ps3->module_manager.cellGcmSys), fra
     last_tex.format = 0;
     last_tex.width = 0;
     last_tex.height = 0;
+    vertex_array.bindings.resize(16);
 }
 
 void RSX::initGL() {
@@ -116,6 +117,7 @@ void RSX::compileProgram() {
 
 void RSX::setupVAO() {
     for (auto& binding : vertex_array.bindings) {
+        if (!binding.size) continue;
         u32 offs_in_buf = binding.offset - vertex_array.getBase();
         // Setup VAO attribute
         switch (binding.type) {
@@ -137,9 +139,10 @@ void RSX::setupVAO() {
 
 void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
     u32 vtx_buf_offs = vtx_buf.size();
-    vtx_buf.resize(vtx_buf_offs + (vertex_array.size() * n_vertices));
+    vtx_buf.resize(vtx_buf_offs + (vertex_array.size() * (n_vertices + start)));
 
     for (auto& binding : vertex_array.bindings) {
+        if (!binding.size) continue;
         u32 offs = binding.offset;
         u32 offs_in_buf = binding.offset - vertex_array.getBase();
         const auto size = binding.sizeOfComponent();
@@ -555,12 +558,12 @@ void RSX::runCommandList(u64 put_addr) {
         case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 56:
         case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET + 60:
         case NV4097_SET_VERTEX_DATA_ARRAY_OFFSET: {
+            // size == 0 means binding is disabled
             const u32 offset = args[0] & 0x7fffffff;
             const u8 location = args[0] >> 31;
             curr_binding.offset = offsetAndLocationToAddress(offset, location);
             log("Vertex attribute %d: offset: 0x%08x\n", curr_binding.index, curr_binding.offset);
-            if (curr_binding.size)  // size == 0 means binding is disabled
-                vertex_array.bindings.push_back(curr_binding);
+            vertex_array.bindings[curr_binding.index] = curr_binding;
             break;
         }
 
@@ -602,7 +605,7 @@ void RSX::runCommandList(u64 put_addr) {
             log("Primitive: 0x%0x\n", prim);
 
             if (prim == 0) {   // End
-                vertex_array.bindings.clear();
+                //vertex_array.bindings.clear();
                 
                 // Immediate mode drawing
                 int n_verts = 0;

@@ -228,6 +228,7 @@ void PPUInterpreter::step() {
         case STVX:      stvx(instr);    break;
         case MULLD:     mulld(instr);   break;
         case MULLW:     mullw(instr);   break;
+        case STBUX:     stbux(instr);   break;
         case DCBTST:    break;
         case ADD:       add(instr);     break;
         case DCBT:      break;
@@ -1665,6 +1666,12 @@ void PPUInterpreter::mullw(const Instruction& instr) {
     state.gprs[instr.rt] = (s64)((s64)(s32)state.gprs[instr.ra] * (s64)(s32)state.gprs[instr.rb]);
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
+}
+
+void PPUInterpreter::stbux(const Instruction& instr) {
+    const u32 addr = state.gprs[instr.ra] + state.gprs[instr.rb];
+    mem.write<u8>(addr, state.gprs[instr.rs]);
+    state.gprs[instr.ra] = addr;    // Update
 }
 
 void PPUInterpreter::add(const Instruction& instr) {

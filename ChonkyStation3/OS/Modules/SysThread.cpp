@@ -23,11 +23,11 @@ u64 SysThread::sysPPUThreadCreate() {
 }
 
 u64 SysThread::sysPPUThreadGetID() {
-    const u32 ptr = ARG0;
+    const u32 id_ptr = ARG0;    // id is u64
     Thread* current_thread = ps3->thread_manager.getCurrentThread();
     //log("sysPPUThreadGetID(ptr: 0x%08x) [thread_id = 0x%08x]\n", ptr, current_thread->id);
 
-    ps3->mem.write<u64>(ptr, current_thread->id);
+    ps3->mem.write<u64>(id_ptr, current_thread->id);
     return CELL_OK;
 }
 
@@ -65,7 +65,7 @@ u64 SysThread::sysPPUThreadOnce() {
 
 u64 SysThread::sysPPUThreadExit() {
     const u64 ret_val = ARG0;
-    log("sysPPUThreadExit(%d)\n", ret_val);
+    log("sysPPUThreadExit(%d) @ 0x%08x\n", ret_val, ps3->ppu->state.lr);
 
     ps3->thread_manager.getCurrentThread()->exit(ret_val);
     return CELL_OK;
