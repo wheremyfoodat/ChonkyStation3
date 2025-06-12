@@ -60,11 +60,12 @@ struct State {
         for (int i = 0; i < 32; i++) gprs[i] = other.gprs[i];
         for (int i = 0; i < 32; i++) fprs[i] = other.fprs[i];
         for (int i = 0; i < 32; i++) {
-            vrs[i].dw[0] = vrs[i].dw[0];
-            vrs[i].dw[1] = vrs[i].dw[1];
+            vrs[i].dw[0] = other.vrs[i].dw[0];
+            vrs[i].dw[1] = other.vrs[i].dw[1];
         }
         pc = other.pc;
         lr = other.lr;
+        xer.n_bytes = other.xer.n_bytes;
         xer.ca = other.xer.ca;
         xer.ov = other.xer.ov;
         xer.so = other.xer.so;

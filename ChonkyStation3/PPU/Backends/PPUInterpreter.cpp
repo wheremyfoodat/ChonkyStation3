@@ -451,7 +451,7 @@ void PPUInterpreter::bc(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
 #endif
-#ifdef TRACK_CALL_STACK
+#if !defined(CHONKYSTATION3_USER_BUILD) && defined(TRACK_CALL_STACK)
         if (instr.lk)
             call_stack.push_back({ state.pc, state.lr - 4 });
 #endif
@@ -473,7 +473,7 @@ void PPUInterpreter::b(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
     printFunctionCall();
 #endif
-#ifdef TRACK_CALL_STACK
+#if !defined(CHONKYSTATION3_USER_BUILD) && defined(TRACK_CALL_STACK)
     if (instr.lk)
         call_stack.push_back({ state.pc, state.lr - 4 });
 #endif
@@ -613,7 +613,7 @@ void PPUInterpreter::lfs(const Instruction& instr) {
 
 void PPUInterpreter::lfsu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    const u32 addr = state.gprs[instr.ra] + sd;
     u32 v = mem.read<u32>(addr);
     state.fprs[instr.frt] = reinterpret_cast<float&>(v);
     state.gprs[instr.ra] = addr;    // Update
@@ -628,7 +628,7 @@ void PPUInterpreter::lfd(const Instruction& instr) {
 
 void PPUInterpreter::lfdu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    const u32 addr = state.gprs[instr.ra] + sd;
     u64 v = mem.read<u64>(addr);
     state.fprs[instr.frt] = reinterpret_cast<double&>(v);
     state.gprs[instr.ra] = addr;    // Update
@@ -643,7 +643,7 @@ void PPUInterpreter::stfs(const Instruction& instr) {
 
 void PPUInterpreter::stfsu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    const u32 addr = state.gprs[instr.ra] + sd;
     float v = (float)state.fprs[instr.frs];
     mem.write<u32>(addr, reinterpret_cast<u32&>(v));
     state.gprs[instr.ra] = addr;    // Update
@@ -657,7 +657,7 @@ void PPUInterpreter::stfd(const Instruction& instr) {
 
 void PPUInterpreter::stfdu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    const u32 addr = state.gprs[instr.ra] + sd;
     mem.write<u64>(addr, reinterpret_cast<u64&>(state.fprs[instr.frs]));
     state.gprs[instr.ra] = addr;    // Update
 }
@@ -1199,7 +1199,7 @@ void PPUInterpreter::bclr(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
 #endif
-#ifdef TRACK_CALL_STACK
+#if !defined(CHONKYSTATION3_USER_BUILD) && defined(TRACK_CALL_STACK)
         if (!call_stack.empty())
             call_stack.pop_back();
 #endif
@@ -1259,7 +1259,7 @@ void PPUInterpreter::bcctr(const Instruction& instr) {
 #ifdef PRINT_DEBUG_SYMBOLS
         printFunctionCall();
 #endif
-#ifdef TRACK_CALL_STACK
+#if !defined(CHONKYSTATION3_USER_BUILD) && defined(TRACK_CALL_STACK)
         if (instr.lk)
             call_stack.push_back({ state.pc, state.lr - 4 });
 #endif
@@ -1960,8 +1960,8 @@ void PPUInterpreter::ldu(const Instruction& instr) {
 }
 
 void PPUInterpreter::lwa(const Instruction& instr) {
-    const s32 sd = (s32)(s16)instr.d;
-    const u32 addr = (instr.ra == 0) ? sd : state.gprs[instr.ra] + sd;
+    const s32 sds = (s32)(s16)(instr.ds << 2);
+    const u32 addr = (instr.ra == 0) ? sds : state.gprs[instr.ra] + sds;
     state.gprs[instr.rt] = (s64)(s32)mem.read<u32>(addr);
 }
 

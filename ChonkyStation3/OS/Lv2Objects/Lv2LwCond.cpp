@@ -19,9 +19,6 @@ bool Lv2LwCond::signal() {
         mtx->lock();
         ps3->thread_manager.contextSwitch(*ps3->thread_manager.getThreadByID(curr_thread));
     }
-    else {
-        //signalled = true;
-    }
 
     return true;
 }
@@ -49,27 +46,21 @@ bool Lv2LwCond::signalAll() {
 }
 
 bool Lv2LwCond::wait() {
-    if (signalled) {
-        signalled = false;
-    }
-    else {
-        SysLwCond::LwCond* lwcond = (SysLwCond::LwCond*)ps3->mem.getPtr(lwcond_ptr);
-        SysLwMutex::LwMutex* lwmutex = (SysLwMutex::LwMutex*)ps3->mem.getPtr(lwcond->lwmutex_ptr);
-        Lv2Mutex* mtx = ps3->lv2_obj.get<Lv2Mutex>(lwmutex->sleep_queue);
-        Thread* curr_thread = ps3->thread_manager.getCurrentThread();
+    SysLwCond::LwCond* lwcond = (SysLwCond::LwCond*)ps3->mem.getPtr(lwcond_ptr);
+    SysLwMutex::LwMutex* lwmutex = (SysLwMutex::LwMutex*)ps3->mem.getPtr(lwcond->lwmutex_ptr);
+    Lv2Mutex* mtx = ps3->lv2_obj.get<Lv2Mutex>(lwmutex->sleep_queue);
+    Thread* curr_thread = ps3->thread_manager.getCurrentThread();
 
-        // Check if the current thread is the owner of the mutex
-        if (mtx->owner != curr_thread->id)
-            return false;
+    // Check if the current thread is the owner of the mutex
+    if (mtx->owner != curr_thread->id)
+        return false;
 
-        curr_thread->wait(std::format("lwcond {:d}", handle()));
-        wait_list.push(curr_thread->id);
+    curr_thread->wait(std::format("lwcond {:d}", handle()));
+    wait_list.push(curr_thread->id);
 
-        // Release the mutex while we are waiting
-        mtx->unlock();
+    // Release the mutex while we are waiting
+    mtx->unlock();
 
-        //printf("Thread %d \"%s\" is waiting on cond variable \"%s\"...\n", curr_thread->id, curr_thread->name.c_str(), name.c_str());
-    }
-
+    //printf("Thread %d \"%s\" is waiting on cond variable \"%s\"...\n", curr_thread->id, curr_thread->name.c_str(), name.c_str());
     return true;
 }

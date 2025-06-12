@@ -14,7 +14,6 @@ public:
 
     u32 mutex_id;
     std::queue<u64> wait_list;
-    bool signalled = false;;
 
     bool signal();
     bool signalAll();

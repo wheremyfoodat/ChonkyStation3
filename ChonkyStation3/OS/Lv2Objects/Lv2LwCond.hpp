@@ -15,7 +15,6 @@ public:
     u32 lwcond_ptr = 0;
     std::string name;
     std::queue<u64> wait_list;
-    bool signalled = false;
 
     bool signal();
     bool signalAll();
