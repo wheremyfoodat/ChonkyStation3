@@ -17,7 +17,7 @@ public:
     std::queue<u64> wait_list;
 
     bool isFree();
-    void lock();
+    bool lock();
     bool tryLock();
     void unlock();
 };

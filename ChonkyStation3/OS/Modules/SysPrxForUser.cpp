@@ -28,7 +28,7 @@ u64 SysPrxForUser::sysStrlen() {
 }
 
 u64 SysPrxForUser::sysGetSystemTime() {
-    log("sysGetSystemTime()\n");
+    //log("sysGetSystemTime()\n");
 
     return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }

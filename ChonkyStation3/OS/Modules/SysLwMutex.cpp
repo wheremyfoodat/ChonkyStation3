@@ -10,11 +10,14 @@ u64 SysLwMutex::sysLwMutexLock() {
     LwMutex* mtx = (LwMutex*)ps3->mem.getPtr(ptr);
     if (!mtx->sleep_queue) {
         log("WARNING: TRIED TO LOCK INVALID LWMUTEX!!!\n"); // Arkedo relies on this
-        return CELL_EINVAL;
+        return CELL_ESRCH;
     }
 
     Lv2Mutex* lv2_mtx = ps3->lv2_obj.get<Lv2Mutex>(mtx->sleep_queue);
-    lv2_mtx->lock();
+    if (!lv2_mtx->lock()) {
+        log("WARNING: attempt to lock non-recursive lwmutex twice\n");  // Arkedo also relies on this. Trash game
+        return CELL_EDEADLK;
+    }
 
     return CELL_OK;
 }

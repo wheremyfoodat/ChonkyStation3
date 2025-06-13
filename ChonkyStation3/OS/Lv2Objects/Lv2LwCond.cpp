@@ -16,7 +16,7 @@ bool Lv2LwCond::signal() {
         // Temporarily switch to the other thread to lock the mutex
         const auto curr_thread = ps3->thread_manager.getCurrentThread()->id;
         ps3->thread_manager.contextSwitch(*t);
-        mtx->lock();
+        if (!mtx->lock()) Helpers::panic("Lv2LwCond::signal: mutex error\n");
         ps3->thread_manager.contextSwitch(*ps3->thread_manager.getThreadByID(curr_thread));
     }
 
@@ -38,7 +38,7 @@ bool Lv2LwCond::signalAll() {
         // Temporarily switch to the other thread to lock the mutex
         const auto curr_thread = ps3->thread_manager.getCurrentThread()->id;
         ps3->thread_manager.contextSwitch(*t);
-        mtx->lock();
+        if (!mtx->lock()) Helpers::panic("Lv2LwCond::signalAll: mutex error\n");
         ps3->thread_manager.contextSwitch(*ps3->thread_manager.getThreadByID(curr_thread));
     }
 

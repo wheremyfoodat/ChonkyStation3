@@ -9,7 +9,7 @@ void Lv2RwLock::initLocks() {
 
 void Lv2RwLock::rlock() {
     Lv2Mutex* read_mtx = ps3->lv2_obj.get<Lv2Mutex>(read_id);
-    read_mtx->lock();
+    if(!read_mtx->lock()) Helpers::panic("Lv2RwLock::rlock: mutex error\n");
 }
 
 void Lv2RwLock::runlock() {
@@ -19,7 +19,7 @@ void Lv2RwLock::runlock() {
 
 void Lv2RwLock::wlock() {
     Lv2Mutex* write_mtx = ps3->lv2_obj.get<Lv2Mutex>(write_id);
-    write_mtx->lock();
+    if (!write_mtx->lock()) Helpers::panic("Lv2RwLock::wlock: mutex error\n");
 }
 
 void Lv2RwLock::wunlock() {

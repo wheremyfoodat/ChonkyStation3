@@ -33,7 +33,7 @@ u64 Syscall::sys_mutex_lock() {
     }
 
     Lv2Mutex* mutex = ps3->lv2_obj.get<Lv2Mutex>(mutex_id);
-    mutex->lock();
+    if (!mutex->lock()) Helpers::panic("sys_mutex_lock: attempted to lock non-recursive mutex twice\n");
 
     return CELL_OK;
 }

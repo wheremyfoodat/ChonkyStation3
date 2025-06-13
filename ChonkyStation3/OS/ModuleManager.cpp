@@ -261,6 +261,7 @@ void ModuleManager::init() {
         { 0x2cce9cf5, { "cellRtcGetCurrentClockLocalTime",                  std::bind(&CellRtc::cellRtcGetCurrentClockLocalTime, &cellRtc) }},
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                            std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
         { 0xbb543189, { "cellRtcSetTime_t",                                 std::bind(&ModuleManager::stub, this) } },
+        { 0xc7bdb7eb, { "cellRtcGetTick",                                   std::bind(&ModuleManager::stub, this) } },
         { 0xcb90c761, { "cellRtcGetTime_t",                                 std::bind(&CellRtc::cellRtcGetTime_t, &cellRtc) }},
 
         { 0x2cb51f0d, { "cellFsClose",                                      std::bind(&CellFs::cellFsClose, &cellFs) }},
@@ -321,6 +322,7 @@ void ModuleManager::init() {
         { 0x2ecd48ed, { "sceNpDrmVerifyUpgradeLicense",                     std::bind(&SceNp::sceNpDrmVerifyUpgradeLicense, &sceNp) }},
         { 0x32cf311f, { "sceNpScoreInit",                                   std::bind(&ModuleManager::stub, this) }},
         { 0x3539d233, { "sceNpCommerce2Init",                               std::bind(&ModuleManager::stub, this) }},
+        { 0x3f62c759, { "sceNpMatching2Init",                               std::bind(&ModuleManager::stub, this) }},
         { 0x4026eac5, { "sceNpBasicRegisterContextSensitiveHandler",        std::bind(&ModuleManager::stub, this) }},
         { 0x4885aa18, { "sceNpTerm",                                        std::bind(&ModuleManager::stub, this) }},
         { 0x52a6b523, { "sceNpManagerUnregisterCallback",                   std::bind(&ModuleManager::stub, this) }},

@@ -6,7 +6,7 @@ bool Lv2Mutex::isFree() {
     return owner == -1;
 }
 
-void Lv2Mutex::lock() {
+bool Lv2Mutex::lock() {
     Thread* curr_thread = ps3->thread_manager.getCurrentThread();
     if (isFree()) {
         owner = curr_thread->id;
@@ -16,9 +16,13 @@ void Lv2Mutex::lock() {
         curr_thread->wait(std::format("mutex {:d} owned by {:s}", handle(), ps3->thread_manager.getThreadByID(owner)->name));
         wait_list.push(curr_thread->id);
         //printf("\"%s\" tried to lock mutex owned by \"%s\", waiting...\n", curr_thread->name.c_str(), ps3->thread_manager.getThreadByID(owner)->name.c_str());
-    } else if (recursive) {
+    }
+    else if (recursive) {
         recursive_cnt++;
-    } else Helpers::panic("Tried to lock non-recursive mutex twice\n");
+    }
+    else return false;
+
+    return true;
 }
 
 bool Lv2Mutex::tryLock() {
@@ -34,6 +38,7 @@ bool Lv2Mutex::tryLock() {
         recursive_cnt++;
         return true;
     }
+    else Helpers::panic("tryLock twice on a non-recursive mutex\n");
 }
 
 
@@ -58,7 +63,7 @@ void Lv2Mutex::unlock() {
         } else
             owner = -1; // free
     }
-    else if (isFree()) Helpers::panic("Tried to unlock a mutex, but the mutex was already free\n");
+    else if (isFree()) { /* Do nothing */ }
     else
         Helpers::panic("Tried to unlock a mutex, but the current thread is not the mutex's owner (owner was thread %d \"%s\")\n", owner, ps3->thread_manager.getThreadByID(owner)->name.c_str());
 }

@@ -25,6 +25,7 @@ enum Result : u32 {
     CELL_ENOMEM     = 0x80010004,
     CELL_ESRCH      = 0x80010005,
     CELL_ENOENT     = 0x80010006,
+    CELL_EDEADLK    = 0x80010008,
     CELL_EPERM      = 0x80010009,
     CELL_EBUSY      = 0x8001000A,
     CELL_EFAULT     = 0x8001000D,
