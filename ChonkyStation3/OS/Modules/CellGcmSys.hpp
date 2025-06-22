@@ -82,6 +82,8 @@ public:
     u32 flip = 0;
     u32 flip_callback = 0;
     u32 vblank_handler = 0;
+    u32 command_size = 0x400;
+    u32 segment_size = 0x100;
 
     void mapEaIo(u32 ea, u32 io);
     void unmapEaIo(u32 ea, u32 io);
@@ -98,10 +100,12 @@ public:
     u64 cellGcmSetFlipMode();
     u64 cellGcmSetSecondVFrequency();
     u64 cellGcmSetDebugOutputLevel();
+    u64 cellGcmGetDefaultCommandWordSize();
     u64 cellGcmMapEaIoAddressWithFlags();
     u64 cellGcmMapEaIoAddress();
     u64 cellGcmGetFlipStatus();
     u64 cellGcmGetReportDataAddressLocation();
+    u64 cellGcmGetDefaultSegmentWordSize();
     u64 cellGcmSetWaitFlip();
     u64 cellGcmBindZcull();
     u64 cellGcmMapMainMemory();

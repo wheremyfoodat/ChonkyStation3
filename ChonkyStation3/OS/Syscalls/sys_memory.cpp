@@ -11,7 +11,8 @@ u64 Syscall::sys_memory_container_create() {
     log_sys_memory("sys_memory_container_create(id_ptr: 0x%08x, size: 0x%016llx)\n", id_ptr, size);
 
     // Round down to 1MB
-    const u64 rounded_size = size & ~(1_MB - 1);
+    u64 rounded_size = size & ~(1_MB - 1);
+    if (rounded_size < 1_MB) rounded_size = 1_MB;
 
     Lv2MemoryContainer* container = ps3->lv2_obj.create<Lv2MemoryContainer>();
     container->create(rounded_size);

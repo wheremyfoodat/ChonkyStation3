@@ -232,6 +232,11 @@ u64 CellGcmSys::cellGcmSetDebugOutputLevel() {
     return CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmGetDefaultCommandWordSize() {
+    log("cellGcmGetDefaultCommandWordSize()\n");
+    return command_size;
+}
+
 u64 CellGcmSys::cellGcmMapEaIoAddressWithFlags() {
     const u32 ea = ARG0;
     const u32 io = ARG1;
@@ -276,6 +281,11 @@ u64 CellGcmSys::cellGcmGetReportDataAddressLocation() {
     log("cellGcmGetReportDataAddressLocation(idx: %d, loc: %d)\n", idx, loc);
 
     return reports_addr;
+}
+
+u64 CellGcmSys::cellGcmGetDefaultSegmentWordSize() {
+    log("cellGcmGetDefaultSegmentWordSize()\n");
+    return segment_size;
 }
 
 u64 CellGcmSys::cellGcmSetWaitFlip() {
