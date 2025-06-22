@@ -1332,11 +1332,20 @@ void PPUInterpreter::lvsl(const Instruction& instr) {
 }
 
 void PPUInterpreter::subfc(const Instruction& instr) {
-    const u64 a = state.gprs[instr.ra];
-    const u64 b = state.gprs[instr.rb];
-    const auto res = ~a + b + 1;
-    state.xer.ca = res < a;
-    state.gprs[instr.rt] = res;
+    Helpers::debugAssert(!instr.oe, "subfc: oe bit set\n");
+
+    const auto a = state.gprs[instr.ra];
+    const auto b = state.gprs[instr.rb];
+    const auto res1 = ~a + b;
+    const auto res2 = res1 + 1;
+
+    // See if ~a + b carried
+    const bool carry1 = res1 < b;
+    // See if adding 1 carried
+    const bool carry2 = res2 < res1;
+
+    state.xer.ca = (carry1 || carry2) ? 1 : 0;
+    state.gprs[instr.rt] = res2;
 
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
@@ -1550,9 +1559,16 @@ void PPUInterpreter::subfe(const Instruction& instr) {
 
     const auto a = state.gprs[instr.ra];
     const auto b = state.gprs[instr.rb];
-    const auto res = ~a + b + state.xer.ca;
-    state.xer.ca = res < a + b;
-    state.gprs[instr.rt] = res;
+    const auto res1 = ~a + b;
+    const auto res2 = res1 + state.xer.ca;
+
+    // See if ~a + b carried
+    const bool carry1 = res1 < b;
+    // See if adding carry carried
+    const bool carry2 = res2 < res1;
+
+    state.xer.ca = (carry1 || carry2) ? 1 : 0;
+    state.gprs[instr.rt] = res2;
 
     if (instr.rc)
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.rt], 0);
