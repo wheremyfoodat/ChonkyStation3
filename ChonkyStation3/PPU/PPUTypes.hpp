@@ -445,6 +445,7 @@ enum G_1FOpcodes {      // Field 21 - 30
     SUBF    = 0x028,    // Subtract from
     LDUX    = 0x035,    // Load Doubleword with Update Indexed
     DCBST   = 0x036,
+    LWZUX   = 0x037,
     CNTLZD  = 0x03a,
     ANDC    = 0x03c,
     LVEWX   = 0x047,    // Load Vector Element Word Indexed

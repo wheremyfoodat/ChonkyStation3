@@ -170,6 +170,7 @@ public:
     void cmpl       (const Instruction& instr);
     void lvsr       (const Instruction& instr);
     void subf       (const Instruction& instr);
+    void lwzux      (const Instruction& instr);
     void cntlzd     (const Instruction& instr);
     void andc       (const Instruction& instr);
     void lvewx      (const Instruction& instr);
