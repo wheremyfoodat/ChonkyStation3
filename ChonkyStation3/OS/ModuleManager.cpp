@@ -262,6 +262,7 @@ void ModuleManager::init() {
 
         { 0x2cce9cf5, { "cellRtcGetCurrentClockLocalTime",                  std::bind(&CellRtc::cellRtcGetCurrentClockLocalTime, &cellRtc) }},
         { 0x9dafc0d9, { "cellRtcGetCurrentTick",                            std::bind(&CellRtc::cellRtcGetCurrentTick, &cellRtc) }},
+        { 0x99b13034, { "cellRtcSetTick",                                   std::bind(&ModuleManager::stub, this) } },
         { 0xbb543189, { "cellRtcSetTime_t",                                 std::bind(&ModuleManager::stub, this) } },
         { 0xc7bdb7eb, { "cellRtcGetTick",                                   std::bind(&ModuleManager::stub, this) } },
         { 0xcb90c761, { "cellRtcGetTime_t",                                 std::bind(&CellRtc::cellRtcGetTime_t, &cellRtc) }},
@@ -352,6 +353,7 @@ void ModuleManager::init() {
         { 0x2c0f3548, { "sceNpSnsFbInit",                                   std::bind(&ModuleManager::stub, this) }},
         { 0x8fd1d549, { "sceNpSnsFbCreateHandle",                           std::bind(&ModuleManager::stub, this) }},
 
+        { 0x04459230, { "cellNetCtlNetStartDialogLoadAsync",                std::bind(&ModuleManager::stub, this) }},
         { 0x0ce13c6b, { "cellNetCtlAddHandler",                             std::bind(&ModuleManager::stub, this) }},
         { 0x105ee2cb, { "cellNetCtlTerm",                                   std::bind(&ModuleManager::stub, this) }},
         { 0x1e585b5d, { "cellNetCtlGetInfo",                                std::bind(&ModuleManager::stub, this) }},
@@ -389,6 +391,7 @@ void ModuleManager::init() {
         { 0xcdc6aefd, { "cellSaveDataUserAutoLoad",                         std::bind(&CellSaveData::cellSaveDataUserAutoLoad, &cellSaveData) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                            std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
 
+        { 0x1c9a942c, { "sysLwCondDestroy",                                 std::bind(&ModuleManager::stub, this), true } },
         { 0x2a6d9d51, { "sysLwCondWait",                                    std::bind(&SysLwCond::sysLwCondWait, &sysLwCond), true } },
         { 0xda0eb71a, { "sysLwCondCreate",                                  std::bind(&SysLwCond::sysLwCondCreate, &sysLwCond), true } },
         { 0xe9a1bd84, { "sysLwCondSignalAll",                               std::bind(&SysLwCond::sysLwCondSignalAll, &sysLwCond), true } },
@@ -459,6 +462,7 @@ void ModuleManager::init() {
         { 0x1e7bff94, { "cellSysCacheMount",                                std::bind(&CellSysCache::cellSysCacheMount, &cellSysCache) } },
         { 0x744c1544, { "cellSysCacheClear",                                std::bind(&CellSysCache::cellSysCacheClear, &cellSysCache) } },
     
+        { 0x20543730, { "cellMsgDialogClose",                               std::bind(&ModuleManager::stub, this) } },
         { 0x62b0f803, { "cellMsgDialogAbort",                               std::bind(&ModuleManager::stub, this) } },
         { 0x7603d3db, { "cellMsgDialogOpen2",                               std::bind(&CellMsgDialog::cellMsgDialogOpen2, &cellMsgDialog) } },
 

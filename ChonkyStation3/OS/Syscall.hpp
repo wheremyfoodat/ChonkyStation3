@@ -72,6 +72,7 @@ public:
     // sys_semaphore
     u64 sys_semaphore_create();
     u64 sys_semaphore_wait();
+    u64 sys_semaphore_trywait();
     u64 sys_semaphore_post();
     u64 sys_semaphore_get_value();
 

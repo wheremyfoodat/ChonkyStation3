@@ -96,6 +96,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 90:    ps3->ppu->state.gprs[3] = sys_semaphore_create();                   break;
     case 91:    todo("sys_semaphore_destroy()");                                    break;
     case 92:    ps3->ppu->state.gprs[3] = sys_semaphore_wait();                     break;
+    case 93:    ps3->ppu->state.gprs[3] = sys_semaphore_trywait();                  break;
     case 94:    ps3->ppu->state.gprs[3] = sys_semaphore_post();                     break;
     case 95:    todo("_sys_lwmutex_create()");                                      break;
     case 96:    todo("_sys_lwmutex_destroy()");                                     break;

@@ -6,6 +6,7 @@
 
 #include <unordered_map>
 #include <stack>
+#include <deque>
 
 #include <VertexShaderDecompiler.hpp>
 #include <FragmentShaderDecompiler.hpp>
@@ -29,11 +30,93 @@ public:
     PlayStation3* ps3;
     MAKE_LOG_FUNCTION(log, rsx);
 
+    enum CellGcmTexture : u32 {
+        // Color Flag
+        CELL_GCM_TEXTURE_B8 = 0x81,
+        CELL_GCM_TEXTURE_A1R5G5B5 = 0x82,
+        CELL_GCM_TEXTURE_A4R4G4B4 = 0x83,
+        CELL_GCM_TEXTURE_R5G6B5 = 0x84,
+        CELL_GCM_TEXTURE_A8R8G8B8 = 0x85,
+        CELL_GCM_TEXTURE_COMPRESSED_DXT1 = 0x86,
+        CELL_GCM_TEXTURE_COMPRESSED_DXT23 = 0x87,
+        CELL_GCM_TEXTURE_COMPRESSED_DXT45 = 0x88,
+        CELL_GCM_TEXTURE_G8B8 = 0x8B,
+        CELL_GCM_TEXTURE_COMPRESSED_B8R8_G8R8 = 0x8D,
+        CELL_GCM_TEXTURE_COMPRESSED_R8B8_R8G8 = 0x8E,
+        CELL_GCM_TEXTURE_R6G5B5 = 0x8F,
+        CELL_GCM_TEXTURE_DEPTH24_D8 = 0x90,
+        CELL_GCM_TEXTURE_DEPTH24_D8_FLOAT = 0x91,
+        CELL_GCM_TEXTURE_DEPTH16 = 0x92,
+        CELL_GCM_TEXTURE_DEPTH16_FLOAT = 0x93,
+        CELL_GCM_TEXTURE_X16 = 0x94,
+        CELL_GCM_TEXTURE_Y16_X16 = 0x95,
+        CELL_GCM_TEXTURE_R5G5B5A1 = 0x97,
+        CELL_GCM_TEXTURE_COMPRESSED_HILO8 = 0x98,
+        CELL_GCM_TEXTURE_COMPRESSED_HILO_S8 = 0x99,
+        CELL_GCM_TEXTURE_W16_Z16_Y16_X16_FLOAT = 0x9A,
+        CELL_GCM_TEXTURE_W32_Z32_Y32_X32_FLOAT = 0x9B,
+        CELL_GCM_TEXTURE_X32_FLOAT = 0x9C,
+        CELL_GCM_TEXTURE_D1R5G5B5 = 0x9D,
+        CELL_GCM_TEXTURE_D8R8G8B8 = 0x9E,
+        CELL_GCM_TEXTURE_Y16_X16_FLOAT = 0x9F,
+
+        // Swizzle Flag
+        CELL_GCM_TEXTURE_SZ = 0x00,
+        CELL_GCM_TEXTURE_LN = 0x20,
+
+        // Normalization Flag
+        CELL_GCM_TEXTURE_NR = 0x00,
+        CELL_GCM_TEXTURE_UN = 0x40,
+    };
+
+    enum CellGcmPrimitive : u32 {
+        CELL_GCM_PRIMITIVE_POINTS = 1,
+        CELL_GCM_PRIMITIVE_LINES = 2,
+        CELL_GCM_PRIMITIVE_LINE_LOOP = 3,
+        CELL_GCM_PRIMITIVE_LINE_STRIP = 4,
+        CELL_GCM_PRIMITIVE_TRIANGLES = 5,
+        CELL_GCM_PRIMITIVE_TRIANGLE_STRIP = 6,
+        CELL_GCM_PRIMITIVE_TRIANGLE_FAN = 7,
+        CELL_GCM_PRIMITIVE_QUADS = 8,
+        CELL_GCM_PRIMITIVE_QUAD_STRIP = 9,
+        CELL_GCM_PRIMITIVE_POLYGON = 10,
+    };
+
+    enum CellGcmBlendEquation {
+        CELL_GCM_FUNC_ADD = 0x8006,
+        CELL_GCM_MIN = 0x8007,
+        CELL_GCM_MAX = 0x8008,
+        CELL_GCM_FUNC_SUBTRACT = 0x800A,
+        CELL_GCM_FUNC_REVERSE_SUBTRACT = 0x800B,
+        CELL_GCM_FUNC_REVERSE_SUBTRACT_SIGNED = 0x0000F005,
+        CELL_GCM_FUNC_ADD_SIGNED = 0x0000F006,
+        CELL_GCM_FUNC_REVERSE_ADD_SIGNED = 0x0000F007
+    };
+
+    enum CellGcmBlendFactor {
+        CELL_GCM_ZERO = 0x0000,
+        CELL_GCM_ONE = 0x0001,
+        CELL_GCM_SRC_COLOR = 0x0300,
+        CELL_GCM_ONE_MINUS_SRC_COLOR = 0x0301,
+        CELL_GCM_SRC_ALPHA = 0x0302,
+        CELL_GCM_ONE_MINUS_SRC_ALPHA = 0x0303,
+        CELL_GCM_DST_ALPHA = 0x0304,
+        CELL_GCM_ONE_MINUS_DST_ALPHA = 0x0305,
+        CELL_GCM_DST_COLOR = 0x0306,
+        CELL_GCM_ONE_MINUS_DST_COLOR = 0x0307,
+        CELL_GCM_SRC_ALPHA_SATURATE = 0x0308,
+        CELL_GCM_CONSTANT_COLOR = 0x8001,
+        CELL_GCM_ONE_MINUS_CONSTANT_COLOR = 0x8002,
+        CELL_GCM_CONSTANT_ALPHA = 0x8003,
+        CELL_GCM_ONE_MINUS_CONSTANT_ALPHA = 0x8004,
+    };
+
     u32 ea_table = 0;
     void setEaTableAddr(u32 addr);
     u32 ioToEa(u32 offs);
 
     void runCommandList(u64 put_addr = 0);
+    void doCmd(u32 cmd_num, std::deque<u32>& args);
     u32 fetch32();
     u32 offsetAndLocationToAddress(u32 offset, u8 location);
 
@@ -77,10 +160,10 @@ public:
     u16 point_y = 0;
     u32 dma_report = 0;
     u32 primitive = 0;
-    u16 blend_sfactor_rgb = 0;
-    u16 blend_sfactor_a = 0;
-    u16 blend_dfactor_rgb = 0;
-    u16 blend_dfactor_a = 0;
+    u16 blend_sfactor_rgb = CELL_GCM_ONE;
+    u16 blend_sfactor_a = CELL_GCM_ONE;
+    u16 blend_dfactor_rgb = CELL_GCM_ONE;
+    u16 blend_dfactor_a = CELL_GCM_ONE;
     u8 blend_color_r = 0;
     u8 blend_color_g = 0;
     u8 blend_color_b = 0;
@@ -211,87 +294,6 @@ public:
     GLuint getBlendEquation(u16 eq);
     GLuint getBlendFactor(u16 fact);
 
-    enum CellGcmTexture : u32 {
-        // Color Flag
-        CELL_GCM_TEXTURE_B8 = 0x81,
-        CELL_GCM_TEXTURE_A1R5G5B5 = 0x82,
-        CELL_GCM_TEXTURE_A4R4G4B4 = 0x83,
-        CELL_GCM_TEXTURE_R5G6B5 = 0x84,
-        CELL_GCM_TEXTURE_A8R8G8B8 = 0x85,
-        CELL_GCM_TEXTURE_COMPRESSED_DXT1 = 0x86,
-        CELL_GCM_TEXTURE_COMPRESSED_DXT23 = 0x87,
-        CELL_GCM_TEXTURE_COMPRESSED_DXT45 = 0x88,
-        CELL_GCM_TEXTURE_G8B8 = 0x8B,
-        CELL_GCM_TEXTURE_COMPRESSED_B8R8_G8R8 = 0x8D,
-        CELL_GCM_TEXTURE_COMPRESSED_R8B8_R8G8 = 0x8E,
-        CELL_GCM_TEXTURE_R6G5B5 = 0x8F,
-        CELL_GCM_TEXTURE_DEPTH24_D8 = 0x90,
-        CELL_GCM_TEXTURE_DEPTH24_D8_FLOAT = 0x91,
-        CELL_GCM_TEXTURE_DEPTH16 = 0x92,
-        CELL_GCM_TEXTURE_DEPTH16_FLOAT = 0x93,
-        CELL_GCM_TEXTURE_X16 = 0x94,
-        CELL_GCM_TEXTURE_Y16_X16 = 0x95,
-        CELL_GCM_TEXTURE_R5G5B5A1 = 0x97,
-        CELL_GCM_TEXTURE_COMPRESSED_HILO8 = 0x98,
-        CELL_GCM_TEXTURE_COMPRESSED_HILO_S8 = 0x99,
-        CELL_GCM_TEXTURE_W16_Z16_Y16_X16_FLOAT = 0x9A,
-        CELL_GCM_TEXTURE_W32_Z32_Y32_X32_FLOAT = 0x9B,
-        CELL_GCM_TEXTURE_X32_FLOAT = 0x9C,
-        CELL_GCM_TEXTURE_D1R5G5B5 = 0x9D,
-        CELL_GCM_TEXTURE_D8R8G8B8 = 0x9E,
-        CELL_GCM_TEXTURE_Y16_X16_FLOAT = 0x9F,
-
-        // Swizzle Flag
-        CELL_GCM_TEXTURE_SZ = 0x00,
-        CELL_GCM_TEXTURE_LN = 0x20,
-
-        // Normalization Flag
-        CELL_GCM_TEXTURE_NR = 0x00,
-        CELL_GCM_TEXTURE_UN = 0x40,
-    };
-
-    enum CellGcmPrimitive : u32 {
-        CELL_GCM_PRIMITIVE_POINTS = 1,
-        CELL_GCM_PRIMITIVE_LINES = 2,
-        CELL_GCM_PRIMITIVE_LINE_LOOP = 3,
-        CELL_GCM_PRIMITIVE_LINE_STRIP = 4,
-        CELL_GCM_PRIMITIVE_TRIANGLES = 5,
-        CELL_GCM_PRIMITIVE_TRIANGLE_STRIP = 6,
-        CELL_GCM_PRIMITIVE_TRIANGLE_FAN = 7,
-        CELL_GCM_PRIMITIVE_QUADS = 8,
-        CELL_GCM_PRIMITIVE_QUAD_STRIP = 9,
-        CELL_GCM_PRIMITIVE_POLYGON = 10,
-    };
-
-    enum CellGcmBlendEquation {
-        CELL_GCM_FUNC_ADD = 0x8006,
-        CELL_GCM_MIN = 0x8007,
-        CELL_GCM_MAX = 0x8008,
-        CELL_GCM_FUNC_SUBTRACT = 0x800A,
-        CELL_GCM_FUNC_REVERSE_SUBTRACT = 0x800B,
-        CELL_GCM_FUNC_REVERSE_SUBTRACT_SIGNED = 0x0000F005,
-        CELL_GCM_FUNC_ADD_SIGNED = 0x0000F006,
-        CELL_GCM_FUNC_REVERSE_ADD_SIGNED = 0x0000F007
-    };
-
-    enum CellGcmBlendFactor {
-        CELL_GCM_ZERO = 0x0000,
-        CELL_GCM_ONE = 0x0001,
-        CELL_GCM_SRC_COLOR = 0x0300,
-        CELL_GCM_ONE_MINUS_SRC_COLOR = 0x0301,
-        CELL_GCM_SRC_ALPHA = 0x0302,
-        CELL_GCM_ONE_MINUS_SRC_ALPHA = 0x0303,
-        CELL_GCM_DST_ALPHA = 0x0304,
-        CELL_GCM_ONE_MINUS_DST_ALPHA = 0x0305,
-        CELL_GCM_DST_COLOR = 0x0306,
-        CELL_GCM_ONE_MINUS_DST_COLOR = 0x0307,
-        CELL_GCM_SRC_ALPHA_SATURATE = 0x0308,
-        CELL_GCM_CONSTANT_COLOR = 0x8001,
-        CELL_GCM_ONE_MINUS_CONSTANT_COLOR = 0x8002,
-        CELL_GCM_CONSTANT_ALPHA = 0x8003,
-        CELL_GCM_ONE_MINUS_CONSTANT_ALPHA = 0x8004,
-    };
-
     // I == command is implemented or at least handled in some way
     enum Commands : u32 {
         // NV406E
@@ -349,7 +351,7 @@ public:
         NV4097_SET_ALPHA_REF                                    = 0x0000030c,
         NV4097_SET_BLEND_ENABLE                                 = 0x00000310,   // I
         NV4097_SET_BLEND_FUNC_SFACTOR                           = 0x00000314,   // I
-        NV4097_SET_BLEND_FUNC_DFACTOR                           = 0x00000318,
+        NV4097_SET_BLEND_FUNC_DFACTOR                           = 0x00000318,   // I
         NV4097_SET_BLEND_COLOR                                  = 0x0000031c,   // I
         NV4097_SET_BLEND_EQUATION                               = 0x00000320,   // I
         NV4097_SET_COLOR_MASK                                   = 0x00000324,
@@ -457,10 +459,10 @@ public:
         NV4097_SET_VERTEX_DATA4S_M                              = 0x00001980,
         NV4097_SET_TEXTURE_OFFSET                               = 0x00001a00,   // I
         NV4097_SET_TEXTURE_FORMAT                               = 0x00001a04,   // I
-        NV4097_SET_TEXTURE_ADDRESS                              = 0x00001a08,
-        NV4097_SET_TEXTURE_CONTROL0                             = 0x00001a0c,
+        NV4097_SET_TEXTURE_ADDRESS                              = 0x00001a08,   // I
+        NV4097_SET_TEXTURE_CONTROL0                             = 0x00001a0c,   // I
         NV4097_SET_TEXTURE_CONTROL1                             = 0x00001a10,   // I
-        NV4097_SET_TEXTURE_FILTER                               = 0x00001a14,
+        NV4097_SET_TEXTURE_FILTER                               = 0x00001a14,   // I
         NV4097_SET_TEXTURE_IMAGE_RECT                           = 0x00001a18,   // I
         NV4097_SET_TEXTURE_BORDER_COLOR                         = 0x00001a1c,
         NV4097_SET_VERTEX_DATA4F_M                              = 0x00001c00,   // I
