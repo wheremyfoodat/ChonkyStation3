@@ -581,7 +581,7 @@ void PPUInterpreter::stb(const Instruction& instr) {
 
 void PPUInterpreter::stbu(const Instruction& instr) {
     const s32 sd = (s32)(s16)instr.d;
-    const u64 addr = (s32)state.gprs[instr.ra] + sd;
+    const u64 addr = state.gprs[instr.ra] + sd;
     mem.write<u8>(addr & 0xffffffff, state.gprs[instr.rs]);
     state.gprs[instr.ra] = addr;    // Update
 }
