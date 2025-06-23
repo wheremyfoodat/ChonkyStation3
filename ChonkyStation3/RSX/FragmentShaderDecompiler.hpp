@@ -45,6 +45,7 @@ public:
     bool hasCond(FragmentInstruction& instr);
 
     u32 curr_offs = 0;
+    std::string curr_const = "";    // The current instruction's constant. If multiple sources in 1 instruction are constants they will access the same constant
     int next_constant = 0;
     std::string constants;
     std::string uniforms;

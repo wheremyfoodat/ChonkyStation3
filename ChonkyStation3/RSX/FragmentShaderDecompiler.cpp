@@ -186,6 +186,7 @@ uniform sampler2D tex;
             }
         }
 
+        curr_const = "";
         if (instr.dst.end) break;
     }
 
@@ -333,6 +334,14 @@ std::string FragmentShaderDecompiler::source(FragmentInstruction& instr, int s) 
         }
 
         // Normal constant
+        
+        // Check if this instruction already has a constant
+        if (!curr_const.empty()) {
+            source = curr_const;
+            break;
+        }
+        
+        // Fetch new constant
         u32 w0 = fetch32(curr_offs +  0);
         u32 w1 = fetch32(curr_offs +  4);
         u32 w2 = fetch32(curr_offs +  8);
@@ -343,6 +352,7 @@ std::string FragmentShaderDecompiler::source(FragmentInstruction& instr, int s) 
         float z = reinterpret_cast<float&>(w2);
         float w = reinterpret_cast<float&>(w3);
         source = addConstant(x, y, z, w);
+        curr_const = source;
         break;
     }
 

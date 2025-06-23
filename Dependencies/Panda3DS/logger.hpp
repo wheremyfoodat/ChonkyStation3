@@ -37,8 +37,8 @@ public:
 #ifdef CHONKYSTATION3_USER_BUILD
 #define true false
 #else
-//#define true false
-#define false true
+#define true false
+//#define false true
 #endif
 
 // Modules
@@ -113,7 +113,7 @@ static Logger memory                = Logger<true> ("[Other  ][Memory        ] "
 static Logger lle_module            = Logger<true> ("[LLE    ][Module        ] ");
 static Logger filesystem            = Logger<true> ("[Other  ][Filesystem    ] ");
 static Logger lv2_obj               = Logger<true> ("[Other  ][Lv2 Object    ] ");
-static Logger unimplemented         = Logger<1> ("[Other  ][Unimplemented ] ");
+static Logger unimplemented         = Logger<true> ("[Other  ][Unimplemented ] ");
 
 #undef true
 #undef false
