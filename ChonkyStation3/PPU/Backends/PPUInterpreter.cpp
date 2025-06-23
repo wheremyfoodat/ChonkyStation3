@@ -1615,16 +1615,14 @@ void PPUInterpreter::mtcrf(const Instruction& instr) {
                 count++;
             }
         }
-        Helpers::debugAssert(count == 1, "mtocrf with count != 1\n");
 
-        state.cr.setCRField(n, (state.gprs[instr.rs] >> (4 * n)) & 0xf);
-        //state.cr.setCRField(n, (state.gprs[instr.rs] >> (28 - (4 * n))) & 0xf);
+        Helpers::debugAssert(count == 1, "mtocrf with count != 1\n");
+        state.cr.setCRField(7 - n, (state.gprs[instr.rs] >> (4 * n)) & 0xf);
     }
     else {  // mtcrf
         for (int i = 0; i < 8; i++) {
             if ((instr.fxm >> i) & 1) {
-                state.cr.setCRField(i, (state.gprs[instr.rs] >> (4 * i)) & 0xf);
-                //state.cr.setCRField(i, (state.gprs[instr.rs] >> (28 - (4 * i))) & 0xf);
+                state.cr.setCRField(7 - i, (state.gprs[instr.rs] >> (4 * i)) & 0xf);
             }
         }
     }
