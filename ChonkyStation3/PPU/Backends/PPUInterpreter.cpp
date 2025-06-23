@@ -1913,7 +1913,7 @@ void PPUInterpreter::stvrx(const Instruction& instr) {
 
 void PPUInterpreter::stfdx(const Instruction& instr) {
     const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
-    ps3->mem.write<u32>(addr, reinterpret_cast<u64&>(state.fprs[instr.frs]));
+    ps3->mem.write<u64>(addr, reinterpret_cast<u64&>(state.fprs[instr.frs]));
 }
 
 void PPUInterpreter::lhbrx(const Instruction& instr) {
