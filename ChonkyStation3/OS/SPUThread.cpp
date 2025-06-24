@@ -302,9 +302,10 @@ u32 SPUThread::readChannelCount(u32 ch) {
     case SPU_WrOutIntrMbox: return 1;
 
     case MFC_WrTagUpdate:   return 1;
+    case MFC_RdTagStat:     return 1;
 
     default:
-        Helpers::panic("Unimplemented MFC channel count read 0x%02x\n", ch);
+        Helpers::panic("Unimplemented MFC channel count read %d\n", ch);
     }
 }
 

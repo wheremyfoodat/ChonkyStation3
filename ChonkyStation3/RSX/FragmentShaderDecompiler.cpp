@@ -113,7 +113,12 @@ uniform sampler2D tex;
             break;
         }
         case RSXFragment::TEX: {
-            decompiled_src = std::format("texture(tex, vec2({}))", source(instr, 0));
+            if (instr.dst.tex_num == 0)
+                decompiled_src = std::format("texture(tex, vec2({}))", source(instr, 0));
+            else {
+                log("WARNING: TEX NUM != 0\n");
+                decompiled_src = "/* TODO: tex_num != 0 */ vec4(1.0f)";
+            }
             break;
         }
         case RSXFragment::RSQ: {
@@ -229,8 +234,13 @@ std::string FragmentShaderDecompiler::addConstant(float x, float y, float z, flo
 
 std::string FragmentShaderDecompiler::addUniform(u32 addr) {
     std::string name = std::format("uniform_{:x}", addr);
-    uniforms += "uniform vec4 " + name + ";\n";
+    
+    // Did we already add this uniform?
+    if (std::find(uniform_names.begin(), uniform_names.end(), name) != uniform_names.end())
+        return name;
+    
     uniform_names.push_back(name);
+    uniforms += "uniform vec4 " + name + ";\n";
     log("Added uniform: %s\n", name.c_str());
     return name;
 }

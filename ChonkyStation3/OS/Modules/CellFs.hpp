@@ -65,13 +65,21 @@ public:
         u8 namelen;
         char name[256];
     };
+    
+    struct CellFsDirectoryEntry {
+        CellFsStat attribute;
+        CellFsDirent entry_name;
+    };
 
+    u32 fsReadDir(int fd, CellFsDirent* dirent);
+    
     u64 cellFsClose();
     u64 cellFsOpendir();
     u64 cellFsRead();
     u64 cellFsReaddir();
     u64 cellFsOpen();
     u64 cellFsStat();
+    u64 cellFsGetDirectoryEntries();
     u64 cellFsLseek();
     u64 cellFsGetFreeSize();
     u64 cellFsSdataOpen();

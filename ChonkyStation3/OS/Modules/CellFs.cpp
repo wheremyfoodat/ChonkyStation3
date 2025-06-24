@@ -2,6 +2,44 @@
 #include "PlayStation3.hpp"
 
 
+u32 CellFs::fsReadDir(int fd, CellFsDirent* dirent) {
+    Filesystem::Directory& dir = ps3->fs.getDirFromID(fd);
+    fs::path host_path = ps3->fs.guestPathToHost(dir.path);
+    
+    fs::path entry = "";
+    // First 2 entries are "." and ".."
+    if (dir.cur == 0)       entry = ".";
+    else if (dir.cur == 1)  entry = "..";
+    else {
+        int cur = 2;
+        for (auto& i : fs::directory_iterator(host_path)) {
+            if (cur == dir.cur) {
+                entry = i.path();
+            }
+            cur++;
+        }
+    }
+    
+    int bytes_read = 0;
+    bool done = entry.empty();
+    if (!done) {
+        dir.cur++;
+        log("Reading entry %s\n", entry.generic_string().c_str());
+        dirent->type = fs::is_directory(entry) ? CELL_FS_TYPE_DIRECTORY : CELL_FS_TYPE_REGULAR;
+        std::strncpy(dirent->name, entry.filename().generic_string().c_str(), 256);
+        dirent->namelen = entry.filename().generic_string().length();
+        bytes_read = sizeof(CellFsDirent);
+    }
+    else {
+        log("Done reading directory\n");
+        dirent->type = 0;
+        dirent->name[0] = '\0';
+        dirent->namelen = 0;
+    }
+    
+    return bytes_read;
+}
+
 u64 CellFs::cellFsClose() {
     const u32 file_id = ARG0;
     log("cellFsClose(file_id: %d)\n", file_id);
@@ -54,41 +92,9 @@ u64 CellFs::cellFsReaddir() {
     log("cellFsReaddir(file_id: %d, dirent_ptr: 0x%08x, bytes_read_ptr: 0x%08x)\n", file_id, dirent_ptr, bytes_read_ptr);
 
     CellFsDirent* dirent = (CellFsDirent*)ps3->mem.getPtr(dirent_ptr);
-    Filesystem::Directory& dir = ps3->fs.getDirFromID(file_id);
-    fs::path host_path = ps3->fs.guestPathToHost(dir.path);
-    
-    fs::path entry = "";
-    // First 2 entries are "." and ".."
-    if (dir.cur == 0)       entry = "."; 
-    else if (dir.cur == 1)  entry = "..";
-    else {
-        int cur = 2;
-        for (auto& i : fs::directory_iterator(host_path)) {
-            if (cur == dir.cur) {
-                entry = i.path();
-            }
-            cur++;
-        }
-    }
-    
-    int bytes_read = 0;
-    bool done = entry.empty();
-    if (!done) {
-        dir.cur++;
-        log("Reading entry %s\n", entry.generic_string().c_str());
-        dirent->type = fs::is_directory(entry) ? CELL_FS_TYPE_DIRECTORY : CELL_FS_TYPE_REGULAR;
-        std::strncpy(dirent->name, entry.filename().generic_string().c_str(), 256);
-        dirent->namelen = entry.filename().generic_string().length();
-        bytes_read = sizeof(CellFsDirent);
-    }
-    else {
-        log("Done reading directory\n");
-        dirent->type = 0;
-        dirent->name[0] = '\0';
-        dirent->namelen = 0;
-    }
-
+    int bytes_read = fsReadDir(file_id, dirent);
     ps3->mem.write<u64>(bytes_read_ptr, bytes_read);
+    
     return CELL_OK;
 }
 
@@ -153,6 +159,51 @@ u64 CellFs::cellFsStat() {
     std::memcpy(&stat->blksize, &blksize, sizeof(u64));
 #endif
     
+    return CELL_OK;
+}
+
+u64 CellFs::cellFsGetDirectoryEntries() {
+    const u32 file_id = ARG0;
+    const u32 entries_ptr = ARG1;
+    const u32 entries_size = ARG2;
+    const u32 data_count_ptr = ARG3;
+    log("cellFsGetDirectoryEntries(file_id: %d, entries_ptr: 0x%08x, entries_size: %d, data_count_ptr: 0x%08x)\n", file_id, entries_ptr, entries_size, data_count_ptr);
+    
+    auto dir = ps3->fs.getDirFromID(file_id);
+    CellFsDirectoryEntry* dirents = (CellFsDirectoryEntry*)ps3->mem.getPtr(entries_ptr);
+    
+    int count;
+    for (count = 0; count < entries_size / sizeof(CellFsDirectoryEntry); count++) {
+        // Stop reading the entries if the reached the end of the directory
+        if (!fsReadDir(file_id, &dirents[count].entry_name)) break;
+        
+        // TODO: Put this into its own function instead of copying from cellFsStat
+        const auto path = dir.path / dirents[count].entry_name.name;
+        bool is_dir = ps3->fs.isDirectory(path);
+        dirents[count].attribute.mode = !is_dir ? (CELL_FS_S::CELL_FS_S_IFREG | 0666) : (CELL_FS_S::CELL_FS_S_IFDIR | 0777);
+        dirents[count].attribute.uid = 0;
+        dirents[count].attribute.gid = 0;
+        u64 size = !is_dir ? ps3->fs.getFileSize(path) : 4096;
+        u64 blksize = 4096;
+    #ifndef __APPLE__
+        dirents[count].attribute.atime = 0;
+        dirents[count].attribute.mtime = 0;
+        dirents[count].attribute.ctime = 0;
+        dirents[count].attribute.size = size;
+        dirents[count].attribute.blksize = blksize;
+    #else
+        size = Helpers::bswap<u64>(size);
+        blksize = Helpers::bswap<u64>(blksize);
+        // Avoid misaligned pointer accesses on MacOS (might break on ARM)
+        std::memset(&dirents[count].attribute.atime, 0, sizeof(u64));
+        std::memset(&dirents[count].attribute.mtime, 0, sizeof(u64));
+        std::memset(&dirents[count].attribute.ctime, 0, sizeof(u64));
+        std::memcpy(&dirents[count].attribute.size, &size, sizeof(u64));
+        std::memcpy(&dirents[count].attribute.blksize, &blksize, sizeof(u64));
+    #endif
+    }
+    
+    ps3->mem.write<u32>(data_count_ptr, count);
     return CELL_OK;
 }
 
