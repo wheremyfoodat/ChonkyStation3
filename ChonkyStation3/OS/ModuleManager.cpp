@@ -330,6 +330,7 @@ void ModuleManager::init() {
         { 0x4026eac5, { "sceNpBasicRegisterContextSensitiveHandler",        std::bind(&ModuleManager::stub, this) }},
         { 0x4885aa18, { "sceNpTerm",                                        std::bind(&ModuleManager::stub, this) }},
         { 0x52a6b523, { "sceNpManagerUnregisterCallback",                   std::bind(&ModuleManager::stub, this) }},
+        { 0x5e849303, { "sceNpBasicSetPresenceDetails2",                    std::bind(&ModuleManager::stub, this) }},
         { 0x5f2d9257, { "sceNpLookupInit",                                  std::bind(&ModuleManager::stub, this) }},
         { 0x6ba4c668, { "sceNpMatching2ContextStartAsync",                  std::bind(&ModuleManager::stub, this) }},
         { 0x6ee62ed2, { "sceNpManagerGetContentRatingFlag",                 std::bind(&ModuleManager::stub, this) }},

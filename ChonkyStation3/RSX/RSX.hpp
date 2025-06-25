@@ -125,7 +125,9 @@ public:
     bool flipped = false;
 
     OpenGL::Vector<float, 4> clear_color;
-    std::vector<u32> vertex_shader_data;
+    u32 vertex_shader_data [512 * 4];   // 512 instructions, 1 qword each
+    u32 vertex_shader_load_idx = 0;
+    u32 vertex_shader_start_idx = 0;
     std::vector<u32> required_constants;    // For vertex shader
     FragmentShader fragment_shader_program;
     std::vector<u32> quad_index_array;
@@ -219,6 +221,7 @@ public:
         size_t sizeOfComponent() {
             size_t size;
             switch (type) {
+            case 6:
             case 2: size = sizeof(float);   break;
             case 4: size = sizeof(u8);      break;
             case 5: size = sizeof(s16);     break;
@@ -301,7 +304,7 @@ public:
         NV406E_SET_CONTEXT_DMA_SEMAPHORE                        = 0x00000060,
         NV406E_SEMAPHORE_OFFSET                                 = 0x00000064,   // I
         NV406E_SEMAPHORE_ACQUIRE                                = 0x00000068,   // I
-        NV406E_SEMAPHORE_RELEASE                                = 0x0000006c,
+        NV406E_SEMAPHORE_RELEASE                                = 0x0000006c,   // I
 
         // NV4097
         NV4097_SET_OBJECT                                       = 0x00000000,
@@ -471,7 +474,7 @@ public:
         NV4097_SET_INDEXED_CONSTANT_READ_LIMITS                 = 0x00001d64,
         NV4097_SET_SEMAPHORE_OFFSET                             = 0x00001d6c,   // I
         NV4097_BACK_END_WRITE_SEMAPHORE_RELEASE                 = 0x00001d70,   // I
-        NV4097_TEXTURE_READ_SEMAPHORE_RELEASE                   = 0x00001d74,
+        NV4097_TEXTURE_READ_SEMAPHORE_RELEASE                   = 0x00001d74,   // I
         NV4097_SET_ZMIN_MAX_CONTROL                             = 0x00001d78,
         NV4097_SET_ANTI_ALIASING_CONTROL                        = 0x00001d7c,
         NV4097_SET_SURFACE_COMPRESSION                          = 0x00001d80,
@@ -491,7 +494,7 @@ public:
         NV4097_SET_TRANSFORM_EXECUTION_MODE                     = 0x00001e94,
         NV4097_SET_RENDER_ENABLE                                = 0x00001e98,
         NV4097_SET_TRANSFORM_PROGRAM_LOAD                       = 0x00001e9c,   // I
-        NV4097_SET_TRANSFORM_PROGRAM_START                      = 0x00001ea0,
+        NV4097_SET_TRANSFORM_PROGRAM_START                      = 0x00001ea0,   // I
         NV4097_SET_ZCULL_CONTROL0                               = 0x00001ea4,
         NV4097_SET_ZCULL_CONTROL1                               = 0x00001ea8,
         NV4097_SET_SCULL_CONTROL                                = 0x00001eac,

@@ -88,6 +88,10 @@ uniform sampler2D tex;
             decompiled_src = std::format("vec4(lessThanEqual({}, {}))", source(instr, 0), source(instr, 1));
             break;
         }
+        case RSXFragment::SGT: {
+            decompiled_src = std::format("vec4(greaterThan({}, {}))", source(instr, 0), source(instr, 1));
+            break;
+        }
         case RSXFragment::SEQ: {
             decompiled_src = std::format("vec4(equal({}, {}))", source(instr, 0), source(instr, 1));
             break;
@@ -135,6 +139,15 @@ uniform sampler2D tex;
         }
         case RSXFragment::DP2: {
             decompiled_src = std::format("vec4(dot(vec2({}), vec2({})))", source(instr, 0), source(instr, 1));
+            break;
+        }
+        case RSXFragment::TXB: {
+            if (instr.dst.tex_num == 0)
+                decompiled_src = std::format("/* TODO: TXB */ texture(tex, vec2({}))", source(instr, 0));
+            else {
+                log("WARNING: TEX NUM != 0\n");
+                decompiled_src = "/* TODO: tex_num != 0 */ vec4(1.0f)";
+            }
             break;
         }
         case RSXFragment::NRM: {

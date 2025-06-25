@@ -64,11 +64,11 @@ u32 RSX::offsetAndLocationToAddress(u32 offset, u8 location) {
 void RSX::compileProgram() {
     RSXCache::CachedShader cached_shader;
     // Check if our shaders were cached
-    const u64 hash_vertex = cache.computeHash((u8*)vertex_shader_data.data(), vertex_shader_data.size() * 4);
+    const u64 hash_vertex = cache.computeHash((u8*)&vertex_shader_data[vertex_shader_start_idx * 4], 512 * 4 - vertex_shader_start_idx * 4);
     if (!cache.getShader(hash_vertex, cached_shader)) {
         // Shader wasn't cached, compile it and add it to the cache
         required_constants.clear();
-        auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, required_constants);
+        auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, vertex_shader_start_idx, required_constants);
         OpenGL::Shader new_shader;
         if(!new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex))
             Helpers::panic("Failed to create vertex shader object");
@@ -116,11 +116,16 @@ void RSX::compileProgram() {
 }
 
 void RSX::setupVAO() {
+    log("Vertex configuration:\n");
     for (auto& binding : vertex_array.bindings) {
         if (!binding.size) continue;
+        log("Attribute %d: size: %d, stride %d, type: %d\n", binding.index, binding.size, binding.stride, binding.type);
         u32 offs_in_buf = binding.offset - vertex_array.getBase();
         // Setup VAO attribute
         switch (binding.type) {
+        case 6:
+            log("TODO: CMP ATTRIBUTE TYPE\n");
+            // fallthrough
         case 2:
             vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
             break;
@@ -151,6 +156,9 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
         for (int i = start; i < start + n_vertices; i++) {
             for (int j = 0; j < binding.size; j++) {
                 switch (binding.type) {
+                case 6:
+                    log("TODO: CMP ATTRIBUTE TYPE\n");
+                    // fallthrough
                 case 2: {
                     u32 x = ps3->mem.read<u32>(offs + j * size);
                     *(float*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = reinterpret_cast<float&>(x);
@@ -461,6 +469,13 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         break;
     }
 
+    case NV406E_SEMAPHORE_RELEASE:
+    case NV4097_TEXTURE_READ_SEMAPHORE_RELEASE: {
+        ps3->mem.write<u32>(gcm.label_addr + semaphore_offset, args[0]);
+        args.pop_front();
+        break;
+    }
+
     case NV406E_SEMAPHORE_ACQUIRE: {
         const auto sema = ps3->mem.read<u32>(gcm.label_addr + semaphore_offset);
         if (sema != args[0]) {
@@ -561,7 +576,9 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     }
 
     case NV4097_SET_TRANSFORM_PROGRAM: {
-        for (auto& i : args) vertex_shader_data.push_back(i);
+        for (int i = 0; i < args.size(); i++)
+            vertex_shader_data[vertex_shader_load_idx * 4 + i] = args[i];
+        vertex_shader_load_idx += args.size() / 4;
         log("Vertex shader: uploading %d words (%d instructions)\n", args.size(), args.size() / 4);
         args.clear();
         break;
@@ -987,8 +1004,8 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
     case NV4097_CLEAR_SURFACE: {
         OpenGL::setClearColor(clear_color.r(), clear_color.g(), clear_color.b(), clear_color.a());
-        if (args[0] & 0xf0)
-            OpenGL::clearColor();
+        //if (args[0] & 0xf0)
+        //    OpenGL::clearColor();
         if (args[0] & 1)
             OpenGL::clearDepth();
         if (args[0] & 2)
@@ -999,9 +1016,18 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     }
 
     case NV4097_SET_TRANSFORM_PROGRAM_LOAD: {
-        //Helpers::debugAssert(args[0] == 0, "Set transform program load idx: %d\n", args[0]);
-        //Helpers::debugAssert(args[1] == 0, "Set transform program load address: addr != 0 (0x%08x)\n", args[1]);
-        vertex_shader_data.clear();
+        // This is the instruction index NV4097_SET_TRANSFORM_PROGRAM will begin loading the instructions at
+        vertex_shader_load_idx = args[0];
+        log("Vertex shader load: %d\n", vertex_shader_load_idx);
+
+        args.pop_front();
+        break;
+    }
+
+    case NV4097_SET_TRANSFORM_PROGRAM_START: {
+        // This is the index of the first vertex shader instruction
+        vertex_shader_start_idx = args[0];
+        log("Vertex shader start: %d\n", vertex_shader_start_idx);
 
         args.pop_front();
         break;

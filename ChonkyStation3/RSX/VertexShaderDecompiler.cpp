@@ -1,7 +1,7 @@
 #include "VertexShaderDecompiler.hpp"
 
 
-std::string VertexShaderDecompiler::decompile(std::vector<u32> shader_data, std::vector<u32>& required_constants) {
+std::string VertexShaderDecompiler::decompile(u32* shader_data, u32 start, std::vector<u32>& required_constants) {
     std::string shader_base =
 R"(
 #version 410 core
@@ -24,13 +24,14 @@ vec4 r[16];
     curr_constants = &required_constants;
 
 
-    for (int i = 0; i < shader_data.size(); i += 4) {
+    for (int i = start * 4; i < 512 * 4; i += 4) {
         VertexInstruction* instr = (VertexInstruction*)&shader_data[i];
         log("VEC: %s\n", vertex_vector_opcodes[instr->w1.vector_opc].c_str());
         if (instr->w1.scalar_opc) printf("SCA: %s\n", vertex_scalar_opcodes[instr->w1.scalar_opc].c_str());
     }
 
-    for (int i = 0; i < shader_data.size(); i += 4) {
+    // Start is an instruction index, each instruction is 4 words long, so we multiply by 4
+    for (int i = start * 4; i < 512 * 4; i += 4) {
         VertexInstruction* instr = (VertexInstruction*)&shader_data[i];
 
         // Input data sources
@@ -126,6 +127,8 @@ vec4 r[16];
         default:
             Helpers::panic("Unimplemented vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
         }
+
+        if (instr->w3.end) break;
     }
     main += "\ngl_Position = fs_pos;\n";
 

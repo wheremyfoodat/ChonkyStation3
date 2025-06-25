@@ -37,6 +37,7 @@ public:
         } w2;
         union {
             u32 raw;
+            BitField<0,  1,  u32> end;
             BitField<2,  5,  u32> dst;
             BitField<13, 1,  u32> w;
             BitField<14, 1,  u32> z;
@@ -59,7 +60,7 @@ public:
 
     MAKE_LOG_FUNCTION(log, vertex_shader);
 
-    std::string decompile(std::vector<u32> shader_data, std::vector<u32>& required_constants);
+    std::string decompile(u32* shader_data, u32 start, std::vector<u32>& required_constants);
     
     void declareFunction(std::string name, std::string code, std::string& shader);
     void markInputAsUsed(std::string name, int location);
