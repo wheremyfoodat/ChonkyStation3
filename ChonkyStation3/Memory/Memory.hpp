@@ -16,11 +16,12 @@ class Memory;
 
 class MemoryRegion {
 public:
-    MemoryRegion(u64 virtual_base, u64 size, Memory& mem_manager) : mem_manager(mem_manager) {
+    MemoryRegion(u64 virtual_base, u64 size, Memory& mem_manager, u64 system_size = 0) : mem_manager(mem_manager) {
         blocks.clear();
         map.clear();
         this->virtual_base = virtual_base;
         this->size = size;
+        this->system_size = system_size;
         mem = new u8[size];
         // TODO: Figure out if games actually rely on uninitialized memory being initialized to 0.
         // RPCS3 does initialize it to 0
@@ -33,11 +34,13 @@ public:
     u8* mem;
     u64 virtual_base;   // Base address of this region in the virtual address space
     u64 size;
+    u64 system_size;
 
     struct Block {
         u64 start;
         size_t size;
         u64 handle;
+        bool system;    // If the block was allocated by the OS it will not be counted when the game asks for available mem
     };
     std::vector<Block> blocks;
 
@@ -49,8 +52,8 @@ public:
     };
     std::vector<MapEntry> map;
 
-    Block* allocPhys(size_t size);
-    MapEntry* alloc(size_t size, u64 start_addr = 0);
+    Block* allocPhys(size_t size, bool system = false);
+    MapEntry* alloc(size_t size, u64 start_addr = 0, bool system = false);
     bool canAlloc(size_t size);
     void free(MapEntry* entry);
     void freePhys(Block* block);
@@ -89,7 +92,7 @@ public:
 
     // I don't explicitly check anywhere, but it is assumed that memory regions don't overlap.
     // Just be careful when creating them
-    MemoryRegion ram        = MemoryRegion(RAM_START,           RAM_SIZE,           *this);
+    MemoryRegion ram        = MemoryRegion(RAM_START,           RAM_SIZE,           *this, 10_MB);
     MemoryRegion rsx        = MemoryRegion(RSX_VIDEO_MEM_START, RSX_VIDEO_MEM_SIZE, *this);
     MemoryRegion stack      = MemoryRegion(STACK_REGION_START,  STACK_REGION_SIZE,  *this);
     MemoryRegion raw_spu    = MemoryRegion(RAW_SPU_MEM_START,   RAW_SPU_OFFSET * 5, *this);

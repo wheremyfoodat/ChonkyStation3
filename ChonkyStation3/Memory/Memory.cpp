@@ -2,7 +2,7 @@
 
 
 // Allocates size bytes of physical memory. Returns physical address of the allocated memory.
-MemoryRegion::Block* MemoryRegion::allocPhys(size_t size) {
+MemoryRegion::Block* MemoryRegion::allocPhys(size_t size, bool system) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     
     // Page alignment
@@ -34,19 +34,19 @@ MemoryRegion::Block* MemoryRegion::allocPhys(size_t size) {
         Helpers::panic("Out of memory\n");
 
     // Allocate block
-    blocks.push_back({ addr, aligned_size });
+    blocks.push_back({ addr, aligned_size, system });
 
     return &blocks.back();
 }
 
 // Allocates and maps size bytes of memory. Returns virtual address of allocated memory. Marks allocated area as fastmem. Optionally specify the lowest possible virtual address to allocate.
-MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr) {
+MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr, bool system) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     
     // Page alignment
     size_t aligned_size = pageAlign(size);
     // Allocate block of memory
-    u64 paddr = allocPhys(aligned_size)->start;
+    u64 paddr = allocPhys(aligned_size, system)->start;
 
     // Map area
     u64 vaddr = findNextAllocatableVaddr(size, start_addr);
@@ -287,9 +287,11 @@ u8* MemoryRegion::getPtrPhys(u64 paddr) {
 // Returns amount of available memory.
 u64 MemoryRegion::getAvailableMem() {
     u64 size = 0;
-    for (auto& i : blocks)
+    for (auto& i : blocks) {
+        if (i.system) continue;
         size += i.size;
-    return RAM_SIZE - size;
+    }
+    return RAM_SIZE - system_size - size;
 }
 
 
