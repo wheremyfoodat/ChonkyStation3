@@ -1004,8 +1004,8 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
     case NV4097_CLEAR_SURFACE: {
         OpenGL::setClearColor(clear_color.r(), clear_color.g(), clear_color.b(), clear_color.a());
-        //if (args[0] & 0xf0)
-        //    OpenGL::clearColor();
+        if (args[0] & 0xf0)
+            OpenGL::clearColor();
         if (args[0] & 1)
             OpenGL::clearDepth();
         if (args[0] & 2)
