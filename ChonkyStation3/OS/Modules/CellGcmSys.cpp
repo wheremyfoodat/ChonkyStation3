@@ -91,7 +91,7 @@ u64 CellGcmSys::cellGcmInitBody() {
         0x44, 0x00, 0x00, 0x02, 0x4b, 0xff, 0xff, 0xec,
 
     };
-    u32 vblank_thread_entry = ps3->mem.alloc(1_MB, 0, true)->vaddr;
+    u32 vblank_thread_entry = ps3->mem.alloc(1_MB, 0, true)->vaddr; 
     std::memcpy(ps3->mem.getPtr(vblank_thread_entry), code, sizeof(code));
         
     auto thread = ps3->thread_manager.createThread(vblank_thread_entry, 1, 0, 0, (const u8*)"gcm_vblank_thread", 0, 0, 0);

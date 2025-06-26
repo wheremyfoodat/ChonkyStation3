@@ -389,6 +389,7 @@ void ModuleManager::init() {
         { 0xe3bf9a28, { "sceNpTrophyCreateContext",                         std::bind(&SceNpTrophy::sceNpTrophyCreateContext, &sceNpTrophy) } },
 
         { 0x21425307, { "cellSaveDataListAutoLoad",                         std::bind(&ModuleManager::stub, this) } },
+        { 0x248bd1d8, { "cellSaveDataUserListAutoLoad",                     std::bind(&ModuleManager::stub, this) } },
         { 0x8b7ed64b, { "cellSaveDataAutoSave2",                            std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
         { 0xcdc6aefd, { "cellSaveDataUserAutoLoad",                         std::bind(&CellSaveData::cellSaveDataUserAutoLoad, &cellSaveData) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                            std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
@@ -470,6 +471,7 @@ void ModuleManager::init() {
 
         { 0x45fe2fce, { "_sys_spu_printf_initialize",                       std::bind(&ModuleManager::stub, this) } },
         { 0xdd0c1e09, { "_sys_spu_printf_attach_group",                     std::bind(&ModuleManager::stub, this) } },
+        { 0xe0da8efd, { "sys_spu_image_close",                              std::bind(&ModuleManager::stub, this), true } },
         { 0xebe5f72f, { "sys_spu_image_import",                             std::bind(&SysPrxForUser::sys_spu_image_import, &sysPrxForUser), true } },
 
         { 0xe0998dbf, { "sys_prx_get_module_id_by_name",                    std::bind(&ModuleManager::stub, this) } },
