@@ -34,7 +34,7 @@ MemoryRegion::Block* MemoryRegion::allocPhys(size_t size, bool system) {
         Helpers::panic("Out of memory\n");
 
     // Allocate block
-    blocks.push_back({ addr, aligned_size, system });
+    blocks.push_back({ addr, aligned_size, 0, system });
 
     return &blocks.back();
 }

@@ -35,13 +35,13 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     std::memset(ps3->mem.getPtr(gcm_config.local_addr), 0, gcm_config.local_size);
 
-    ctx_addr = ps3->mem.alloc(sizeof(CellGcmContextData))->vaddr;
+    ctx_addr = ps3->mem.alloc(sizeof(CellGcmContextData), 0, true)->vaddr;
     ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
     this->ctx_ptr = ctx_ptr;
     ps3->mem.write<u32>(ctx_ptr, ctx_addr);
 
     // Setup callback
-    u32 callback_addr = ps3->mem.alloc(4 * 4)->vaddr;
+    u32 callback_addr = ps3->mem.alloc(4 * 4, 0, true)->vaddr;
     ps3->mem.write<u32>(callback_addr +  0, callback_addr + 4);
     ps3->mem.write<u32>(callback_addr +  4, 0x39600400);     // li r11, 0x400
     ps3->mem.write<u32>(callback_addr +  8, 0x44000002);     // sc
@@ -61,7 +61,7 @@ u64 CellGcmSys::cellGcmInitBody() {
     ctrl->ref = -1;
 
     // Allocate display buffer info
-    buffer_info_addr = ps3->mem.alloc(sizeof(CellGcmDisplayInfo) * 8)->vaddr;
+    buffer_info_addr = ps3->mem.alloc(sizeof(CellGcmDisplayInfo) * 8, 0, true)->vaddr;
     
     // Empty dummy reports area
     reports_addr = buffer_info_addr + sizeof(CellGcmDisplayInfo) * 8;
@@ -75,7 +75,7 @@ u64 CellGcmSys::cellGcmInitBody() {
     // Initialize offset table
     // The io_addr table has 3072 entries; the ea_addr table has 256 entries unless we are emulating a 512MB RSX unit.
     static constexpr size_t table_size = (3072 + 512) * sizeof(u16);
-    const u32 offset_table_addr = ps3->mem.alloc(table_size)->vaddr;
+    const u32 offset_table_addr = ps3->mem.alloc(table_size, 0, true)->vaddr;
     io_table_ptr = offset_table_addr;
     ea_table_ptr = offset_table_addr + 3072 * sizeof(u16);
     std::memset(ps3->mem.getPtr(offset_table_addr), 0xff, table_size); // The table is initialized to all FFs
@@ -91,7 +91,7 @@ u64 CellGcmSys::cellGcmInitBody() {
         0x44, 0x00, 0x00, 0x02, 0x4b, 0xff, 0xff, 0xec,
 
     };
-    u32 vblank_thread_entry = ps3->mem.alloc(1_MB)->vaddr;
+    u32 vblank_thread_entry = ps3->mem.alloc(1_MB, 0, true)->vaddr;
     std::memcpy(ps3->mem.getPtr(vblank_thread_entry), code, sizeof(code));
         
     auto thread = ps3->thread_manager.createThread(vblank_thread_entry, 1, 0, 0, (const u8*)"gcm_vblank_thread", 0, 0, 0);

@@ -107,7 +107,7 @@ public:
     void markAsSlowMem(u64 page, bool r, bool w);
 
     MemoryRegion::Block* allocPhys(size_t size) { return ram.allocPhys(size); }
-    MemoryRegion::MapEntry* alloc(size_t size, u64 start_addr = 0) { return ram.alloc(size, start_addr); }
+    MemoryRegion::MapEntry* alloc(size_t size, u64 start_addr = 0, bool system = false) { return ram.alloc(size, start_addr, system); }
     bool canAlloc(size_t size) { return ram.canAlloc(size); }
     void free(MemoryRegion::MapEntry* entry) { ram.free(entry); }
     void freePhys(MemoryRegion::Block* block) { ram.freePhys(block); }

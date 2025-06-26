@@ -262,6 +262,8 @@ GLuint RSX::getTextureInternalFormat(u8 fmt) {
 }
 
 GLuint RSX::getTexturePixelFormat(u8 fmt) {
+    if ((fmt & CELL_GCM_TEXTURE_LN) == CELL_GCM_TEXTURE_SZ)
+        log("SWIZZLED TEXTURE!!!\n");
     switch (getRawTextureFormat(fmt)) {
 
     case CELL_GCM_TEXTURE_B8:               return GL_RED;

@@ -34,7 +34,7 @@ PRXLibraryInfo PRXLoader::load(const fs::path& path, PRXExportTable& exports) {
 
         if (seg->get_type() == PT_LOAD) {
             // Allocate segment in memory
-            auto entry = ps3->mem.alloc(seg->get_memory_size(), true);
+            auto entry = ps3->mem.alloc(seg->get_memory_size(), 0, true);
             allocations.push_back(entry->vaddr);
             u8* ptr = ps3->mem.ram.getPtrPhys(entry->paddr);
             ps3->mem.markAsFastMem(entry->vaddr >> PAGE_SHIFT, ptr, true, true);
