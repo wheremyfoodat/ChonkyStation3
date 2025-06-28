@@ -144,7 +144,7 @@ void RSX::setupVAO() {
     }
 }
 
-template <bool inlined>
+template <bool inline_array>
 void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
     u32 vtx_buf_offs = vtx_buf.size();
     vtx_buf.resize(vtx_buf_offs + (vertex_array.size() * (n_vertices + start)));
@@ -177,17 +177,17 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
                     log("TODO: CMP ATTRIBUTE TYPE\n");
                     // fallthrough
                 case 2: {
-                    u32 x = fetch.template operator()<u32, inlined>(offs_in_buf + i * binding.stride + j * size, base);
+                    u32 x = fetch.template operator()<u32, inline_array>(offs_in_buf + i * binding.stride + j * size, base);
                     *(float*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = reinterpret_cast<float&>(x);
                     break;
                 }
                 case 4: {
-                    u8 x = fetch.template operator()<u8, inlined>(offs_in_buf + i * binding.stride + j * size, base);
+                    u8 x = fetch.template operator()<u8, inline_array>(offs_in_buf + i * binding.stride + j * size, base);
                     vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
                     break;
                 }
                 case 5: {
-                    u16 x = fetch.template operator()<u16, inlined>(offs_in_buf + i * binding.stride + j * size, base);
+                    u16 x = fetch.template operator()<u16, inline_array>(offs_in_buf + i * binding.stride + j * size, base);
                     *(u16*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
                     break;
                 }

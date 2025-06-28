@@ -287,7 +287,7 @@ public:
 
     void compileProgram();
     void setupVAO();
-    template<bool inlined = false> void getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start = 0);
+    template<bool inline_array = false> void getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start = 0);
     void uploadVertexConstants();
     void uploadFragmentUniforms();
     void uploadTexture();
