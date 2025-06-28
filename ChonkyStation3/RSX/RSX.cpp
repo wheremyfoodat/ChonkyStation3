@@ -303,17 +303,21 @@ void RSX::uploadTexture() {
             glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_pitch / 4); // TODO: Only works for 4 byte per pixel textures
 
             u8* tex_ptr = ps3->mem.getPtr(texture.addr);
+            u8* unswizzled_tex;
+            bool is_swizzled = false;
             // Handle swizzling
             if (getRawTextureFormat(texture.format) == CELL_GCM_TEXTURE_A8R8G8B8) {
                 if ((texture.format & CELL_GCM_TEXTURE_LN) == CELL_GCM_TEXTURE_SZ) {
-                    u8* unswizzled_tex = new u8[texture.width * texture.height * 4];
+                    is_swizzled = true;
+                    unswizzled_tex = new u8[texture.width * texture.height * 4];
                     swizzleTexture(tex_ptr, unswizzled_tex, texture.width, texture.height);
-                    tex_ptr = unswizzled_tex;
                 }
             }
 
-            glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, type, (void*)tex_ptr);
+            glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, type, (void*)(!is_swizzled ? tex_ptr : unswizzled_tex));
             checkGLError();
+
+            if (is_swizzled) delete[] unswizzled_tex;
         }
         else {
             glCompressedTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, getCompressedTextureSize(texture.format, texture.width, texture.height), (void*)ps3->mem.getPtr(texture.addr));
@@ -329,7 +333,7 @@ void RSX::uploadTexture() {
 }
 
 void RSX::swizzleTexture(u8* src, u8* dst, u32 width, u32 height) {
-    auto swizzle = [](uint32_t x, uint32_t y, uint32_t z, uint32_t log2_width, uint32_t log2_height, uint32_t log2_depth) {
+    auto swizzle = [](u32 x, u32 y, u32 z, u32 log2_width, u32 log2_height, u32 log2_depth) {
         u32 offs = 0;
 
         u32 shift_count = 0;
