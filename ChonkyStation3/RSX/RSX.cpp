@@ -300,7 +300,19 @@ void RSX::uploadTexture() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glActiveTexture(GL_TEXTURE0 + 0);
         if (!isCompressedFormat(texture.format)) {
-            glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, type, (void*)ps3->mem.getPtr(texture.addr));
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_pitch / 4); // TODO: Only works for 4 byte per pixel textures
+
+            u8* tex_ptr = ps3->mem.getPtr(texture.addr);
+            // Handle swizzling
+            if (getRawTextureFormat(texture.format) == CELL_GCM_TEXTURE_A8R8G8B8) {
+                if ((texture.format & CELL_GCM_TEXTURE_LN) == CELL_GCM_TEXTURE_SZ) {
+                    u8* unswizzled_tex = new u8[texture.width * texture.height * 4];
+                    swizzleTexture(tex_ptr, unswizzled_tex, texture.width, texture.height);
+                    tex_ptr = unswizzled_tex;
+                }
+            }
+
+            glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, type, (void*)tex_ptr);
             checkGLError();
         }
         else {
@@ -314,6 +326,46 @@ void RSX::uploadTexture() {
     swizzle();
 
     last_tex = texture;
+}
+
+void RSX::swizzleTexture(u8* src, u8* dst, u32 width, u32 height) {
+    auto swizzle = [](uint32_t x, uint32_t y, uint32_t z, uint32_t log2_width, uint32_t log2_height, uint32_t log2_depth) {
+        u32 offs = 0;
+
+        u32 shift_count = 0;
+        while (log2_width | log2_height | log2_depth) {
+            if (log2_width) {
+                offs |= (x & 0x01) << shift_count;
+                x >>= 1;
+                shift_count++;
+                log2_width--;
+            }
+            if (log2_height) {
+                offs |= (y & 0x01) << shift_count;
+                y >>= 1;
+                shift_count++;
+                log2_height--;
+            }
+            if (log2_depth) {
+                offs |= (z & 0x01) << shift_count;
+                z >>= 1;
+                shift_count++;
+                log2_depth--;
+            }
+        }
+
+        return offs * 4;
+    };
+
+    const u32 log2_width = std::log2(width);
+    const u32 log2_height = std::log2(height);
+
+    for (u32 y = 0; y < height; y++) {
+        for (u32 x = 0; x < width; x++) {
+            const u32 offs = swizzle(x, y, 0, log2_width, log2_height, 0);
+            std::memcpy(&dst[y * width * 4 + x * 4], &src[offs], sizeof(u32));
+        }
+    }
 }
 
 void RSX::bindBuffer() {
@@ -1021,6 +1073,12 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         break;
     }
 
+    case NV4097_SET_TEXTURE_CONTROL3: {
+        tex_pitch = args[0] & 0xfffff;
+        args.pop_front();
+        break;
+    }
+
     case NV4097_SET_VERTEX_DATA2F_M + 8:
     case NV4097_SET_VERTEX_DATA2F_M + 16:
     case NV4097_SET_VERTEX_DATA2F_M + 24:
@@ -1099,7 +1157,6 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
     case NV4097_SET_TEXTURE_CONTROL1: {
         control1 = args[0];
-
         args.pop_front();
         break;
     }

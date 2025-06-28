@@ -177,6 +177,7 @@ public:
     u32 surface_a_offset = 0;
     u32 surface_a_location = 0;
     u32 control1 = 0;
+    u32 tex_pitch = 0;
 
     static constexpr GLuint swizzle_map[] = {
         GL_ALPHA,
@@ -293,6 +294,7 @@ public:
     void uploadVertexConstants();
     void uploadFragmentUniforms();
     void uploadTexture();
+    void swizzleTexture(u8* src, u8* dst, u32 width, u32 height);
     void bindBuffer();
 
     u32 getRawTextureFormat(u8 fmt) { return fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN); }
@@ -463,7 +465,7 @@ public:
         NV4097_SET_FRONT_FACE                                   = 0x00001834,
         NV4097_SET_POLY_SMOOTH_ENABLE                           = 0x00001838,
         NV4097_SET_CULL_FACE_ENABLE                             = 0x0000183c,
-        NV4097_SET_TEXTURE_CONTROL3                             = 0x00001840,
+        NV4097_SET_TEXTURE_CONTROL3                             = 0x00001840,   // I
         NV4097_SET_VERTEX_DATA2F_M                              = 0x00001880,   // I
         NV4097_SET_VERTEX_DATA2S_M                              = 0x00001900,
         NV4097_SET_VERTEX_DATA4UB_M                             = 0x00001940,
