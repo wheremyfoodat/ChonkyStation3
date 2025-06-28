@@ -176,6 +176,7 @@ public:
     u32 color_target = 0;
     u32 surface_a_offset = 0;
     u32 surface_a_location = 0;
+    u32 control1 = 0;
 
     static constexpr GLuint swizzle_map[] = {
         GL_ALPHA,

@@ -44,7 +44,7 @@ void RSX::initGL() {
     // Create depth texture
     glGenTextures(1, &depth_tex.m_handle);
     glBindTexture(GL_TEXTURE_2D, depth_tex.m_handle);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1280, 720, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1280, 720, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (void*)0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -246,6 +246,28 @@ void RSX::uploadTexture() {
        return;
     }
 
+    auto swizzle = [this]() {
+        // should_flip_tex == framebuffer texture
+        // We don't reverse the swizzling because the framebuffer textures are written in the right order
+        const bool rev = getRawTextureFormat(texture.format) == CELL_GCM_TEXTURE_A8R8G8B8 && !should_flip_tex;
+        tex_swizzle_a = swizzle_map[rev ? 3 - (control1 & 3) : (control1 & 3)];
+        tex_swizzle_r = swizzle_map[rev ? 3 - ((control1 >> 2) & 3) : ((control1 >> 2) & 3)];
+        tex_swizzle_g = swizzle_map[rev ? 3 - ((control1 >> 4) & 3) : ((control1 >> 4) & 3)];
+        tex_swizzle_b = swizzle_map[rev ? 3 - ((control1 >> 6) & 3) : ((control1 >> 6) & 3)];
+        // TODO: Use a dirty flag and only update the swizzle when it's changed?
+        u8 raw_fmt = getRawTextureFormat(texture.format);
+        if (raw_fmt != CELL_GCM_TEXTURE_B8 && raw_fmt != CELL_GCM_TEXTURE_X16 && raw_fmt != CELL_GCM_TEXTURE_X32_FLOAT) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, tex_swizzle_a);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, tex_swizzle_r);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, tex_swizzle_g);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, tex_swizzle_b);
+        }
+        tex_swizzle_a = GL_ALPHA;
+        tex_swizzle_r = GL_RED;
+        tex_swizzle_g = GL_GREEN;
+        tex_swizzle_b = GL_BLUE;
+    };
+
     OpenGL::Texture cached_texture;
     
     // Check if the texture is a framebuffer
@@ -256,6 +278,8 @@ void RSX::uploadTexture() {
 
         // We flip framebuffer textures because OpenGL renders to them upside down
         should_flip_tex = true;
+        
+        swizzle();
         return;
     }
 
@@ -287,6 +311,7 @@ void RSX::uploadTexture() {
     }
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
+    swizzle();
 
     last_tex = texture;
 }
@@ -305,7 +330,7 @@ void RSX::bindBuffer() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1280, 720, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, (void*)0);
         cache.cacheFramebuffer(surface_a_addr, cached_texture);
         // Bind and clear it
         fb.bind(GL_FRAMEBUFFER);
@@ -781,6 +806,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
                 }
 
                 compileProgram();
+                uploadTexture();
                 uploadVertexConstants();
                 uploadFragmentUniforms();
                 bindBuffer();
@@ -817,6 +843,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
             if (inline_array.size()) {
                 compileProgram();
                 setupVAO();
+                uploadTexture();
                 uploadVertexConstants();
                 uploadFragmentUniforms();
                 bindBuffer();
@@ -880,6 +907,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     case NV4097_DRAW_ARRAYS: {
         compileProgram();
         setupVAO();
+        uploadTexture();
         uploadVertexConstants();
         uploadFragmentUniforms();
         bindBuffer();
@@ -976,6 +1004,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         getVertices(n_vertices, vtx_buf);
 
         setupVAO();
+        uploadTexture();
         uploadVertexConstants();
         uploadFragmentUniforms();
         bindBuffer();
@@ -1066,19 +1095,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     }
 
     case NV4097_SET_TEXTURE_CONTROL1: {
-        const bool rev = getRawTextureFormat(texture.format) == CELL_GCM_TEXTURE_A8R8G8B8;
-        tex_swizzle_a = swizzle_map[rev ? 3 - (args[0] & 3) : (args[0] & 3)];
-        tex_swizzle_r = swizzle_map[rev ? 3 - ((args[0] >> 2) & 3) : ((args[0] >> 2) & 3)];
-        tex_swizzle_g = swizzle_map[rev ? 3 - ((args[0] >> 4) & 3) : ((args[0] >> 4) & 3)];
-        tex_swizzle_b = swizzle_map[rev ? 3 - ((args[0] >> 6) & 3) : ((args[0] >> 6) & 3)];
-
-        u8 raw_fmt = getRawTextureFormat(texture.format);
-        if (raw_fmt != CELL_GCM_TEXTURE_B8 && raw_fmt != CELL_GCM_TEXTURE_X16 && raw_fmt != CELL_GCM_TEXTURE_X32_FLOAT) {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, tex_swizzle_a);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, tex_swizzle_r);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, tex_swizzle_g);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, tex_swizzle_b);
-        }
+        control1 = args[0];
 
         args.pop_front();
         break;
@@ -1097,7 +1114,6 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
         texture.width = width;
         texture.height = height;
-        uploadTexture();
 
         args.pop_front();
         break;
