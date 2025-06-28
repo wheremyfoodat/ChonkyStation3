@@ -88,6 +88,20 @@ public:
         log("Cached new texture: %016x\n", hash);
     }
 
+    bool getFramebuffer(u32 addr, OpenGL::Texture& framebuffer) {
+        if (framebuffer_cache.contains(addr)) {
+            framebuffer = framebuffer_cache[addr];
+            //log("Got cached framebuffer: %032x\n", addr);
+            return true;
+        }
+        return false;
+    }
+
+    void cacheFramebuffer(u32 addr, OpenGL::Texture& framebuffer) {
+        framebuffer_cache[addr] = framebuffer;
+        log("Cached new framebuffer: 0x%08x\n", addr);
+    }
+
 private:
     MAKE_LOG_FUNCTION(log, rsx_cache);
 
@@ -95,4 +109,5 @@ private:
     std::unordered_map<u64, CachedShader> shader_cache;
     std::unordered_map<u64, OpenGL::Program> program_cache;
     std::unordered_map<u64, OpenGL::Texture> texture_cache;
+    std::unordered_map<u32, OpenGL::Texture> framebuffer_cache;
 };

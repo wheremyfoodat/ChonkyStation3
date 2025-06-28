@@ -173,6 +173,9 @@ public:
     u16 blend_equation_rgb = 0;
     u16 blend_equation_alpha = 0;
     u32 vertex_shader_load_addr = 0;
+    u32 color_target = 0;
+    u32 surface_a_offset = 0;
+    u32 surface_a_location = 0;
 
     static constexpr GLuint swizzle_map[] = {
         GL_ALPHA,
@@ -192,7 +195,7 @@ public:
     GLuint tex_swizzle_r = GL_RED;
     GLuint tex_swizzle_g = GL_GREEN;
     GLuint tex_swizzle_b = GL_BLUE;
-    
+    bool should_flip_tex = false;
 
     bool has_immediate_data = false;
 
@@ -201,6 +204,7 @@ public:
     OpenGL::Shader vertex, fragment;
     OpenGL::Program program;
     OpenGL::Texture tex;
+    OpenGL::Framebuffer fb;
 
     GLuint ibo;
     GLuint quad_ibo;
@@ -265,7 +269,7 @@ public:
             }
 
             if (!highest_binding) {
-                printf("WARNING: VERTEX ARRAY WITH NO ATTRIBUTE BINDINGS!\n");
+                Helpers::panic("VERTEX ARRAY WITH NO ATTRIBUTE BINDINGS!\n");
                 return 0;
             }
             return highest_binding->offset - getBase() + highest_binding->stride;
@@ -273,6 +277,7 @@ public:
     };
     VertexArray vertex_array;
     AttributeBinding curr_binding;
+    std::vector<u32> inline_array;
 
     struct IndexArray {
         u32 addr;
@@ -282,10 +287,11 @@ public:
 
     void compileProgram();
     void setupVAO();
-    void getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start = 0);
+    template<bool inlined = false> void getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start = 0);
     void uploadVertexConstants();
     void uploadFragmentUniforms();
     void uploadTexture();
+    void bindBuffer();
 
     u32 getRawTextureFormat(u8 fmt) { return fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN); }
     GLuint getTexturePixelFormat(u8 fmt);
@@ -317,7 +323,7 @@ public:
         NV4097_SET_CONTEXT_DMA_B                                = 0x00000188,
         NV4097_SET_CONTEXT_DMA_COLOR_B                          = 0x0000018c,
         NV4097_SET_CONTEXT_DMA_STATE                            = 0x00000190,
-        NV4097_SET_CONTEXT_DMA_COLOR_A                          = 0x00000194,
+        NV4097_SET_CONTEXT_DMA_COLOR_A                          = 0x00000194,   // I
         NV4097_SET_CONTEXT_DMA_ZETA                             = 0x00000198,
         NV4097_SET_CONTEXT_DMA_VERTEX_A                         = 0x0000019c,
         NV4097_SET_CONTEXT_DMA_VERTEX_B                         = 0x000001a0,
@@ -329,13 +335,13 @@ public:
         NV4097_SET_CONTEXT_DMA_COLOR_D                          = 0x000001b8,
         NV4097_SET_SURFACE_CLIP_HORIZONTAL                      = 0x00000200,
         NV4097_SET_SURFACE_CLIP_VERTICAL                        = 0x00000204,
-        NV4097_SET_SURFACE_FORMAT                               = 0x00000208,
+        NV4097_SET_SURFACE_FORMAT                               = 0x00000208,   // I
         NV4097_SET_SURFACE_PITCH_A                              = 0x0000020c,
         NV4097_SET_SURFACE_COLOR_AOFFSET                        = 0x00000210,
         NV4097_SET_SURFACE_ZETA_OFFSET                          = 0x00000214,
         NV4097_SET_SURFACE_COLOR_BOFFSET                        = 0x00000218,
         NV4097_SET_SURFACE_PITCH_B                              = 0x0000021c,
-        NV4097_SET_SURFACE_COLOR_TARGET                         = 0x00000220,
+        NV4097_SET_SURFACE_COLOR_TARGET                         = 0x00000220,   // I
         NV4097_SET_SURFACE_PITCH_Z                              = 0x0000022c,
         NV4097_INVALIDATE_ZCULL                                 = 0x00000234,
         NV4097_SET_CYLINDRICAL_WRAP                             = 0x00000238,
@@ -445,7 +451,7 @@ public:
         NV4097_ARRAY_ELEMENT16                                  = 0x0000180c,
         NV4097_ARRAY_ELEMENT32                                  = 0x00001810,
         NV4097_DRAW_ARRAYS                                      = 0x00001814,   // I
-        NV4097_INLINE_ARRAY                                     = 0x00001818,
+        NV4097_INLINE_ARRAY                                     = 0x00001818,   // I
         NV4097_SET_INDEX_ARRAY_ADDRESS                          = 0x0000181c,   // I
         NV4097_SET_INDEX_ARRAY_DMA                              = 0x00001820,   // I
         NV4097_DRAW_INDEX_ARRAY                                 = 0x00001824,   // I

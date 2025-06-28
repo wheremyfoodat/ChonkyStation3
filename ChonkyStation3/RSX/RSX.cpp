@@ -38,6 +38,8 @@ void RSX::initGL() {
     quad_index_array.push_back(0);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+    fb.create();
 }
 
 void RSX::setEaTableAddr(u32 addr) {
@@ -119,7 +121,7 @@ void RSX::setupVAO() {
     log("Vertex configuration:\n");
     for (auto& binding : vertex_array.bindings) {
         if (!binding.size) continue;
-        log("Attribute %d: size: %d, stride %d, type: %d\n", binding.index, binding.size, binding.stride, binding.type);
+        log("Attribute %d: size: %d, stride %d, type: %d, offs: 0x%08x\n", binding.index, binding.size, binding.stride, binding.type, binding.offset);
         u32 offs_in_buf = binding.offset - vertex_array.getBase();
         // Setup VAO attribute
         switch (binding.type) {
@@ -142,15 +144,30 @@ void RSX::setupVAO() {
     }
 }
 
+template <bool inlined>
 void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
     u32 vtx_buf_offs = vtx_buf.size();
     vtx_buf.resize(vtx_buf_offs + (vertex_array.size() * (n_vertices + start)));
 
+    auto fetch = [this]<typename T, bool inlined>(u32 offs, u32 base) -> T {
+        if constexpr (!inlined)
+            return ps3->mem.read<T>(base + offs);
+        else return *(T*)&((u8*)inline_array.data())[offs];
+    };
+
     for (auto& binding : vertex_array.bindings) {
         if (!binding.size) continue;
-        u32 offs = binding.offset;
-        u32 offs_in_buf = binding.offset - vertex_array.getBase();
+        const u32 base = vertex_array.getBase();
+        const u32 offs = binding.offset;
+        const u32 offs_in_buf = offs - base;
         const auto size = binding.sizeOfComponent();
+
+        // offs_in_buf + i * binding.stride + j * size
+        // - offs_in_buf    : offset of the first attribute of this binding relative to the base of the vertex array
+        // - i              : vertex index
+        // - binding.stride : distance in bytes between 2 attributes of this binding
+        // - j              : attribute element ranging from 0 to binding.size
+        // - size:          : size of 1 element of this attribute
 
         // Collect vertex data
         for (int i = start; i < start + n_vertices; i++) {
@@ -160,17 +177,17 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
                     log("TODO: CMP ATTRIBUTE TYPE\n");
                     // fallthrough
                 case 2: {
-                    u32 x = ps3->mem.read<u32>(offs + j * size);
+                    u32 x = fetch.template operator()<u32, inlined>(offs_in_buf + i * binding.stride + j * size, base);
                     *(float*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = reinterpret_cast<float&>(x);
                     break;
                 }
                 case 4: {
-                    u8 x = ps3->mem.read<u8>(offs + j * size);
+                    u8 x = fetch.template operator()<u8, inlined>(offs_in_buf + i * binding.stride + j * size, base);
                     vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
                     break;
                 }
                 case 5: {
-                    u16 x = ps3->mem.read<u16>(offs + j * size);
+                    u16 x = fetch.template operator()<u16, inlined>(offs_in_buf + i * binding.stride + j * size, base);
                     *(u16*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
                     break;
                 }
@@ -179,7 +196,6 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
                 }
             }
             //log("x: %f y: %f z: %f\n", *(float*)&vtx_buf[binding.stride * i + 0], *(float*)&vtx_buf[binding.stride * i + 4], *(float*)&vtx_buf[binding.stride * i + 8]);
-            offs += binding.stride;
         }
     }
 }
@@ -205,6 +221,8 @@ void RSX::uploadFragmentUniforms() {
         glUniform4f(glGetUniformLocation(program.handle(), i.name.c_str()), i.x, i.y, i.z, i.w);
     }
     fragment_uniforms.clear();
+
+    glUniform1i(glGetUniformLocation(program.handle(), "flip_tex"), should_flip_tex ? GL_TRUE : GL_FALSE);
 }
 
 void RSX::uploadTexture() {
@@ -215,9 +233,23 @@ void RSX::uploadTexture() {
        return;
     }
 
+    OpenGL::Texture cached_texture;
+    
+    // Check if the texture is a framebuffer
+    if (cache.getFramebuffer(texture.addr, cached_texture)) {
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
+        last_tex = texture;
+
+        // We flip framebuffer textures because OpenGL renders to them upside down
+        should_flip_tex = true;
+        return;
+    }
+
+    should_flip_tex = false;
+
     // Texture cache
     const u64 hash = cache.computeTextureHash(ps3->mem.getPtr(texture.addr), texture.width, texture.height, 4);    // TODO: don't hardcode
-    OpenGL::Texture cached_texture;
     if (!cache.getTexture(hash, cached_texture)) {
         const auto fmt = getTexturePixelFormat(texture.format);
         const auto internal = getTextureInternalFormat(texture.format);
@@ -244,6 +276,36 @@ void RSX::uploadTexture() {
     glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
 
     last_tex = texture;
+}
+
+void RSX::bindBuffer() {
+    const u32 surface_a_addr = offsetAndLocationToAddress(surface_a_offset, surface_a_location & 1);
+    log("Surface A addr: 0x%08x\n", surface_a_addr);
+
+    glActiveTexture(GL_TEXTURE0 + 20);
+    OpenGL::Texture cached_texture;
+    if (!cache.getFramebuffer(surface_a_addr, cached_texture)) {
+        // Generate a new framebuffer texture if we don't have a cached one
+        glGenTextures(1, &cached_texture.m_handle);
+        glBindTexture(GL_TEXTURE_2D, cached_texture.m_handle);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)0);
+        cache.cacheFramebuffer(surface_a_addr, cached_texture);
+        // Bind and clear it
+        fb.bind(GL_FRAMEBUFFER);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cached_texture.m_handle, 0);
+        OpenGL::clearAll();
+        glActiveTexture(GL_TEXTURE0 + 0);
+        return;
+    }
+
+    // Just bind it
+    fb.bind(GL_FRAMEBUFFER);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cached_texture.m_handle, 0);
+    glActiveTexture(GL_TEXTURE0 + 0);
 }
 
 GLuint RSX::getTextureInternalFormat(u8 fmt) {
@@ -438,11 +500,12 @@ void RSX::runCommandList(u64 put_addr) {
         for (int i = 0; i < argc; i++)
             args.push_back(fetch32());
 
+        bool incrementing = !(cmd & 0x40000000);    // CELL_GCM_METHOD_FLAG_NON_INCREMENT
         do {
             if (command_names.contains(cmd_num) && cmd_num)
                 log("0x%08x: %s\n", (u32)gcm.ctrl->get - 4, command_names[cmd_num].c_str());
             doCmd(cmd_num, args);
-            cmd_num += 4;
+            if (incrementing) cmd_num += 4;
         } while (!args.empty());
     }
 }
@@ -487,9 +550,37 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         break;
     }
 
+    case NV4097_SET_CONTEXT_DMA_COLOR_A: {
+        surface_a_location = args[0];
+        log("Surface A: location: 0x%08x\n", surface_a_location);
+        args.pop_front();
+        break;
+    }
+
     case NV4097_SET_CONTEXT_DMA_REPORT: {
         dma_report = args[0];
         log("Context DMA report location: 0x%08x\n", dma_report);
+        args.pop_front();
+        break;
+    }
+
+    case NV4097_SET_SURFACE_FORMAT: {
+        // TODO: Everything else
+        surface_a_offset = args[2];
+        log("Surface A: offset: 0x%08x\n", surface_a_offset);
+        
+        args.pop_front();
+        args.pop_front();
+        args.pop_front();
+        args.pop_front();
+        args.pop_front();
+        args.pop_front();
+        break;
+    }
+
+    case NV4097_SET_SURFACE_COLOR_TARGET: {
+        color_target = args[0];
+        log("Color target: 0x%02x\n", color_target);
         args.pop_front();
         break;
     }
@@ -637,16 +728,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         args.pop_front();
         break;
     }
-    /*
-            case NV4097_SET_ZPASS_PIXEL_COUNT_ENABLE: {
-                if (args.size() > 1) {
-                    const u32 offs = args[1] & 0xffffff;
-                    const u32 addr = ioToEa(offs);
-                    log("Get report: 0x%08x (0x%08x)\n", offs, addr);
-                }
-                break;
-            }
-    */
+
     case NV4097_SET_BEGIN_END: {
         const u32 prim = args[0];
         log("Primitive: 0x%0x\n", prim);
@@ -688,6 +770,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
                 compileProgram();
                 uploadVertexConstants();
                 uploadFragmentUniforms();
+                bindBuffer();
 
                 // Hack for quads
                 if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
@@ -716,6 +799,64 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
                     i.data.clear();
                 }
             }
+
+            // Inlined array
+            if (inline_array.size()) {
+                compileProgram();
+                setupVAO();
+                uploadVertexConstants();
+                uploadFragmentUniforms();
+                bindBuffer();
+
+                // Find how many vertices worth of data we have
+                u32 highest = 0;
+                AttributeBinding* highest_binding = nullptr;
+                for (auto& binding : vertex_array.bindings) {
+                    if (!binding.size) continue;
+                    if (binding.offset > highest) {
+                        highest = binding.offset;
+                        highest_binding = &binding;
+                    }
+                }
+
+                if (!highest_binding) {
+                    Helpers::panic("VERTEX ARRAY WITH NO ATTRIBUTE BINDINGS!\n");
+                }
+
+                const auto n_bytes = inline_array.size() * sizeof(u32);
+                const auto attrib_size = highest_binding->sizeOfComponent() * highest_binding->size;
+                u32 n_vertices = 0;
+                for (u32 i = highest_binding->offset - vertex_array.getBase(); i + attrib_size <= n_bytes; i += highest_binding->stride)
+                    n_vertices++;
+                log("Drawing inline array: %d vertices\n", n_vertices);
+
+                // Gather vertices and draw
+                std::vector<u8> vtx_buf;
+                getVertices<true>(n_vertices, vtx_buf, 0);
+
+                // Hack for quads
+                if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
+                    quad_index_array.clear();
+                    for (int i = 0; i < n_vertices / 4; i++) {
+                        quad_index_array.push_back((i * 4) + 0);
+                        quad_index_array.push_back((i * 4) + 1);
+                        quad_index_array.push_back((i * 4) + 2);
+                        quad_index_array.push_back((i * 4) + 2);
+                        quad_index_array.push_back((i * 4) + 3);
+                        quad_index_array.push_back((i * 4) + 0);
+                    }
+                    glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
+                    glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
+                    glDrawElements(getPrimitive(primitive), quad_index_array.size(), GL_UNSIGNED_INT, 0);
+                }
+                else {
+                    glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
+                    glDrawArrays(getPrimitive(primitive), 0, n_vertices);
+                }
+
+                inline_array.clear();
+            }
         }
 
         primitive = prim;
@@ -728,6 +869,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         setupVAO();
         uploadVertexConstants();
         uploadFragmentUniforms();
+        bindBuffer();
 
         std::vector<u8> vtx_buf;
         int n_vertices = 0;
@@ -763,6 +905,13 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         }
 
         args.clear();
+        break;
+    }
+
+    case NV4097_INLINE_ARRAY: {
+        log("Inline array: 0x%08x\n", args[0]);
+        inline_array.push_back(args[0]);
+        args.pop_front();
         break;
     }
 
@@ -816,6 +965,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         setupVAO();
         uploadVertexConstants();
         uploadFragmentUniforms();
+        bindBuffer();
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);
@@ -1005,6 +1155,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     }
 
     case NV4097_CLEAR_SURFACE: {
+        bindBuffer();
         OpenGL::setClearColor(clear_color.r(), clear_color.g(), clear_color.b(), clear_color.a());
         if (args[0] & 0xf0)
             OpenGL::clearColor();
@@ -1095,11 +1246,21 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     case GCM_FLIP_COMMAND: {
         const u32 buf_id = args[0];
         log("Flip %d\n", buf_id);
+
+        // Blit to output framebuffer
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(
+            0, 0, 1280, 720,
+            0, 0, 1280, 720,
+            GL_COLOR_BUFFER_BIT,
+            GL_NEAREST
+        );
+
         ps3->flip();
         args.pop_front();
         break;
     }
-
+                         
     default: {
         // For unimplemented commands, clear the arguments
         // Skips any command following this if the unimplemented command is a command with increment

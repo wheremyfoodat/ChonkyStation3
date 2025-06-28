@@ -13,6 +13,7 @@ vec4 cc0;
 vec4 cc1;
 
 uniform sampler2D tex;
+uniform bool flip_tex;
 
 )";
     std::string shader;
@@ -76,6 +77,10 @@ uniform sampler2D tex;
             decompiled_src = std::format("vec4(dot({}, {}))", source(instr, 0), source(instr, 1));
             break;
         }
+        case RSXFragment::MIN: {
+            decompiled_src = std::format("min({}, {})", source(instr, 0), source(instr, 1));
+            break;
+        }
         case RSXFragment::MAX: {
             decompiled_src = std::format("max({}, {})", source(instr, 0), source(instr, 1));
             break;
@@ -118,7 +123,7 @@ uniform sampler2D tex;
         }
         case RSXFragment::TEX: {
             if (instr.dst.tex_num == 0)
-                decompiled_src = std::format("texture(tex, vec2({}))", source(instr, 0));
+                decompiled_src = std::format("texture(tex, vec2({}.x, flip_tex ? (1.0f - {}.y) : {}.y))", source(instr, 0), source(instr, 0), source(instr, 0));
             else {
                 log("WARNING: TEX NUM != 0\n");
                 decompiled_src = "/* TODO: tex_num != 0 */ vec4(1.0f)";
