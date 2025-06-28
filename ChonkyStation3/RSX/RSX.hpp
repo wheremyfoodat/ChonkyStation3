@@ -205,6 +205,7 @@ public:
     OpenGL::Program program;
     OpenGL::Texture tex;
     OpenGL::Framebuffer fb;
+    OpenGL::Texture depth_tex;
 
     GLuint ibo;
     GLuint quad_ibo;

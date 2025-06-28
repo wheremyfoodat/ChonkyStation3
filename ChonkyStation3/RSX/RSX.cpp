@@ -40,6 +40,19 @@ void RSX::initGL() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
     fb.create();
+
+    // Create depth texture
+    glGenTextures(1, &depth_tex.m_handle);
+    glBindTexture(GL_TEXTURE_2D, depth_tex.m_handle);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1280, 720, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    fb.bind(GL_FRAMEBUFFER);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex.m_handle, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void RSX::setEaTableAddr(u32 addr) {
