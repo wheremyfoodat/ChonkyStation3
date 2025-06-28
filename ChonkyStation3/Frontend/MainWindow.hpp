@@ -53,6 +53,7 @@ public slots:
     void createGameWindow();
     void updateGameWindow();
     void destroyGameWindow();
+    void pollGameWindowInput();
 
 private:
     // Overrides

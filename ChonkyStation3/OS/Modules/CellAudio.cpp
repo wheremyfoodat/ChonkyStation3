@@ -18,7 +18,7 @@ u64 CellAudio::cellAudioCreateNotifyEventQueue() {
 
 u64 CellAudio::cellAudioSetNotifyEventQueue() {
     const u64 key = ARG0;
-    Helpers::debugAssert(key == EVENT_QUEUE_KEY, "TODO: cellAudioSetNotifyEventQueue with custom event queue\n");
+    //Helpers::debugAssert(key == EVENT_QUEUE_KEY, "TODO: cellAudioSetNotifyEventQueue with custom event queue\n");
     
     return CELL_OK;
 }

@@ -26,6 +26,7 @@ public:
     void createWindow();
     void updateWindow();
     void destroyWindow();
+    void pollInput();
 
     PlayStation3* ps3;
     MainWindow* main_window;

@@ -350,6 +350,7 @@ GLuint RSX::getTextureInternalFormat(u8 fmt) {
     switch (getRawTextureFormat(fmt)) {
 
     case CELL_GCM_TEXTURE_B8:               return GL_RED;
+    case CELL_GCM_TEXTURE_R5G6B5:           return GL_RGB565;
     case CELL_GCM_TEXTURE_A8R8G8B8:         return GL_RGBA;
     case CELL_GCM_TEXTURE_D8R8G8B8:         return GL_RGBA;
     case CELL_GCM_TEXTURE_COMPRESSED_DXT1:  return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -367,6 +368,7 @@ GLuint RSX::getTexturePixelFormat(u8 fmt) {
     switch (getRawTextureFormat(fmt)) {
 
     case CELL_GCM_TEXTURE_B8:               return GL_RED;
+    case CELL_GCM_TEXTURE_R5G6B5:           return GL_RGB;
     case CELL_GCM_TEXTURE_A8R8G8B8:         return GL_BGRA;
     case CELL_GCM_TEXTURE_D8R8G8B8:         return GL_BGRA;
     case CELL_GCM_TEXTURE_COMPRESSED_DXT1:  return GL_RGBA;
@@ -381,6 +383,7 @@ GLuint RSX::getTexturePixelFormat(u8 fmt) {
 GLuint RSX::getTextureDataType(u8 fmt) {
     switch (getRawTextureFormat(fmt)) {
 
+    case CELL_GCM_TEXTURE_R5G6B5:           return GL_UNSIGNED_SHORT_5_6_5;
     case CELL_GCM_TEXTURE_A8R8G8B8:         return GL_UNSIGNED_INT_8_8_8_8_REV;
 
     default:

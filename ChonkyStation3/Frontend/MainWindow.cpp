@@ -258,6 +258,10 @@ void MainWindow::destroyGameWindow() {
     game_window->destroyWindow();
 }
 
+void MainWindow::pollGameWindowInput() {
+    game_window->pollInput();
+}
+
 void MainWindow::onExit() {}
 
 void MainWindow::resizeEvent(QResizeEvent* event) {
