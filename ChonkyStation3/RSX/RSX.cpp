@@ -300,16 +300,15 @@ void RSX::uploadTexture() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glActiveTexture(GL_TEXTURE0 + 0);
         if (!isCompressedFormat(texture.format)) {
-            glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_pitch / 4); // TODO: Only works for 4 byte per pixel textures
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, tex_pitch / ((getRawTextureFormat(texture.format) == CELL_GCM_TEXTURE_B8) ? 1 : 4)); // TODO: Clean this up
 
             u8* tex_ptr = ps3->mem.getPtr(texture.addr);
             u8* unswizzled_tex = nullptr;
             // Handle swizzling
-            if (getRawTextureFormat(texture.format) == CELL_GCM_TEXTURE_A8R8G8B8) {
-                if ((texture.format & CELL_GCM_TEXTURE_LN) == CELL_GCM_TEXTURE_SZ) {
-                    unswizzled_tex = new u8[texture.width * texture.height * 4];
-                    swizzleTexture(tex_ptr, unswizzled_tex, texture.width, texture.height);
-                }
+            if ((texture.format & CELL_GCM_TEXTURE_LN) == CELL_GCM_TEXTURE_SZ) {
+                const u32 pixel_size = (getRawTextureFormat(texture.format) == CELL_GCM_TEXTURE_B8) ? 1 : 4;    // TODO: Other formats
+                unswizzled_tex = new u8[texture.width * texture.height * pixel_size];
+                swizzleTexture(tex_ptr, unswizzled_tex, texture.width, texture.height, pixel_size);
             }
 
             glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, type, (void*)(!unswizzled_tex ? tex_ptr : unswizzled_tex));
@@ -330,8 +329,8 @@ void RSX::uploadTexture() {
     last_tex = texture;
 }
 
-void RSX::swizzleTexture(u8* src, u8* dst, u32 width, u32 height) {
-    auto swizzle = [](u32 x, u32 y, u32 z, u32 log2_width, u32 log2_height, u32 log2_depth) {
+void RSX::swizzleTexture(u8* src, u8* dst, u32 width, u32 height, u32 pixel_size) {
+    auto swizzle = [pixel_size](u32 x, u32 y, u32 z, u32 log2_width, u32 log2_height, u32 log2_depth) {
         u32 offs = 0;
 
         u32 shift_count = 0;
@@ -356,7 +355,7 @@ void RSX::swizzleTexture(u8* src, u8* dst, u32 width, u32 height) {
             }
         }
 
-        return offs * 4;
+        return offs * pixel_size;
     };
 
     const u32 log2_width = std::log2(width);
@@ -365,7 +364,7 @@ void RSX::swizzleTexture(u8* src, u8* dst, u32 width, u32 height) {
     for (u32 y = 0; y < height; y++) {
         for (u32 x = 0; x < width; x++) {
             const u32 offs = swizzle(x, y, 0, log2_width, log2_height, 0);
-            std::memcpy(&dst[y * width * 4 + x * 4], &src[offs], sizeof(u32));
+            std::memcpy(&dst[y * width * pixel_size + x * pixel_size], &src[offs], pixel_size);
         }
     }
 }
@@ -398,6 +397,17 @@ void RSX::bindBuffer() {
     fb.bind(GL_FRAMEBUFFER);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cached_texture.m_handle, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
+}
+
+void RSX::setupForDrawing() {
+    compileProgram();
+    setupVAO();
+    uploadTexture();
+    uploadVertexConstants();
+    uploadFragmentUniforms();
+    bindBuffer();
+    OpenGL::enableScissor();
+    OpenGL::setScissor(scissor_x, 720 - (scissor_y + scissor_height), scissor_width, scissor_height);
 }
 
 GLuint RSX::getTextureInternalFormat(u8 fmt) {
@@ -743,6 +753,20 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         break;
     }
 
+    case NV4097_SET_SCISSOR_HORIZONTAL: {
+        scissor_x = args[0] & 0xffff;
+        scissor_width = args[0] >> 16;
+        args.pop_front();
+        break;
+    }
+
+    case NV4097_SET_SCISSOR_VERTICAL: {
+        scissor_y = args[0] & 0xffff;
+        scissor_height = args[0] >> 16;
+        args.pop_front();
+        break;
+    }
+
     case NV4097_SET_SHADER_PROGRAM: {
         fragment_shader_program.addr = offsetAndLocationToAddress(args[0] & ~3, (args[0] & 3) - 1);
         log("Fragment shader: address: 0x%08x\n", fragment_shader_program.addr);
@@ -862,11 +886,13 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
                     }
                 }
 
+                // We don't use setupForDrawing() because we setup the VAO differently above. Can't use setupVAO()
                 compileProgram();
                 uploadTexture();
                 uploadVertexConstants();
                 uploadFragmentUniforms();
                 bindBuffer();
+                OpenGL::setScissor(scissor_x, 720 - (scissor_y + scissor_height), scissor_width, scissor_height);
 
                 // Hack for quads
                 if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
@@ -898,12 +924,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
             // Inlined array
             if (inline_array.size()) {
-                compileProgram();
-                setupVAO();
-                uploadTexture();
-                uploadVertexConstants();
-                uploadFragmentUniforms();
-                bindBuffer();
+                setupForDrawing();
 
                 // Find how many vertices worth of data we have
                 u32 highest = 0;
@@ -962,12 +983,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     }
 
     case NV4097_DRAW_ARRAYS: {
-        compileProgram();
-        setupVAO();
-        uploadTexture();
-        uploadVertexConstants();
-        uploadFragmentUniforms();
-        bindBuffer();
+        setupForDrawing();
 
         std::vector<u8> vtx_buf;
         int n_vertices = 0;
@@ -1032,7 +1048,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     }
 
     case NV4097_DRAW_INDEX_ARRAY: {
-        compileProgram();
+        setupForDrawing();
 
         std::vector<u32> indices;
         u32 highest_index = 0;
@@ -1059,12 +1075,6 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         // Draw
         std::vector<u8> vtx_buf;
         getVertices(n_vertices, vtx_buf);
-
-        setupVAO();
-        uploadTexture();
-        uploadVertexConstants();
-        uploadFragmentUniforms();
-        bindBuffer();
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * 4, indices.data(), GL_STATIC_DRAW);

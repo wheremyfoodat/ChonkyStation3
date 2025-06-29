@@ -178,6 +178,10 @@ public:
     u32 surface_a_location = 0;
     u32 control1 = 0;
     u32 tex_pitch = 0;
+    u32 scissor_x = 0;
+    u32 scissor_y = 0;
+    u32 scissor_width = 1280;
+    u32 scissor_height = 720;
 
     static constexpr GLuint swizzle_map[] = {
         GL_ALPHA,
@@ -294,8 +298,9 @@ public:
     void uploadVertexConstants();
     void uploadFragmentUniforms();
     void uploadTexture();
-    void swizzleTexture(u8* src, u8* dst, u32 width, u32 height);
+    void swizzleTexture(u8* src, u8* dst, u32 width, u32 height, u32 pixel_size);
     void bindBuffer();
+    void setupForDrawing();
 
     u32 getRawTextureFormat(u8 fmt) { return fmt & ~(CELL_GCM_TEXTURE_LN | CELL_GCM_TEXTURE_UN); }
     GLuint getTexturePixelFormat(u8 fmt);
@@ -399,8 +404,8 @@ public:
         NV4097_SET_LINE_WIDTH                                   = 0x000003b8,
         NV4097_SET_LINE_SMOOTH_ENABLE                           = 0x000003bc,
         NV4097_SET_ANISO_SPREAD                                 = 0x000003c0,
-        NV4097_SET_SCISSOR_HORIZONTAL                           = 0x000008c0,
-        NV4097_SET_SCISSOR_VERTICAL                             = 0x000008c4,
+        NV4097_SET_SCISSOR_HORIZONTAL                           = 0x000008c0,   // I
+        NV4097_SET_SCISSOR_VERTICAL                             = 0x000008c4,   // I
         NV4097_SET_FOG_MODE                                     = 0x000008cc,
         NV4097_SET_FOG_PARAMS                                   = 0x000008d0,
         NV4097_SET_SHADER_PROGRAM                               = 0x000008e4,   // I
