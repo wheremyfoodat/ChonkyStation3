@@ -352,7 +352,7 @@ enum G_04Opcodes {
     VADDSWS         = 0x380,
     VMINSW          = 0x382,
     VSRAW           = 0x384,
-    VCMPGTSW        = 0x386,
+    VCMPGTSW        = 0x386,    // Vector Compare Greater-Than Signed Word
     VCMPGTSW_       = 0x786,
     VCTUXS          = 0x38a,    // Vector Convert to Unsigned Fixed-Point Word Saturate
     VSPLTISW        = 0x38c,    // Vector Splat Immediate Signed Word

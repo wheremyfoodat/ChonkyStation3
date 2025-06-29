@@ -123,6 +123,7 @@ public:
     void vsrah      (const Instruction& instr);
     void vcfsx      (const Instruction& instr);
     void vspltish   (const Instruction& instr);
+    void vcmpgtsw   (const Instruction& instr);
     void vctuxs     (const Instruction& instr);
     void vspltisw   (const Instruction& instr);
     void vctsxs     (const Instruction& instr);

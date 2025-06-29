@@ -106,6 +106,7 @@ void PPUInterpreter::step() {
             case VSRAH:     vsrah(instr);       break;
             case VCFSX:     vcfsx(instr);       break;
             case VSPLTISH:  vspltish(instr);    break;
+            case VCMPGTSW:  vcmpgtsw(instr);    break;
             case VCTUXS:    vctuxs(instr);      break;
             case VSPLTISW:  vspltisw(instr);    break;
             case VCTSXS:    vctsxs(instr);      break;
@@ -1095,6 +1096,25 @@ void PPUInterpreter::vspltish(const Instruction& instr) {
     state.vrs[instr.vd].h[5] = si;
     state.vrs[instr.vd].h[6] = si;
     state.vrs[instr.vd].h[7] = si;
+}
+
+void PPUInterpreter::vcmpgtsw(const Instruction& instr) {
+    u8 all_equal = 0x8;
+    u8 none_equal = 0x2;
+
+    for (int i = 0; i < 4; i++) {
+        if ((s32)state.vrs[instr.va].w[i] > (s32)state.vrs[instr.vb].w[i]) {
+            state.vrs[instr.vd].w[i] = 0xffffffff;
+            none_equal = 0;
+        }
+        else {
+            state.vrs[instr.vd].w[i] = 0;
+            all_equal = 0;
+        }
+    }
+
+    if (instr.rc_v)
+        state.cr.setCRField(6, all_equal | none_equal);
 }
 
 void PPUInterpreter::vctuxs(const Instruction& instr) {
