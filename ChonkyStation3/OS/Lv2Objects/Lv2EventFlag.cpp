@@ -17,6 +17,7 @@ bool Lv2EventFlag::wait(u64 bitptn, u32 mode, u32 res_ptr) {
     
     thread->wait(std::format("eflag {:d}", handle()));
     wait_list.push_back(waiter);
+    return true;
 }
 
 void Lv2EventFlag::set(u64 bitptn) {
