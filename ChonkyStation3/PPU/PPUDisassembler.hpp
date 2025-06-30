@@ -2,11 +2,13 @@
 
 #include <common.hpp>
 
-#include <PPUTypes.hpp>
+#include "Capstone.hpp"
 #include <Memory.hpp>
-
+#include <PPUTypes.hpp>
 
 class PPUDisassembler {
+    static Common::CapstoneDisassembler capstone;
+
 public:
     static void disasm(PPUTypes::State& state, PPUTypes::Instruction instr, Memory* mem);
 

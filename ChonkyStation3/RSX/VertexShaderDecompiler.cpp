@@ -23,7 +23,6 @@ vec4 r[16];
     required_constants.clear();
     curr_constants = &required_constants;
 
-
     for (int i = start * 4; i < 512 * 4; i += 4) {
         VertexInstruction* instr = (VertexInstruction*)&shader_data[i];
         log("VEC: %s\n", vertex_vector_opcodes[instr->w1.vector_opc].c_str());
