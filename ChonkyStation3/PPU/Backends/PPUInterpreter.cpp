@@ -529,10 +529,12 @@ void PPUInterpreter::xoris(const Instruction& instr) {
 
 void PPUInterpreter::andi(const Instruction& instr) {
     state.gprs[instr.ra] = state.gprs[instr.rs] & instr.ui;
+    state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::andis(const Instruction& instr) {
     state.gprs[instr.ra] = state.gprs[instr.rs] & ((u64)instr.ui << 16u);
+    state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
 void PPUInterpreter::lwz(const Instruction& instr) {
