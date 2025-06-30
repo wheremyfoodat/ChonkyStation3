@@ -167,9 +167,11 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 253:   todo("sys_spu_thread_group_syscall_253()");                                     break;
     case 254:   todo("sys_spu_thread_group_log()");                                             break;
     case 300:   ps3->ppu->state.gprs[3] = sys_vm_memory_map();                                  break;
+    case 302:   ps3->ppu->state.gprs[3] = sys_vm_append_memory();                               break;
     case 306:   ps3->ppu->state.gprs[3] = sys_vm_touch();                                       break;
     case 308:   todo("sys_vm_invalidate()");                                                    break;
     case 310:   todo("sys_vm_sync()");                                                          break;
+    case 312:   todo("sys_vm_get_statistics()");                                                break;
     case 324:   ps3->ppu->state.gprs[3] = sys_memory_container_create();                        break;  // Debug
     case 327:   todo("sys_mmapper_enable_page_fault_notification()");                           break;
     case 329:   ps3->ppu->state.gprs[3] = sys_mmapper_free_shared_memory();                     break;

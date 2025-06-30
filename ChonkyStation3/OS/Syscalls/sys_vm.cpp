@@ -22,6 +22,18 @@ u64 Syscall::sys_vm_memory_map() {
     return CELL_OK;
 }
 
+u64 Syscall::sys_vm_append_memory() {
+    const u32 addr = ARG0;
+    const u64 size = ARG1;
+    log_sys_vm("sys_vm_append_memory(addr: 0x%08x, size: 0x%016llx)\n", addr, size);
+
+    // TODO: We just treat this as a normal alloc for now
+    auto block = ps3->mem.allocPhys(size);
+    ps3->mem.mmap(ps3->mem.findNextAllocatableVaddr(size, addr), block->start, size);
+
+    return CELL_OK;
+}
+
 u64 Syscall::sys_vm_touch() {
     const u32 addr = ARG0;
     const u32 size = ARG1;

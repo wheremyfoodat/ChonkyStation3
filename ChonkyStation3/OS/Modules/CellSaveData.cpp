@@ -3,6 +3,40 @@
 #include <Loaders/SFO/SFOLoader.hpp>
 
 
+u64 CellSaveData::cellSaveDataUserListAutoLoad() {
+    const u32 ver = ARG0;
+    const u32 uid = ARG1;
+    const u32 err_dialog = ARG2;
+    const u32 set_list_ptr = ARG3;
+    const u32 set_buf_ptr = ARG4;
+    const u32 fixed_cb_ptr = ARG5;
+    const u32 stat_cb_ptr = ARG6;
+    const u32 file_cb_ptr = ARG7;
+    const u32 container = ARG8;
+    const u32 userdata_ptr = ARG9;
+    log("cellSaveDataUserListAutoLoad(ver: 0x%08x, uid: %d, err_dialog: 0x%08x, set_list_ptr: 0x%08x, set_buf_ptr: 0x%08x, fixed_cb_ptr: 0x%08x, stat_cb_ptr: 0x%08x, file_cb_ptr: 0x%08x, container: %d, userdata_ptr: 0x%08x)\n", ver, uid, err_dialog, set_list_ptr, set_buf_ptr, fixed_cb_ptr, stat_cb_ptr, file_cb_ptr, container, userdata_ptr);
+
+    CellSaveDataSetBuf* set_buf = (CellSaveDataSetBuf*)ps3->mem.getPtr(set_buf_ptr);
+    const u32 res_ptr = ps3->mem.alloc(sizeof(CellSaveDataCBResult), 0, true)->vaddr;
+    const u32 list_get_ptr = ps3->mem.alloc(sizeof(CellSaveDataListGet), 0, true)->vaddr;
+    CellSaveDataCBResult* res = (CellSaveDataCBResult*)ps3->mem.getPtr(res_ptr);
+    CellSaveDataListGet* list_get = (CellSaveDataListGet*)ps3->mem.getPtr(list_get_ptr);
+
+    const u32 fixed_cb_addr = ps3->mem.read<u32>(fixed_cb_ptr + 0);
+    const u32 fixed_cb_toc = ps3->mem.read<u32>(fixed_cb_ptr + 4);
+    log("fixed_cb addr: 0x%08x\n", fixed_cb_addr);
+
+    res->userdata_ptr = userdata_ptr;
+    list_get->dir_list_ptr = set_buf->buf_ptr;
+
+    ARG0 = res_ptr;
+    ARG1 = list_get_ptr;
+    ARG2 = res_ptr;
+    ps3->ppu->runFunc(fixed_cb_addr, fixed_cb_toc);
+
+    return CELL_OK;
+}
+
 u64 CellSaveData::cellSaveDataAutoSave2() {
     log("cellSaveDataAutoSave2() UNIMPLEMENTED\n");
 
@@ -39,11 +73,11 @@ u64 CellSaveData::cellSaveDataAutoLoad2() {
     SFOLoader sfo_loader = SFOLoader(ps3->fs);
     CellSaveDataSetBuf* set_buf = (CellSaveDataSetBuf*)ps3->mem.getPtr(set_buf_ptr);
 
-    const u32 res_ptr = ps3->mem.alloc(sizeof(CellSaveDataCBResult))->vaddr;
-    const u32 stat_get_ptr = ps3->mem.alloc(sizeof(CellSaveDataStatGet))->vaddr;
-    const u32 stat_set_ptr = ps3->mem.alloc(sizeof(CellSaveDataStatSet))->vaddr;
-    const u32 file_get_ptr = ps3->mem.alloc(sizeof(CellSaveDataFileGet))->vaddr;
-    const u32 file_set_ptr = ps3->mem.alloc(sizeof(CellSaveDataFileSet))->vaddr;
+    const u32 res_ptr = ps3->mem.alloc(sizeof(CellSaveDataCBResult), 0, true)->vaddr;
+    const u32 stat_get_ptr = ps3->mem.alloc(sizeof(CellSaveDataStatGet), 0, true)->vaddr;
+    const u32 stat_set_ptr = ps3->mem.alloc(sizeof(CellSaveDataStatSet), 0, true)->vaddr;
+    const u32 file_get_ptr = ps3->mem.alloc(sizeof(CellSaveDataFileGet), 0, true)->vaddr;
+    const u32 file_set_ptr = ps3->mem.alloc(sizeof(CellSaveDataFileSet), 0, true)->vaddr;
     CellSaveDataCBResult* res = (CellSaveDataCBResult*)ps3->mem.getPtr(res_ptr);
     CellSaveDataStatGet* stat_get = (CellSaveDataStatGet*)ps3->mem.getPtr(stat_get_ptr);
     CellSaveDataStatSet* stat_set = (CellSaveDataStatSet*)ps3->mem.getPtr(stat_set_ptr);

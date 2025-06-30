@@ -1125,6 +1125,8 @@ void PPUInterpreter::vctuxs(const Instruction& instr) {
     state.vrs[instr.vd].w[1] = (u32)state.vrs[instr.vb].f[1] * factor;
     state.vrs[instr.vd].w[2] = (u32)state.vrs[instr.vb].f[2] * factor;
     state.vrs[instr.vd].w[3] = (u32)state.vrs[instr.vb].f[3] * factor;
+
+    // TODO: Saturate
 }
 
 void PPUInterpreter::vspltisw(const Instruction& instr) {

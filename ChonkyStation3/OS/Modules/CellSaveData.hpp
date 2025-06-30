@@ -132,6 +132,20 @@ public:
         BEField<u32> userdata_ptr;
     };
 
+    struct CellSaveDataDirList {
+        char dir_name[CELL_SAVEDATA_DIRNAME_SIZE];
+        char list_param[CELL_SAVEDATA_SYSP_LPARAM_SIZE];
+        char reserved[8];
+    };
+
+    struct CellSaveDataListGet {
+        BEField<u32> dir_num;
+        BEField<u32> dir_list_num;
+        BEField<u32> dir_list_ptr;  // dir_list is CellSaveDataDirList
+        char reserved[64];
+    };
+
+    u64 cellSaveDataUserListAutoLoad();
     u64 cellSaveDataAutoSave2();
     u64 cellSaveDataUserAutoLoad();
     u64 cellSaveDataAutoLoad2();

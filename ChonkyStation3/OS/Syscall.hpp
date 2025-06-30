@@ -43,6 +43,7 @@ public:
 
     // sys_vm
     u64 sys_vm_memory_map();
+    u64 sys_vm_append_memory();
     u64 sys_vm_touch();
 
     // sys_timer
