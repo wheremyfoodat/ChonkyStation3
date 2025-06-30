@@ -526,7 +526,8 @@ u64 CellGcmSys::cellGcmSetVBlankFrequency() {
 // If there are any remaining commands to be executed, copy them back at the start
 // Update context and fifo control accordingly
 u64 CellGcmSys::cellGcmCallback() {
-    log("cellGcmCallback()\n");
+    const u32 ctx_ptr = ARG0;
+    log("cellGcmCallback(ctx_ptr: 0x%08x)\n", ctx_ptr);
     log("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
     log("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
 
@@ -538,6 +539,13 @@ u64 CellGcmSys::cellGcmCallback() {
 
     ctx->current = ctx->begin + bytes_remaining;
     std::memset(ps3->mem.getPtr(ctx->current), 0, ctx->end - ctx->current);
+
+    CellGcmContextData* new_ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_ptr);
+    new_ctx->begin = ctx->begin;
+    new_ctx->current = ctx->current;
+    new_ctx->end = ctx->end;
+    new_ctx->callback = ctx->callback;
+    ctx = new_ctx;
 
     ctrl->put = bytes_remaining;
     ctrl->get = 0;

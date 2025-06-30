@@ -122,6 +122,13 @@ vec4 r[16];
             main += std::format("{}{} = {}(floor({}));\n", dest(instr), mask_str, type, source(src0, instr));
             break;
         }
+        case RSXVertex::VECTOR::SGT: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            const auto type = getType(num_lanes);
+            main += std::format("{}{} = {}(greaterThan({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            break;
+        }
 
         default:
             Helpers::panic("Unimplemented vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
