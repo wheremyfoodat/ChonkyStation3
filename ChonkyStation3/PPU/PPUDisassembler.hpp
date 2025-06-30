@@ -7,7 +7,7 @@
 #include <PPUTypes.hpp>
 
 class PPUDisassembler {
-    static Common::CapstoneDisassembler capstone;
+    static Helpers::CapstoneDisassembler capstone;
 
 public:
     static void disasm(PPUTypes::State& state, PPUTypes::Instruction instr, Memory* mem);

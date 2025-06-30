@@ -4,7 +4,7 @@
 #include <span>
 #include <string>
 
-Common::CapstoneDisassembler PPUDisassembler::capstone;
+Helpers::CapstoneDisassembler PPUDisassembler::capstone;
 
 void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr, Memory* mem) {
     auto capstoneDisasm = [](u32 instr, u32 pc) {
@@ -69,7 +69,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
         case PPUTypes::G_1FOpcodes::EXTSH:  printf("0x%016llx | extsh%c     r%d, r%d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs);   break;
         case PPUTypes::G_1FOpcodes::EXTSW:  printf("0x%016llx | extsw%c     r%d, r%d\n", state.pc, instr.rc ? '.' : ' ', (u8)instr.ra, (u8)instr.rs);   break;
 
-        default: capstoneDisasm(instr.raw, state.pc);break;
+        default: capstoneDisasm(instr.raw, state.pc); break;
         }
         break;
     }
@@ -81,6 +81,7 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
 
         case PPUTypes::G_3AOpcodes::LD:    printf("0x%016llx | ld         r%d, %d(r%d)			; [0x%08llx] <- r%d\n", state.pc, (u8)instr.rt, (s32)(s16)(instr.ds << 2), (u8)instr.ra, (instr.ra == 0) ? (s32)(s16)(instr.ds << 2) : (s32)(s16)(instr.ds << 2) + state.gprs[instr.ra], (u8)instr.rs); break;
         case PPUTypes::G_3AOpcodes::LDU:   printf("0x%016llx | ldu        r%d, %d(r%d)			; [0x%08llx] <- r%d\n", state.pc, (u8)instr.rt, (s32)(s16)(instr.ds << 2), (u8)instr.ra, (s32)(s16)(instr.ds << 2) + state.gprs[instr.ra], (u8)instr.rs); break;
+        default: capstoneDisasm(instr.raw, state.pc); break;
 
         }
         break;
@@ -90,7 +91,8 @@ void PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instruction instr
 
         case PPUTypes::G_3EOpcodes::STD:    printf("0x%016llx | std        r%d, %d(r%d)			; [0x%08llx] <- r%d\n", state.pc, (u8)instr.rs, (s32)(s16)(instr.ds << 2), (u8)instr.ra, (instr.ra == 0) ? (s32)(s16)(instr.ds << 2) : (s32)(s16)(instr.ds << 2) + state.gprs[instr.ra], (u8)instr.rs); break;
         case PPUTypes::G_3EOpcodes::STDU:   printf("0x%016llx | stdu       r%d, %d(r%d)			; [0x%08llx] <- r%d\n", state.pc, (u8)instr.rs, (s32)(s16)(instr.ds << 2), (u8)instr.ra, (s32)(s16)(instr.ds << 2) + state.gprs[instr.ra], (u8)instr.rs); break;
-        
+        default: capstoneDisasm(instr.raw, state.pc); break;
+
         }
         break;
     }

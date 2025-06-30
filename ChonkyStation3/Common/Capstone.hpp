@@ -5,7 +5,7 @@
 #include <span>
 #include <string>
 
-namespace Common {
+namespace Helpers {
     class CapstoneDisassembler {
         csh handle;                       // Handle to our disassembler object
         cs_insn* instructions = nullptr;  // Pointer to instruction object
