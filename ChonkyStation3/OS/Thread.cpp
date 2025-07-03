@@ -120,7 +120,7 @@ void Thread::wakeUp() {
 void Thread::join(u32 id, u32 vptr) {
     waiter = id;
     this->vptr = vptr;
-    mgr->getThreadByID(waiter)->wait();
+    mgr->getThreadByID(waiter)->wait(std::format("joining thread {:s}", name));
 }
 
 void Thread::exit(u64 exit_status) {

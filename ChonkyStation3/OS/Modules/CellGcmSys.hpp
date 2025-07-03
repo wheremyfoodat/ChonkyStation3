@@ -87,6 +87,7 @@ public:
 
     void mapEaIo(u32 ea, u32 io);
     void unmapEaIo(u32 ea, u32 io);
+    u32 addressToOffset(u32 addr);
     bool isIoOffsMapped(u32 io);
     void printOffsetTable();
 

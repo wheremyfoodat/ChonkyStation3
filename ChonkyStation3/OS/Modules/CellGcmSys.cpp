@@ -48,7 +48,7 @@ u64 CellGcmSys::cellGcmInitBody() {
     ps3->mem.write<u32>(callback_addr + 12, 0x4E800020);     // blr
 
     ctx->begin = io_addr;
-    ctx->end =  io_addr + io_size;
+    ctx->end =  io_addr + io_size - 4;
     ctx->current = io_addr;
     ctx->callback = callback_addr;
 
@@ -116,6 +116,26 @@ void CellGcmSys::unmapEaIo(u32 ea, u32 io) {
     log("Unmapped addr 0x%08x from IO offset 0x%08x\n", ea, io);
 }
 
+// Converts an address to an IO offset
+u32 CellGcmSys::addressToOffset(u32 addr) {
+    u32 offs = 0;
+    // Check if the address is in RSX memory
+    if (Helpers::inRange<u32>(addr, gcm_config.local_addr, gcm_config.local_addr + gcm_config.local_size - 1)) {
+        offs = addr - gcm_config.local_addr;
+    }
+    // Check if it's mapped to IO
+    else {
+        u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
+        const u32 page = ps3->mem.read<u16>(io_table_ptr + ((addr >> 20) * 2));
+        if (page != 0xffff)
+            offs = (page << 20) | (addr & 0xfffff);
+        else {
+            Helpers::panic("cellGcmAddressToOffset: addr is not in rsx memory or io memory(0x%08x)\n", addr);
+        }
+    }
+    return offs;
+}
+
 // TODO: This is broken, need to go through the read/write functions instead of using raw pointers due to endianness
 void CellGcmSys::printOffsetTable() {
     u16* ea_table = (u16*)ps3->mem.getPtr(ea_table_ptr);
@@ -130,8 +150,8 @@ void CellGcmSys::printOffsetTable() {
             log("0x%08x -> 0x%08x", i << 20, io_table[i] << 20);
         }
     }
-    if (!logged_once) printf(" [empty]");
-    printf("\n");
+    if (!logged_once) logNoPrefix(" [empty]");
+    logNoPrefix("\n");
 
     logged_once = false;
     log("Offset table (io -> ea):");
@@ -142,8 +162,8 @@ void CellGcmSys::printOffsetTable() {
             log("0x%08x -> 0x%08x", i << 20, ea_table[i] << 20);
         }
     }
-    if (!logged_once) printf(" [empty]");
-    printf("\n");
+    if (!logged_once) logNoPrefix(" [empty]");
+    logNoPrefix("\n");
 }
 
 // Returns whether the given offset in IO memory is mapped to an address in main memory
@@ -168,25 +188,9 @@ u64 CellGcmSys::_cellGcmSetFlipCommand() {
 u64 CellGcmSys::cellGcmAddressToOffset() {
     const u32 addr = ARG0;
     const u32 offs_ptr = ARG1;
-    //log("cellGcmAddressToOffset(addr: 0x%08x, offs_ptr: 0x%08x)", addr, offs_ptr);
+    log("cellGcmAddressToOffset(addr: 0x%08x, offs_ptr: 0x%08x)\n", addr, offs_ptr);
 
-    u32 offs = 0;
-    // Check if the address is in RSX memory
-    if (Helpers::inRange<u32>(addr, gcm_config.local_addr, gcm_config.local_addr + gcm_config.local_size - 1)) {
-        offs = addr - gcm_config.local_addr;
-    }
-    // Check if it's mapped to IO
-    else {
-        u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
-        const u32 page = ps3->mem.read<u16>(io_table_ptr + ((addr >> 20) * 2));
-        if (page != 0xffff)
-            offs = (page << 20) | (addr & 0xfffff);
-        else {
-            Helpers::panic("\ncellGcmAddressToOffset: addr is not in rsx memory or io memory (0x%08x)\n", addr);
-            ps3->mem.write<u32>(offs_ptr, 0);
-            return 0x802100ff;  // CELL_GCM_ERROR_FAILURE
-        }
-    }
+    const u32 offs = addressToOffset(addr);
 
     //logNoPrefix(" [offs: 0x%08x]\n", offs);
     ps3->mem.write<u32>(offs_ptr, offs);
@@ -528,27 +532,16 @@ u64 CellGcmSys::cellGcmSetVBlankFrequency() {
 u64 CellGcmSys::cellGcmCallback() {
     const u32 ctx_ptr = ARG0;
     log("cellGcmCallback(ctx_ptr: 0x%08x)\n", ctx_ptr);
+    ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_ptr);
     log("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
     log("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
 
-    const int bytes_queued = ctx->current - ctx->begin;
-    const int bytes_remaining = bytes_queued - ctrl->put;
+    ctrl->put = addressToOffset(ctx->current);
+    log("Flushing RSX command buffer up to offs 0x%08x\n", (u32)ctrl->put);
+    ps3->rsx.runCommandList();
 
-    if (bytes_remaining > 0)
-        std::memcpy(ps3->mem.getPtr(ctx->begin), ps3->mem.getPtr(ctx->current) - bytes_remaining, bytes_remaining);
-
-    ctx->current = ctx->begin + bytes_remaining;
-    std::memset(ps3->mem.getPtr(ctx->current), 0, ctx->end - ctx->current);
-
-    CellGcmContextData* new_ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_ptr);
-    new_ctx->begin = ctx->begin;
-    new_ctx->current = ctx->current;
-    new_ctx->end = ctx->end;
-    new_ctx->callback = ctx->callback;
-    ctx = new_ctx;
-
-    ctrl->put = bytes_remaining;
-    ctrl->get = 0;
+    ctx->current = ctx->begin;
+    ctrl->get = addressToOffset(ctx->begin);
 
     return CELL_OK;
 }

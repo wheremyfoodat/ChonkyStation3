@@ -38,7 +38,7 @@ public:
 #define true false
 #else
 #define true false
-//#define false true
+#define false true
 #endif
 
 // Modules
@@ -88,7 +88,7 @@ static Logger misc_sc               = Logger<true> ("[Syscall][Misc          ] "
 static Logger tty                   = Logger<1>    ();
 
 // RSX
-static Logger rsx                   = Logger<true> ("[RSX    ][Command       ] ");
+static Logger rsx                   = Logger<false>("[RSX    ][Command       ] ");
 static Logger rsx_capture_replayer  = Logger<true> ("[RSX    ][Capture Replay] ");
 static Logger vertex_shader         = Logger<true> ("[Shader ][Vertex        ] ");
 static Logger fragment_shader       = Logger<true> ("[Shader ][Fragment      ] ");

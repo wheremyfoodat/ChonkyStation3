@@ -20,9 +20,10 @@ void PPU::runFunc(u32 addr, u32 toc, bool save_all_state) {
         state = old_state;
     }
     else {
-        // Only restore PC and LR
+        // Only restore PC, LR and TOC
         state.pc = old_state.pc;
         state.lr = old_state.lr;
+        state.gprs[2] = old_state.gprs[2];
     }
 }
 
