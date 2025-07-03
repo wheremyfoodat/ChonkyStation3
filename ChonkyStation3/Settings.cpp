@@ -53,8 +53,6 @@ void Settings::load() {
     debug.disable_spu          = cfg["Debug"]["DisableSPU"].as_boolean();
     debug.enable_spu_after_pc  = cfg["Debug"]["EnableSPUAfterPC"].as_string();
     debug.spu_thread_to_enable = cfg["Debug"]["SPUThreadToEnable"].as_string();
-
-    if (lle.cellPngDec) printf("Warning: enabled LLE cellPngDec\n");
 }
 
 void Settings::save() {
