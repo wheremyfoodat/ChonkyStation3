@@ -13,6 +13,7 @@
 
 #include "SettingsWidget.hpp"
 #include "ThreadDebuggerWidget.hpp"
+#include "PPUDebuggerWidget.hpp"
 
 
 class MainWindow : public QMainWindow {
@@ -23,12 +24,14 @@ public:
     Ui::Main ui;
     SettingsWidget* settings;
     ThreadDebuggerWidget* thread_debugger;
+    PPUDebuggerWidget* ppu_debugger;
 
     void setListItem(int row, int column, std::string str);
     void setListIcon(int row, fs::path icon);
 
     int curr_selection = -1;
     std::atomic<bool> is_game_running = false;
+    bool is_paused = false;
     bool ensureGameNotRunning();
 
     // Actions

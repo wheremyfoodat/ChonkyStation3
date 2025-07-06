@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -27,7 +27,7 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item>
+    <item row="1" column="0">
      <widget class="QTableWidget" name="tableWidget">
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
@@ -47,6 +47,19 @@
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QPushButton" name="pauseButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Pause</string>
+      </property>
      </widget>
     </item>
    </layout>
@@ -88,7 +101,9 @@
     <property name="title">
      <string>Debug</string>
     </property>
+    <addaction name="actionPPU_Debugger"/>
     <addaction name="actionThread_Debugger"/>
+    <addaction name="separator"/>
     <addaction name="actionReplay_RSX_Capture"/>
    </widget>
    <addaction name="menuFile"/>
@@ -149,6 +164,11 @@
   <action name="actionThread_Debugger">
    <property name="text">
     <string>Thread Debugger</string>
+   </property>
+  </action>
+  <action name="actionPPU_Debugger">
+   <property name="text">
+    <string>PPU Debugger</string>
    </property>
   </action>
  </widget>

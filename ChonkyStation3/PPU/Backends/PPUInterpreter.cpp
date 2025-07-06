@@ -45,7 +45,7 @@ void PPUInterpreter::step() {
 #ifndef CHONKYSTATION3_USER_BUILD
 
 #ifdef ENABLE_CONDITIONAL_TRACE_LOG 
-    if (should_log) PPUDisassembler::disasm(state, instr, &mem);
+    if (should_log) printf("%s\n", PPUDisassembler::disasm(state, instr, &mem).c_str());
 #endif
 #ifdef TRACK_STATE
     ps3->crash_analyzer.saveState({ state, instr });

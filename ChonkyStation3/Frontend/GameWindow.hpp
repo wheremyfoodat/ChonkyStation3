@@ -7,6 +7,8 @@
 
 #if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
 #include <QtWidgets>
+#include <mutex>    // For pausing
+#include <atomic>
 #endif
 
 #include <SDL.h>
@@ -34,6 +36,11 @@ public:
     SDL_Window* window;
     SDL_GLContext context;
     SDL_GameController* controller;
+    
+#ifdef CHONKYSTATION3_QT_BUILD
+    std::mutex pause_mutex;
+    std::atomic<bool> locked = false;
+#endif
 
     bool quit = false;
     bool fullscreen = false;

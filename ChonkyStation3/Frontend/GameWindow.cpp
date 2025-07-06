@@ -116,12 +116,20 @@ void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
 
 // Will be called on every RSX flip
 void GameWindow::flipHandler() {
-#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
+#ifdef CHONKYSTATION3_QT_BUILD
+    locked = true;
+    pause_mutex.lock();
+    pause_mutex.unlock();
+    locked = false;
+    
+#ifdef __APPLE__
     QMetaObject::invokeMethod(main_window, "updateGameWindow", Qt::AutoConnection);
     QMetaObject::invokeMethod(main_window, "pollGameWindowInput", Qt::AutoConnection);
 #else
     updateWindow();
     pollInput();
+#endif
+    
 #endif
 
     SDL_GL_SwapWindow(window);

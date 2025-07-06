@@ -10,7 +10,7 @@ class PPUDisassembler {
     static Helpers::CapstoneDisassembler capstone;
 
 public:
-    static void disasm(PPUTypes::State& state, PPUTypes::Instruction instr, Memory* mem);
+    static std::string disasm(PPUTypes::State& state, PPUTypes::Instruction instr, Memory* mem, u32 override_pc = 0);
 
     static bool branchCondition(u8 bo, u8 bi, PPUTypes::State& state) {
         // BO bit 4: don't test CR if set

@@ -179,11 +179,11 @@ void PlayStation3::printCrashInfo(std::runtime_error err) {
     ((PPUInterpreter*)ppu)->printCallStack();
 
     //for (auto& instr : crash_analyzer.state_queue) {
-    //    PPUDisassembler::disasm(instr.state, instr.instr, &mem);
+    //    printf("%s\n", PPUDisassembler::disasm(instr.state, instr.instr, &mem).c_str());
     //}
     
     //printf("The crash happened at the following instruction:\n");
-    //PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem);
+    //printf("%s\n", PPUDisassembler::disasm(ppu->state, crash_analyzer.lastInstr(), &mem).c_str());
     //crash_analyzer.analyzeCrash(error);
 #endif
     std::exit(0);

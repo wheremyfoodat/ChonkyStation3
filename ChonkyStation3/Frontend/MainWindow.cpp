@@ -6,10 +6,20 @@ MainWindow::MainWindow() : QMainWindow() {
     game_window = new GameWindow(this);
     settings = new SettingsWidget(ps3);
     thread_debugger = new ThreadDebuggerWidget(ps3);
+    ppu_debugger = new PPUDebuggerWidget(ps3);
     
     // Qt6 UI
     ui.setupUi(this);
+    
+    // Enable widgets that have a DisabledWidgetOverlay
+    auto enable_widgets = [this]() {
+        ppu_debugger->enable();
+    };
 
+    auto disable_widgets = [this]() {
+        ppu_debugger->disable();
+    };
+    
     // Setup menubar buttons
     connect(ui.actionLaunch_Disc_Game, &QAction::triggered, this, &MainWindow::launchDiscGame);
     connect(ui.actionOpen_ELF, &QAction::triggered, this, &MainWindow::launchELF);
@@ -52,8 +62,48 @@ MainWindow::MainWindow() : QMainWindow() {
     connect(ui.actionThread_Debugger, &QAction::triggered, this, [this]() {
         thread_debugger->show();
     });
+
+    connect(ui.actionPPU_Debugger, &QAction::triggered, this, [this]() {
+        ppu_debugger->show();
+    });
     
     connect(ui.actionReplay_RSX_Capture, &QAction::triggered, this, &MainWindow::replayRSXCapture);
+    
+    // Pause / Resume
+    connect(ui.pauseButton, &QPushButton::pressed, this, [this, enable_widgets, disable_widgets]() {
+        if (is_game_running) {
+            if (!is_paused) {
+                // Pausing is handled by locking a mutex which the game thread locks on every flip.
+                // This means that after we lock it below the game thread will block ("pause") on the next RSX flip
+                game_window->pause_mutex.lock();
+                // Wait until the game flips & pauses, or timeout if no flip happens (meaning we failed to pause)
+                // We wait 100ms for 100 times (== 10s timeout)
+                int cnt = 0;
+                bool timeout = false;
+                while (!game_window->locked) {
+                    if (cnt == 100) {
+                        timeout = true;
+                        break;
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    cnt++;
+                }
+                
+                // Did we timeout?
+                if (!timeout) {
+                    is_paused = true;
+                    ui.pauseButton->setText("Resume");
+                    enable_widgets();
+                } else game_window->pause_mutex.unlock();
+            } else {
+                // Just release the mutex
+                game_window->pause_mutex.unlock();
+                is_paused = false;
+                ui.pauseButton->setText("Pause");
+                disable_widgets();
+            }
+        }
+    });
 
     int row = 0;
     int column = 0;
