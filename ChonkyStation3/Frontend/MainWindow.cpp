@@ -16,6 +16,7 @@ MainWindow::MainWindow() : QMainWindow() {
         ppu_debugger->enable();
     };
 
+    // Disable widgets that have a DisabledWidgetOverlay
     auto disable_widgets = [this]() {
         ppu_debugger->disable();
     };
