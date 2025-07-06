@@ -7,9 +7,8 @@ class DisabledWidgetOverlay : public QWidget {
     Q_OBJECT
 
 public:
-    DisabledWidgetOverlay(QWidget *parent = nullptr, std::string overlay_text = "This widget is disabled") : QWidget(parent) {
+    DisabledWidgetOverlay(QWidget *parent = nullptr, QString overlay_text = tr("This widget is disabled")) : QWidget(parent), text(overlay_text) {
         setVisible(false);
-        text = QString::fromStdString(overlay_text);
     }
 
 private:

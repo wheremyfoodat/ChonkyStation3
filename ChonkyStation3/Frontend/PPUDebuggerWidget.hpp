@@ -2,11 +2,12 @@
 
 #include <common.hpp>
 
-#include "Frontend/UI/ui_ppu_debugger.h"
-#include "DisabledWidgetOverlay.hpp"
-#include <QtWidgets>
 #include <PlayStation3.hpp>
+#include "Frontend/UI/ui_ppu_debugger.h"
+#include <QtWidgets>
 
+
+class DisabledWidgetOverlay;
 
 class PPUDebuggerWidget : public QWidget {
     Q_OBJECT

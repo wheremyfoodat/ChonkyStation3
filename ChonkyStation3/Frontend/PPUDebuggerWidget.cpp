@@ -1,4 +1,5 @@
 #include "PPUDebuggerWidget.hpp"
+#include "DisabledWidgetOverlay.hpp"
 
 
 static int getLinesInViewport(QListWidget* list_widget) {
@@ -21,7 +22,7 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, QWidget* parent) : QWidg
     ui.setupUi(this);
 
     // Setup disabled widget overlay
-    disabled_overlay = new DisabledWidgetOverlay(this, "Pause the emulator to use the PPU Debugger");
+    disabled_overlay = new DisabledWidgetOverlay(this, tr("Pause the emulator to use the PPU Debugger"));
     disabled_overlay->resize(size());   // Fill the whole screen
     disabled_overlay->raise();
     disabled_overlay->hide();
@@ -130,7 +131,9 @@ bool PPUDebuggerWidget::eventFilter(QObject* obj, QEvent* event) {
 void PPUDebuggerWidget::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
     
-    enable();
+    // If the widget is enabled (i.e. overlay is hidden) update pc, disasm and registers
+    if (!disabled_overlay->isVisible())
+        enable();
 }
  
 void PPUDebuggerWidget::resizeEvent(QResizeEvent* event) {
