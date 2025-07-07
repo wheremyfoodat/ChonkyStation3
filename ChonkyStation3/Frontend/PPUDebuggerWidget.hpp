@@ -25,6 +25,8 @@ private:
     
     void updateDisasm();
     void updateRegisters();
+    void scrollToAddress(u32 addr);
+    void scrollToPC();
     
     bool eventFilter(QObject* obj, QEvent* event) override;
     void showEvent(QShowEvent* event) override;

@@ -71,7 +71,7 @@ MainWindow::MainWindow() : QMainWindow() {
     connect(ui.actionReplay_RSX_Capture, &QAction::triggered, this, &MainWindow::replayRSXCapture);
     
     // Pause / Resume
-    connect(ui.pauseButton, &QPushButton::pressed, this, [this, enable_widgets, disable_widgets]() {
+    connect(ui.pauseButton, &QPushButton::clicked, this, [this, enable_widgets, disable_widgets]() {
         if (is_game_running) {
             if (!is_paused) {
                 // Pausing is handled by locking a mutex which the game thread locks on every flip.
@@ -93,14 +93,14 @@ MainWindow::MainWindow() : QMainWindow() {
                 // Did we timeout?
                 if (!timeout) {
                     is_paused = true;
-                    ui.pauseButton->setText("Resume");
+                    ui.pauseButton->setText(tr("Resume"));
                     enable_widgets();
                 } else game_window->pause_mutex.unlock();
             } else {
                 // Just release the mutex
                 game_window->pause_mutex.unlock();
                 is_paused = false;
-                ui.pauseButton->setText("Pause");
+                ui.pauseButton->setText(tr("Pause"));
                 disable_widgets();
             }
         }
@@ -124,7 +124,7 @@ MainWindow::MainWindow() : QMainWindow() {
     ui.tableWidget->setColumnWidth(2, 100);
     ui.tableWidget->setColumnWidth(3, 100);
     ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    ui.tableWidget->setHorizontalHeaderLabels(QStringList({ "Icon", "Title", "ID", "Version"}));
+    ui.tableWidget->setHorizontalHeaderLabels(QStringList({ tr("Icon"), tr("Title"), "ID", tr("Version")}));
 
     connect(ui.tableWidget, &QTableWidget::cellClicked, this, [this](int row, int column) {
         curr_selection = row;
@@ -144,7 +144,7 @@ MainWindow::MainWindow() : QMainWindow() {
         if (game_loader->games[i].sfo.strings.contains("VERSION"))
             setListItem(i, 3, (char*)game_loader->games[i].sfo.strings["VERSION"].c_str());
         else
-            setListItem(i, 3, "Unknown");
+            setListItem(i, 3, tr("Unknown").toStdString());
     }
 
     QPalette palette;
@@ -154,7 +154,7 @@ MainWindow::MainWindow() : QMainWindow() {
     // Show a dialog if the config file was broken
     if (ps3->settings.detected_broken_config) {
         QMessageBox* dialog = new QMessageBox();
-        dialog->setText("Detected outdated or broken config file, a new one was created.\n");
+        dialog->setText(tr("Detected outdated or broken config file, a new one was created.\n"));
         dialog->exec();
     }
 
@@ -206,7 +206,7 @@ void MainWindow::setListIcon(int row, fs::path icon) {
 bool MainWindow::ensureGameNotRunning() {
     if (is_game_running) {
         QMessageBox* dialog = new QMessageBox();
-        dialog->setText("Close the current game before launching a new one!");
+        dialog->setText(tr("Close the current game before launching a new one!"));
         dialog->exec();
     }
     return is_game_running;
@@ -215,7 +215,7 @@ bool MainWindow::ensureGameNotRunning() {
 void MainWindow::launchDiscGame() {
     if (ensureGameNotRunning()) return;
 
-    const fs::path path = QFileDialog::getExistingDirectory(this, "Select a PlayStation3 Disc Game", ".").toStdString();
+    const fs::path path = QFileDialog::getExistingDirectory(this, tr("Select a PlayStation3 Disc Game"), ".").toStdString();
     if (!path.empty()) {
         ps3->fs.mount(Filesystem::Device::DEV_BDVD, path);
         if (!game_loader->isDiscGameOK()) {

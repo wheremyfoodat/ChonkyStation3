@@ -44,6 +44,21 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, QWidget* parent) : QWidg
     
     ui.registerTextEdit->setReadOnly(true);
     
+    // Setup buttons
+    connect(ui.goToAddressButton, &QPushButton::clicked, this, [this]() {
+        bool ok;
+        QString addr_text = QInputDialog::getText(this, tr("Go to address"), tr("Enter hexadecimal address:"), QLineEdit::Normal, "", &ok);
+        if (ok) {
+            u32 addr = addr_text.toUInt(&ok, 16);
+            if (ok) scrollToAddress(addr);
+            else QMessageBox::critical(this, tr("Invalid address"), tr("Invalid hexadecimal address"));
+        }
+    });
+    
+    connect(ui.goToPcButton, &QPushButton::clicked, this, [this]() {
+        scrollToPC();
+    });
+    
     disabled_overlay->show();
     setWindowTitle("PPU Debugger");
     hide();
@@ -51,7 +66,7 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, QWidget* parent) : QWidg
 
 void PPUDebuggerWidget::enable() {
     disabled_overlay->hide();
-    ui.verticalScrollBar->setValue(ps3->ppu->state.pc);
+    scrollToPC();
     updateDisasm();
     updateRegisters();
 }
@@ -64,7 +79,7 @@ void PPUDebuggerWidget::updateDisasm() {
     auto [first, amount] = getVisibleLineRange(ui.disasmListWidget, ui.verticalScrollBar);
     ui.disasmListWidget->clear();
     first = (first + 3) & ~3;   // Align to 4 bytes
-    amount *= 4;    // 1 instr == 4 bytes
+    amount *= sizeof(u32);    // Size of instruction
     for (u32 addr = first; addr < first + amount; addr += 4) {
         if (ps3->mem.isMapped(addr).first) {
             const Instruction instr = { .raw = ps3->mem.read<u32>(addr) };
@@ -75,7 +90,7 @@ void PPUDebuggerWidget::updateDisasm() {
                 item->setBackground(Qt::darkGreen);
             
             ui.disasmListWidget->addItem(item);
-        } else ui.disasmListWidget->addItem("???");
+        } else ui.disasmListWidget->addItem(QString::fromStdString(std::format("0x{:08x}   |     ???", addr)));
     }
 }
 
@@ -112,6 +127,18 @@ void PPUDebuggerWidget::updateRegisters() {
         t += std::format("v{:02d}:  {{0x{:08x}, 0x{:08x}, 0x{:08x}, 0x{:08x}}}\n      ({:f}, {:f}, {:f}, {:f})\n", i, state.vrs[i].w[3], state.vrs[i].w[2], state.vrs[i].w[1], state.vrs[i].w[0], *(float*)&state.vrs[i].w[3], *(float*)&state.vrs[i].w[2], *(float*)&state.vrs[i].w[1], *(float*)&state.vrs[i].w[0]);
     
     ui.registerTextEdit->setPlainText(QString::fromStdString(t));
+}
+
+void PPUDebuggerWidget::scrollToAddress(u32 addr) {
+    // Make it so the instruction shows up in the middle of the disasm view and not at the top
+    u32 middle = getLinesInViewport(ui.disasmListWidget) / 2;
+    middle *= sizeof(u32);  // Size of instruction
+    middle = (middle + 3) & ~3; // Align to 4 bytes
+    ui.verticalScrollBar->setValue(addr - middle);
+}
+
+void PPUDebuggerWidget::scrollToPC() {
+    scrollToAddress(ps3->ppu->state.pc);
 }
 
 bool PPUDebuggerWidget::eventFilter(QObject* obj, QEvent* event) {
