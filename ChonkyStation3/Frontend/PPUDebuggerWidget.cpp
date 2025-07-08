@@ -183,7 +183,8 @@ void PPUDebuggerWidget::scrollToAddress(u32 addr) {
     u32 middle = getLinesInViewport(ui.disasmListWidget) / 2;
     middle *= sizeof(u32);  // Size of instruction
     middle = (middle + 3) & ~3; // Align to 4 bytes
-    ui.verticalScrollBar->setValue(addr - middle);
+    const s32 line = addr - middle; // Would make it a s64 to fit addresses up to 0xffffffff, but Qt scrollbar values are s32 anyway
+    ui.verticalScrollBar->setValue(std::max(line, 0));
 }
 
 void PPUDebuggerWidget::scrollToPC() {
@@ -207,7 +208,7 @@ bool PPUDebuggerWidget::eventFilter(QObject* obj, QEvent* event) {
 void PPUDebuggerWidget::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
     
-    // If the widget is enabled (i.e. overlay is hidden) update pc, disasm and registers
+    // If the widget is enabled (aka overlay is hidden) update pc, disasm and registers
     if (!disabled_overlay->isVisible())
         enable();
 }

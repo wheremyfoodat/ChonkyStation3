@@ -5,7 +5,7 @@
 #include <string>
 #include <format>
 
-#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
+#ifdef CHONKYSTATION3_QT_BUILD
 #include <QtWidgets>
 #include <semaphore>    // semaphore and atomic are for pausing
 #include <atomic>
