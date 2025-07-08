@@ -24,6 +24,7 @@ public:
     
 private:
     DisabledWidgetOverlay* disabled_overlay;
+    std::vector<u32> exec_breakpoints;
     
     void updateDisasm();
     void updateRegisters();

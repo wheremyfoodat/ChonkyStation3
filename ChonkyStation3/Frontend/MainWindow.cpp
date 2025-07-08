@@ -73,6 +73,8 @@ MainWindow::MainWindow() : QMainWindow() {
     // Pause / Resume
     connect(ui.pauseButton, &QPushButton::clicked, this, [this, enable_widgets, disable_widgets]() {
         if (is_game_running) {
+            timer.stop();
+            
             if (!is_paused) {
                 // The game thread will check the atomic variable below on every RSX flip to know if we requested to pause the emulator.
                 // We can't assume the game thread will pause instantly, we also can't assume it will ever pause if no RSX flip happens at all
@@ -98,6 +100,7 @@ MainWindow::MainWindow() : QMainWindow() {
                 } else {
                     game_window->paused = false;
                     game_window->pause_sema.release();
+                    timer.start();
                 };
             } else {
                 game_window->paused = false;
@@ -105,10 +108,23 @@ MainWindow::MainWindow() : QMainWindow() {
                 is_paused = false;
                 ui.pauseButton->setText(tr("Pause"));
                 disable_widgets();
+                timer.start();
             }
         }
     });
-
+    
+    // Timer to periodically check if some event other than user input caused the emulator to pause (i.e. a breakpoint)
+    connect(&timer, &QTimer::timeout, this, [this, enable_widgets]() {
+        if (game_window->in_pause && !is_paused) {
+            is_paused = true;
+            ui.pauseButton->setText(tr("Resume"));
+            enable_widgets();
+            timer.stop();
+        }
+    });
+    timer.setInterval(100);
+    timer.start();
+    
     int row = 0;
     int column = 0;
 

@@ -59,6 +59,8 @@ public slots:
     void pollGameWindowInput();
 
 private:
+    QTimer timer;
+    
     // Overrides
     void resizeEvent(QResizeEvent* event) override;
 };

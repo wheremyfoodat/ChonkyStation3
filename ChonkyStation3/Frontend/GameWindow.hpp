@@ -42,6 +42,9 @@ public:
     std::atomic<bool> paused = false;
     std::atomic<bool> in_pause = false;
     std::atomic<bool> stepped = false;
+    void pause(bool handle_pc);
+    void breakpoint();
+    void breakOnNextInstr(u64 addr);
 #endif
 
     bool quit = false;

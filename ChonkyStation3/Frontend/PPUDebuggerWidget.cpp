@@ -70,6 +70,37 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, GameWindow* game_window,
         scrollToPC();
     });
     
+    // Breakpoints
+    connect(ui.disasmListWidget, &QListWidget::itemDoubleClicked, [this](QListWidgetItem* item) {
+        // Find out the address of this instruction by parsing it from the disasm string...
+        // I know it's a bit weird but it works
+        const std::string text = item->text().toStdString();
+        const auto addr_str = text.substr(2, 8);    // There is probably no need to omit "0x" but whatever
+        bool ok;
+        u32 addr = QString::fromStdString(addr_str).toUInt(&ok, 16);
+        if (!ok) {
+            QMessageBox::critical(this, tr("Failed to set breakpoint"), tr("Failed to set breakpoint"));
+            return;
+        }
+        
+        // Remove it if it was already set
+        for (int i = 0; i < exec_breakpoints.size(); i++) {
+            if (exec_breakpoints[i] == addr) {
+                // Remove the breakpoint
+                exec_breakpoints.erase(exec_breakpoints.begin() + i);
+                updateDisasm();
+                this->ps3->mem.watchpoints_r.erase(addr);
+                return;
+            }
+        }
+        
+        // Set the breakpoint
+        exec_breakpoints.push_back(addr);
+        updateDisasm();
+        this->ps3->mem.watchpoints_r[addr] = std::bind(&GameWindow::breakOnNextInstr, this->game_window, std::placeholders::_1);
+        this->ps3->mem.markAsSlowMem(addr >> PAGE_SHIFT, true, false);
+    });
+    
     disabled_overlay->show();
     setWindowTitle("PPU Debugger");
     hide();
@@ -99,6 +130,13 @@ void PPUDebuggerWidget::updateDisasm() {
             QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(disasm));
             if (ps3->ppu->state.pc == addr)
                 item->setBackground(Qt::darkGreen);
+            else {
+                // Check if this address is a breakpoint
+                for (auto& i : exec_breakpoints) {
+                    if (i == addr)
+                        item->setBackground(Qt::darkRed);
+                }
+            }
             
             ui.disasmListWidget->addItem(item);
         } else ui.disasmListWidget->addItem(QString::fromStdString(std::format("0x{:08x}   |     ???", addr)));
