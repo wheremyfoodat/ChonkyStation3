@@ -16,7 +16,11 @@ SDL_GameController* findController() {
     return nullptr;
 }
 
-GameWindow::GameWindow(MainWindow* main_window) : main_window(main_window), pause_sema(0) {
+GameWindow::GameWindow(MainWindow* main_window) : main_window(main_window)
+#ifdef CHONKYSTATION3_QT_BUILD
+    , pause_sema(0)
+#endif
+{
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
         Helpers::panic("Failed to initialize SDL\n");
 
@@ -127,15 +131,14 @@ void GameWindow::flipHandler() {
     if (paused) {
         pause(true);
     }
+#endif
     
-#ifdef __APPLE__
+#if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
     QMetaObject::invokeMethod(main_window, "updateGameWindow", Qt::AutoConnection);
     QMetaObject::invokeMethod(main_window, "pollGameWindowInput", Qt::AutoConnection);
 #else
     updateWindow();
     pollInput();
-#endif
-    
 #endif
 
     SDL_GL_SwapWindow(window);
