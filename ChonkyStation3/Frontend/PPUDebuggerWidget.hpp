@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 
+#include <Frontend/GameWindow.hpp>
 #include <PlayStation3.hpp>
 #include "Frontend/UI/ui_ppu_debugger.h"
 #include <QtWidgets>
@@ -13,8 +14,9 @@ class PPUDebuggerWidget : public QWidget {
     Q_OBJECT
     
 public:
-    PPUDebuggerWidget(PlayStation3* ps3, QWidget* parent = nullptr);
+    PPUDebuggerWidget(PlayStation3* ps3, GameWindow* game_window, QWidget* parent = nullptr);
     PlayStation3* ps3;
+    GameWindow* game_window;
     Ui::PPUDebugger ui;
     
     void enable();

@@ -6,7 +6,7 @@ MainWindow::MainWindow() : QMainWindow() {
     game_window = new GameWindow(this);
     settings = new SettingsWidget(ps3);
     thread_debugger = new ThreadDebuggerWidget(ps3);
-    ppu_debugger = new PPUDebuggerWidget(ps3);
+    ppu_debugger = new PPUDebuggerWidget(ps3, game_window);
     
     // Qt6 UI
     ui.setupUi(this);

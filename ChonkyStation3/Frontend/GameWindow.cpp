@@ -126,10 +126,22 @@ void GameWindow::flipHandler() {
     
     if (paused) {
         in_pause = true;
+        
+        // Because the flip is triggered directly by a store instruction to the RSX fifo control, we are running this function
+        // before the store instruction ends and PC is incremented.
+        // We want to begin stepping from the instruction after, so we increment PC.
+        // We decrement it when we unpause because it will be incremented back by the PPU after we return from this function.
+        // TODO: This breaks if the instruction that triggered the RSX flip isn't a plain store word. If, for example, it's a store
+        // word with update, the "update" part will happen *after* we unpause. Meaning that any instructions we step through while paused
+        // won't have the correct state.
+        // In 99% of cases it's going to be a plain STW so it's fine, but keep that in mind.
+        // This whole thing + the PC incrementing/decrementing won't be an issue when I put the RSX on its own thread
+        // (but, I'll have to rethink the way I handle pausing entirely...).
+        ps3->ppu->state.pc += 4;
+        
         while (true) {
             // Will be signalled from the Qt thread when we either unpaused or requested to step the emulator
             pause_sema.acquire();
-            
             // Did we unpause?
             if (!paused) {
                 in_pause = false;
@@ -138,7 +150,11 @@ void GameWindow::flipHandler() {
             
             // Step the emulator
             ps3->step();
+            // Set the "step completed flag". The Qt thread waits on this to know when the step is done, and clears it afterwards
+            stepped = true;
         }
+        
+        ps3->ppu->state.pc -= 4;    // See big comment above
     }
     
 #ifdef __APPLE__

@@ -41,6 +41,7 @@ public:
     std::binary_semaphore pause_sema;
     std::atomic<bool> paused = false;
     std::atomic<bool> in_pause = false;
+    std::atomic<bool> stepped = false;
 #endif
 
     bool quit = false;

@@ -18,7 +18,7 @@ static std::pair<int, int> getVisibleLineRange(QListWidget* list_widget, QScroll
     return {first_line, visible_lines};
 }
 
-PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, QWidget* parent) : QWidget(parent, Qt::Window), ps3(ps3) {
+PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, GameWindow* game_window, QWidget* parent) : QWidget(parent, Qt::Window), ps3(ps3), game_window(game_window) {
     ui.setupUi(this);
 
     // Setup disabled widget overlay
@@ -45,6 +45,17 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, QWidget* parent) : QWidg
     ui.registerTextEdit->setReadOnly(true);
     
     // Setup buttons
+    connect(ui.stepButton, &QPushButton::clicked, this, [this]() {
+        this->game_window->pause_sema.release();
+        // Wait for the game thread to complete the emulator step & reset the flag
+        while (!this->game_window->stepped);
+        this->game_window->stepped = false;
+        // Update disasm & register view
+        updateDisasm();
+        updateRegisters();
+        scrollToPC();
+    });
+    
     connect(ui.goToAddressButton, &QPushButton::clicked, this, [this]() {
         bool ok;
         QString addr_text = QInputDialog::getText(this, tr("Go to address"), tr("Enter hexadecimal address:"), QLineEdit::Normal, "", &ok);
