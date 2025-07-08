@@ -74,14 +74,14 @@ MainWindow::MainWindow() : QMainWindow() {
     connect(ui.pauseButton, &QPushButton::clicked, this, [this, enable_widgets, disable_widgets]() {
         if (is_game_running) {
             if (!is_paused) {
-                // Pausing is handled by locking a mutex which the game thread locks on every flip.
-                // This means that after we lock it below the game thread will block ("pause") on the next RSX flip
-                game_window->pause_mutex.lock();
+                // The game thread will check the atomic variable below on every RSX flip to know if we requested to pause the emulator.
+                // We can't assume the game thread will pause instantly, we also can't assume it will ever pause if no RSX flip happens at all
+                game_window->paused = true;
                 // Wait until the game flips & pauses, or timeout if no flip happens (meaning we failed to pause)
                 // We wait 100ms for 100 times (== 10s timeout)
                 int cnt = 0;
                 bool timeout = false;
-                while (!game_window->locked) {
+                while (!game_window->in_pause) {
                     if (cnt == 100) {
                         timeout = true;
                         break;
@@ -95,10 +95,13 @@ MainWindow::MainWindow() : QMainWindow() {
                     is_paused = true;
                     ui.pauseButton->setText(tr("Resume"));
                     enable_widgets();
-                } else game_window->pause_mutex.unlock();
+                } else {
+                    game_window->paused = false;
+                    game_window->pause_sema.release();
+                };
             } else {
-                // Just release the mutex
-                game_window->pause_mutex.unlock();
+                game_window->paused = false;
+                game_window->pause_sema.release();
                 is_paused = false;
                 ui.pauseButton->setText(tr("Pause"));
                 disable_widgets();

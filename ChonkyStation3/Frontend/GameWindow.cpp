@@ -16,7 +16,7 @@ SDL_GameController* findController() {
     return nullptr;
 }
 
-GameWindow::GameWindow(MainWindow* main_window) : main_window(main_window) {
+GameWindow::GameWindow(MainWindow* main_window) : main_window(main_window), pause_sema(0) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
         Helpers::panic("Failed to initialize SDL\n");
 
@@ -117,10 +117,29 @@ void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
 // Will be called on every RSX flip
 void GameWindow::flipHandler() {
 #ifdef CHONKYSTATION3_QT_BUILD
-    locked = true;
-    pause_mutex.lock();
-    pause_mutex.unlock();
-    locked = false;
+    // Avoid running this function recursively while we are paused.
+    // This will happen if we trigger another RSX flip while single stepping the emulator.
+    // We (or well, at least I) don't care about updating the screen while using the PPU debugger, so it's fine
+    if (in_pause) {
+        return;
+    }
+    
+    if (paused) {
+        in_pause = true;
+        while (true) {
+            // Will be signalled from the Qt thread when we either unpaused or requested to step the emulator
+            pause_sema.acquire();
+            
+            // Did we unpause?
+            if (!paused) {
+                in_pause = false;
+                break;
+            }
+            
+            // Step the emulator
+            ps3->step();
+        }
+    }
     
 #ifdef __APPLE__
     QMetaObject::invokeMethod(main_window, "updateGameWindow", Qt::AutoConnection);

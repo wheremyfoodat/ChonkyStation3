@@ -7,7 +7,7 @@
 
 #if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
 #include <QtWidgets>
-#include <mutex>    // For pausing
+#include <semaphore>    // semaphore and atomic are for pausing
 #include <atomic>
 #endif
 
@@ -38,8 +38,9 @@ public:
     SDL_GameController* controller;
     
 #ifdef CHONKYSTATION3_QT_BUILD
-    std::mutex pause_mutex;
-    std::atomic<bool> locked = false;
+    std::binary_semaphore pause_sema;
+    std::atomic<bool> paused = false;
+    std::atomic<bool> in_pause = false;
 #endif
 
     bool quit = false;
