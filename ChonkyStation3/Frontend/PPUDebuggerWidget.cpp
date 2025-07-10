@@ -139,7 +139,7 @@ void PPUDebuggerWidget::updateDisasm() {
             }
             
             ui.disasmListWidget->addItem(item);
-        } else ui.disasmListWidget->addItem(QString::fromStdString(std::format("0x{:08x}   |     ???", addr)));
+        } else ui.disasmListWidget->addItem(QString::fromStdString(std::format("0x{:08x}   |     unmapped memory", addr)));
     }
 }
 

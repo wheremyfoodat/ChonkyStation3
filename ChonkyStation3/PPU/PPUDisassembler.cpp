@@ -21,8 +21,8 @@ std::string PPUDisassembler::disasm(PPUTypes::State& state, PPUTypes::Instructio
             u8(instr & 0xff),
         };
         if (!capstone.disassemble(disassembly, pc, std::span(bytes)))
-            disassembly = "???";
-        return std::format("0x{:08x}   |     {:s}", pc, disassembly.c_str(), instr);
+            disassembly = std::format("???  0x{:08x}", instr);
+        return std::format("0x{:08x}   |     {:s}", pc, disassembly.c_str());
     };
     
     return capstoneDisasm(instr.raw, override_pc ? override_pc : state.pc);
