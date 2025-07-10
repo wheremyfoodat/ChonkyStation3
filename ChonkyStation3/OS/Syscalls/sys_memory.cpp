@@ -5,6 +5,13 @@
 
 MAKE_LOG_FUNCTION(log_sys_memory, sys_memory);
 
+struct sys_page_attr {
+    BEField<u64> attr;
+    BEField<u64> access_right;
+    BEField<u32> page_size;
+    BEField<u32> pad;
+};
+
 u64 Syscall::sys_memory_container_create() {
     const u32 id_ptr = ARG0;
     const u64 size = ARG1;
@@ -51,6 +58,20 @@ u64 Syscall::sys_memory_free() {
     Helpers::debugAssert(entry.first, "sys_memory_free: tried to free unmapped memory\n");
 
     ps3->mem.free(entry.second);
+
+    return CELL_OK;
+}
+
+u64 Syscall::sys_memory_get_page_attribute() {
+    const u32 addr = ARG0;
+    const u32 attr_ptr = ARG1;
+    log_sys_memory("sys_memory_get_page_attribute(addr: 0x%08x, attr_ptr: 0x%08x)\n", addr, attr_ptr);
+
+    sys_page_attr* attr = (sys_page_attr*)ps3->mem.getPtr(attr_ptr);
+    attr->attr = 0x40000;       // SYS_MEMORY_PROT_READ_WRITE
+    attr->access_right = 0xf;   // SYS_MEMORY_ACCESS_RIGHT_ANY
+    attr->page_size = 1_MB;
+    attr->pad = 0;
 
     return CELL_OK;
 }
