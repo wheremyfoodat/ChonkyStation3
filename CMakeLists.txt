@@ -65,7 +65,7 @@ if (ENABLE_QT_BUILD)
     add_compile_definitions(QT_NO_OPENGL)
     find_package(Qt6 REQUIRED COMPONENTS Widgets)
     target_include_directories(ChonkyStation3 PRIVATE ${Qt6Gui_PRIVATE_INCLUDE_DIRS})
-    target_sources(ChonkyStation3 PRIVATE "ChonkyStation3/Frontend/MainWindow.cpp" "ChonkyStation3/Frontend/MainWindow.hpp" "ChonkyStation3/Frontend/SettingsWidget.cpp" "ChonkyStation3/Frontend/SettingsWidget.hpp" "ChonkyStation3/Frontend/ThreadDebuggerWidget.cpp" "ChonkyStation3/Frontend/ThreadDebuggerWidget.hpp" "ChonkyStation3/Frontend/PPUDebuggerWidget.cpp" "ChonkyStation3/Frontend/PPUDebuggerWidget.hpp" "ChonkyStation3/Frontend/DisabledWidgetOverlay.hpp")
+    target_sources(ChonkyStation3 PRIVATE "ChonkyStation3/Frontend/MainWindow.cpp" "ChonkyStation3/Frontend/MainWindow.hpp" "ChonkyStation3/Frontend/SettingsWidget.cpp" "ChonkyStation3/Frontend/SettingsWidget.hpp" "ChonkyStation3/Frontend/ThreadDebuggerWidget.cpp" "ChonkyStation3/Frontend/ThreadDebuggerWidget.hpp" "ChonkyStation3/Frontend/PPUDebuggerWidget.cpp" "ChonkyStation3/Frontend/PPUDebuggerWidget.hpp" "ChonkyStation3/Frontend/DisabledWidgetOverlay.hpp" "ChonkyStation3/Frontend/MemoryWatchpointDialog.cpp" "ChonkyStation3/Frontend/MemoryWatchpointDialog.hpp")
 
     set_target_properties(ChonkyStation3 PROPERTIES AUTOMOC ON)
     set_target_properties(ChonkyStation3 PROPERTIES AUTORCC ON)

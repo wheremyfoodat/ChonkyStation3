@@ -45,6 +45,7 @@ public:
     void pause(bool handle_pc);
     void breakpoint();
     void breakOnNextInstr(u64 addr);
+    void breakOnNextInstrIfExec(u64 addr);
 #endif
 
     bool quit = false;

@@ -32,6 +32,7 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, GameWindow* game_window,
     mono_font.setStyleHint(QFont::Monospace);
     ui.disasmListWidget->setFont(mono_font);
     ui.registerTextEdit->setFont(mono_font);
+    ui.watchpointsListWidget->setFont(mono_font);
     
     // To forward scrolling from the list widget to the external scrollbar
     ui.disasmListWidget->installEventFilter(this);
@@ -70,8 +71,58 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, GameWindow* game_window,
         scrollToPC();
     });
     
+    // Watchpoints
+    connect(ui.addMemoryWatchpointButton, &QPushButton::clicked, this, [this]() {
+        // This is so we can format our indices as 3 digits (0-999)
+        // Nobody will ever need that many watchpoints anyway
+        if (mem_watchpoints.size() >= 1000) {
+            QMessageBox::critical(this, tr("Failed to set watchpoint"), tr("Can't set more than 1000 watchpoints"));
+            return;
+        }
+        
+        MemoryWatchpointDialog dialog;
+        if (dialog.exec() == QDialog::Accepted) {
+            MemoryWatchpoint watchpoint = { dialog.addr, dialog.type };
+            
+            bool is_read_watchpoint;
+            auto watchpoints = getWatchpointList(watchpoint, is_read_watchpoint);
+                
+            // Error if a watchpoint is already set for this address
+            if (watchpoints->contains(watchpoint.addr)) {
+                QMessageBox::critical(this, tr("Failed to set watchpoint"), tr("A watchpoint was already set on this address"));
+                return;
+            }
+            
+            // Set the watchpoint
+            mem_watchpoints.push_back(watchpoint);
+            updateWatchpoints();
+            (*watchpoints)[watchpoint.addr] = std::bind(&GameWindow::breakOnNextInstr, this->game_window, std::placeholders::_1);
+            this->ps3->mem.markAsSlowMem(watchpoint.addr >> PAGE_SHIFT, is_read_watchpoint, !is_read_watchpoint);
+        }
+    });
+    
+    connect(ui.watchpointsListWidget, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
+        // Get index of the watchpoint by parsing the string
+        const std::string text = item->text().toStdString();
+        const auto idx_str = text.substr(1, 2);
+        bool ok;
+        u32 idx = QString::fromStdString(idx_str).toUInt(&ok);
+        if (!ok) {
+            QMessageBox::critical(this, tr("Failed to set watchpoint"), tr("Failed to set watchpoint"));    // Unreachable
+            return;
+        }
+        
+        // Remove the watchpoint
+        auto watchpoint = mem_watchpoints[idx];
+        bool is_read_watchpoint;
+        auto watchpoints = getWatchpointList(watchpoint, is_read_watchpoint);
+        mem_watchpoints.erase(mem_watchpoints.begin() + idx);
+        updateWatchpoints();
+        (*watchpoints).erase(watchpoint.addr);
+    });
+    
     // Breakpoints
-    connect(ui.disasmListWidget, &QListWidget::itemDoubleClicked, [this](QListWidgetItem* item) {
+    connect(ui.disasmListWidget, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem* item) {
         // Find out the address of this instruction by parsing it from the disasm string...
         // I know it's a bit weird but it works
         const std::string text = item->text().toStdString();
@@ -97,7 +148,7 @@ PPUDebuggerWidget::PPUDebuggerWidget(PlayStation3* ps3, GameWindow* game_window,
         // Set the breakpoint
         exec_breakpoints.push_back(addr);
         updateDisasm();
-        this->ps3->mem.watchpoints_r[addr] = std::bind(&GameWindow::breakOnNextInstr, this->game_window, std::placeholders::_1);
+        this->ps3->mem.watchpoints_r[addr] = std::bind(&GameWindow::breakOnNextInstrIfExec, this->game_window, std::placeholders::_1);
         this->ps3->mem.markAsSlowMem(addr >> PAGE_SHIFT, true, false);
     });
     
@@ -176,6 +227,23 @@ void PPUDebuggerWidget::updateRegisters() {
         t += std::format("v{:02d}:  {{0x{:08x}, 0x{:08x}, 0x{:08x}, 0x{:08x}}}\n      ({:f}, {:f}, {:f}, {:f})\n", i, state.vrs[i].w[3], state.vrs[i].w[2], state.vrs[i].w[1], state.vrs[i].w[0], *(float*)&state.vrs[i].w[3], *(float*)&state.vrs[i].w[2], *(float*)&state.vrs[i].w[1], *(float*)&state.vrs[i].w[0]);
     
     ui.registerTextEdit->setPlainText(QString::fromStdString(t));
+}
+
+void PPUDebuggerWidget::updateWatchpoints() {
+    auto type_to_str = [](MemoryWatchpointType& type) -> std::string {
+        switch (type) {
+            case MemoryWatchpointType::Read:    return tr("Read").toStdString();
+            case MemoryWatchpointType::Write:   return tr("Write").toStdString();
+            default:    Helpers::panic("Unknown MemoryWatchpointType\n");   // Unreachable
+        }
+    };
+    
+    ui.watchpointsListWidget->clear();
+    for (int i = 0; i < mem_watchpoints.size(); i++) {
+        auto& watchpoint = mem_watchpoints[i];
+        std::string watchpoint_str = std::format("[{:03d}]    0x{:08x}    {:s}", i, watchpoint.addr, type_to_str(watchpoint.type));
+        ui.watchpointsListWidget->addItem(QString::fromStdString(watchpoint_str));
+    }
 }
 
 void PPUDebuggerWidget::scrollToAddress(u32 addr) {
