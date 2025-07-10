@@ -410,6 +410,11 @@ void SPUInterpreter::ah(const SPUInstruction& instr) {
         state.gprs[instr.rt0].h[i] = state.gprs[instr.ra].h[i] + state.gprs[instr.rb].h[i];
 }
 
+void SPUInterpreter::nand(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].dw[0] = ~(state.gprs[instr.ra].dw[0] & state.gprs[instr.rb].dw[0]);
+    state.gprs[instr.rt0].dw[1] = ~(state.gprs[instr.ra].dw[1] & state.gprs[instr.rb].dw[1]);
+}
+
 void SPUInterpreter::wrch(const SPUInstruction& instr) {
     ps3->spu_thread_manager.getCurrentThread()->writeChannel(instr.ch, state.gprs[instr.rt0].w[3]);
     
@@ -1167,7 +1172,7 @@ UNIMPL_INSTR(rotmahi);
 //UNIMPL_INSTR(and_);
 //UNIMPL_INSTR(cg);
 //UNIMPL_INSTR(ah);
-UNIMPL_INSTR(nand);
+//UNIMPL_INSTR(nand);
 UNIMPL_INSTR(avgb);
 UNIMPL_INSTR(mtspr);
 //UNIMPL_INSTR(wrch);

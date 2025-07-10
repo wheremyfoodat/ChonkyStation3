@@ -397,6 +397,12 @@ void SPUThread::doCmd(u32 cmd) {
         break;
     }
 
+    case PUTLLUC: {
+        log("PUTLLUC @ 0x%08x ", ps3->spu->state.pc);
+        std::memcpy(ps3->mem.getPtr(eal), &ls[lsa & 0x3ffff], 128);
+        break;
+    }
+
     case PUTLLC: {
         log("PUTLLC @ 0x%08x ", ps3->spu->state.pc);
         lockline_waiter->end();
