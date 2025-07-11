@@ -397,6 +397,12 @@ void SPUThread::doCmd(u32 cmd) {
         break;
     }
 
+    case GETLF: {
+        log("GETLF @ 0x%08x\n", ps3->spu->state.pc);
+        Helpers::debugAssert(size == 0, "getlf with size != 0\n");
+        break;
+    }
+
     case PUTLLUC: {
         log("PUTLLUC @ 0x%08x ", ps3->spu->state.pc);
         std::memcpy(ps3->mem.getPtr(eal), &ls[lsa & 0x3ffff], 128);
@@ -437,12 +443,6 @@ void SPUThread::doCmd(u32 cmd) {
         
         // Copy it to local storage
         std::memcpy(&ls[lsa & 0x3ffff], ps3->mem.getPtr(eal), 128);
-
-        /*for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 4; j++)
-                printf("0x%08x ", Helpers::bswap<u32>(*(u32*)&ls[lsa + (i * 0x10) + (j * 4)]));
-            printf("\n");
-        }*/
         
         // Update atomic stat
         atomic_stat = 0;            // It gets overwritten on every command
