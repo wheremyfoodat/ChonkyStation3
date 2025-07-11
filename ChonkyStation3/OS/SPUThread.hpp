@@ -10,6 +10,7 @@
 #include <SPUTypes.hpp>
 #include <OS/Syscalls/sys_spu.hpp>
 #include <Lv2Objects/Lv2EventQueue.hpp>
+#include <Lv2Objects/Lv2EventFlag.hpp>
 
 
 using namespace SPUTypes;

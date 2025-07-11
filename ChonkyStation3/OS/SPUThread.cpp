@@ -358,6 +358,16 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
             Lv2EventQueue* equeue = ps3->lv2_obj.get<Lv2EventQueue>(ports[spup]);
             equeue->send({ SYS_SPU_THREAD_EVENT_USER_KEY, id, data0, data1 });
         }
+        else if (spup == 192) {
+            Helpers::debugAssert(out_mbox.size(), "sys_event_flag_set_bit_impatient: out_mbox is empty\n");
+            u64 flag = 1 << (val & 0xffffff);
+            u64 id = out_mbox.front();
+            out_mbox.pop();
+            log("sys_event_flag_set_bit_impatient(id: %d, flag: 0x%016llx)\n", id, flag);
+
+            Lv2EventFlag* eflag = ps3->lv2_obj.get<Lv2EventFlag>(id);
+            eflag->set(flag);
+        }
         else {
             Helpers::panic("Unhandled SPU_WrOutIntrMbox write with spup %d\n", spup);
         }
