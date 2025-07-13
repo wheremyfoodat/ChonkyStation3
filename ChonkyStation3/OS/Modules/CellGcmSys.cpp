@@ -209,6 +209,17 @@ u64 CellGcmSys::cellGcmGetOffsetTable() {
     return CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmIoOffsetToAddress() {
+    const u32 io_offs = ARG0;
+    const u32 addr_ptr = ARG1;
+    log("cellGcmIoOffsetToAddress(io_offs: 0x%08x, addr_ptr: 0x%08x)\n", io_offs, addr_ptr);
+    
+    const u32 addr = ps3->rsx.ioToEa(io_offs);
+    ps3->mem.write<u32>(addr_ptr, addr);
+    
+    return CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmBindTile() {
     const u8 idx = ARG0;
     log("cellGcmBindTile(idx: %d) UNIMPLEMENTED\n", idx);

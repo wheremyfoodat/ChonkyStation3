@@ -97,6 +97,7 @@ public:
     u64 _cellGcmSetFlipCommand();
     u64 cellGcmAddressToOffset();
     u64 cellGcmGetOffsetTable();
+    u64 cellGcmIoOffsetToAddress();
     u64 cellGcmBindTile();
     u64 cellGcmSetFlipMode();
     u64 cellGcmSetSecondVFrequency();

@@ -111,6 +111,7 @@ void ModuleManager::init() {
         { 0x21397818, { " _cellGcmSetFlipCommand",                          std::bind(&CellGcmSys::_cellGcmSetFlipCommand, &cellGcmSys) }},
         { 0x21ac3697, { "cellGcmAddressToOffset",                           std::bind(&CellGcmSys::cellGcmAddressToOffset, &cellGcmSys) }},
         { 0x2922aed0, { "cellGcmGetOffsetTable",                            std::bind(&CellGcmSys::cellGcmGetOffsetTable, &cellGcmSys) }},
+        { 0x2a6fba9c, { "cellGcmIoOffsetToAddress",                         std::bind(&CellGcmSys::cellGcmIoOffsetToAddress, &cellGcmSys) }},
         { 0x4524cccd, { "cellGcmBindTile",                                  std::bind(&CellGcmSys::cellGcmBindTile, &cellGcmSys) }},
         { 0x4ae8d215, { "cellGcmSetFlipMode",                               std::bind(&CellGcmSys::cellGcmSetFlipMode, &cellGcmSys) }},
         { 0x4d7ce993, { "cellGcmSetSecondVFrequency",                       std::bind(&CellGcmSys::cellGcmSetSecondVFrequency, &cellGcmSys) }},
