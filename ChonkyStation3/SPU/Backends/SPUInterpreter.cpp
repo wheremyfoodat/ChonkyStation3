@@ -880,6 +880,12 @@ void SPUInterpreter::ceqb(const SPUInstruction& instr) {
         state.gprs[instr.rt0].b[i] = (state.gprs[instr.ra].b[i] == state.gprs[instr.rb].b[i]) ? 0xff : 0;
 }
 
+void SPUInterpreter::heq(const SPUInstruction& instr) {
+    if (state.gprs[instr.ra].w[3] == state.gprs[instr.rb].w[3]) {
+        ps3->spu_thread_manager.getCurrentThread()->halt();
+    }
+}
+
 void SPUInterpreter::brz(const SPUInstruction& instr) {
     if (state.gprs[instr.rt0].w[3] == 0) {
         const u32 addr = (state.pc + ext<s32, 18>(instr.i16 << 2)) & 0x3fffc;
@@ -1312,7 +1318,7 @@ UNIMPL_INSTR(dfcmeq);
 //UNIMPL_INSTR(mpyu);
 //UNIMPL_INSTR(ceqb);
 UNIMPL_INSTR(fi);
-UNIMPL_INSTR(heq);
+//UNIMPL_INSTR(heq);
 UNIMPL_INSTR(cflts);
 UNIMPL_INSTR(cfltu);
 UNIMPL_INSTR(csflt);

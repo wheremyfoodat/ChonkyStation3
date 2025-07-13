@@ -285,6 +285,7 @@ u32 SPUThread::readChannelCount(u32 ch) {
 
     switch (ch) {
 
+    case SPU_RdEventStat:   return hasPendingEvents();
     case SPU_RdInMbox:      return in_mbox.size();
     case SPU_WrOutIntrMbox: return 1;
 

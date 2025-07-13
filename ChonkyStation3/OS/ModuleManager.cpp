@@ -319,6 +319,7 @@ void ModuleManager::init() {
         { 0x2f1774d5, { "cellKbGetInfo",                                    std::bind(&CellKb::cellKbGetInfo, &cellKb) }},
         { 0xff0a21b7, { "cellKbRead",                                       std::bind(&CellKb::cellKbRead, &cellKb) }},
         
+        { 0x5baf30fb, { "cellMouseGetInfo",                                 std::bind(&ModuleManager::stub, this) } },
         { 0xc9030138, { "cellMouseInit",                                    std::bind(&ModuleManager::stub, this) } },
 
         { 0x8325e02d, { "cellMicInit",                                      std::bind(&ModuleManager::stub, this) } },
