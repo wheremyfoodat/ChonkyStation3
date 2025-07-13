@@ -183,7 +183,8 @@ void SPUThread::LocklineWaiter::end() {
 
     is_waiting = false;
     acquired = true;
-    waiter_thread.join();
+    if (waiter_thread.joinable())
+        waiter_thread.join();
 }
 
 void SPUThread::sendLocklineLostEvent(u32 addr) {
@@ -394,6 +395,12 @@ void SPUThread::doCmd(u32 cmd) {
     case GET: {
         log("GET @ 0x%08x\n", ps3->spu->state.pc);
         std::memcpy(&ls[lsa & 0x3ffff], ps3->mem.getPtr(eal), size);
+        break;
+    }
+
+    case GETLB: {
+        log("GETLB @ 0x%08x\n", ps3->spu->state.pc);
+        Helpers::debugAssert(size == 0, "getlb with size != 0\n");
         break;
     }
 

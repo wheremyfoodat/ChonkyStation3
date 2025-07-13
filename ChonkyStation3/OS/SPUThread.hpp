@@ -108,6 +108,8 @@ public:
         GET     = 0x40,
         GETB    = 0x41,
         GETF    = 0x42,
+        GETL    = 0x44,
+        GETLB   = 0x45,
         GETLF   = 0x46,
         PUTLLUC = 0xb0,
         PUTLLC  = 0xb4,
