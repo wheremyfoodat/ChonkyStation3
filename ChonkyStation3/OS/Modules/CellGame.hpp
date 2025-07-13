@@ -181,6 +181,8 @@ public:
     u64 cellGameDataCheck();
     u64 cellGameBootCheck();
 
+    u64 cellHddGameCheck();
+    
     u64 cellDiscGameGetBootDiscInfo();
 
 private:
