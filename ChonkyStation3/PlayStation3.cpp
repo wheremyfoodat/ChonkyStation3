@@ -24,14 +24,14 @@ PlayStation3::PlayStation3(const fs::path& executable) : elf_parser(executable),
 }
 
 PlayStation3::~PlayStation3() {
-    // Free memory
-    for (auto& i : mem.regions)
-        free(i->mem);
-    
-    // Join lockline waiter thread
+    // Join lockline waiter threads
     for (auto& thread : spu_thread_manager.threads) {
         thread.lockline_waiter->end();
     }
+    
+    // Free memory
+    for (auto& i : mem.regions)
+        free(i->mem);
 }
 
 void PlayStation3::gameSelector() {

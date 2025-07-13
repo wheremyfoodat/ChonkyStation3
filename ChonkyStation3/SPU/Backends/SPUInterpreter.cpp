@@ -785,6 +785,11 @@ void SPUInterpreter::clgth(const SPUInstruction& instr) {
         state.gprs[instr.rt0].h[i] = (state.gprs[instr.ra].h[i] > state.gprs[instr.rb].h[i]) ? 0xffff : 0;
 }
 
+void SPUInterpreter::orc(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].dw[0] = state.gprs[instr.ra].dw[0] | ~state.gprs[instr.rb].dw[0];
+    state.gprs[instr.rt0].dw[1] = state.gprs[instr.ra].dw[1] | ~state.gprs[instr.rb].dw[1];
+}
+
 void SPUInterpreter::dfa(const SPUInstruction& instr) {
     state.gprs[instr.rt0].d[0] = state.gprs[instr.ra].d[0] + state.gprs[instr.rb].d[0];
     state.gprs[instr.rt0].d[1] = state.gprs[instr.ra].d[1] + state.gprs[instr.rb].d[1];
@@ -1256,7 +1261,7 @@ UNIMPL_INSTR(fa);
 UNIMPL_INSTR(fs);
 UNIMPL_INSTR(fm);
 //UNIMPL_INSTR(clgth);
-UNIMPL_INSTR(orc);
+//UNIMPL_INSTR(orc);
 UNIMPL_INSTR(fcmgt);
 UNIMPL_INSTR(dfcmgt);
 //UNIMPL_INSTR(dfa);

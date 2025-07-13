@@ -144,9 +144,6 @@ void SPUThread::writeInMbox(u32 val) {
 }
 
 void SPUThread::LocklineWaiter::waiter() {
-    //printf("waiter\n");
-    u64 curr = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    u64 elapsed;
     u8* ptr = ps3->mem.getPtr(reservation.addr);
     
     while (is_waiting) {
@@ -154,16 +151,8 @@ void SPUThread::LocklineWaiter::waiter() {
         if (std::memcmp(reservation.data, ptr, 128)) {
             is_waiting = false;
         }
-
-        // Check for timeout
-        elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - curr;
-        if (elapsed > 1000) {
-            //printf("Timeout\n");
-            //exit(0);
-            //is_waiting = false;
-        }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
     
     // The lockline reservation was lost, check if it was acquired before losing it. If not, send lockline lost event
@@ -172,7 +161,6 @@ void SPUThread::LocklineWaiter::waiter() {
 }
 
 void SPUThread::LocklineWaiter::begin(Reservation reservation) {
-    //printf("begin\n");
     if (is_waiting) {
         // End the current waiter if it was already active
         acquired = true;
@@ -191,7 +179,6 @@ void SPUThread::LocklineWaiter::begin(Reservation reservation) {
 }
 
 void SPUThread::LocklineWaiter::end() {
-    //printf("end\n");
     //if (!is_waiting) Helpers::panic("LocklineWaiter: tried to end waiter, but the waiter was already inactive\n");
 
     is_waiting = false;
@@ -360,7 +347,9 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
         }
         else if (spup == 192) {
             Helpers::debugAssert(out_mbox.size(), "sys_event_flag_set_bit_impatient: out_mbox is empty\n");
-            u64 flag = 1 << (val & 0xffffff);
+            const u32 shift = val & 0xffffff;
+            Helpers::debugAssert(shift < 64, "sys_event_flag_set_bit_impatient: flag shift value is >= 64\n");
+            u64 flag = 1 << shift;
             u64 id = out_mbox.front();
             out_mbox.pop();
             log("sys_event_flag_set_bit_impatient(id: %d, flag: 0x%016llx)\n", id, flag);

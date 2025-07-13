@@ -47,9 +47,9 @@ u64 CellGcmSys::cellGcmInitBody() {
     ps3->mem.write<u32>(callback_addr +  8, 0x44000002);     // sc
     ps3->mem.write<u32>(callback_addr + 12, 0x4E800020);     // blr
 
-    ctx->begin = io_addr;
-    ctx->end =  io_addr + io_size - 4;
-    ctx->current = io_addr;
+    ctx->begin = io_addr + 4_KB;
+    ctx->end = ctx->begin + cmd_size;
+    ctx->current = ctx->begin;
     ctx->callback = callback_addr;
 
     dma_ctrl_addr = ps3->mem.rsx.alloc(3_MB)->vaddr;
@@ -177,7 +177,7 @@ u64 CellGcmSys::_cellGcmSetFlipCommand() {
     //log("_cellGcmSetFlipCommand(ctx_addr: 0x%08x, buf_id: %d)\n", context_addr, buf_id);
 
     CellGcmContextData* context = (CellGcmContextData*)ps3->mem.getPtr(context_addr);
-    if (ctx->current + 8 >= ctx->end) cellGcmCallback();
+    if (context->current + 8 >= context->end) cellGcmCallback();
     ps3->mem.write<u32>(context->current, RSX::GCM_FLIP_COMMAND | (1 << 18));   // 1 is argc
     ps3->mem.write<u32>(context->current + 4, buf_id);
     context->current = context->current + 8;
@@ -478,7 +478,7 @@ u64 CellGcmSys::cellGcmSetFlip() {
     log("cellGcmSetFlip(ctx_addr: 0x%08x, buf_id: %d)\n", context_addr, buf_id);
 
     CellGcmContextData* context = (CellGcmContextData*)ps3->mem.getPtr(context_addr);
-    if (ctx->current + 8 >= ctx->end) cellGcmCallback();
+    if (context->current + 8 >= context->end) cellGcmCallback();
     ps3->mem.write<u32>(context->current, RSX::GCM_FLIP_COMMAND | (1 << 18));   // 1 is argc
     ps3->mem.write<u32>(context->current + 4, buf_id);
     context->current = context->current + 8;
@@ -527,7 +527,7 @@ u64 CellGcmSys::cellGcmSetVBlankFrequency() {
 
 
 // Resets the command buffer
-// If there are any remaining commands to be executed, copy them back at the start
+// If there are any remaining commands to be executed, execute them
 // Update context and fifo control accordingly
 u64 CellGcmSys::cellGcmCallback() {
     const u32 ctx_ptr = ARG0;
