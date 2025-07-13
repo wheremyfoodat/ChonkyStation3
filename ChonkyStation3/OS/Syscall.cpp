@@ -91,6 +91,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     case 73:    todo("sys_timer_start()");                                          break;
     case 75:    todo("sys_timer_connect_event_queue()");                            break;
     case 82:    ps3->ppu->state.gprs[3] = sys_event_flag_create();                  break;
+    case 83:    todo("sys_event_flag_destroy()");                                   break;
     case 85:    ps3->ppu->state.gprs[3] = sys_event_flag_wait();                    break;
     case 87:    ps3->ppu->state.gprs[3] = sys_event_flag_set();                     break;
     case 90:    ps3->ppu->state.gprs[3] = sys_semaphore_create();                   break;

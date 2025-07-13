@@ -817,6 +817,13 @@ void SPUInterpreter::ceq(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[3] = (state.gprs[instr.ra].w[3] == state.gprs[instr.rb].w[3]) ? 0xffffffff : 0;
 }
 
+void SPUInterpreter::mpyhhu(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].w[0] = (u16)(state.gprs[instr.ra].w[0] >> 16) * (u16)(state.gprs[instr.rb].w[0] >> 16);
+    state.gprs[instr.rt0].w[1] = (u16)(state.gprs[instr.ra].w[1] >> 16) * (u16)(state.gprs[instr.rb].w[1] >> 16);
+    state.gprs[instr.rt0].w[2] = (u16)(state.gprs[instr.ra].w[2] >> 16) * (u16)(state.gprs[instr.rb].w[2] >> 16);
+    state.gprs[instr.rt0].w[3] = (u16)(state.gprs[instr.ra].w[3] >> 16) * (u16)(state.gprs[instr.rb].w[3] >> 16);
+}
+
 void SPUInterpreter::addx(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[0] = state.gprs[instr.ra].w[0] + state.gprs[instr.rb].w[0] + (state.gprs[instr.rt0].w[0] & 1);
     state.gprs[instr.rt0].w[1] = state.gprs[instr.ra].w[1] + state.gprs[instr.rb].w[1] + (state.gprs[instr.rt0].w[1] & 1);
@@ -847,6 +854,13 @@ void SPUInterpreter::mpyh(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[1] = ((s16)(state.gprs[instr.ra].w[1] >> 16) * (s16)(state.gprs[instr.rb].w[1] & 0xffff)) << 16;
     state.gprs[instr.rt0].w[2] = ((s16)(state.gprs[instr.ra].w[2] >> 16) * (s16)(state.gprs[instr.rb].w[2] & 0xffff)) << 16;
     state.gprs[instr.rt0].w[3] = ((s16)(state.gprs[instr.ra].w[3] >> 16) * (s16)(state.gprs[instr.rb].w[3] & 0xffff)) << 16;
+}
+
+void SPUInterpreter::mpyhh(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].w[0] = (s16)(state.gprs[instr.ra].w[0] >> 16) * (s16)(state.gprs[instr.rb].w[0] >> 16);
+    state.gprs[instr.rt0].w[1] = (s16)(state.gprs[instr.ra].w[1] >> 16) * (s16)(state.gprs[instr.rb].w[1] >> 16);
+    state.gprs[instr.rt0].w[2] = (s16)(state.gprs[instr.ra].w[2] >> 16) * (s16)(state.gprs[instr.rb].w[2] >> 16);
+    state.gprs[instr.rt0].w[3] = (s16)(state.gprs[instr.ra].w[3] >> 16) * (s16)(state.gprs[instr.rb].w[3] >> 16);
 }
 
 void SPUInterpreter::ceqh(const SPUInstruction& instr) {
@@ -1274,7 +1288,7 @@ UNIMPL_INSTR(dfms);
 UNIMPL_INSTR(dfnms);
 UNIMPL_INSTR(dfnma);
 //UNIMPL_INSTR(ceq);
-UNIMPL_INSTR(mpyhhu);
+//UNIMPL_INSTR(mpyhhu);
 //UNIMPL_INSTR(addx);
 //UNIMPL_INSTR(sfx);
 UNIMPL_INSTR(cgx);
@@ -1290,7 +1304,7 @@ UNIMPL_INSTR(fceq);
 UNIMPL_INSTR(dfceq);
 UNIMPL_INSTR(mpy);
 //UNIMPL_INSTR(mpyh);
-UNIMPL_INSTR(mpyhh);
+//UNIMPL_INSTR(mpyhh);
 UNIMPL_INSTR(mpys);
 //UNIMPL_INSTR(ceqh);
 UNIMPL_INSTR(fcmeq);
