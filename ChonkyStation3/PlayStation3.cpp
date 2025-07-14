@@ -212,10 +212,15 @@ void PlayStation3::vblank() {
     }
 }
 
-void PlayStation3::skipToNextEvent() {
-    const u64 ticks = scheduler.tickToNextEvent();
-    cycle_count += ticks;
-    skipped_cycles += ticks;
+// Returns whether or not there was a next event
+bool PlayStation3::skipToNextEvent() {
+    u64 ticks;
+    bool ok = scheduler.tickToNextEvent(ticks);
+    if (ok) {
+        cycle_count += ticks;
+        skipped_cycles += ticks;
+    }
+    return ok;
 }
 
 void PlayStation3::forceSchedulerUpdate() {

@@ -95,8 +95,9 @@ void ThreadManager::reschedule() {
         //   - If our current thread was running, keep running it.
         //   - If our current thread was NOT running:
         //     - If at least 1 SPU thread is active, switch to the idle thread.
-        //     - If no SPU thread is active, skip to the next event and hope a thread wakes up.
-        //     - If there is no next event, something is wrong. The emulator will panic.
+        //     - If no SPU thread is active, try to skip to the next event.
+        //     - If there is no next event, switch to the idle thread.
+        //     - If no SPU thread ever wakes up, something is wrong and the emulator will hang.
         else {
             bool found_low_prio = false;
             for (auto& i : threads) {
@@ -108,8 +109,17 @@ void ThreadManager::reschedule() {
 
             if (!found_low_prio) {
                 if (getCurrentThread()->status == Thread::ThreadStatus::Running) break;
-                else if (idle_thread_id && ps3->spu->enabled) contextSwitch(*getThreadByID(idle_thread_id));
-                else ps3->skipToNextEvent(); // Will panic if there are no events
+                else if (idle_thread_id && ps3->spu->enabled) {
+                    contextSwitch(*getThreadByID(idle_thread_id));
+                    break;
+                }
+                else {
+                    if (!ps3->skipToNextEvent()) {
+                        log("WARNING: NO PPU THREAD IS ACTIVE\n");
+                        contextSwitch(*getThreadByID(idle_thread_id));
+                        break;
+                    }
+                }
             }
         }
     } while (!found_thread);

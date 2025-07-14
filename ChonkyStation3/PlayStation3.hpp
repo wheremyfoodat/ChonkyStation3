@@ -73,7 +73,7 @@ public:
     void printCrashInfo(std::runtime_error err);
     void flip();
     void vblank();
-    void skipToNextEvent();
+    bool skipToNextEvent();
     void forceSchedulerUpdate();
 
     void pressButton(u32 button);

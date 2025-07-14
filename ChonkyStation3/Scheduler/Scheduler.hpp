@@ -47,7 +47,7 @@ class Scheduler {
 public:
     u64 time = 0;
     void tick(u64 cycles);
-    u64 tickToNextEvent();
+    bool tickToNextEvent(u64& elapsed);
 
     struct Event {
         Event(std::function<void(void)> func, u64 time, u64 id, std::string name = "Unnamed") : func(func), time(time), id(id), name(name) {}

@@ -12,20 +12,19 @@ void Scheduler::tick(u64 cycles) {
     }
 }
 
-u64 Scheduler::tickToNextEvent() {
+// Returns whether or not there was a next event
+bool Scheduler::tickToNextEvent(u64& elapsed) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
-    if (events.empty()) {
-        Helpers::panic("Tried to tick to the next scheduler event, but there are none in the queue\n");
-    }
-
-    u64 elapsed = events.top().time - time;
+    if (events.empty()) return false;
+    
+    elapsed = events.top().time - time;
     time = events.top().time;
     auto event = events.top();
     events.pop();
 
     //printf("Skipped to event \"%s\"\n", event.name.c_str());
     event.func();
-    return elapsed;
+    return true;
 }
 
 void Scheduler::push(std::function<void(void)> func, u64 time, std::string name) {
