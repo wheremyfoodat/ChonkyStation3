@@ -171,6 +171,12 @@ public:
         BitField<12, 1, u32> ms;
     } event_stat;
     u32 event_mask = 0;
+    
+    struct MFCListElement {
+        BEField<u16> sb;    // Stall and notify bit
+        BEField<u16> ts;    // Transfer size
+        BEField<u32> ea;
+    };
 
     struct Reservation {
         u32 addr;

@@ -880,6 +880,13 @@ void SPUInterpreter::fscrwr(const SPUInstruction& instr) {
     //printf("SPU: TODO FSCRWR\n");
 }
 
+void SPUInterpreter::fceq(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].w[0] = (state.gprs[instr.ra].f[0] == state.gprs[instr.rb].f[0]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[1] = (state.gprs[instr.ra].f[1] == state.gprs[instr.rb].f[1]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[2] = (state.gprs[instr.ra].f[2] == state.gprs[instr.rb].f[2]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[3] = (state.gprs[instr.ra].f[3] == state.gprs[instr.rb].f[3]) ? 0xffffffff : 0;
+}
+
 void SPUInterpreter::mpyh(const SPUInstruction& instr) {
     state.gprs[instr.rt0].w[0] = ((s16)(state.gprs[instr.ra].w[0] >> 16) * (s16)(state.gprs[instr.rb].w[0] & 0xffff)) << 16;
     state.gprs[instr.rt0].w[1] = ((s16)(state.gprs[instr.ra].w[1] >> 16) * (s16)(state.gprs[instr.rb].w[1] & 0xffff)) << 16;
@@ -1381,7 +1388,7 @@ UNIMPL_INSTR(fesd);
 UNIMPL_INSTR(frds);
 //UNIMPL_INSTR(fscrwr);
 UNIMPL_INSTR(dftsv);
-UNIMPL_INSTR(fceq);
+//UNIMPL_INSTR(fceq);
 UNIMPL_INSTR(dfceq);
 UNIMPL_INSTR(mpy);
 //UNIMPL_INSTR(mpyh);

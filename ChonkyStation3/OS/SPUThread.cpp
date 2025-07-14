@@ -152,7 +152,7 @@ void SPUThread::LocklineWaiter::waiter() {
             is_waiting = false;
         }
         
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(1));
     }
     
     // The lockline reservation was lost, check if it was acquired before losing it. If not, send lockline lost event
@@ -398,15 +398,28 @@ void SPUThread::doCmd(u32 cmd) {
         break;
     }
 
-    case GETLB: {
-        log("GETLB @ 0x%08x\n", ps3->spu->state.pc);
-        Helpers::debugAssert(size == 0, "getlb with size != 0\n");
-        break;
-    }
-
+    case GETLB:
     case GETLF: {
-        log("GETLF @ 0x%08x\n", ps3->spu->state.pc);
-        Helpers::debugAssert(size == 0, "getlf with size != 0\n");
+        log("GETL @ 0x%08x\n", ps3->spu->state.pc);
+        if (size == 0) break;
+        
+        const auto n_elements = size / sizeof(MFCListElement);
+        u32 ls_addr = lsa & 0x3fff0;
+        
+        // TODO: Stall bit
+        
+        log("Beginning list transfer (size: %d, n_elements: %d)\n", size, n_elements);
+        log("Starting LS addr: 0x%08x\n", ls_addr);
+        for (int i = 0; i < n_elements; i++) {
+            MFCListElement* elem = (MFCListElement*)&ls[(eal & 0x3fff8) + i * sizeof(MFCListElement)]; // For list commands EAL is an offset in LS
+            const u32 dst = ls_addr | (elem->ea & 0xf);
+            const u32 src = elem->ea;
+            log("ls[0x%08x] <- mem[0x%08x] size: %d\n", dst, src, (u32)elem->ts);
+            std::memcpy(&ls[dst], ps3->mem.getPtr(src), elem->ts);
+            ls_addr += elem->ts;
+            // TODO: Do I need to align ls_addr to 16 bytes again here?
+        }
+        
         break;
     }
 
