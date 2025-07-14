@@ -125,6 +125,7 @@ void ModuleManager::init() {
         { 0x8cdf8c70, { "cellGcmGetDefaultSegmentWordSize",                 std::bind(&CellGcmSys::cellGcmGetDefaultSegmentWordSize, &cellGcmSys) }},
         { 0x983fb9aa, { "cellGcmSetWaitFlip",                               std::bind(&CellGcmSys::cellGcmSetWaitFlip, &cellGcmSys) }},
         { 0x99d397ac, { "cellGcmGetReport",                                 std::bind(&ModuleManager::stub, this) } },
+        { 0x9a0159af, { "cellGcmGetReportDataAddress",                      std::bind(&CellGcmSys::cellGcmGetReportDataAddress, &cellGcmSys) }},
         { 0x9ba451e4, { "cellGcmSetDefaultFifoSize",                        std::bind(&ModuleManager::stub, this) } },
         { 0x9dc04436, { "cellGcmBindZcull",                                 std::bind(&CellGcmSys::cellGcmBindZcull, &cellGcmSys) }},
         { 0xa114ec67, { "cellGcmMapMainMemory",                             std::bind(&CellGcmSys::cellGcmMapMainMemory, &cellGcmSys) }},
@@ -314,6 +315,7 @@ void ModuleManager::init() {
         { 0x8b72cda1, { "cellPadGetData",                                   std::bind(&CellPad::cellPadGetData, &cellPad)}},
         { 0xa703a51d, { "cellPadGetInfo2",                                  std::bind(&CellPad::cellPadGetInfo2, &cellPad)}},
         { 0xbe5be3ba, { "cellPadSetSensorMode",                             std::bind(&ModuleManager::stub, this) } },
+        { 0xdbf4c59c, { "cellPadGetCapabilityInfo",                         std::bind(&ModuleManager::stub, this) } },
         { 0xf65544ee, { "cellPadSetActDirect",                              std::bind(&ModuleManager::stub, this) } },
         { 0xf83f8182, { "cellPadSetPressMode",                              std::bind(&ModuleManager::stub, this) } },
 

@@ -24,7 +24,6 @@ u64 Syscall::sys_mmapper_allocate_address() {
 u64 Syscall::sys_mmapper_free_shared_memory() {
     const u32 handle = ARG0;
     log_sys_mmapper("sys_mmapper_free_shared_memory(handle: %d)\n", handle);
-
     Helpers::debugAssert(handle, "sys_mmapper_free_shared_memory: handle is 0\n");
     
     auto block = ps3->mem.findBlockWithHandle(handle);

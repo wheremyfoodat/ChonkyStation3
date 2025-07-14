@@ -109,6 +109,7 @@ public:
     u64 cellGcmGetReportDataAddressLocation();
     u64 cellGcmGetDefaultSegmentWordSize();
     u64 cellGcmSetWaitFlip();
+    u64 cellGcmGetReportDataAddress();
     u64 cellGcmBindZcull();
     u64 cellGcmMapMainMemory();
     u64 cellGcmSetFlipHandler();

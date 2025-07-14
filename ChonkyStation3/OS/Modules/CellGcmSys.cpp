@@ -313,6 +313,14 @@ u64 CellGcmSys::cellGcmSetWaitFlip() {
     return CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmGetReportDataAddress() {
+    const u32 idx = ARG0;
+    log("cellGcmGetReportDataAddress(idx: %d)\n", idx);
+
+    // TODO
+    return reports_addr + idx * 16;
+}
+
 u64 CellGcmSys::cellGcmBindZcull() {
     const u8 idx = ARG0;
     const u32 offs = ARG1;
