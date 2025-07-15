@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common.hpp>
+#include <BEField.hpp>
 
 #include <queue>
 
@@ -17,12 +18,21 @@ public:
         u64 data2;
         u64 data3;
     };
+    
+    // Big endian CellOS equivalent struct (we could also just use this struct only for everything)
+    struct sys_event {
+        BEField<u64> source;
+        BEField<u64> data1;
+        BEField<u64> data2;
+        BEField<u64> data3;
+    };
 
     u32 size = 0;
     std::queue<u64> wait_list;
     std::queue<Event> events;
 
     void receive();
+    s32  tryreceive(u32 event_array_ptr, s32 size);
     void send(Event event);
     void drain();
 };

@@ -31,6 +31,20 @@ u64 Syscall::sys_event_queue_receive() {
     return CELL_OK;
 }
 
+u64 Syscall::sys_event_queue_tryreceive() {
+    const u32 queue_id = ARG0;
+    const u32 event_array_ptr = ARG1;
+    const s32 size = ARG2;      // Size of event array
+    const u32 num_ptr = ARG3;   // Number of events received
+    log_sys_event("sys_event_queue_tryreceive(queue_id: %d, event_array_ptr: 0x%08x, size: %d, num_ptr: 0x%08x)\n", queue_id, event_array_ptr, size, num_ptr);
+    
+    Lv2EventQueue* queue = ps3->lv2_obj.get<Lv2EventQueue>(queue_id);
+    s32 num = queue->tryreceive(event_array_ptr, size);
+    ps3->mem.write<u32>(num_ptr, num);
+    
+    return CELL_OK;
+}
+
 u64 Syscall::sys_event_queue_drain() {
     const u32 queue_id = ARG0;
     log_sys_event("sys_event_queue_drain(queue_id: %d)\n", queue_id);

@@ -25,7 +25,7 @@ u64 CellPad::cellPadGetInfo() {
 u64 CellPad::cellPadGetData() {
     const u32 port_num = ARG0;
     const u32 data_ptr = ARG1;
-    log("cellPadGetData(port_num: %d, data_ptr: 0x%08x) @ 0x%08x\n", port_num, data_ptr, ps3->ppu->state.lr);
+    //log("cellPadGetData(port_num: %d, data_ptr: 0x%08x) @ 0x%08x\n", port_num, data_ptr, ps3->ppu->state.lr);
 
     if (port_num != 0) return 0x80121107; // CELL_PAD_ERROR_NO_DEVICE
 

@@ -54,6 +54,7 @@ public:
     // sys_event
     u64 sys_event_queue_create();
     u64 sys_event_queue_receive();
+    u64 sys_event_queue_tryreceive();
     u64 sys_event_queue_drain();
     u64 sys_event_port_create();
     u64 sys_event_port_connect_local();
