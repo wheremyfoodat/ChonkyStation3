@@ -322,9 +322,12 @@ void ModuleManager::init() {
         { 0x2f1774d5, { "cellKbGetInfo",                                    std::bind(&CellKb::cellKbGetInfo, &cellKb) }},
         { 0xff0a21b7, { "cellKbRead",                                       std::bind(&CellKb::cellKbRead, &cellKb) }},
         
+        { 0x3138e632, { "cellMouseGetData",                                 std::bind(&ModuleManager::stub, this) } },
+        { 0x3ef66b95, { "cellMouseClearBuf",                                std::bind(&ModuleManager::stub, this) } },
         { 0x5baf30fb, { "cellMouseGetInfo",                                 std::bind(&ModuleManager::stub, this) } },
         { 0xc9030138, { "cellMouseInit",                                    std::bind(&ModuleManager::stub, this) } },
 
+        { 0x7903400e, { "cellMicSetNotifyEventQueue",                       std::bind(&ModuleManager::stub, this) } },
         { 0x8325e02d, { "cellMicInit",                                      std::bind(&ModuleManager::stub, this) } },
 
         { 0x168fcece, { "sceNpManagerGetAccountAge",                        std::bind(&ModuleManager::stub, this) }},
@@ -332,14 +335,17 @@ void ModuleManager::init() {
         { 0x32cf311f, { "sceNpScoreInit",                                   std::bind(&ModuleManager::stub, this) }},
         { 0x3539d233, { "sceNpCommerce2Init",                               std::bind(&ModuleManager::stub, this) }},
         { 0x4026eac5, { "sceNpBasicRegisterContextSensitiveHandler",        std::bind(&ModuleManager::stub, this) }},
+        { 0x45f8f3aa, { "sceNpCustomMenuRegisterActions",                   std::bind(&ModuleManager::stub, this) }},
         { 0x4885aa18, { "sceNpTerm",                                        std::bind(&ModuleManager::stub, this) }},
         { 0x52a6b523, { "sceNpManagerUnregisterCallback",                   std::bind(&ModuleManager::stub, this) }},
         { 0x5e849303, { "sceNpBasicSetPresenceDetails2",                    std::bind(&ModuleManager::stub, this) }},
         { 0x5f2d9257, { "sceNpLookupInit",                                  std::bind(&ModuleManager::stub, this) }},
         { 0x6ee62ed2, { "sceNpManagerGetContentRatingFlag",                 std::bind(&ModuleManager::stub, this) }},
+        { 0x73931bd0, { "sceNpBasicGetBlockListEntryCount",                 std::bind(&ModuleManager::stub, this) }},
         { 0x9851f805, { "sceNpScoreTerm",                                   std::bind(&ModuleManager::stub, this) }},
         { 0xa7bff757, { "sceNpManagerGetStatus",                            std::bind(&SceNp::sceNpManagerGetStatus, &sceNp) }},
         { 0xad218faf, { "sceNpDrmIsAvailable",                              std::bind(&ModuleManager::stub, this) }},
+        { 0xb1e0718b, { "sceNpManagerGetAccountRegion",                     std::bind(&ModuleManager::stub, this) }},
         { 0xbcc09fe7, { "sceNpBasicRegisterHandler",                        std::bind(&ModuleManager::stub, this) }},
         { 0xbd28fdbf, { "sceNpInit",                                        std::bind(&ModuleManager::stub, this) }},
         { 0xbe0e3ee2, { "sceNpDrmVerifyUpgradeLicense2",                    std::bind(&ModuleManager::stub, this) }},
@@ -402,6 +408,7 @@ void ModuleManager::init() {
         { 0x52aac4fa, { "cellSaveDataUserAutoSave",                         std::bind(&ModuleManager::stub, this) } },
         { 0x8b7ed64b, { "cellSaveDataAutoSave2",                            std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
         { 0xcdc6aefd, { "cellSaveDataUserAutoLoad",                         std::bind(&CellSaveData::cellSaveDataUserAutoLoad, &cellSaveData) } },
+        { 0xe7fa820b, { "cellSaveDataEnableOverlay",                        std::bind(&ModuleManager::stub, this) } },
         { 0xfbd5c856, { "cellSaveDataAutoLoad2",                            std::bind(&CellSaveData::cellSaveDataAutoLoad2, &cellSaveData) } },
 
         { 0x1c9a942c, { "sysLwCondDestroy",                                 std::bind(&ModuleManager::stub, this), true } },

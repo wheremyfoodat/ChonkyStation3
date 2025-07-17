@@ -144,6 +144,7 @@ public:
     u32 tag_id = 0;
     u32 tag_mask = 0;
     u32 atomic_stat = 0;
+    u32 decrementer = 0;
 
     std::queue<u32> in_mbox = {};
     std::queue<u32> out_mbox = {};

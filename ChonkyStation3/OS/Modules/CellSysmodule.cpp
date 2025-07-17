@@ -18,8 +18,10 @@ u64 CellSysmodule::cellSysmoduleLoadModule() {
     const auto module_name = getModule(module_id);
     log("cellSysmoduleLoadModule(module: %s)\n", module_name.c_str());
 
-    if (module_name == "BAD")
-        Helpers::panic("cellSysmoduleLoadModule(): bad module id %d\n", module_id);
+    if (module_name == "BAD") {
+        log("WARNING: cellSysmoduleLoadModule unknown module id %d\n", module_id);
+        return 0x80012002;  // CELL_SYSMODULE_ERROR_UNKNOWN
+    }
 
     return CELL_OK;
 }

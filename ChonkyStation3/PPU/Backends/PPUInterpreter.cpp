@@ -75,6 +75,7 @@ void PPUInterpreter::step() {
             case VSUBFP:    vsubfp(instr);      break;
             case VMRGHH:    vmrghh(instr);      break;
             case VADDUWM:   vadduwm(instr);     break;
+            case VCMPEQUW_:
             case VCMPEQUW:  vcmpequw(instr);    break;
             case VMRGHW:    vmrghw(instr);      break;
             case VCMPEQFP_:
@@ -367,6 +368,7 @@ void PPUInterpreter::step() {
             case FMR:       fmr(instr);     break;
             case FNEG:      fneg(instr);    break;
             case FABS:      fabs_(instr);   break;
+            case FCTID:     fctid(instr);  break;
             case FCTIDZ:    fctidz(instr);  break;
             case FCFID:     fcfid(instr);   break;
 
@@ -2185,6 +2187,11 @@ void PPUInterpreter::fneg(const Instruction& instr) {
 void PPUInterpreter::fabs_(const Instruction& instr) {
     Helpers::debugAssert(!instr.rc, "fabs: rc\n");
     state.fprs[instr.frt] = fabs(state.fprs[instr.frb]);
+}
+
+void PPUInterpreter::fctid(const Instruction& instr) {
+    Helpers::debugAssert(!instr.rc, "fctid: rc\n");
+    reinterpret_cast<s64&>(state.fprs[instr.frt]) = (s64)state.fprs[instr.frb];
 }
 
 void PPUInterpreter::fctidz(const Instruction& instr) {

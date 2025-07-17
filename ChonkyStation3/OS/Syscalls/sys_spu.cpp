@@ -220,7 +220,11 @@ u64 Syscall::sys_spu_thread_group_connect_event_all_threads() {
             if (port_ok) break;
         }
     }
-    if (spup == 64) Helpers::panic("sys_spu_thread_group_connect_event_all_threads: no available port candidate\n");
+    
+    if (spup == 64) {   // Bodycount relies on this
+        log_sys_spu("sys_spu_thread_group_connect_event_all_threads: no available port candidate\n");
+        return CELL_EISCONN;
+    }
     
     for (auto& thread : group->threads) {
         ps3->spu_thread_manager.getThreadByID(thread)->ports[spup] = equeue_id;

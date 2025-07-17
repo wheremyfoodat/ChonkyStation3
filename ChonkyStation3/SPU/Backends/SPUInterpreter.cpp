@@ -741,6 +741,11 @@ void SPUInterpreter::xor_(const SPUInstruction& instr) {
     state.gprs[instr.rt0].dw[1] = state.gprs[instr.ra].dw[1] ^ state.gprs[instr.rb].dw[1];
 }
 
+void SPUInterpreter::eqv(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].dw[0] = state.gprs[instr.ra].dw[0] ^ ~state.gprs[instr.rb].dw[0];
+    state.gprs[instr.rt0].dw[1] = state.gprs[instr.ra].dw[1] ^ ~state.gprs[instr.rb].dw[1];
+}
+
 void SPUInterpreter::sumb(const SPUInstruction& instr) {
     for (int i = 0; i < 4; i++) {
         const u32 h = state.gprs[instr.rb].b[(i * 4) + 0] + state.gprs[instr.rb].b[(i * 4) + 1] + state.gprs[instr.rb].b[(i * 4) + 2] + state.gprs[instr.rb].b[(i * 4) + 3];
@@ -1346,7 +1351,7 @@ UNIMPL_INSTR(frsqest);
 //UNIMPL_INSTR(cgt);
 //UNIMPL_INSTR(xor_);
 UNIMPL_INSTR(cgth);
-UNIMPL_INSTR(eqv);
+//UNIMPL_INSTR(eqv);
 UNIMPL_INSTR(cgtb);
 //UNIMPL_INSTR(sumb);
 UNIMPL_INSTR(hgt);

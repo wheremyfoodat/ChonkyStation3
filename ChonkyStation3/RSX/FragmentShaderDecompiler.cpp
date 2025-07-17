@@ -430,7 +430,7 @@ std::string FragmentShaderDecompiler::dest(FragmentInstruction& instr) {
 
 std::string FragmentShaderDecompiler::mask(FragmentInstruction& instr, int& num_lanes) {
     std::string mask = ".";
-    const std::string full = ".xyzw";
+    constexpr std::string full = ".xyzw";
     num_lanes = 0;
 
     if (instr.dst.x) {
@@ -451,6 +451,10 @@ std::string FragmentShaderDecompiler::mask(FragmentInstruction& instr, int& num_
     }
 
     if (mask == full) mask = "";
+    else if (mask == ".") {
+        mask = "";
+        num_lanes = 4;
+    }
     return mask;
 }
 

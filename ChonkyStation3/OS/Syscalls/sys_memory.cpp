@@ -67,6 +67,9 @@ u64 Syscall::sys_memory_get_page_attribute() {
     const u32 attr_ptr = ARG1;
     log_sys_memory("sys_memory_get_page_attribute(addr: 0x%08x, attr_ptr: 0x%08x)\n", addr, attr_ptr);
 
+    if (!ps3->mem.isMapped(addr).first) // COD MW2 relies on this
+        return CELL_EINVAL;
+    
     sys_page_attr* attr = (sys_page_attr*)ps3->mem.getPtr(attr_ptr);
     attr->attr = 0x40000;       // SYS_MEMORY_PROT_READ_WRITE
     attr->access_right = 0xf;   // SYS_MEMORY_ACCESS_RIGHT_ANY

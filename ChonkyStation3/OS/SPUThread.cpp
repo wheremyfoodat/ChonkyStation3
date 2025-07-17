@@ -258,7 +258,12 @@ u32 SPUThread::readChannel(u32 ch) {
 
         return event_stat.raw & event_mask;
     }
-    case SPU_RdDec:         return 0;   // TODO
+    case SPU_RdDec: {
+        // TODO: This is a bad stub
+        const auto val = decrementer;
+        decrementer -= 10000;
+        return val;
+    }
     case SPU_RdEventMask:   return -1;  // TODO
     case SPU_RdMachStat:    return 0;   // TODO
     case SPU_RdInMbox: {
@@ -305,6 +310,7 @@ void SPUThread::writeChannel(u32 ch, u32 val) {
      
     case SPU_WrEventMask:   event_mask      = val;      break;
     case SPU_WrEventAck:    event_stat.raw &= ~val;     break;
+    case SPU_WrDec:         decrementer = val;          break;
     case SPU_WrOutMbox: {
         // Stall if it's full
         if (out_mbox.size()) {

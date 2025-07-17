@@ -32,7 +32,7 @@ u64 Syscall::sys_semaphore_wait() {
 
 u64 Syscall::sys_semaphore_trywait() {
     const u32 sema_id = ARG0;
-    log_sys_semaphore("sys_semaphore_trywait(sema_id: %d)\n", sema_id);
+    //log_sys_semaphore("sys_semaphore_trywait(sema_id: %d)\n", sema_id);
 
     Lv2Semaphore* sema = ps3->lv2_obj.get<Lv2Semaphore>(sema_id);
     if (!sema->val) return CELL_EBUSY;

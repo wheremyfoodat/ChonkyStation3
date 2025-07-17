@@ -268,6 +268,7 @@ public:
     void fnmsub     (const Instruction& instr);
     void fneg       (const Instruction& instr);
     void fabs_      (const Instruction& instr);
+    void fctid      (const Instruction& instr);
     void fctidz     (const Instruction& instr);
     void fcfid      (const Instruction& instr);
 };
