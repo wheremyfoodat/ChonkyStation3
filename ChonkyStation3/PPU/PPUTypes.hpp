@@ -269,7 +269,7 @@ enum G_04Opcodes {
     VPKUWUM         = 0x4e,
     VADDUWM         = 0x80,     // Vector Add Unsigned Word Modulo
     VMAXUW          = 0x82,
-    VRLW            = 0x84,
+    VRLW            = 0x84,     // Vector Rotate Left Integer Word
     VCMPEQUW        = 0x086,    // Vector Compare Equal Unsigned Word
     VCMPEQUW_       = 0x486,
     VMRGHW          = 0x8c,     // Vector Merge High Word
@@ -351,7 +351,7 @@ enum G_04Opcodes {
     VUPKHPX         = 0x34e,
     VADDSWS         = 0x380,
     VMINSW          = 0x382,
-    VSRAW           = 0x384,
+    VSRAW           = 0x384,    // Vector Shift Right Algebraic Word
     VCMPGTSW        = 0x386,    // Vector Compare Greater-Than Signed Word
     VCMPGTSW_       = 0x786,
     VCTUXS          = 0x38a,    // Vector Convert to Unsigned Fixed-Point Word Saturate
@@ -458,12 +458,14 @@ enum G_1FOpcodes {      // Field 21 - 30
     NEG     = 0x068,
     LBZUX   = 0x077,
     NOR     = 0x07c,
+    STVEBX  = 0x087,
     SUBFE   = 0x088,    // Subtract from Extended
     ADDE    = 0x08a,
     MTCRF   = 0x090,
     STDX    = 0x095,
     STWCX_  = 0x096,
     STWX    = 0x097,
+    STVEHX  = 0x0a7,
     STDUX   = 0x0b5,
     STVEWX  = 0x0c7,
     ADDZE   = 0x0ca,

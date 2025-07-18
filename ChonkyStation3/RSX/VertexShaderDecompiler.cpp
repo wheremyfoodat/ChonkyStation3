@@ -7,7 +7,12 @@ R"(
 #version 410 core
 
 
-vec4 r[16];
+vec4 r[32];
+
+// Viewport transformation
+uniform vec3 viewport_offs;
+uniform vec3 viewport_scale;
+uniform ivec2 surface_clip;
 
 
 )";
@@ -57,7 +62,7 @@ vec4 r[16];
         case RSXVertex::VECTOR::ADD: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = ({} + {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            main += std::format("{}{} = ({} + {}){};\n", dest(instr), mask_str, source(src0, instr), source(src2, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::MAD: {
@@ -136,7 +141,19 @@ vec4 r[16];
 
         if (instr->w3.end) break;
     }
-    main += "\ngl_Position = fs_pos;\n";
+    main += R"(
+// Apply viewport transformation
+vec3 scale = viewport_scale;
+vec3 offs  = viewport_offs;
+vec2 half_clip = surface_clip / 2.0f;
+scale.x /=  half_clip.x;
+scale.y /= -half_clip.y;
+offs.x  -= half_clip.x;
+offs.x  /= half_clip.x;
+offs.y  -= half_clip.y;
+offs.y  /= half_clip.y;
+gl_Position = vec4(fs_pos.xyz * scale + offs, fs_pos.w);
+)";
 
     declareFunction("void main", initialization + "\n" + main, shader);
 

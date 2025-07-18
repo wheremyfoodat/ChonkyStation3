@@ -182,6 +182,12 @@ public:
     u32 scissor_y = 0;
     u32 scissor_width = 1280;
     u32 scissor_height = 720;
+    float viewport_offs[4];
+    float viewport_scale[4];
+    s32 surface_clip[2];
+    bool viewport_offs_dirty = true;
+    bool viewport_scale_dirty = true;
+    bool surface_clip_dirty = true;
 
     static constexpr GLuint swizzle_map[] = {
         GL_ALPHA,
@@ -342,8 +348,8 @@ public:
         NV4097_SET_CONTEXT_DMA_CULL_DATA                        = 0x000001b0,
         NV4097_SET_CONTEXT_DMA_COLOR_C                          = 0x000001b4,
         NV4097_SET_CONTEXT_DMA_COLOR_D                          = 0x000001b8,
-        NV4097_SET_SURFACE_CLIP_HORIZONTAL                      = 0x00000200,
-        NV4097_SET_SURFACE_CLIP_VERTICAL                        = 0x00000204,
+        NV4097_SET_SURFACE_CLIP_HORIZONTAL                      = 0x00000200,   // I
+        NV4097_SET_SURFACE_CLIP_VERTICAL                        = 0x00000204,   // I
         NV4097_SET_SURFACE_FORMAT                               = 0x00000208,   // I
         NV4097_SET_SURFACE_PITCH_A                              = 0x0000020c,
         NV4097_SET_SURFACE_COLOR_AOFFSET                        = 0x00000210,
@@ -421,8 +427,8 @@ public:
         NV4097_SET_VIEWPORT_VERTICAL                            = 0x00000a04,
         NV4097_SET_POINT_CENTER_MODE                            = 0x00000a0c,
         NV4097_ZCULL_SYNC                                       = 0x00000a1c,
-        NV4097_SET_VIEWPORT_OFFSET                              = 0x00000a20,
-        NV4097_SET_VIEWPORT_SCALE                               = 0x00000a30,
+        NV4097_SET_VIEWPORT_OFFSET                              = 0x00000a20,   // I
+        NV4097_SET_VIEWPORT_SCALE                               = 0x00000a30,   // I
         NV4097_SET_POLY_OFFSET_POINT_ENABLE                     = 0x00000a60,
         NV4097_SET_POLY_OFFSET_LINE_ENABLE                      = 0x00000a64,
         NV4097_SET_POLY_OFFSET_FILL_ENABLE                      = 0x00000a68,

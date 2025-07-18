@@ -75,6 +75,7 @@ void PPUInterpreter::step() {
             case VSUBFP:    vsubfp(instr);      break;
             case VMRGHH:    vmrghh(instr);      break;
             case VADDUWM:   vadduwm(instr);     break;
+            case VRLW:      vrlw(instr);        break;
             case VCMPEQUW_:
             case VCMPEQUW:  vcmpequw(instr);    break;
             case VMRGHW:    vmrghw(instr);      break;
@@ -107,6 +108,7 @@ void PPUInterpreter::step() {
             case VSRAH:     vsrah(instr);       break;
             case VCFSX:     vcfsx(instr);       break;
             case VSPLTISH:  vspltish(instr);    break;
+            case VSRAW:     vsraw(instr);        break;
             case VCMPGTSW:  vcmpgtsw(instr);    break;
             case VCTUXS:    vctuxs(instr);      break;
             case VSPLTISW:  vspltisw(instr);    break;
@@ -217,12 +219,14 @@ void PPUInterpreter::step() {
         case LVX:       lvx(instr);     break;
         case NEG:       neg(instr);     break;
         case NOR:       nor(instr);     break;
+        case STVEBX:    stvebx(instr);  break;
         case SUBFE:     subfe(instr);   break;
         case ADDE:      adde(instr);    break;
         case MTCRF:     mtcrf(instr);   break;
         case STDX:      stdx(instr);    break;
         case STWCX_:    stwcx(instr);   break;
         case STWX:      stwx(instr);    break;
+        case STVEHX:    stvehx(instr);  break;
         case STDUX:     stdux(instr);   break;
         case STVEWX:    stvewx(instr);  break;
         case ADDZE:     addze(instr);   break;
@@ -802,6 +806,13 @@ void PPUInterpreter::vadduwm(const Instruction& instr) {
     state.vrs[instr.vd].w[3] = state.vrs[instr.va].w[3] + state.vrs[instr.vb].w[3];
 }
 
+void PPUInterpreter::vrlw(const Instruction& instr) {
+    state.vrs[instr.vd].w[0] = std::rotl<u32>(state.vrs[instr.va].w[0], state.vrs[instr.vb].w[0] & 0x1f);
+    state.vrs[instr.vd].w[1] = std::rotl<u32>(state.vrs[instr.va].w[1], state.vrs[instr.vb].w[1] & 0x1f);
+    state.vrs[instr.vd].w[2] = std::rotl<u32>(state.vrs[instr.va].w[2], state.vrs[instr.vb].w[2] & 0x1f);
+    state.vrs[instr.vd].w[3] = std::rotl<u32>(state.vrs[instr.va].w[3], state.vrs[instr.vb].w[3] & 0x1f);
+}
+
 void PPUInterpreter::vcmpequw(const Instruction& instr) {
     u8 all_equal = 0x8;
     u8 none_equal = 0x2;
@@ -1100,6 +1111,13 @@ void PPUInterpreter::vspltish(const Instruction& instr) {
     state.vrs[instr.vd].h[5] = si;
     state.vrs[instr.vd].h[6] = si;
     state.vrs[instr.vd].h[7] = si;
+}
+
+void PPUInterpreter::vsraw(const Instruction& instr) {
+    state.vrs[instr.vd].w[0] = (s32)state.vrs[instr.va].w[0] >> (state.vrs[instr.vb].w[0] & 0x1f);
+    state.vrs[instr.vd].w[1] = (s32)state.vrs[instr.va].w[1] >> (state.vrs[instr.vb].w[1] & 0x1f);
+    state.vrs[instr.vd].w[2] = (s32)state.vrs[instr.va].w[2] >> (state.vrs[instr.vb].w[2] & 0x1f);
+    state.vrs[instr.vd].w[3] = (s32)state.vrs[instr.va].w[3] >> (state.vrs[instr.vb].w[3] & 0x1f);
 }
 
 void PPUInterpreter::vcmpgtsw(const Instruction& instr) {
@@ -1591,6 +1609,12 @@ void PPUInterpreter::nor(const Instruction& instr) {
         state.cr.compareAndUpdateCRField<s64>(0, state.gprs[instr.ra], 0);
 }
 
+void PPUInterpreter::stvebx(const Instruction& instr) {
+    const u32 addr = instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb];
+    const u8 m = addr & 0xf;
+    ps3->mem.write<u8>(addr, state.vrs[instr.vs].b[15 - m]);
+}
+
 void PPUInterpreter::subfe(const Instruction& instr) {
     Helpers::debugAssert(!instr.oe, "subfe: oe bit set\n");
 
@@ -1671,6 +1695,12 @@ void PPUInterpreter::stwcx(const Instruction& instr) {
 
 void PPUInterpreter::stwx(const Instruction& instr) {
     mem.write<u32>(instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb], state.gprs[instr.rs]);
+}
+
+void PPUInterpreter::stvehx(const Instruction& instr) {
+    const u32 addr = (instr.ra ? (state.gprs[instr.ra] + state.gprs[instr.rb]) : state.gprs[instr.rb]) & ~1;
+    const u8 m = (addr & 0xf) >> 1;
+    ps3->mem.write<u16>(addr, state.vrs[instr.vs].h[7 - m]);
 }
 
 void PPUInterpreter::stdux(const Instruction& instr) {

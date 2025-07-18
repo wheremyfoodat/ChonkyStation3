@@ -214,6 +214,20 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
 }
 
 void RSX::uploadVertexConstants() {
+    // Viewport data
+    if (viewport_offs_dirty) {
+        viewport_offs_dirty = false;
+        glUniform3f(glGetUniformLocation(program.handle(), "viewport_offs"), viewport_offs[0], viewport_offs[1], viewport_offs[2]);
+    }
+    if (viewport_scale_dirty) {
+        viewport_scale_dirty = false;
+        glUniform3f(glGetUniformLocation(program.handle(), "viewport_scale"), viewport_scale[0], viewport_scale[1], viewport_scale[2]);
+    }
+    if (surface_clip_dirty) {
+        surface_clip_dirty = false;
+        glUniform2i(glGetUniformLocation(program.handle(), "surface_clip"), surface_clip[0], surface_clip[1]);
+    }
+
     if (!constants_dirty) return;
     constants_dirty = false;
 
@@ -671,6 +685,24 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         break;
     }
 
+    case NV4097_SET_SURFACE_CLIP_HORIZONTAL: {
+        // TODO: low 16 bits
+        surface_clip[0] = args[0] >> 16;
+        surface_clip_dirty = true;
+        log("Surface clip width: %d\n", surface_clip[0]);
+        args.pop_front();
+        break;
+    }
+
+    case NV4097_SET_SURFACE_CLIP_VERTICAL: {
+        // TODO: low 16 bits
+        surface_clip[1] = args[0] >> 16;
+        surface_clip_dirty = true;
+        log("Surface clip height: %d\n", surface_clip[1]);
+        args.pop_front();
+        break;
+    }
+
     case NV4097_SET_SURFACE_FORMAT: {
         // TODO: Everything else
         surface_a_offset = args[2];
@@ -772,6 +804,30 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     case NV4097_SET_SHADER_PROGRAM: {
         fragment_shader_program.addr = offsetAndLocationToAddress(args[0] & ~3, (args[0] & 3) - 1);
         log("Fragment shader: address: 0x%08x\n", fragment_shader_program.addr);
+        args.pop_front();
+        break;
+    }
+    
+    case NV4097_SET_VIEWPORT_OFFSET + 12:
+    case NV4097_SET_VIEWPORT_OFFSET + 8:
+    case NV4097_SET_VIEWPORT_OFFSET + 4:
+    case NV4097_SET_VIEWPORT_OFFSET: {
+        const auto idx = (cmd_num - NV4097_SET_VIEWPORT_OFFSET) / 4;
+        viewport_offs[idx] = reinterpret_cast<float&>(args[0]);
+        viewport_offs_dirty = true;
+        log("Viewport offset %c: %f\n", idx == 0 ? 'x' : (idx == 1 ? 'y' : (idx == 2 ? 'z' : 'w')), viewport_offs[idx]);
+        args.pop_front();
+        break;
+    }
+
+    case NV4097_SET_VIEWPORT_SCALE + 12:
+    case NV4097_SET_VIEWPORT_SCALE + 8:
+    case NV4097_SET_VIEWPORT_SCALE + 4:
+    case NV4097_SET_VIEWPORT_SCALE: {
+        const auto idx = (cmd_num - NV4097_SET_VIEWPORT_SCALE) / 4;
+        viewport_scale[idx] = reinterpret_cast<float&>(args[0]);
+        viewport_scale_dirty = true;
+        log("Viewport scale %c: %f\n", idx == 0 ? 'x' : (idx == 1 ? 'y' : (idx == 2 ? 'z' : 'w')), viewport_scale[idx]);
         args.pop_front();
         break;
     }

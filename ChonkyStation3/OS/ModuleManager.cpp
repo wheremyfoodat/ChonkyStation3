@@ -230,7 +230,7 @@ void ModuleManager::init() {
         { 0x1051d134, { "cellSpursAttributeEnableSpuPrintfIfAvailable",     std::bind(&CellSpurs::cellSpursAttributeEnableSpuPrintfIfAvailable, &cellSpurs) }},
         { 0x16394a4e, { "_cellSpursTasksetAttributeInitialize",             std::bind(&CellSpurs::_cellSpursTasksetAttributeInitialize, &cellSpurs) }},
         { 0x1656d49f, { "cellSpursLFQueueAttachLv2EventQueue",              std::bind(&CellSpurs::cellSpursLFQueueAttachLv2EventQueue, &cellSpurs) }},
-        { 0x182d9890, { "cellSpursRequestIdleSpu",                          std::bind(&CellSpurs::cellSpursRequestIdleSpu, &cellSpurs), true }},
+        { 0x182d9890, { "cellSpursRequestIdleSpu",                          std::bind(&CellSpurs::cellSpursRequestIdleSpu, &cellSpurs) }},
         { 0x1d46fedf, { "cellSpursCreateTaskWithAttribute",                 std::bind(&CellSpurs::cellSpursCreateTaskWithAttribute, &cellSpurs) }},
         { 0x1f402f8f, { "cellSpursGetInfo",                                 std::bind(&CellSpurs::cellSpursGetInfo, &cellSpurs) }},
         { 0x30aa96c4, { "cellSpursInitializeWithAttribute2",                std::bind(&CellSpurs::cellSpursInitializeWithAttribute2, &cellSpurs) }},

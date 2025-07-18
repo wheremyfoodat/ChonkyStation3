@@ -990,6 +990,11 @@ void SPUInterpreter::stqr(const SPUInstruction& instr) {
     write128(addr, state.gprs[instr.rt0]);
 }
 
+void SPUInterpreter::bra(const SPUInstruction& instr) {
+    const u32 addr = ext<s32, 18>(instr.i16 << 2) & 0x3fffc;
+    state.pc = addr - 4;
+}
+
 void SPUInterpreter::lqa(const SPUInstruction& instr) {
     const u32 addr = (instr.i16 << 2) & 0x3fff0;
     state.gprs[instr.rt0] = read128(addr);
@@ -1217,6 +1222,8 @@ void SPUInterpreter::heqi(const SPUInstruction& instr) {
     }
 }
 
+void SPUInterpreter::hbra(const SPUInstruction& instr) {}
+
 void SPUInterpreter::hbrr(const SPUInstruction& instr) {}
 
 void SPUInterpreter::ila(const SPUInstruction& instr) {
@@ -1416,7 +1423,7 @@ UNIMPL_INSTR(cuflt);
 //UNIMPL_INSTR(brhz);
 //UNIMPL_INSTR(brhnz);
 //UNIMPL_INSTR(stqr);
-UNIMPL_INSTR(bra);
+//UNIMPL_INSTR(bra);
 //UNIMPL_INSTR(lqa);
 UNIMPL_INSTR(brasl);
 //UNIMPL_INSTR(br);
@@ -1456,7 +1463,7 @@ UNIMPL_INSTR(mpyi);
 //UNIMPL_INSTR(ceqhi);
 //UNIMPL_INSTR(ceqbi);
 //UNIMPL_INSTR(heqi);
-UNIMPL_INSTR(hbra);
+//UNIMPL_INSTR(hbra);
 //UNIMPL_INSTR(hbrr);
 //UNIMPL_INSTR(ila);
 //UNIMPL_INSTR(selb);
