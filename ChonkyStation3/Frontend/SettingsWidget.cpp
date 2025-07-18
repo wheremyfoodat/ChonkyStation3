@@ -20,6 +20,7 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
     ui.sys_fs->setChecked(ps3->settings.lle.sys_fs);
     ui.cellResc->setChecked(ps3->settings.lle.cellResc);
     ui.cellPngDec->setChecked(ps3->settings.lle.cellPngDec);
+    ui.cellJpgDec->setChecked(ps3->settings.lle.cellJpgDec);
     ui.cellSpurs->setChecked(ps3->settings.lle.cellSpurs);
     ui.cellSpursJq->setChecked(ps3->settings.lle.cellSpursJq);
 
@@ -41,6 +42,7 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
         ps3->settings.lle.sys_fs        = ui.sys_fs->isChecked();
         ps3->settings.lle.cellResc      = ui.cellResc->isChecked();
         ps3->settings.lle.cellPngDec    = ui.cellPngDec->isChecked();
+        ps3->settings.lle.cellJpgDec    = ui.cellJpgDec->isChecked();
         ps3->settings.lle.cellSpurs     = ui.cellSpurs->isChecked();
         ps3->settings.lle.cellSpursJq   = ui.cellSpursJq->isChecked();
 

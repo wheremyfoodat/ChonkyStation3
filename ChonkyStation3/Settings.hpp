@@ -26,6 +26,7 @@ public:
         bool sys_fs = false;
         bool cellResc = true;
         bool cellPngDec = false;
+        bool cellJpgDec = false;
         bool cellFont = false;
         bool cellFontFT = false;
         bool cell_FreeType2 = false;
@@ -42,6 +43,7 @@ public:
             if (name == "sys_fs")               return sys_fs;
             else if (name == "cellResc")        return cellResc;
             else if (name == "cellPngDec")      return cellPngDec;
+            else if (name == "cellJpgDec")      return cellJpgDec;
             else if (name == "cellFont")        return cellFont;
             else if (name == "cellFontFT")      return cellFontFT;
             else if (name == "cell_FreeType2")  return cell_FreeType2;

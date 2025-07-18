@@ -33,6 +33,7 @@ void Settings::load() {
     lle.sys_fs          = cfg["LLEModules"]["sys_fs"].as_boolean();
     lle.cellResc        = cfg["LLEModules"]["cellResc"].as_boolean();
     lle.cellPngDec      = cfg["LLEModules"]["cellPngDec"].as_boolean();
+    lle.cellJpgDec      = cfg["LLEModules"]["cellJpgDec"].as_boolean();
     lle.cellFont        = cfg["LLEModules"]["cellFont"].as_boolean();
     lle.cellFontFT      = cfg["LLEModules"]["cellFontFT"].as_boolean();
     lle.cell_FreeType2  = cfg["LLEModules"]["cell_FreeType2"].as_boolean();
@@ -69,6 +70,7 @@ void Settings::save() {
     cfg["LLEModules"]["sys_fs"]             = lle.sys_fs;
     cfg["LLEModules"]["cellResc"]           = lle.cellResc;
     cfg["LLEModules"]["cellPngDec"]         = lle.cellPngDec;
+    cfg["LLEModules"]["cellJpgDec"]         = lle.cellJpgDec;
     cfg["LLEModules"]["cellFont"]           = lle.cellFont;
     cfg["LLEModules"]["cellFontFT"]         = lle.cellFontFT;
     cfg["LLEModules"]["cell_FreeType2"]     = lle.cell_FreeType2;

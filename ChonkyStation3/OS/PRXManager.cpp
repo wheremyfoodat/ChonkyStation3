@@ -8,7 +8,7 @@ PRXManager::PRXManager(PlayStation3* ps3) : ps3(ps3) {
         { "sys_fs",             "libfs.prx" },
         { "cellResc",           "libresc.prx" },
         { "cellPngDec",         "libpngdec.prx" },
-        //{ "cellJpgDec",         "libjpgdec.prx" },
+        { "cellJpgDec",         "libjpgdec.prx" },
         { "cellFont",           "libfont.prx" },
         { "cellFontFT",         "libfontFT.prx" },
         { "cell_FreeType2",     "libfreetype.prx" },

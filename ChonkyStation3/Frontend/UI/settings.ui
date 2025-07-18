@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="system">
       <attribute name="title">
@@ -201,8 +201,8 @@
         <rect>
          <x>10</x>
          <y>80</y>
-         <width>121</width>
-         <height>149</height>
+         <width>115</width>
+         <height>157</height>
         </rect>
        </property>
        <property name="toolTip">
@@ -220,7 +220,7 @@
        <property name="checkable">
         <bool>false</bool>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0">
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,0,0">
         <property name="spacing">
          <number>6</number>
         </property>
@@ -251,6 +251,16 @@
          <widget class="QCheckBox" name="cellPngDec">
           <property name="text">
            <string>cellPngDec</string>
+          </property>
+          <property name="tristate">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cellJpgDec">
+          <property name="text">
+           <string>cellJpgDec</string>
           </property>
           <property name="tristate">
            <bool>false</bool>
