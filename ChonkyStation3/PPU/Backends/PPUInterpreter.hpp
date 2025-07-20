@@ -88,12 +88,14 @@ public:
     void vaddfp     (const Instruction& instr);
     void vmhraddshs (const Instruction& instr);
     void vmladduhm  (const Instruction& instr);
+    void vmsumshm   (const Instruction& instr);
     void vsel       (const Instruction& instr);
     void vperm      (const Instruction& instr);
     void vsldoi     (const Instruction& instr);
     void vmaddfp    (const Instruction& instr);
     void vnmsubfp   (const Instruction& instr);
     void vadduhm    (const Instruction& instr);
+    void vmulouh    (const Instruction& instr);
     void vsubfp     (const Instruction& instr);
     void vmrghh     (const Instruction& instr);
     void vadduwm    (const Instruction& instr);

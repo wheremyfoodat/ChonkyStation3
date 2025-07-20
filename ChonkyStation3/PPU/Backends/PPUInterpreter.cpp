@@ -59,9 +59,10 @@ void PPUInterpreter::step() {
         switch (instr.g_04_field & 0x3f) {
 
         case VMADDFP:       vmaddfp(instr);     break;
-        case VMHRADDSHS:    vmhraddshs(instr);     break;
-        case VMLADDUHM:     vmladduhm(instr);     break;
+        case VMHRADDSHS:    vmhraddshs(instr);  break;
+        case VMLADDUHM:     vmladduhm(instr);   break;
         case VNMSUBFP:      vnmsubfp(instr);    break;
+        case VMSUMSHM:      vmsumshm(instr);    break;
         case VSEL:          vsel(instr);        break;
         case VPERM:         vperm(instr);       break;
         case VSLDOI:        vsldoi(instr);      break;
@@ -72,6 +73,7 @@ void PPUInterpreter::step() {
             case VCMPEQUB:  vcmpequb(instr);    break;
             case VADDFP:    vaddfp(instr);      break;
             case VADDUHM:   vadduhm(instr);     break;
+            case VMULOUH:   vmulouh(instr);     break;
             case VSUBFP:    vsubfp(instr);      break;
             case VMRGHH:    vmrghh(instr);      break;
             case VADDUWM:   vadduwm(instr);     break;
@@ -700,6 +702,15 @@ void PPUInterpreter::vcmpequb(const Instruction& instr) {
         state.cr.setCRField(6, all_equal | none_equal);
 }
 
+void PPUInterpreter::vmsumshm(const Instruction& instr) {
+    for (int i = 0; i < 4; i++) {
+        const s32 h1 = (s16)state.vrs[instr.va].h[i * 2 + 0] * (s16)state.vrs[instr.vb].h[i * 2 + 0];
+        const s32 h2 = (s16)state.vrs[instr.va].h[i * 2 + 1] * (s16)state.vrs[instr.vb].h[i * 2 + 1];
+        const s32 sum = h1 + h2;
+        state.vrs[instr.vd].w[i] = state.vrs[instr.vc].w[i] + sum;
+    }
+}
+
 void PPUInterpreter::vsel(const Instruction& instr) {
     // Where vc is 0, we take va, so we invert the mask and do va & ~vc
     state.vrs[instr.vd].dw[0] = (state.vrs[instr.va].dw[0] & ~state.vrs[instr.vc].dw[0]) | (state.vrs[instr.vb].dw[0] & state.vrs[instr.vc].dw[0]);
@@ -776,6 +787,14 @@ void PPUInterpreter::vadduhm(const Instruction& instr) {
     state.vrs[instr.vd].h[5] = state.vrs[instr.va].h[5] + state.vrs[instr.vb].h[5];
     state.vrs[instr.vd].h[6] = state.vrs[instr.va].h[6] + state.vrs[instr.vb].h[6];
     state.vrs[instr.vd].h[7] = state.vrs[instr.va].h[7] + state.vrs[instr.vb].h[7];
+}
+
+void PPUInterpreter::vmulouh(const Instruction& instr) {
+    // Odd actually means even for us because of the usual PPC bs
+    state.vrs[instr.vd].w[0] = (u32)state.vrs[instr.va].h[0] * (u32)state.vrs[instr.vb].h[0];
+    state.vrs[instr.vd].w[1] = (u32)state.vrs[instr.va].h[2] * (u32)state.vrs[instr.vb].h[2];
+    state.vrs[instr.vd].w[2] = (u32)state.vrs[instr.va].h[4] * (u32)state.vrs[instr.vb].h[4];
+    state.vrs[instr.vd].h[3] = (u32)state.vrs[instr.va].h[6] * (u32)state.vrs[instr.vb].h[6];
 }
 
 void PPUInterpreter::vsubfp(const Instruction& instr) {

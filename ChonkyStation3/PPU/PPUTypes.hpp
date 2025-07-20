@@ -251,7 +251,7 @@ enum G_04Opcodes {
     VMSUMMBM        = 0x25,
     VMSUMUHM        = 0x26,
     VMSUMUHS        = 0x27,
-    VMSUMSHM        = 0x28,
+    VMSUMSHM        = 0x28,     // Vector Multiply Sum Signed Half Word Modulo
     VMSUMSHS        = 0x29,
     VSEL            = 0x2a,     // Vector Conditional Select
     VPERM           = 0x2b,     // Vector Permute
@@ -263,7 +263,7 @@ enum G_04Opcodes {
     VRLH            = 0x44,
     VCMPEQUH        = 0x046,
     VCMPEQUH_       = 0x446,
-    VMULOUH         = 0x48,
+    VMULOUH         = 0x48,     // Vector Multiply Odd Unsigned Half Word
     VSUBFP          = 0x4a,     // Vector Subtract Floating-Point
     VMRGHH          = 0x4c,     // Vector Merge High Half word
     VPKUWUM         = 0x4e,
