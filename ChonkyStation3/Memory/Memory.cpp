@@ -1,6 +1,8 @@
 #include "Memory.hpp"
 
 
+//#define DISABLE_FASTMEM_FOR_ALLOCATED_MEM
+
 // Allocates size bytes of physical memory. Returns physical address of the allocated memory.
 MemoryRegion::Block* MemoryRegion::allocPhys(size_t size, bool system) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
@@ -52,6 +54,7 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr, bool sy
     u64 vaddr = findNextAllocatableVaddr(size, start_addr);
     MapEntry* entry = mmap(vaddr, paddr, aligned_size);
 
+#ifndef DISABLE_FASTMEM_FOR_ALLOCATED_MEM
     // Fastmem
     for (u64 page_addr = entry->vaddr; page_addr < entry->vaddr + entry->size; page_addr += PAGE_SIZE) {
         const u64 page = page_addr >> PAGE_SHIFT;
@@ -59,6 +62,7 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr, bool sy
         mem_manager.markAsFastMem(page, ptr, true, true);
         paddr += PAGE_SIZE;
     }
+#endif
 
     log("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
     return entry;
@@ -412,12 +416,26 @@ T Memory::read(u64 vaddr) {
         auto [offset, mem] = addrToOffsetInMemory(vaddr);
         Helpers::debugAssert(mem != nullptr, "Tried to read unmapped vaddr 0x%016llx\n", vaddr);
         T data;
-
+        
         if (watchpoints_r.contains(vaddr))
             watchpoints_r[vaddr](vaddr);
 
         std::memcpy(&data, &mem[offset], sizeof(T));
+        
+#ifdef TRACK_UNWRITTEN_READS
+        auto check_data = [this](u32 addr, u64 data) {
+            if (written_addresses.contains(addr)) {
+                const auto written = written_addresses[addr];
+                if (written != data)
+                    printf("Data mismatch: last recorded value was 0x%x but 0x%x was read\n", written, data);
+            } else printf("Read 0x%0x from unwritten address 0x%08x\n", data, addr);
+        };
 
+        data = Helpers::bswap<T>(data);
+        check_data(vaddr, data);
+        return data;
+#endif
+        
         return Helpers::bswap<T>(data);
     }
 }
@@ -428,8 +446,12 @@ template u64 Memory::read(u64 vaddr);
 
 template<typename T>
 void Memory::write(u64 vaddr, T data) {
+#ifdef TRACK_UNWRITTEN_READS
+    written_addresses[vaddr] = data;
+#endif
+    
     data = Helpers::bswap<T>(data);
-
+    
     const u64 page = vaddr >> PAGE_SHIFT;
     const u64 offs = vaddr & PAGE_MASK;
 

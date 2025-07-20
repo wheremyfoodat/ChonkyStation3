@@ -11,6 +11,8 @@
 
 #include <MemoryConstants.hpp>
 
+// Logs addresses which are being read without ever being written to
+//#define TRACK_UNWRITTEN_READS
 
 class Memory;
 
@@ -154,6 +156,10 @@ public:
     // For both reads and writes, the address being read/written is passed as an argument to the handler.
     std::unordered_map<u64, std::function<void(u64)>> watchpoints_r;
     std::unordered_map<u64, std::function<void(u64)>> watchpoints_w;
+    
+#ifdef TRACK_UNWRITTEN_READS
+    std::unordered_map<u32, u64> written_addresses;
+#endif
     
 private:
     u64 curr_thread_id = 0;
