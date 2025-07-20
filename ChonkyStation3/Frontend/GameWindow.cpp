@@ -44,6 +44,13 @@ void GameWindow::run(PlayStation3* ps3, bool is_rsx_replay) {
     this->ps3 = ps3;
     std::string title = "ChonkyStation3";
 
+#ifdef CHONKYSTATION3_QT_BUILD
+    if (ps3->settings.debug.pause_on_start) {
+        while (!paused);
+        pause(false);
+    }
+#endif
+    
 #if defined(CHONKYSTATION3_QT_BUILD) && defined(__APPLE__)
     QMetaObject::invokeMethod(main_window, "createGameWindow", Qt::BlockingQueuedConnection);
 #else

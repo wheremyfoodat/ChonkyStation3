@@ -38,14 +38,14 @@ u64 CellResc::cellRescSetConvertAndFlip() {
     log("cellRescSetConvertAndFlip()\n");
 
     CellGcmSys::CellGcmContextData* context = (CellGcmSys::CellGcmContextData*)ps3->mem.getPtr(context_addr);
-    //if (context->current + 8 >= context->end) ps3->module_manager.cellGcmCallback();
+    if (context->current + 8 >= context->end) ps3->module_manager.cellGcmSys.cellGcmCallback();
     ps3->mem.write<u32>(context->current, RSX::GCM_FLIP_COMMAND | (1 << 18));   // 1 is argc
     ps3->mem.write<u32>(context->current + 4, buf_id);
     context->current = context->current + 8;
-    if (context_addr == ps3->module_manager.cellGcmSys.ctx_addr) {
-        ps3->module_manager.cellGcmSys.ctrl->put = ps3->module_manager.cellGcmSys.ctrl->put + 8;
-        ps3->rsx.runCommandList();
-    }
+    //if (context_addr == ps3->module_manager.cellGcmSys.ctx_addr) {
+    //    ps3->module_manager.cellGcmSys.ctrl->put = ps3->module_manager.cellGcmSys.ctrl->put + 8;
+    //    ps3->rsx.runCommandList();
+    //}
 
     return CELL_OK;
 }

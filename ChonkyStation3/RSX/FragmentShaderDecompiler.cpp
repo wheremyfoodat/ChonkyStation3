@@ -293,7 +293,7 @@ void FragmentShaderDecompiler::markRegAsUsed(std::string name, int location) {
 
 void FragmentShaderDecompiler::enableInput(u32 idx) {
     is_input[idx] = true;
-    log("Enabled input %d\n", idx);
+    //log("Enabled input %d\n", idx);
 }
 
 std::string FragmentShaderDecompiler::source(FragmentInstruction& instr, int s) {

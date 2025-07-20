@@ -28,6 +28,8 @@ public:
 
     void setListItem(int row, int column, std::string str);
     void setListIcon(int row, fs::path icon);
+    void enableWidgets();
+    void disableWidgets();
 
     int curr_selection = -1;
     std::atomic<bool> is_game_running = false;
@@ -50,6 +52,7 @@ public:
     std::thread game_thread;
     void launchGame();
     void gameThread();
+    void pause();
     
 public slots:
     // MacOS-only functions to manage the SDL window on the main thread

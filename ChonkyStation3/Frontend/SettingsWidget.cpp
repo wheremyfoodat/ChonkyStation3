@@ -25,6 +25,7 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
     ui.cellSpursJq->setChecked(ps3->settings.lle.cellSpursJq);
 
     // Debug
+    ui.pauseOnStart->setChecked(ps3->settings.debug.pause_on_start);
     ui.disableSPU->setChecked(ps3->settings.debug.disable_spu);
     ui.enableSPUAfterPC->setText(QString::fromStdString(ps3->settings.debug.enable_spu_after_pc));
     ui.spuThreadToEnable->setText(QString::fromStdString(ps3->settings.debug.spu_thread_to_enable));
@@ -46,6 +47,7 @@ SettingsWidget::SettingsWidget(PlayStation3* ps3, QWidget* parent) : QWidget(par
         ps3->settings.lle.cellSpurs     = ui.cellSpurs->isChecked();
         ps3->settings.lle.cellSpursJq   = ui.cellSpursJq->isChecked();
 
+        ps3->settings.debug.pause_on_start         = ui.pauseOnStart->isChecked();
         ps3->settings.debug.disable_spu            = ui.disableSPU->isChecked();
         ps3->settings.debug.enable_spu_after_pc    = ui.enableSPUAfterPC->text().toStdString();
         ps3->settings.debug.spu_thread_to_enable   = ui.spuThreadToEnable->text().toStdString();

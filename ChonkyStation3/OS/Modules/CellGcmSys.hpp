@@ -14,6 +14,8 @@ class PlayStation3;
 
 using namespace CellTypes;
 
+static constexpr u32 CMD_BUFFER_SIZE = 32_KB;
+
 class CellGcmSys {
 public:
     CellGcmSys(PlayStation3* ps3) : ps3(ps3) {}
@@ -65,9 +67,8 @@ public:
         0x00010000
     };
 
+    u32 default_ctx_ptr = 0;    // The ctx ptr passed to cellGcmInitBody
     u32 ctx_addr = 0;
-    u32 ctx_ptr = 0;    // Passed to cellGcmInitBody
-    CellGcmContextData* ctx;
     u32 ctrl_addr = 0;
     CellGcmControl* ctrl;
 
@@ -84,6 +85,7 @@ public:
     u32 vblank_handler = 0;
     u32 command_size = 0x400;
     u32 segment_size = 0x100;
+    u32 n_cmd_bufs = 0;
 
     void mapEaIo(u32 ea, u32 io);
     void unmapEaIo(u32 ea, u32 io);

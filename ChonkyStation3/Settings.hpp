@@ -68,6 +68,7 @@ public:
     } filesystem;
 
     struct {
+        bool pause_on_start = false;
         bool disable_spu = false;
         std::string enable_spu_after_pc = "";
         std::string spu_thread_to_enable = "";

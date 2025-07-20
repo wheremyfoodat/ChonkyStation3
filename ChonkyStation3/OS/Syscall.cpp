@@ -42,7 +42,7 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     switch (syscall_num) {
     
     // cellGcmCallback
-    case 0x400: ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
+    case 0x400: ps3->ppu->state.gprs[3] = ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
     // HLE vblank event
     case 4096: {
         ps3->vblank();

@@ -35,9 +35,9 @@ u64 CellGcmSys::cellGcmInitBody() {
 
     std::memset(ps3->mem.getPtr(gcm_config.local_addr), 0, gcm_config.local_size);
 
+    default_ctx_ptr = ctx_ptr;
     ctx_addr = ps3->mem.alloc(sizeof(CellGcmContextData), 0, true)->vaddr;
-    ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
-    this->ctx_ptr = ctx_ptr;
+    CellGcmContextData* ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
     ps3->mem.write<u32>(ctx_ptr, ctx_addr);
 
     // Setup callback
@@ -47,8 +47,10 @@ u64 CellGcmSys::cellGcmInitBody() {
     ps3->mem.write<u32>(callback_addr +  8, 0x44000002);     // sc
     ps3->mem.write<u32>(callback_addr + 12, 0x4E800020);     // blr
 
-    ctx->begin = io_addr + 4_KB;
-    ctx->end = ctx->begin + cmd_size;
+    n_cmd_bufs = cmd_size / CMD_BUFFER_SIZE;
+    log("Number of command buffers: %d\n", n_cmd_bufs);
+    ctx->begin = io_addr + 4_KB;    // First 4KB of the first command buffer are reserved
+    ctx->end = io_addr + CMD_BUFFER_SIZE - 4;   // -4 is for the jump command
     ctx->current = ctx->begin;
     ctx->callback = callback_addr;
 
@@ -387,6 +389,7 @@ u64 CellGcmSys::cellGcmSetDisplayBuffer() {
     Helpers::debugAssert(buf_id < 8, "cellGcmSetDisplayBuffer: invalid buf_id (%d)\n", buf_id);
 
     CellGcmDisplayInfo* info = (CellGcmDisplayInfo*)ps3->mem.getPtr(buffer_info_addr + sizeof(CellGcmDisplayInfo) * buf_id);
+    info->offset = offs;
     info->width = width;
     info->height = height;
     info->pitch = pitch;
@@ -418,8 +421,7 @@ u64 CellGcmSys::cellGcmResetFlipStatus() {
 u64 CellGcmSys::cellGcmSetDefaultCommandBuffer() {
     log("cellGcmSetDefaultCommandBuffer()\n");
 
-    ps3->mem.write<u32>(ctx_ptr, ctx_addr);
-    //ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_addr);
+    ps3->mem.write<u32>(default_ctx_ptr, ctx_addr);
     return CELL_OK;
 }
 
@@ -501,10 +503,10 @@ u64 CellGcmSys::cellGcmSetFlip() {
     ps3->mem.write<u32>(context->current, RSX::GCM_FLIP_COMMAND | (1 << 18));   // 1 is argc
     ps3->mem.write<u32>(context->current + 4, buf_id);
     context->current = context->current + 8;
-    if (context_addr == ctx_addr) {
+    /*if (context_addr == ctx_addr) {
         ctrl->put = ctrl->put + 8;
         ps3->rsx.runCommandList();
-    }
+    }*/
 
     return CELL_OK;
 }
@@ -550,17 +552,41 @@ u64 CellGcmSys::cellGcmSetVBlankFrequency() {
 // Update context and fifo control accordingly
 u64 CellGcmSys::cellGcmCallback() {
     const u32 ctx_ptr = ARG0;
-    log("cellGcmCallback(ctx_ptr: 0x%08x)\n", ctx_ptr);
-    ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_ptr);
+    log("cellGcmCallback(ctx_ptr: 0x%08x) @ 0x%08x\n", ctx_ptr, ps3->ppu->state.lr);
+    CellGcmContextData* ctx = (CellGcmContextData*)ps3->mem.getPtr(ctx_ptr);
     log("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
     log("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
 
+    // cellGcmCallback automatically flushes the cmd buffer
     ctrl->put = addressToOffset(ctx->current);
     log("Flushing RSX command buffer up to offs 0x%08x\n", (u32)ctrl->put);
     ps3->rsx.runCommandList();
 
+    // Find the next cmd buffer
+    u32 new_begin;
+    u32 new_end;
+    const u32 curr_cmd_buf_idx = (ctx->begin - gcm_config.io_addr) / CMD_BUFFER_SIZE;
+    if (curr_cmd_buf_idx + 1 < n_cmd_bufs) {
+        // We haven't reached the end of the cmd ring buffer yet, go to the next one
+        new_begin = gcm_config.io_addr + (curr_cmd_buf_idx + 1) * CMD_BUFFER_SIZE;
+        new_end = new_begin + CMD_BUFFER_SIZE - 4;  // -4 is for the jump command
+    } else {
+        // We have reached the end of the cmd ring buffer, go back to the first one
+        new_begin = gcm_config.io_addr + 4_KB;  // First 4KB are reserved
+        new_end = gcm_config.io_addr + CMD_BUFFER_SIZE - 4;
+    }
+    
+    // Write jump command
+    ps3->mem.write<u32>(ctx->current, 0x20000000 | addressToOffset(new_begin));
+    
+    // Update cmd buffer structure
+    ctx->begin   = new_begin;
+    ctx->end     = new_end;
     ctx->current = ctx->begin;
-    ctrl->get = addressToOffset(ctx->begin);
+
+    log("Updated context and control:\n");
+    log("begin: 0x%08x, end: 0x%08x, current: 0x%08x\n", (u32)ctx->begin, (u32)ctx->end, (u32)ctx->current);
+    log("get: 0x%08x, put: 0x%08x\n", (u32)ctrl->get, (u32)ctrl->put);
 
     return CELL_OK;
 }

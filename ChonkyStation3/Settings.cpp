@@ -51,6 +51,7 @@ void Settings::load() {
     filesystem.dev_flash_mountpoint     = cfg["Filesystem"]["dev_flash_mountpoint"].as_string();
     filesystem.dev_usb000_mountpoint    = cfg["Filesystem"]["dev_usb000_mountpoint"].as_string();
 
+    debug.pause_on_start       = cfg["Debug"]["PauseOnStart"].as_boolean();
     debug.disable_spu          = cfg["Debug"]["DisableSPU"].as_boolean();
     debug.enable_spu_after_pc  = cfg["Debug"]["EnableSPUAfterPC"].as_string();
     debug.spu_thread_to_enable = cfg["Debug"]["SPUThreadToEnable"].as_string();
@@ -88,6 +89,7 @@ void Settings::save() {
     cfg["Filesystem"]["dev_flash_mountpoint"]   = filesystem.dev_flash_mountpoint;
     cfg["Filesystem"]["dev_usb000_mountpoint"]  = filesystem.dev_usb000_mountpoint;
     
+    cfg["Debug"]["PauseOnStart"]            = debug.pause_on_start;
     cfg["Debug"]["DisableSPU"]              = debug.disable_spu;
     cfg["Debug"]["EnableSPUAfterPC"]        = debug.enable_spu_after_pc;
     cfg["Debug"]["SPUThreadToEnable"]       = debug.spu_thread_to_enable;

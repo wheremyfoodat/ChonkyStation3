@@ -11,16 +11,6 @@ MainWindow::MainWindow() : QMainWindow() {
     // Qt6 UI
     ui.setupUi(this);
     
-    // Enable widgets that have a DisabledWidgetOverlay
-    auto enable_widgets = [this]() {
-        ppu_debugger->enable();
-    };
-
-    // Disable widgets that have a DisabledWidgetOverlay
-    auto disable_widgets = [this]() {
-        ppu_debugger->disable();
-    };
-    
     // Setup menubar buttons
     connect(ui.actionLaunch_Disc_Game, &QAction::triggered, this, &MainWindow::launchDiscGame);
     connect(ui.actionOpen_ELF, &QAction::triggered, this, &MainWindow::launchELF);
@@ -71,54 +61,16 @@ MainWindow::MainWindow() : QMainWindow() {
     connect(ui.actionReplay_RSX_Capture, &QAction::triggered, this, &MainWindow::replayRSXCapture);
     
     // Pause / Resume
-    connect(ui.pauseButton, &QPushButton::clicked, this, [this, enable_widgets, disable_widgets]() {
-        if (is_game_running) {
-            timer.stop();
-            
-            if (!is_paused) {
-                // The game thread will check the atomic variable below on every RSX flip to know if we requested to pause the emulator.
-                // We can't assume the game thread will pause instantly, we also can't assume it will ever pause if no RSX flip happens at all
-                game_window->paused = true;
-                // Wait until the game flips & pauses, or timeout if no flip happens (meaning we failed to pause)
-                // We wait 100ms for 100 times (== 10s timeout)
-                int cnt = 0;
-                bool timeout = false;
-                while (!game_window->in_pause) {
-                    if (cnt == 100) {
-                        timeout = true;
-                        break;
-                    }
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    cnt++;
-                }
-                
-                // Did we timeout?
-                if (!timeout) {
-                    is_paused = true;
-                    ui.pauseButton->setText(tr("Resume"));
-                    enable_widgets();
-                } else {
-                    game_window->paused = false;
-                    game_window->pause_sema.release();
-                    timer.start();
-                };
-            } else {
-                game_window->paused = false;
-                game_window->pause_sema.release();
-                is_paused = false;
-                ui.pauseButton->setText(tr("Pause"));
-                disable_widgets();
-                timer.start();
-            }
-        }
+    connect(ui.pauseButton, &QPushButton::clicked, this, [this]() {
+        pause();
     });
     
     // Timer to periodically check if some event other than user input caused the emulator to pause (i.e. a breakpoint)
-    connect(&timer, &QTimer::timeout, this, [this, enable_widgets]() {
+    connect(&timer, &QTimer::timeout, this, [this]() {
         if (game_window->in_pause && !is_paused) {
             is_paused = true;
             ui.pauseButton->setText(tr("Resume"));
-            enable_widgets();
+            enableWidgets();
             timer.stop();
         }
     });
@@ -222,6 +174,16 @@ void MainWindow::setListIcon(int row, fs::path icon) {
     ui.tableWidget->setCellWidget(row, 0, widget);
 }
 
+// Enable widgets that have a DisabledWidgetOverlay
+void MainWindow::enableWidgets() {
+    ppu_debugger->enable();
+};
+
+// Disable widgets that have a DisabledWidgetOverlay
+void MainWindow::disableWidgets() {
+    ppu_debugger->disable();
+};
+
 bool MainWindow::ensureGameNotRunning() {
     if (is_game_running) {
         QMessageBox* dialog = new QMessageBox();
@@ -306,6 +268,8 @@ void MainWindow::launchGame() {
     game_thread = std::thread(&MainWindow::gameThread, this);
     game_thread.detach();
     is_game_running = true;
+    if (ps3->settings.debug.pause_on_start)
+        pause();
 }
 
 void MainWindow::gameThread() {
@@ -314,6 +278,47 @@ void MainWindow::gameThread() {
     is_game_running = false;
     delete ps3;
     ps3 = new PlayStation3();
+}
+
+void MainWindow::pause() {
+    if (is_game_running) {
+        timer.stop();
+        
+        if (!is_paused) {
+            // The game thread will check the atomic variable below on every RSX flip to know if we requested to pause the emulator.
+            // We can't assume the game thread will pause instantly, we also can't assume it will ever pause if no RSX flip happens at all
+            game_window->paused = true;
+            // Wait until the game flips & pauses, or timeout if no flip happens (meaning we failed to pause)
+            // We wait 100ms for 100 times (== 10s timeout)
+            int cnt = 0;
+            bool timeout = false;
+            while (!game_window->in_pause) {
+                if (cnt == 100) {
+                    timeout = true;
+                    break;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                cnt++;
+            }
+            
+            if (!timeout) {
+                is_paused = true;
+                ui.pauseButton->setText(tr("Resume"));
+                enableWidgets();
+            } else {    // Did we timeout?
+                game_window->paused = false;
+                game_window->pause_sema.release();
+                timer.start();
+            };
+        } else {
+            game_window->paused = false;
+            game_window->pause_sema.release();
+            is_paused = false;
+            ui.pauseButton->setText(tr("Pause"));
+            disableWidgets();
+            timer.start();
+        }
+    }
 }
 
 void MainWindow::createGameWindow() {

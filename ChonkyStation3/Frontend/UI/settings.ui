@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>6</number>
      </property>
      <widget class="QWidget" name="system">
       <attribute name="title">
@@ -461,8 +461,8 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>331</width>
-         <height>125</height>
+         <width>437</width>
+         <height>147</height>
         </rect>
        </property>
        <property name="title">
@@ -478,7 +478,7 @@
         <bool>false</bool>
        </property>
        <layout class="QFormLayout" name="formLayout_3">
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QCheckBox" name="disableSPU">
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable partial LLE emulation of some liblv2 functions, instead of fully HLEing it.&lt;/p&gt;&lt;p&gt;Recommended.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -491,7 +491,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_3">
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Conditionally enables the SPU after the PPU hits the given address.&lt;/p&gt;&lt;p&gt;Enter the address in the form of a 32bit hexadecimal number (i.e. &amp;quot;0x12345678&amp;quot;).&lt;/p&gt;&lt;p&gt;Leave blank to disable.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -501,10 +501,10 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QLineEdit" name="enableSPUAfterPC"/>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_4">
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Name of the SPU Thread to enable when the condition explained in the setting above is met.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -514,8 +514,21 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QLineEdit" name="spuThreadToEnable"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="pauseOnStart">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable partial LLE emulation of some liblv2 functions, instead of fully HLEing it.&lt;/p&gt;&lt;p&gt;Recommended.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Automatically pause games after launching</string>
+          </property>
+          <property name="tristate">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

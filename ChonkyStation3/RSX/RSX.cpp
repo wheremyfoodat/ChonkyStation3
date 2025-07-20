@@ -574,6 +574,7 @@ void RSX::runCommandList(u64 put_addr) {
             if ((cmd & 0xe0000003) == 0x20000000) { // jump
                 const u32 old_get = gcm.ctrl->get - 4;
                 gcm.ctrl->get = cmd & 0x1ffffffc;
+                log("Jump to 0x%08x\n", (u32)gcm.ctrl->get);
 
                 // Detect hangs
                 if (gcm.ctrl->get == last_jump_dst && old_get == last_jump_addr) {
@@ -590,7 +591,8 @@ void RSX::runCommandList(u64 put_addr) {
             if ((cmd & 0xe0000003) == 0x00000001) { // jump
                 const u32 old_get = gcm.ctrl->get - 4;
                 gcm.ctrl->get = cmd & 0xfffffffc;
-
+                log("Jump to 0x%08x\n", (u32)gcm.ctrl->get);
+                
                 // Detect hangs
                 if (gcm.ctrl->get == last_jump_dst && old_get == last_jump_addr) {
                     log("RSX hanged, aborting...\n");
@@ -606,6 +608,7 @@ void RSX::runCommandList(u64 put_addr) {
             if ((cmd & 0x00000003) == 0x00000002) { // call
                 call_stack.push(gcm.ctrl->get);
                 gcm.ctrl->get = cmd & 0xfffffffc;
+                log("Call 0x%08x\n", (u32)gcm.ctrl->get);
                 continue;
             }
 
@@ -613,6 +616,7 @@ void RSX::runCommandList(u64 put_addr) {
                 Helpers::debugAssert(call_stack.size(), "RSX: Tried to return but the call stack was empty\n");
                 gcm.ctrl->get = call_stack.top();
                 call_stack.pop();
+                log("Return\n");
                 return;
             }
         }
@@ -665,7 +669,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     case NV406E_SEMAPHORE_ACQUIRE: {
         const auto sema = ps3->mem.read<u32>(gcm.label_addr + semaphore_offset);
         if (sema != args[0]) {
-            log("Could not acquire semaphore\n");
+            Helpers::panic("Could not acquire semaphore\n");
         }
         args.pop_front();
         break;
@@ -1415,6 +1419,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
             GL_NEAREST
         );
 
+        
         ps3->flip();
         args.pop_front();
         break;
