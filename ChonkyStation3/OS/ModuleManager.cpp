@@ -2,7 +2,7 @@
 #include "PlayStation3.hpp"
 
 
-//#define LOG_LLE_FUNC_RESULT
+#define LOG_LLE_FUNC_RESULT
 
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {
@@ -146,6 +146,7 @@ void ModuleManager::init() {
         { 0xd9b7653e, { "cellGcmUnbindTile",                                std::bind(&CellGcmSys::cellGcmUnbindTile, &cellGcmSys) }},
         { 0xdb23e867, { "cellGcmUnmapIoAddress",                            std::bind(&CellGcmSys::cellGcmUnmapIoAddress, &cellGcmSys) }},
         { 0xdc09357e, { "cellGcmSetFlip",                                   std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
+        { 0xdc494430, { "cellGcmSetSecondVHandler",                         std::bind(&CellGcmSys::cellGcmSetSecondVHandler, &cellGcmSys) } },
         { 0xe315a0b2, { "cellGcmGetConfiguration",                          std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
         { 0xf80196c1, { "cellGcmGetLabelAddress",                           std::bind(&CellGcmSys::cellGcmGetLabelAddress, &cellGcmSys) }},
         { 0xffe0160e, { "cellGcmSetVBlankFrequency",                        std::bind(&CellGcmSys::cellGcmSetVBlankFrequency, &cellGcmSys) }},
@@ -405,7 +406,7 @@ void ModuleManager::init() {
 
         { 0x21425307, { "cellSaveDataListAutoLoad",                         std::bind(&ModuleManager::stub, this) } },
         { 0x248bd1d8, { "cellSaveDataUserListAutoLoad",                     std::bind(&CellSaveData::cellSaveDataUserListAutoLoad, &cellSaveData) } },
-        { 0x52aac4fa, { "cellSaveDataUserAutoSave",                         std::bind(&ModuleManager::stub, this) } },
+        { 0x52aac4fa, { "cellSaveDataUserAutoSave",                         std::bind(&CellSaveData::cellSaveDataUserAutoSave, &cellSaveData) } },
         { 0x8b7ed64b, { "cellSaveDataAutoSave2",                            std::bind(&CellSaveData::cellSaveDataAutoSave2, &cellSaveData) } },
         { 0xcdc6aefd, { "cellSaveDataUserAutoLoad",                         std::bind(&CellSaveData::cellSaveDataUserAutoLoad, &cellSaveData) } },
         { 0xe7fa820b, { "cellSaveDataEnableOverlay",                        std::bind(&ModuleManager::stub, this) } },

@@ -10,17 +10,21 @@ void Lv2Semaphore::post(u32 val) {
         // Wake up thread
         Thread* t = ps3->thread_manager.getThreadByID(wait_list.front());
         t->wakeUp();
-        wait_list.pop();
+        wait_list.pop_front();
         // Decrement semaphore
         this->val--;
+        // Delete timeout events
+        ps3->scheduler.deleteAllEventsOfName(std::format("timeout {:d}", t->id));
     }
 }
 
-void Lv2Semaphore::wait() {
+void Lv2Semaphore::wait(u64 timeout) {
     if (val > 0)
         val--;
     else {
-        ps3->thread_manager.getCurrentThread()->wait(std::format("sema {}", handle()));
-        wait_list.push(ps3->thread_manager.getCurrentThread()->id);
-    } 
+        auto curr_thread = ps3->thread_manager.getCurrentThread();
+        curr_thread->wait(std::format("sema {}", handle()));
+        if (timeout) curr_thread->timeout(timeout);
+        wait_list.push_back(ps3->thread_manager.getCurrentThread()->id);
+    }
 }

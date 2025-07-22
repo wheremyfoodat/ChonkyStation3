@@ -795,6 +795,13 @@ void SPUInterpreter::andc(const SPUInstruction& instr) {
     state.gprs[instr.rt0].dw[1] = state.gprs[instr.ra].dw[1] & ~state.gprs[instr.rb].dw[1];
 }
 
+void SPUInterpreter::fcgt(const SPUInstruction& instr) {
+    state.gprs[instr.rt0].w[0] = (state.gprs[instr.ra].f[0] > state.gprs[instr.rb].f[0]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[1] = (state.gprs[instr.ra].f[1] > state.gprs[instr.rb].f[1]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[2] = (state.gprs[instr.ra].f[2] > state.gprs[instr.rb].f[2]) ? 0xffffffff : 0;
+    state.gprs[instr.rt0].w[3] = (state.gprs[instr.ra].f[3] > state.gprs[instr.rb].f[3]) ? 0xffffffff : 0;
+}
+
 void SPUInterpreter::fa(const SPUInstruction& instr) {
     state.gprs[instr.rt0].f[0] = state.gprs[instr.ra].f[0] + state.gprs[instr.rb].f[0];
     state.gprs[instr.rt0].f[1] = state.gprs[instr.ra].f[1] + state.gprs[instr.rb].f[1];
@@ -1369,7 +1376,7 @@ UNIMPL_INSTR(hgt);
 //UNIMPL_INSTR(xsbh);
 //UNIMPL_INSTR(clgt);
 //UNIMPL_INSTR(andc);
-UNIMPL_INSTR(fcgt);
+//UNIMPL_INSTR(fcgt);
 UNIMPL_INSTR(dfcgt);
 //UNIMPL_INSTR(fa);
 //UNIMPL_INSTR(fs);

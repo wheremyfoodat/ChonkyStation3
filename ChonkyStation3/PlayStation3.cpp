@@ -93,19 +93,6 @@ void PlayStation3::init() {
     ppu->state.gprs[11] = entry;
     ppu->state.gprs[12] = proc_param.malloc_pagesize ? proc_param.malloc_pagesize : 0x100000;
 
-    prx_manager.createLv2PRXs();
-
-    // Load PRXs required by the ELF
-    prx_manager.loadModulesRecursively();
-
-    // Initialize libraries (must be done after creating main thread)
-    try {
-        prx_manager.initializeLibraries();
-    }
-    catch (std::runtime_error e) {
-        printCrashInfo(e);
-    }
-    
     // Create the idle thread
     // This thread will run when no PPU thread is active but at least 1 SPU thread is
 
@@ -123,6 +110,31 @@ void PlayStation3::init() {
     idle_thread->is_idle_thread = true;
     // Tell the thread manager the ID of the idle thread
     thread_manager.idle_thread_id = idle_thread->id;
+    
+    // "PPU return function"
+    // This will be the return address for functions executed with ppu->runFunc.
+    // runFunc saves the current PPU state and jumps to the function.
+    // When the function returns to this address a syscall will be called which will restore the state
+    ppu_ret_func = idle_thread_entry + 0x10;
+    mem.write<u32>(ppu_ret_func + 0, 0x39603000);   // li r11, 0x3000
+    mem.write<u32>(ppu_ret_func + 4, 0x44000002);   // sc
+    
+    ppu_ret_func_all_state = ppu_ret_func + 0x10;
+    mem.write<u32>(ppu_ret_func_all_state + 0, 0x39603001);   // li r11, 0x3001
+    mem.write<u32>(ppu_ret_func_all_state + 4, 0x44000002);   // sc
+    
+    prx_manager.createLv2PRXs();
+
+    // Load PRXs required by the ELF
+    prx_manager.loadModulesRecursively();
+
+    // Initialize libraries (must be done after creating main thread)
+    try {
+        prx_manager.initializeLibraries();
+    }
+    catch (std::runtime_error e) {
+        printCrashInfo(e);
+    }
     
     // SPU Debugging options
     if (!settings.debug.enable_spu_after_pc.empty()) {
@@ -208,6 +220,13 @@ void PlayStation3::vblank() {
         u32 old_r3 = ppu->state.gprs[3];
         ppu->state.gprs[3] = 1; // Handler function is always called with 1 as first argument
         ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.vblank_handler), mem.read<u32>(module_manager.cellGcmSys.vblank_handler + 4));
+        ppu->state.gprs[3] = old_r3;
+    }
+    
+    if (module_manager.cellGcmSys.vblank2_handler) {
+        u32 old_r3 = ppu->state.gprs[3];
+        ppu->state.gprs[3] = 1; // TODO: I don't know if second vblank is also called with 1 as argument
+        ppu->runFunc(mem.read<u32>(module_manager.cellGcmSys.vblank2_handler), mem.read<u32>(module_manager.cellGcmSys.vblank2_handler + 4));
         ppu->state.gprs[3] = old_r3;
     }
 }

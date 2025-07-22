@@ -7,24 +7,22 @@ void PPU::step() {
 }
 
 void PPU::runFunc(u32 addr, u32 toc, bool save_all_state) {
-    const PPUTypes::State old_state = state;
-    const u64 ret_val = 0xFFFF1234FFFF1234; // Random value - we check that pc == this to know that the function returned
-    state.lr = ret_val;
+    // Save state
+    auto curr_thread = ps3->thread_manager.getCurrentThread();
+    const auto old_size = curr_thread->state_queue.size();
+    curr_thread->state_queue.push_back(ps3->ppu->state);
+    curr_thread->func_done_flag_queue.push_back(false);
+    u8* func_done = &curr_thread->func_done_flag_queue[curr_thread->nested_func_calls];
+    curr_thread->nested_func_calls++;
+    
+    state.lr = save_all_state ? ps3->ppu_ret_func_all_state : ps3->ppu_ret_func;
     state.pc = addr;
     if (toc) state.gprs[2] = toc;
 
-    while (state.pc != ret_val)
+    while (!*func_done)
         ps3->step();
-
-    if (save_all_state) {
-        state = old_state;
-    }
-    else {
-        // Only restore PC, LR and TOC
-        state.pc = old_state.pc;
-        state.lr = old_state.lr;
-        state.gprs[2] = old_state.gprs[2];
-    }
+    curr_thread->func_done_flag_queue.pop_back();
+    ps3->ppu->state.pc -= 4;
 }
 
 void PPU::printState() {

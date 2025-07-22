@@ -34,7 +34,6 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     }
     case 0x1010: {
         ps3->module_manager.lle(ps3->module_manager.imports[ps3->ppu->state.gprs[12]]);
-        //ps3->ppu->state.pc -= 4;
         return;
     }
     }
@@ -43,6 +42,31 @@ void Syscall::doSyscall(bool decrement_pc_if_module_call) {
     
     // cellGcmCallback
     case 0x400: ps3->ppu->state.gprs[3] = ps3->module_manager.cellGcmSys.cellGcmCallback(); break;
+            
+    case 0x3000: {
+        // Return from func without restoring all state
+        auto curr_thread = ps3->thread_manager.getCurrentThread();
+        auto old_state = curr_thread->state_queue.back();
+        ps3->ppu->state.pc = old_state.pc;
+        ps3->ppu->state.lr = old_state.lr;
+        ps3->ppu->state.gprs[2] = old_state.gprs[2];
+        curr_thread->state_queue.pop_back();
+        curr_thread->func_done_flag_queue[curr_thread->nested_func_calls - 1] = true;
+        curr_thread->nested_func_calls--;
+        break;
+    }
+            
+    case 0x3001: {
+        // Return from func and restore all state
+        auto curr_thread = ps3->thread_manager.getCurrentThread();
+        auto old_state = curr_thread->state_queue.back();
+        ps3->ppu->state = old_state;
+        curr_thread->state_queue.pop_back();
+        curr_thread->func_done_flag_queue[curr_thread->nested_func_calls - 1] = true;
+        curr_thread->nested_func_calls--;
+        break;
+    }
+            
     // HLE vblank event
     case 4096: {
         ps3->vblank();

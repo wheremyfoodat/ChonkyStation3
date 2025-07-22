@@ -357,6 +357,7 @@ void PPUInterpreter::step() {
         case FMSUB:     fmsub(instr);   break;
         case FMADD:     fmadd(instr);   break;
         case FNMSUB:    fnmsub(instr);  break;
+        case FNMADD:    fnmadd(instr);  break;
 
         default:
             switch (instr.g_3f_field) {
@@ -2226,6 +2227,11 @@ void PPUInterpreter::fmadd(const Instruction& instr) {
 void PPUInterpreter::fnmsub(const Instruction& instr) {
     Helpers::debugAssert(!instr.rc, "fnmsub: rc\n");
     state.fprs[instr.frt] = -(state.fprs[instr.fra] * state.fprs[instr.frc] - state.fprs[instr.frb]);
+}
+
+void PPUInterpreter::fnmadd(const Instruction& instr) {
+    Helpers::debugAssert(!instr.rc, "fnmadd: rc\n");
+    state.fprs[instr.frt] = -(state.fprs[instr.fra] * state.fprs[instr.frc] + state.fprs[instr.frb]);
 }
 
 void PPUInterpreter::fneg(const Instruction& instr) {

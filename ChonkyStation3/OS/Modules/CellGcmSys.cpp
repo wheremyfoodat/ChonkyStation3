@@ -511,6 +511,14 @@ u64 CellGcmSys::cellGcmSetFlip() {
     return CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmSetSecondVHandler() {
+    const u32 handler_ptr = ARG0;
+    log("cellGcmSetSecondVHandler(handler_ptr: 0x%08x)\n", handler_ptr);
+
+    vblank2_handler = handler_ptr;
+    return CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmGetConfiguration() {
     const u32 config_ptr = ARG0;
     log("cellGcmGetConfiguration(config_ptr: 0x%08x)\n", config_ptr);

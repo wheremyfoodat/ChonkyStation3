@@ -73,7 +73,7 @@ u64 Syscall::sys_memory_get_page_attribute() {
     sys_page_attr* attr = (sys_page_attr*)ps3->mem.getPtr(attr_ptr);
     attr->attr = 0x40000;       // SYS_MEMORY_PROT_READ_WRITE
     attr->access_right = 0xf;   // SYS_MEMORY_ACCESS_RIGHT_ANY
-    attr->page_size = 1_MB;
+    attr->page_size = ((addr >> 28) == 0xd) ? 4_KB : 1_MB;
     attr->pad = 0;
 
     return CELL_OK;

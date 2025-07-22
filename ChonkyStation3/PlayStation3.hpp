@@ -63,6 +63,9 @@ public:
     u64 curr_block = 0;
     u64 skipped_cycles = 0;
     bool force_scheduler_update = false;
+    
+    u32 ppu_ret_func = 0;
+    u32 ppu_ret_func_all_state = 0;
 
     void gameSelector();
     void loadGame(const GameLoader::InstalledGame& game);

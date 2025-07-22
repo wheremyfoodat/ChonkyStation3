@@ -83,6 +83,7 @@ public:
     u32 flip = 0;
     u32 flip_callback = 0;
     u32 vblank_handler = 0;
+    u32 vblank2_handler = 0;
     u32 command_size = 0x400;
     u32 segment_size = 0x100;
     u32 n_cmd_bufs = 0;
@@ -128,6 +129,7 @@ public:
     u64 cellGcmUnbindTile();
     u64 cellGcmUnmapIoAddress();
     u64 cellGcmSetFlip();
+    u64 cellGcmSetSecondVHandler();
     u64 cellGcmGetConfiguration();
     u64 cellGcmGetLabelAddress();
     u64 cellGcmSetVBlankFrequency();

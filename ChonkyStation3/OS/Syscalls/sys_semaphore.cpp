@@ -25,7 +25,10 @@ u64 Syscall::sys_semaphore_wait() {
     log_sys_semaphore("sys_semaphore_wait(sema_id: %d, timeout: %lld)\n", sema_id, timeout);
 
     Lv2Semaphore* sema = ps3->lv2_obj.get<Lv2Semaphore>(sema_id);
-    sema->wait();
+    sema->wait(timeout);
+    if (timeout && ps3->thread_manager.getCurrentThread()->status != Thread::ThreadStatus::Running) {
+        ps3->thread_manager.getCurrentThread()->sleep(timeout);
+    }
 
     return CELL_OK;
 }
@@ -36,7 +39,7 @@ u64 Syscall::sys_semaphore_trywait() {
 
     Lv2Semaphore* sema = ps3->lv2_obj.get<Lv2Semaphore>(sema_id);
     if (!sema->val) return CELL_EBUSY;
-    sema->wait();
+    sema->wait(0);
 
     return CELL_OK;
 }

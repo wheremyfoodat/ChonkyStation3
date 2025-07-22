@@ -3,6 +3,9 @@
 #include <common.hpp>
 #include <logger.hpp>
 
+#include <vector>
+#include <deque>
+
 #include <PPUTypes.hpp>
 #include <MemoryConstants.hpp>
 
@@ -39,6 +42,11 @@ public:
     u32 waiter = 0;
     u32 vptr = 0;   // Pointer to store the exit status to when terminated (v is u64)
     
+    // When running functions via ppu->runFunc, the PPU state for the current running thread will be saved here and restored later.
+    std::deque<PPUTypes::State> state_queue;
+    std::vector<u8> func_done_flag_queue;
+    int nested_func_calls = 0;
+    
     // For debugging
     std::string wait_reason;
 
@@ -61,6 +69,8 @@ public:
     void sleep(u64 us);
     void sleepForCycles(u64 cycles);
     void wait(std::string wait_reason = "Not specified");
+    void timeout(u64 us);
+    void timeoutEvent();    // Scheduled by "timeout", called when the timeout happens
     void wakeUp();
     void join(u32 id, u32 vptr);
     void exit(u64 exit_status);

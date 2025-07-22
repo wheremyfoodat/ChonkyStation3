@@ -27,6 +27,8 @@ Thread::Thread(u64 entry, u64 stack_size, u64 arg, s32 prio, const u8* name, u32
     }
 
     state.gprs[3] = arg;
+    
+    func_done_flag_queue.reserve(128);
 }
 
 void Thread::addArg(u64 arg) {
@@ -108,6 +110,18 @@ void Thread::wait(std::string wait_reason) {
     this->wait_reason = wait_reason;
     reschedule();
     log("Thread %d \"%s\" is waiting\n", id, name.c_str());
+}
+
+void Thread::timeout(u64 us) {
+    const u64 cycles = Scheduler::uSecondsToCycles(us);
+    mgr->ps3->scheduler.push(std::bind(&Thread::timeoutEvent, this), mgr->ps3->curr_block_cycles + cycles, std::format("timeout {:d}", id));
+    reschedule();
+}
+
+void Thread::timeoutEvent() {
+    state.gprs[3] = CELL_ETIMEDOUT;
+    log("Timed out, waking up\n");
+    wakeUp();
 }
 
 void Thread::wakeUp() {

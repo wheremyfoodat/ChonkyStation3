@@ -2,7 +2,7 @@
 
 #include <common.hpp>
 
-#include <queue>
+#include <deque>
 
 #include <Lv2Base.hpp>
 #include <Thread.hpp>
@@ -15,8 +15,8 @@ public:
     u32 val = 0;
     u32 max_val = 0;
 
-    std::queue<u64> wait_list;
+    std::deque<u64> wait_list;
 
     void post(u32 val);
-    void wait();
+    void wait(u64 timeout);
 };

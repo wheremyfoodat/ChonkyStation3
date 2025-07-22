@@ -146,6 +146,7 @@ public:
     };
 
     u64 cellSaveDataUserListAutoLoad();
+    u64 cellSaveDataUserAutoSave();
     u64 cellSaveDataAutoSave2();
     u64 cellSaveDataUserAutoLoad();
     u64 cellSaveDataAutoLoad2();

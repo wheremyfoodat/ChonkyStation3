@@ -272,6 +272,7 @@ public:
     void fmsub      (const Instruction& instr);
     void fmadd      (const Instruction& instr);
     void fnmsub     (const Instruction& instr);
+    void fnmadd     (const Instruction& instr);
     void fneg       (const Instruction& instr);
     void fabs_      (const Instruction& instr);
     void fctid      (const Instruction& instr);
