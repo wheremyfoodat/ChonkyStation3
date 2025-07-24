@@ -6,6 +6,7 @@
 
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include <CellTypes.hpp>
 
@@ -67,6 +68,7 @@ public:
     std::mutex audio_mutex;
     std::thread audio_thread;
     void audioThread();
+    void endAudioThread();
 
     u64 cellAudioCreateNotifyEventQueue();
     u64 cellAudioInit();
@@ -76,5 +78,7 @@ public:
     u64 cellAudioPortOpen();
 
 private:
+    std::atomic<bool> end_audio_thread = false;
+
     MAKE_LOG_FUNCTION(log, cellAudio);
 };

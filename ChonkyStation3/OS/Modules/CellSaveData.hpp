@@ -149,7 +149,7 @@ public:
         char reserved[64];
     };
     
-    void handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_ptr, u32 file_cb_ptr, u32 set_buf_ptr, u32 userdata_ptr);
+    u64 handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_ptr, u32 file_cb_ptr, u32 set_buf_ptr, u32 userdata_ptr);
 
     u64 cellSaveDataUserListAutoLoad();
     u64 cellSaveDataUserAutoSave();

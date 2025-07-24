@@ -29,6 +29,9 @@ PlayStation3::~PlayStation3() {
         thread.lockline_waiter->end();
     }
     
+    // Join audio thread
+    module_manager.cellAudio.endAudioThread();
+
     // Free memory
     for (auto& i : mem.regions)
         free(i->mem);

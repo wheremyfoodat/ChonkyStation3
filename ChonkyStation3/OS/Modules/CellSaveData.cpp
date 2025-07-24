@@ -3,7 +3,7 @@
 #include <Loaders/SFO/SFOLoader.hpp>
 
 
-void CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_ptr, u32 file_cb_ptr, u32 set_buf_ptr, u32 userdata_ptr) {
+u64 CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_ptr, u32 file_cb_ptr, u32 set_buf_ptr, u32 userdata_ptr) {
     SFOLoader sfo_loader = SFOLoader(ps3->fs);
     CellSaveDataSetBuf* set_buf = (CellSaveDataSetBuf*)ps3->mem.getPtr(set_buf_ptr);
     
@@ -30,7 +30,7 @@ void CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_p
     stat_get->dir.atime = 123456789;
     stat_get->dir.mtime = 123456789;
     stat_get->dir.ctime = 123456789;
-    std::strcpy(stat_get->dir.dir_name, savedata_path.filename().c_str());
+    std::strcpy(stat_get->dir.dir_name, savedata_path.filename().generic_string().c_str());
 
     stat_get->bind = 0;  // ?
 
@@ -100,7 +100,7 @@ void CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_p
     log("file_num:      %d\n", (u32)stat_get->file_num);
     log("file_list_num: %d\n", (u32)stat_get->file_list_num);
     // Log data
-    log("Listing savedata %s...\n", savedata_path.filename().c_str());
+    log("Listing savedata %s...\n", savedata_path.filename().generic_string().c_str());
     for (int i = 0; i < stat_get->file_list_num; i++) {
         log("- name: \"%s\" size: %lldkb type %d %s\n", file_list[i].file_name, file_list[i].size / 1024, (u32)file_list[i].filetype, file_list[i].filetype == CELL_SAVEDATA_FILETYPE_SECUREFILE ? "(secure)" : "");
     }
@@ -142,7 +142,7 @@ void CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_p
         data.strings["PARAMS"]                  = u8" ";     // ?
         data.strings["PARAMS2"]                 = u8" ";     // ?
         data.strings["DETAIL"]                  = (char8_t*)set_param->detail;
-        data.strings["SAVEDATA_DIRECTORY"]      = (char8_t*)savedata_path.filename().c_str();
+        data.strings["SAVEDATA_DIRECTORY"]      = (char8_t*)savedata_path.filename().generic_string().c_str();
         data.strings["SAVEDATA_LIST_PARAM"]     = (char8_t*)set_param->list_param;
         data.strings["SUB_TITLE"]               = (char8_t*)set_param->sub_title;
         data.strings["TITLE"]                   = (char8_t*)set_param->title;
@@ -207,6 +207,7 @@ void CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_p
                 FILE* file = std::fopen(host_file_path.generic_string().c_str(), "rb");
                 std::fseek(file, file_set->file_offset, SEEK_SET);
                 file_get->exc_size = std::fread(ps3->mem.getPtr(file_set->file_buf), sizeof(u8), size, file);
+                std::fclose(file);
                 break;
             }
             case CELL_SAVEDATA_FILEOP_WRITE: {
@@ -216,6 +217,7 @@ void CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_p
                 FILE* file = std::fopen(host_file_path.generic_string().c_str(), "wb");
                 std::fseek(file, file_set->file_offset, SEEK_SET);
                 file_get->exc_size = std::fwrite(ps3->mem.getPtr(file_set->file_buf), sizeof(u8), size, file);
+                std::fclose(file);
                 break;
             }
                     
@@ -223,6 +225,8 @@ void CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_p
             }
         }
     }
+
+    return CELL_OK;
 }
 
 u64 CellSaveData::cellSaveDataUserListAutoLoad() {
@@ -276,8 +280,7 @@ u64 CellSaveData::cellSaveDataUserAutoSave() {
     const fs::path savedata_path = "/dev_hdd0/home/" + ps3->getCurrentUserID() + "/savedata/" + dir;
     fs::create_directory(ps3->fs.guestPathToHost(savedata_path));
     
-    handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
-    return CELL_OK;
+    return handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
 }
 
 u64 CellSaveData::cellSaveDataAutoSave2() {
@@ -296,8 +299,7 @@ u64 CellSaveData::cellSaveDataAutoSave2() {
     const fs::path savedata_path = "/dev_hdd0/home/" + ps3->getCurrentUserID() + "/savedata/" + dir;
     fs::create_directory(ps3->fs.guestPathToHost(savedata_path));
     
-    handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
-    return CELL_OK;
+    return handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
 }
 
 u64 CellSaveData::cellSaveDataUserAutoLoad() {
@@ -329,6 +331,5 @@ u64 CellSaveData::cellSaveDataAutoLoad2() {
     const fs::path savedata_path = "/dev_hdd0/home/" + ps3->getCurrentUserID() + "/savedata/" + dir;
     fs::create_directory(ps3->fs.guestPathToHost(savedata_path));
     
-    handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
-    return CELL_OK;
+    return handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
 }

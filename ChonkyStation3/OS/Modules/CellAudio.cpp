@@ -5,6 +5,8 @@
 
 void CellAudio::audioThread() {
     while (true) {
+        if (end_audio_thread) break;
+
         audio_mutex.lock();
         if (ports[0].status != CELL_AUDIO_STATUS_RUN) {
             audio_mutex.unlock();
@@ -40,6 +42,12 @@ void CellAudio::audioThread() {
     }
 }
 
+void CellAudio::endAudioThread() {
+    end_audio_thread = true;
+    if (audio_thread.joinable())
+        audio_thread.join();
+}
+
 u64 CellAudio::cellAudioCreateNotifyEventQueue() {
     const u32 equeue_id_ptr = ARG0;
     const u32 key_ptr = ARG1;   // key is u64
@@ -59,7 +67,6 @@ u64 CellAudio::cellAudioInit() {
     
     read_positions_addr = ps3->mem.alloc(8 * sizeof(u64), 0, true)->vaddr;
     audio_thread = std::thread(&CellAudio::audioThread, this);
-    audio_thread.detach();
     
     return CELL_OK;
 }
