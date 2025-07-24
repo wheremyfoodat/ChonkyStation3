@@ -20,6 +20,7 @@ public:
     };
 
     SFOData parse(fs::path guest_path);
+    void save(fs::path guest_path, SFOData& sfo_data);
 
     struct SFOHeader {
         u32 magic; // Always " PSF"
@@ -30,11 +31,11 @@ public:
     };
 
     struct SFOIndexEntry {
-        uint16_t key_offset;
-        uint16_t data_fmt;
-        uint32_t data_len;
-        uint32_t data_max_len;
-        uint32_t data_offset;
+        u16 key_offset;
+        u16 data_fmt;
+        u32 data_len;
+        u32 data_max_len;
+        u32 data_offset;
     };
 
 private:

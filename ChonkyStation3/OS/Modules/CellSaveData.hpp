@@ -27,6 +27,11 @@ static constexpr u32 CELL_SAVEDATA_FILETYPE_CONTENT_ICON1   = 3;
 static constexpr u32 CELL_SAVEDATA_FILETYPE_CONTENT_PIC1    = 4;
 static constexpr u32 CELL_SAVEDATA_FILETYPE_CONTENT_SND0    = 5;
 
+static constexpr u32 CELL_SAVEDATA_FILEOP_READ          = 0;
+static constexpr u32 CELL_SAVEDATA_FILEOP_WRITE         = 1;
+static constexpr u32 CELL_SAVEDATA_FILEOP_DELETE        = 2;
+static constexpr u32 CELL_SAVEDATA_FILEOP_WRITE_NOTRUNC = 3;
+
 static constexpr u32 CELL_SAVEDATA_CBRESULT_OK_LAST_NOCONFIRM   =  2;
 static constexpr u32 CELL_SAVEDATA_CBRESULT_OK_LAST             =  1;
 static constexpr u32 CELL_SAVEDATA_CBRESULT_OK_NEXT             =  0;
@@ -115,8 +120,7 @@ public:
         BEField<u32> file_op;
         BEField<u32> reserved;
         BEField<u32> filetype;
-        BEField<u64> secure_file_id1;
-        BEField<u64> secure_file_id2;
+        u8 secure_file_id[16];
         BEField<u32> file_name;
         BEField<u32> file_offset;
         BEField<u32> filesize;
@@ -144,6 +148,8 @@ public:
         BEField<u32> dir_list_ptr;  // dir_list is CellSaveDataDirList
         char reserved[64];
     };
+    
+    void handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_ptr, u32 file_cb_ptr, u32 set_buf_ptr, u32 userdata_ptr);
 
     u64 cellSaveDataUserListAutoLoad();
     u64 cellSaveDataUserAutoSave();

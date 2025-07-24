@@ -4,6 +4,9 @@
 #include <logger.hpp>
 #include <BEField.hpp>
 
+#include <thread>
+#include <mutex>
+
 #include <CellTypes.hpp>
 
 
@@ -59,8 +62,14 @@ public:
     static constexpr u64 EVENT_QUEUE_KEY = 0x1234A1BE1234A1BE;
     u32 equeue_id = 0;
     Port ports[8];
+    u32 read_positions_addr;
+    
+    std::mutex audio_mutex;
+    std::thread audio_thread;
+    void audioThread();
 
     u64 cellAudioCreateNotifyEventQueue();
+    u64 cellAudioInit();
     u64 cellAudioSetNotifyEventQueue();
     u64 cellAudioGetPortConfig();
     u64 cellAudioPortStart();

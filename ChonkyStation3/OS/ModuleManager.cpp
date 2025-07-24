@@ -286,8 +286,8 @@ void ModuleManager::init() {
         { 0xff42dcc3, { "cellFsClosedir",                                   std::bind(&CellFs::cellFsClosedir, &cellFs) }},
 
         { 0x04af134e, { "cellAudioCreateNotifyEventQueue",                  std::bind(&CellAudio::cellAudioCreateNotifyEventQueue, &cellAudio) }},
-        { 0x0b168f92, { "cellAudioInit",                                    std::bind(&ModuleManager::stub, this) }},
-        { 0x377e0cd9, { "cellAudioSetNotifyEventQueue",                     std::bind(&CellAudio::cellAudioSetNotifyEventQueue, &cellAudio) } },
+        { 0x0b168f92, { "cellAudioInit",                                    std::bind(&CellAudio::cellAudioInit, &cellAudio) }},
+        { 0x377e0cd9, { "cellAudioSetNotifyEventQueue",                     std::bind(&CellAudio::cellAudioSetNotifyEventQueue, &cellAudio) }},
         { 0x74a66af0, { "cellAudioGetPortConfig",                           std::bind(&CellAudio::cellAudioGetPortConfig, &cellAudio) }},
         { 0x56dfe179, { "cellAudioSetPortLevel",                            std::bind(&ModuleManager::stub, this) } },
         { 0xca5ac370, { "cellAudioQuit",                                    std::bind(&ModuleManager::stub, this) } },
