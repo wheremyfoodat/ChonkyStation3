@@ -1062,7 +1062,6 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
             log("Draw Arrays: first: %d count: %d\n", first, count);
             getVertices(count, vtx_buf, first);
-            break;
         }
 
         // Hack for quads
