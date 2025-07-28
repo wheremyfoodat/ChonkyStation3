@@ -219,6 +219,7 @@ void ModuleManager::init() {
         { 0xfb3341ba, { "cellFontSetResolutionDpi",                         std::bind(&ModuleManager::stub, this) }},
 
         { 0x3a5d726a, { "cellGameGetParamString",                           std::bind(&CellGame::cellGameGetParamString, &cellGame) }},
+        { 0x2a8e6b92, { "cellGameGetDiscContentInfoUpdatePath",             std::bind(&ModuleManager::stub, this) }},
         { 0x70acec67, { "cellGameContentPermit",                            std::bind(&CellGame::cellGameContentPermit, &cellGame) }},
         { 0xb0a1f8c6, { "cellGameContentErrorDialog",                       std::bind(&CellGame::cellGameContentErrorDialog, &cellGame) }},
         { 0xb7a45caf, { "cellGameGetParamInt",                              std::bind(&CellGame::cellGameGetParamInt, &cellGame) }},

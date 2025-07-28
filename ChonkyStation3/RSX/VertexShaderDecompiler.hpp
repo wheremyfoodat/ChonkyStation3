@@ -18,7 +18,14 @@ public:
     struct VertexInstruction {
         union {
             u32 raw;
+            BitField<14, 1, u32> cond_enable_0;
             BitField<15, 6, u32> temp_dst_idx;
+            BitField<21, 1, u32> src0_abs;
+            BitField<22, 1, u32> src1_abs;
+            BitField<23, 1, u32> src2_abs;
+            BitField<24, 1, u32> addr_reg_sel;
+            BitField<25, 1, u32> cond_reg_sel;
+            BitField<29, 1, u32> cond_enable_1;
             BitField<30, 1, u32> is_output;
         } w0;
         union {
@@ -68,7 +75,7 @@ public:
     void markConstantAsUsed(std::string name);
 
     std::string source(VertexSource& src, VertexInstruction* instr);
-    std::string dest(VertexInstruction* instr);
+    std::string dest(VertexInstruction* instr, bool is_addr_reg = false);
     std::string mask(VertexInstruction* instr, int& num_lanes);
     std::string getType(const int num_lanes);
 

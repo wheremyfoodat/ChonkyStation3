@@ -8,6 +8,10 @@ R"(
 
 
 vec4 r[32];
+ivec4 addr0;
+ivec4 addr1;
+vec4 cc0;
+vec4 cc1;
 
 // Viewport transformation
 uniform vec3 viewport_offs;
@@ -95,43 +99,43 @@ uniform ivec2 surface_clip;
         case RSXVertex::VECTOR::MIN: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(min({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            main += std::format("{}{} = min({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::MAX: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(max({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            main += std::format("{}{} = max({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::SLT: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(lessThan({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            main += std::format("{}{} = lessThan({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            break;
+        }
+        case RSXVertex::VECTOR::ARL: {
+            int num_lanes;
+            const auto mask_str = mask(instr, num_lanes);
+            main += std::format("{}{} = ivec4({}){};\n", dest(instr, true), mask_str, source(src0, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::FRC: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(fract({}));\n", dest(instr), mask_str, type, source(src0, instr));
+            main += std::format("{}{} = fract({}){};\n", dest(instr), mask_str, source(src0, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::FLR: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(floor({}));\n", dest(instr), mask_str, type, source(src0, instr));
+            main += std::format("{}{} = floor({}){};\n", dest(instr), mask_str, source(src0, instr), mask_str);
             break;
         }
         case RSXVertex::VECTOR::SGT: {
             int num_lanes;
             const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(greaterThan({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            main += std::format("{}{} = greaterThan({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
             break;
         }
 
@@ -239,15 +243,23 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
     return source;
 }
 
-std::string VertexShaderDecompiler::dest(VertexInstruction* instr) {
+std::string VertexShaderDecompiler::dest(VertexInstruction* instr, bool is_addr_reg) {
     std::string dest = "";
 
     if (instr->w0.is_output) {
+        Helpers::debugAssert(!is_addr_reg, "VertexShaderDecompiler: address register is dest\n");
         const int idx = instr->w3.dst;
         dest = output_names[idx];
         markOutputAsUsed(dest, idx);
-    } else
-        dest = "r[" + std::to_string(instr->w0.temp_dst_idx) + "]";
+    } else if (!is_addr_reg)
+        if (instr->w0.temp_dst_idx == 0x3f)
+            dest = "cc" + std::to_string(instr->w0.cond_reg_sel);
+        else
+            dest = "r[" + std::to_string(instr->w0.temp_dst_idx) + "]";
+    else {
+        Helpers::debugAssert(instr->w0.temp_dst_idx < 2, "VertexShaderDecompiler: address register idx is > 1\n");
+        dest = "addr" + std::to_string(instr->w0.temp_dst_idx);
+    }
 
     return dest;
 }

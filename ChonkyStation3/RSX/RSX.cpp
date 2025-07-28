@@ -138,6 +138,9 @@ void RSX::setupVAO() {
         u32 offs_in_buf = binding.offset - vertex_array.getBase();
         // Setup VAO attribute
         switch (binding.type) {
+        case 1:
+            vao.setAttributeFloat<GLshort>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, true);
+            break;
         case 6:
             log("TODO: CMP ATTRIBUTE TYPE\n");
             // fallthrough
@@ -149,6 +152,9 @@ void RSX::setupVAO() {
             break;
         case 5:
             vao.setAttributeFloat<GLshort>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
+            break;
+        case 7:
+            vao.setAttributeFloat<GLubyte>(binding.index, binding.size, binding.stride, (void*)offs_in_buf, false);
             break;
         default:
             Helpers::panic("Unimplemented vertex attribute type %d\n", binding.type);
@@ -194,11 +200,13 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
                     *(float*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = reinterpret_cast<float&>(x);
                     break;
                 }
+                case 7:
                 case 4: {
                     u8 x = fetch.template operator()<u8, is_inline_array>(offs_in_buf + i * binding.stride + j * size, base);
                     vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
                     break;
                 }
+                case 1:
                 case 5: {
                     u16 x = fetch.template operator()<u16, is_inline_array>(offs_in_buf + i * binding.stride + j * size, base);
                     *(u16*)&vtx_buf[vtx_buf_offs + offs_in_buf + binding.stride * i + j * size] = x;
@@ -932,6 +940,9 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
                         // Setup VAO attribute
                         switch (binding.type) {
+                        case 1:
+                            vao.setAttributeFloat<GLshort>(binding.index, binding.size, binding.stride, (void*)old_size, true);
+                            break;
                         case 2:
                             vao.setAttributeFloat<float>(binding.index, binding.size, binding.stride, (void*)old_size, false);
                             break;
@@ -940,6 +951,9 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
                             break;
                         case 5:
                             vao.setAttributeFloat<GLshort>(binding.index, binding.size, binding.stride, (void*)old_size, false);
+                            break;
+                        case 7:
+                            vao.setAttributeFloat<GLubyte>(binding.index, binding.size, binding.stride, (void*)old_size, false);
                             break;
                         default:
                             Helpers::panic("Unimplemented vertex attribute type %d\n", binding.type);
@@ -1227,7 +1241,8 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     case NV4097_SET_TEXTURE_OFFSET: {
         const u32 offs = args[0];
         log("Set texture: offset: 0x%08x\n", offs);
-        texture.addr = offs;
+        texture.offs = offs;
+        texture.addr = offsetAndLocationToAddress(texture.offs, texture.loc);
 
         args.pop_front();
         break;
@@ -1235,12 +1250,13 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
 
     case NV4097_SET_TEXTURE_FORMAT: {
         const u8 loc = (args[0] & 0x3) - 1;
-        const u32 addr = offsetAndLocationToAddress(texture.addr, loc);
+        const u32 addr = offsetAndLocationToAddress(texture.offs, loc);
         const u8 dimension = (args[0] >> 4) & 0xf;
         const u8 format = (args[0] >> 8) & 0xff;
         // TODO: mipmap, cubemap
         log("Set texture: addr: 0x%08x, dimension: 0x%02x, format: 0x%02x, location: %s\n", addr, dimension, format, loc == 0 ? "RSX" : "MAIN");
 
+        texture.loc = loc;
         texture.addr = addr;
         texture.format = format;
         

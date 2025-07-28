@@ -26,9 +26,6 @@ u64 Syscall::sys_semaphore_wait() {
 
     Lv2Semaphore* sema = ps3->lv2_obj.get<Lv2Semaphore>(sema_id);
     sema->wait(timeout);
-    if (timeout && ps3->thread_manager.getCurrentThread()->status != Thread::ThreadStatus::Running) {
-        ps3->thread_manager.getCurrentThread()->sleep(timeout);
-    }
 
     return CELL_OK;
 }

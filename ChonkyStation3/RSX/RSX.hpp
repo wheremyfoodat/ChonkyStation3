@@ -147,6 +147,8 @@ public:
 
     struct Texture {
         u32 addr;
+        u32 offs;
+        u32 loc;
         u8 format;
         u16 width;
         u16 height;
@@ -242,7 +244,9 @@ public:
             switch (type) {
             case 6:
             case 2: size = sizeof(float);   break;
+            case 7:
             case 4: size = sizeof(u8);      break;
+            case 1:
             case 5: size = sizeof(s16);     break;
             default:
                 Helpers::panic("Tried to get size of unimplemented vertex type %d\n", type);
