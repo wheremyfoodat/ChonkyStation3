@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <stack>
 #include <deque>
+#include <chrono>
 
 #include <VertexShaderDecompiler.hpp>
 #include <FragmentShaderDecompiler.hpp>
@@ -123,6 +124,7 @@ public:
     std::stack<u32> call_stack;
     bool hanged = false;
     bool flipped = false;
+    s64 last_flip_time = 0;
 
     OpenGL::Vector<float, 4> clear_color;
     u32 vertex_shader_data [512 * 4];   // 512 instructions, 1 qword each

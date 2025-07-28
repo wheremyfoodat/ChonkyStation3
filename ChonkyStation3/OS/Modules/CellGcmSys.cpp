@@ -200,6 +200,11 @@ u64 CellGcmSys::cellGcmAddressToOffset() {
     return CELL_OK;
 }
 
+u64 CellGcmSys::cellGcmGetLastSecondVTime() {
+    log("cellGcmGetLastSecondVTime() UNIMPLEMENTED\n");
+    return CELL_OK;
+}
+
 u64 CellGcmSys::cellGcmGetOffsetTable() {
     const u32 table_ptr = ARG0;
     log("cellGcmGetOffsetTable(table_ptr: 0x%08x)\n", table_ptr);
@@ -284,6 +289,11 @@ u64 CellGcmSys::cellGcmMapEaIoAddress() {
     mapping_sizes[io >> 20] = n_pages;
 
     return CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmGetLastFlipTime() {
+    log("cellGcmGetLastFlipTime()\n");
+    return ps3->rsx.last_flip_time;
 }
 
 u64 CellGcmSys::cellGcmGetFlipStatus() {
@@ -484,12 +494,13 @@ u64 CellGcmSys::cellGcmUnmapIoAddress() {
     const u32 ea = ea_table[io >> 20];
     const u32 n_pages = mapping_sizes[io >> 20];
 
+    Helpers::debugAssert(ea != 0xffff, "cellGcmUnmapIoAddress: offset 0x%08x is not mapped IO memory\n", io);
+
     log("Unmapping %d pages\n", n_pages);
     for (u32 i = 0; i < n_pages; i++)
         unmapEaIo((ea + i) << 20, io + (i << 20));
     mapping_sizes[io >> 20] = 0;
 
-    //printOffsetTable();
     return CELL_OK;
 }
 
@@ -537,6 +548,28 @@ u64 CellGcmSys::cellGcmGetConfiguration() {
     log("io_addr   : 0x%08x\n", (u32)config->io_addr);
     log("local_size: 0x%08x\n", (u32)config->local_size);
     log("io_size   : 0x%08x\n", (u32)config->io_size);
+
+    return CELL_OK;
+}
+
+u64 CellGcmSys::cellGcmUnmapEaIoAddress() {
+    const u32 ea = ARG0;
+    log("cellGcmUnmapEaIoAddress(ea: 0x%08x)\n", ea);
+
+    u16* io_table = (u16*)ps3->mem.getPtr(io_table_ptr);
+    const u32 io = io_table[ea >> 20];
+    const u32 n_pages = mapping_sizes[io >> 20];
+
+    // GTA San Andreas relies on this
+    if (io == 0xffff) {
+        log("Warning: address not mapped to IO memory\n");
+        return 0x802100ff;  // CELL_GCM_ERROR_FAILURE
+    }
+
+    log("Unmapping %d pages\n", n_pages);
+    for (u32 i = 0; i < n_pages; i++)
+        unmapEaIo((ea + i) << 20, io + (i << 20));
+    mapping_sizes[io >> 20] = 0;
 
     return CELL_OK;
 }

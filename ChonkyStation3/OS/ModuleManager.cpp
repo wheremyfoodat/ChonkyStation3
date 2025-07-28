@@ -110,6 +110,7 @@ void ModuleManager::init() {
         { 0x15bae46b, { "cellGcmInitBody",                                  std::bind(&CellGcmSys::cellGcmInitBody, &cellGcmSys) }},
         { 0x21397818, { " _cellGcmSetFlipCommand",                          std::bind(&CellGcmSys::_cellGcmSetFlipCommand, &cellGcmSys) }},
         { 0x21ac3697, { "cellGcmAddressToOffset",                           std::bind(&CellGcmSys::cellGcmAddressToOffset, &cellGcmSys) }},
+        { 0x23ae55a3, { "cellGcmGetLastSecondVTime",                        std::bind(&CellGcmSys::cellGcmGetLastSecondVTime, &cellGcmSys) }},
         { 0x2922aed0, { "cellGcmGetOffsetTable",                            std::bind(&CellGcmSys::cellGcmGetOffsetTable, &cellGcmSys) }},
         { 0x2a6fba9c, { "cellGcmIoOffsetToAddress",                         std::bind(&CellGcmSys::cellGcmIoOffsetToAddress, &cellGcmSys) }},
         { 0x4524cccd, { "cellGcmBindTile",                                  std::bind(&CellGcmSys::cellGcmBindTile, &cellGcmSys) }},
@@ -120,6 +121,7 @@ void ModuleManager::init() {
         { 0x5a41c10f, { "cellGcmGetTimeStamp",                              std::bind(&ModuleManager::stub, this) } },
         { 0x626e8518, { "cellGcmMapEaIoAddressWithFlags",                   std::bind(&CellGcmSys::cellGcmMapEaIoAddressWithFlags, &cellGcmSys) }},
         { 0x63441cb4, { "cellGcmMapEaIoAddress",                            std::bind(&CellGcmSys::cellGcmMapEaIoAddress, &cellGcmSys) }},
+        { 0x63387071, { "cellGcmGetLastFlipTime",                           std::bind(&CellGcmSys::cellGcmGetLastFlipTime, &cellGcmSys) }},
         { 0x72a577ce, { "cellGcmGetFlipStatus",                             std::bind(&CellGcmSys::cellGcmGetFlipStatus, &cellGcmSys) }},
         { 0x8572bce2, { "cellGcmGetReportDataAddressLocation",              std::bind(&CellGcmSys::cellGcmGetReportDataAddressLocation, &cellGcmSys) }},
         { 0x8cdf8c70, { "cellGcmGetDefaultSegmentWordSize",                 std::bind(&CellGcmSys::cellGcmGetDefaultSegmentWordSize, &cellGcmSys) }},
@@ -148,6 +150,7 @@ void ModuleManager::init() {
         { 0xdc09357e, { "cellGcmSetFlip",                                   std::bind(&CellGcmSys::cellGcmSetFlip, &cellGcmSys) }},
         { 0xdc494430, { "cellGcmSetSecondVHandler",                         std::bind(&CellGcmSys::cellGcmSetSecondVHandler, &cellGcmSys) } },
         { 0xe315a0b2, { "cellGcmGetConfiguration",                          std::bind(&CellGcmSys::cellGcmGetConfiguration, &cellGcmSys) }},
+        { 0xefd00f54, { "cellGcmUnmapEaIoAddress",                          std::bind(&CellGcmSys::cellGcmUnmapEaIoAddress, &cellGcmSys) }},
         { 0xf80196c1, { "cellGcmGetLabelAddress",                           std::bind(&CellGcmSys::cellGcmGetLabelAddress, &cellGcmSys) }},
         { 0xffe0160e, { "cellGcmSetVBlankFrequency",                        std::bind(&CellGcmSys::cellGcmSetVBlankFrequency, &cellGcmSys) }},
 
@@ -291,6 +294,7 @@ void ModuleManager::init() {
         { 0x74a66af0, { "cellAudioGetPortConfig",                           std::bind(&CellAudio::cellAudioGetPortConfig, &cellAudio) }},
         { 0x56dfe179, { "cellAudioSetPortLevel",                            std::bind(&ModuleManager::stub, this) } },
         { 0xca5ac370, { "cellAudioQuit",                                    std::bind(&ModuleManager::stub, this) } },
+        { 0xdab029aa, { "cellAudioAddData",                                 std::bind(&ModuleManager::stub, this) } },
         { 0xff3626fd, { "cellAudioRemoveNotifyEventQueue",                  std::bind(&ModuleManager::stub, this) } },
         
         { 0x4129fe2d, { "cellAudioPortClose",                               std::bind(&ModuleManager::stub, this) } },

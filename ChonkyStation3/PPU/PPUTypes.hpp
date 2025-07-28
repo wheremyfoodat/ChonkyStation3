@@ -285,7 +285,7 @@ enum G_04Opcodes {
     VPKSHUS         = 0x10e,    // Vector Pack Signed Half Word Unsigned Saturate
     VMAXSH          = 0x142,
     VSLH            = 0x144,    // Vector Shift Left Integer Half Word          
-    VMULOSH         = 0x148,
+    VMULOSH         = 0x148,    // Vector Multiply Odd Signed Half Word
     VRSQRTEFP       = 0x14a,    // Vector Reciprocal Square Root Estimate Floating-Point
     VMRGLH          = 0x14c,    // Vector Merge Low Half Word
     VPKSWUS         = 0x14e,
@@ -299,7 +299,7 @@ enum G_04Opcodes {
     VCMPGEFP        = 0x1c6,    // Vector Compare Greater-Than-or-Equal-to Floating-Point
     VCMPGEFP_       = 0x5c6,
     VLOGEFP         = 0x1ca,
-    VPKSWSS         = 0x1ce,
+    VPKSWSS         = 0x1ce,    // Vector Pack Signed Word Signed Saturate
     VADDUBS         = 0x200,
     VMINUB          = 0x202,
     VSRB            = 0x204,
@@ -317,7 +317,7 @@ enum G_04Opcodes {
     VMULEUH         = 0x248,
     VRFIZ           = 0x24a,
     VSPLTH          = 0x24c,    // Vector Splat Half Word
-    VUPKHSH         = 0x24e,
+    VUPKHSH         = 0x24e,    // Vector Unpack High Signed Half Word
     VADDUWS         = 0x280,
     VMINUW          = 0x282,
     VSRW            = 0x284,    // Vector Shift Right Word
@@ -330,7 +330,7 @@ enum G_04Opcodes {
     VCMPGTFP        = 0x2c6,    // Vector Compare Greater-Than Floating-Point
     VCMPGTFP_       = 0x6c6,
     VRFIM           = 0x2ca,
-    VUPKLSH         = 0x2ce,
+    VUPKLSH         = 0x2ce,    // Vector Unpack Low Signed Half Word
     VADDSBS         = 0x300,
     VMINSB          = 0x302,
     VSRAB           = 0x304,
@@ -345,7 +345,7 @@ enum G_04Opcodes {
     VSRAH           = 0x344,    // Vector Shift Right Algebraic Half Word
     VCMPGTSH        = 0x346,
     VCMPGTSH_       = 0x746,
-    VMULESH         = 0x348,
+    VMULESH         = 0x348,    // Vector Multiply Even Signed Half Word
     VCFSX           = 0x34a,    // Vector Convert from Signed Fixed-Point Word
     VSPLTISH        = 0x34c,    // Vector Splat Immediate Signed Half Word
     VUPKHPX         = 0x34e,

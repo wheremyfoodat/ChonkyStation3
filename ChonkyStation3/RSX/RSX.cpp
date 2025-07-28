@@ -1451,7 +1451,9 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
             GL_NEAREST
         );
 
-        
+        // Probably not right
+        last_flip_time = std::chrono::system_clock::now().time_since_epoch().count() * 8;
+
         ps3->flip();
         args.pop_front();
         break;

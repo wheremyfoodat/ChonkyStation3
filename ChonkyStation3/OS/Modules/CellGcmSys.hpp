@@ -99,6 +99,7 @@ public:
     u64 cellGcmInitBody();
     u64 _cellGcmSetFlipCommand();
     u64 cellGcmAddressToOffset();
+    u64 cellGcmGetLastSecondVTime();
     u64 cellGcmGetOffsetTable();
     u64 cellGcmIoOffsetToAddress();
     u64 cellGcmBindTile();
@@ -108,6 +109,7 @@ public:
     u64 cellGcmGetDefaultCommandWordSize();
     u64 cellGcmMapEaIoAddressWithFlags();
     u64 cellGcmMapEaIoAddress();
+    u64 cellGcmGetLastFlipTime();
     u64 cellGcmGetFlipStatus();
     u64 cellGcmGetReportDataAddressLocation();
     u64 cellGcmGetDefaultSegmentWordSize();
@@ -131,6 +133,7 @@ public:
     u64 cellGcmSetFlip();
     u64 cellGcmSetSecondVHandler();
     u64 cellGcmGetConfiguration();
+    u64 cellGcmUnmapEaIoAddress();
     u64 cellGcmGetLabelAddress();
     u64 cellGcmSetVBlankFrequency();
 
