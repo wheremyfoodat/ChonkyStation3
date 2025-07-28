@@ -69,6 +69,14 @@ u64 Syscall::sys_mmapper_map_shared_memory() {
         auto entry = ps3->mem.mmap(addr, block.second->start, block.second->size);
         // Assign the same handle to the map entry (will be checked by sys_mmapper_free_shared_memory)
         entry->handle = handle;
+        // Fastmem
+        u32 paddr = block.second->start;
+        for (u64 page_addr = entry->vaddr; page_addr < entry->vaddr + entry->size; page_addr += PAGE_SIZE) {
+            const u64 page = page_addr >> PAGE_SHIFT;
+            u8* ptr = ps3->mem.ram.getPtrPhys(paddr);
+            ps3->mem.markAsFastMem(page, ptr, true, true);
+            paddr += PAGE_SIZE;
+        }
     }
 
     return CELL_OK;
