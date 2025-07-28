@@ -48,94 +48,69 @@ uniform ivec2 surface_clip;
         VertexSource src0 = { .raw = (instr->w1.src0_hi << 9) | instr->w2.src0_lo };
         VertexSource src1 = { .raw = instr->w2.src1 };
         VertexSource src2 = { .raw = (instr->w2.src2_hi << 11) | instr->w3.src2_lo };
+        
+        int num_lanes;
+        const auto mask_str = mask(instr, num_lanes);
+        const auto type = getType(num_lanes);
+        std::string decompiled_dest = dest(instr, instr->w1.vector_opc == RSXVertex::VECTOR::ARL);
+        std::string decompiled_src;
 
         switch (instr->w1.vector_opc) {
         case RSXVertex::VECTOR::NOP:    break;
         case RSXVertex::VECTOR::MOV: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = {}{};\n", dest(instr), mask_str, source(src0, instr), mask_str);
+            decompiled_src = std::format("{}", source(src0, instr));
             break;
         }
         case RSXVertex::VECTOR::MUL: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = ({} * {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            decompiled_src = std::format("({} * {})", source(src0, instr), source(src1, instr));
             break;
         }
         case RSXVertex::VECTOR::ADD: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = ({} + {}){};\n", dest(instr), mask_str, source(src0, instr), source(src2, instr), mask_str);
+            decompiled_src = std::format("({} + {})", source(src0, instr), source(src2, instr));
             break;
         }
         case RSXVertex::VECTOR::MAD: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = (({} * {}) + {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), source(src2, instr), mask_str);
+            decompiled_src = std::format("(({} * {}) + {})", source(src0, instr), source(src1, instr), source(src2, instr));
             break;
         }
         case RSXVertex::VECTOR::DP3: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(dot({}.xyz, {}.xyz));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            decompiled_src = std::format("vec4(dot({}.xyz, {}.xyz))", source(src0, instr), source(src1, instr));
             break;
         }
         case RSXVertex::VECTOR::DPH: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(dot(vec4({}.xyz, 1.0), {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            decompiled_src = std::format("vec4(dot(vec4({}.xyz, 1.0), {}))", source(src0, instr), source(src1, instr));
             break;
         }
         case RSXVertex::VECTOR::DP4: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            const auto type = getType(num_lanes);
-            main += std::format("{}{} = {}(dot({}, {}));\n", dest(instr), mask_str, type, source(src0, instr), source(src1, instr));
+            decompiled_src = std::format("vec4(dot({}, {}))", source(src0, instr), source(src1, instr));
             break;
         }
         case RSXVertex::VECTOR::MIN: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = min({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            decompiled_src = std::format("min({}, {})", source(src0, instr), source(src1, instr));
             break;
         }
         case RSXVertex::VECTOR::MAX: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = max({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            decompiled_src = std::format("max({}, {})", source(src0, instr), source(src1, instr));
             break;
         }
         case RSXVertex::VECTOR::SLT: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = lessThan({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            decompiled_src = std::format("lessThan({}, {})", source(src0, instr), source(src1, instr));
             break;
         }
         case RSXVertex::VECTOR::ARL: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = ivec4({}){};\n", dest(instr, true), mask_str, source(src0, instr), mask_str);
+            decompiled_src = std::format("ivec4({})", source(src0, instr));
             break;
         }
         case RSXVertex::VECTOR::FRC: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = fract({}){};\n", dest(instr), mask_str, source(src0, instr), mask_str);
+            decompiled_src = std::format("fract({})", source(src0, instr));
             break;
         }
         case RSXVertex::VECTOR::FLR: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = floor({}){};\n", dest(instr), mask_str, source(src0, instr), mask_str);
+            decompiled_src = std::format("floor({})", source(src0, instr));
             break;
         }
         case RSXVertex::VECTOR::SGT: {
-            int num_lanes;
-            const auto mask_str = mask(instr, num_lanes);
-            main += std::format("{}{} = greaterThan({}, {}){};\n", dest(instr), mask_str, source(src0, instr), source(src1, instr), mask_str);
+            decompiled_src = std::format("greaterThan({}, {})", source(src0, instr), source(src1, instr));
             break;
         }
 
@@ -143,6 +118,11 @@ uniform ivec2 surface_clip;
             Helpers::panic("Unimplemented vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
         }
 
+        if (!instr->w0.saturate)
+            main += std::format("{}{} = {}{};\n", decompiled_dest, mask_str, decompiled_src, mask_str);
+        else
+            main += std::format("{}{} = clamp({}{}, 0.0f, 1.0f);\n", decompiled_dest, mask_str, decompiled_src, mask_str);
+        
         if (instr->w3.end) break;
     }
     main += R"(
@@ -167,7 +147,7 @@ gl_Position = vec4(fs_pos.xyz * scale + offs, fs_pos.w);
     std::string full_shader = shader_base + "\n\n" + shader;
 
     log("Decompiled vertex shader:\n");
-    log("%s\n", full_shader.c_str());
+    printf("%s\n", full_shader.c_str());
 
     return full_shader;
 }
@@ -239,6 +219,9 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
     // We can omit ".xyzw"
     if (swizzle != all)
         source += "." + swizzle;
+    
+    if (src.neg)
+        source = "-" + source;
 
     return source;
 }

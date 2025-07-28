@@ -25,6 +25,7 @@ public:
             BitField<23, 1, u32> src2_abs;
             BitField<24, 1, u32> addr_reg_sel;
             BitField<25, 1, u32> cond_reg_sel;
+            BitField<26, 1, u32> saturate;
             BitField<29, 1, u32> cond_enable_1;
             BitField<30, 1, u32> is_output;
         } w0;
