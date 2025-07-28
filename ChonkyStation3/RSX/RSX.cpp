@@ -128,6 +128,9 @@ void RSX::compileProgram() {
     else {
         program.use();
     }
+    
+    program_changed = last_program_hash != hash_program;
+    last_program_hash = hash_program;
 }
 
 void RSX::setupVAO() {
@@ -223,20 +226,20 @@ void RSX::getVertices(u32 n_vertices, std::vector<u8>& vtx_buf, u32 start) {
 
 void RSX::uploadVertexConstants() {
     // Viewport data
-    if (viewport_offs_dirty) {
+    if (viewport_offs_dirty || program_changed) {
         viewport_offs_dirty = false;
         glUniform3f(glGetUniformLocation(program.handle(), "viewport_offs"), viewport_offs[0], viewport_offs[1], viewport_offs[2]);
     }
-    if (viewport_scale_dirty) {
+    if (viewport_scale_dirty || program_changed) {
         viewport_scale_dirty = false;
         glUniform3f(glGetUniformLocation(program.handle(), "viewport_scale"), viewport_scale[0], viewport_scale[1], viewport_scale[2]);
     }
-    if (surface_clip_dirty) {
+    if (surface_clip_dirty || program_changed) {
         surface_clip_dirty = false;
         glUniform2i(glGetUniformLocation(program.handle(), "surface_clip"), surface_clip[0], surface_clip[1]);
     }
 
-    if (!constants_dirty) return;
+    if (!constants_dirty && !program_changed) return;
     constants_dirty = false;
 
     // Constants

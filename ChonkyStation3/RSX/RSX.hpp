@@ -136,6 +136,10 @@ public:
 
     u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
     bool constants_dirty = true;
+    
+    u64 last_program_hash = 0;
+    bool program_changed = false;
+    
     struct FragmentUniform {
         std::string name;
         float x;

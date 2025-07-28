@@ -147,7 +147,7 @@ gl_Position = vec4(fs_pos.xyz * scale + offs, fs_pos.w);
     std::string full_shader = shader_base + "\n\n" + shader;
 
     log("Decompiled vertex shader:\n");
-    printf("%s\n", full_shader.c_str());
+    log("%s\n", full_shader.c_str());
 
     return full_shader;
 }
