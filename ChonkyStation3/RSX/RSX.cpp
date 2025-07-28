@@ -505,7 +505,7 @@ GLuint RSX::getPrimitive(u32 prim) {
     case CELL_GCM_PRIMITIVE_TRIANGLES:      return GL_TRIANGLES;
     case CELL_GCM_PRIMITIVE_TRIANGLE_STRIP: return GL_TRIANGLE_STRIP;
     case CELL_GCM_PRIMITIVE_TRIANGLE_FAN:   return GL_TRIANGLE_FAN;
-    case CELL_GCM_PRIMITIVE_QUADS:          return GL_TRIANGLES;
+    case CELL_GCM_PRIMITIVE_QUADS:          return GL_TRIANGLE_STRIP;
     case CELL_GCM_PRIMITIVE_QUAD_STRIP:     Helpers::panic("Unimplemented quad strip\n");
     case CELL_GCM_PRIMITIVE_POLYGON:        Helpers::panic("Unimplemented polygon\n");
 
@@ -961,12 +961,15 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
                     quad_index_array.clear();
                     for (int i = 0; i < n_verts / 4; i++) {
+                        if (i > 0) {
+                            quad_index_array.push_back(quad_index_array.back());
+                            quad_index_array.push_back((i * 4) + 0);
+                        }
+                        
                         quad_index_array.push_back((i * 4) + 0);
                         quad_index_array.push_back((i * 4) + 1);
-                        quad_index_array.push_back((i * 4) + 2);
-                        quad_index_array.push_back((i * 4) + 2);
                         quad_index_array.push_back((i * 4) + 3);
-                        quad_index_array.push_back((i * 4) + 0);
+                        quad_index_array.push_back((i * 4) + 2);
                     }
                     glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
                     glBufferData(GL_ARRAY_BUFFER, buffer.size(), (void*)buffer.data(), GL_STATIC_DRAW);
@@ -1019,12 +1022,15 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
                     quad_index_array.clear();
                     for (int i = 0; i < n_vertices / 4; i++) {
+                        if (i > 0) {
+                            quad_index_array.push_back(quad_index_array.back());
+                            quad_index_array.push_back((i * 4) + 0);
+                        }
+                        
                         quad_index_array.push_back((i * 4) + 0);
                         quad_index_array.push_back((i * 4) + 1);
-                        quad_index_array.push_back((i * 4) + 2);
-                        quad_index_array.push_back((i * 4) + 2);
                         quad_index_array.push_back((i * 4) + 3);
-                        quad_index_array.push_back((i * 4) + 0);
+                        quad_index_array.push_back((i * 4) + 2);
                     }
                     glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
                     glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
@@ -1048,11 +1054,11 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         setupForDrawing();
 
         std::vector<u8> vtx_buf;
-        int n_vertices = 0;
+        int n_verts = 0;
         for (auto& j : args) {
             const u32 first = j & 0xffffff;
             const u32 count = (j >> 24) + 1;
-            n_vertices += count;
+            n_verts += count;
 
             log("Draw Arrays: first: %d count: %d\n", first, count);
             getVertices(count, vtx_buf, first);
@@ -1063,13 +1069,16 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
             quad_index_array.clear();
-            for (int i = 0; i < n_vertices / 4; i++) {
+            for (int i = 0; i < n_verts / 4; i++) {
+                if (i > 0) {
+                    quad_index_array.push_back(quad_index_array.back());
+                    quad_index_array.push_back((i * 4) + 0);
+                }
+                
                 quad_index_array.push_back((i * 4) + 0);
                 quad_index_array.push_back((i * 4) + 1);
-                quad_index_array.push_back((i * 4) + 2);
-                quad_index_array.push_back((i * 4) + 2);
                 quad_index_array.push_back((i * 4) + 3);
-                quad_index_array.push_back((i * 4) + 0);
+                quad_index_array.push_back((i * 4) + 2);
             }
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, quad_index_array.size() * 4, quad_index_array.data(), GL_STATIC_DRAW);
             glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
@@ -1077,7 +1086,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         }
         else {
             glBufferData(GL_ARRAY_BUFFER, vtx_buf.size(), (void*)vtx_buf.data(), GL_STATIC_DRAW);
-            glDrawArrays(getPrimitive(primitive), 0, n_vertices);
+            glDrawArrays(getPrimitive(primitive), 0, n_verts);
         }
 
         args.clear();
@@ -1134,6 +1143,29 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         const auto n_vertices = highest_index + 1;
         log("Vertex buffer: %d vertices\n", n_vertices);
 
+        // Hack for quads
+        if (primitive == CELL_GCM_PRIMITIVE_QUADS) {
+            auto quad_indices = indices;
+            indices.clear();
+            
+            for (int i = 0; i < quad_indices.size(); i += 4) {
+                const u32 v0 = quad_indices[i + 0];
+                const u32 v1 = quad_indices[i + 1];
+                const u32 v2 = quad_indices[i + 2];
+                const u32 v3 = quad_indices[i + 3];
+                
+                if (i > 0) {
+                    indices.push_back(indices.back());
+                    indices.push_back(v0);
+                }
+                
+                indices.push_back(v0);
+                indices.push_back(v1);
+                indices.push_back(v3);
+                indices.push_back(v2);
+            }
+        }
+        
         // Draw
         std::vector<u8> vtx_buf;
         getVertices(n_vertices, vtx_buf);
