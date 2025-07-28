@@ -132,7 +132,7 @@ u64 CellSaveData::handleSaveDataOperation(fs::path savedata_path, u32 stat_cb_pt
     log("Stat cb: returned OK\n");
 
     // Create savedata directory
-    fs::create_directory(ps3->fs.guestPathToHost(savedata_path));
+    fs::create_directories(ps3->fs.guestPathToHost(savedata_path));
     
     if (stat_set->set_param_ptr) {
         CellSaveDataSystemFileParam* set_param = (CellSaveDataSystemFileParam*)ps3->mem.getPtr(stat_set->set_param_ptr);
@@ -278,7 +278,7 @@ u64 CellSaveData::cellSaveDataUserAutoSave() {
     
     // Get full path of savedata
     const fs::path savedata_path = "/dev_hdd0/home/" + ps3->getCurrentUserID() + "/savedata/" + dir;
-    fs::create_directory(ps3->fs.guestPathToHost(savedata_path));
+    fs::create_directories(ps3->fs.guestPathToHost(savedata_path));
     
     return handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
 }
@@ -297,7 +297,7 @@ u64 CellSaveData::cellSaveDataAutoSave2() {
 
     // Get full path of savedata
     const fs::path savedata_path = "/dev_hdd0/home/" + ps3->getCurrentUserID() + "/savedata/" + dir;
-    fs::create_directory(ps3->fs.guestPathToHost(savedata_path));
+    fs::create_directories(ps3->fs.guestPathToHost(savedata_path));
     
     return handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
 }
@@ -329,7 +329,7 @@ u64 CellSaveData::cellSaveDataAutoLoad2() {
 
     // Get full path of savedata
     const fs::path savedata_path = "/dev_hdd0/home/" + ps3->getCurrentUserID() + "/savedata/" + dir;
-    fs::create_directory(ps3->fs.guestPathToHost(savedata_path));
+    fs::create_directories(ps3->fs.guestPathToHost(savedata_path));
     
     return handleSaveDataOperation(savedata_path, stat_cb_ptr, file_cb_ptr, set_buf_ptr, userdata_ptr);
 }
