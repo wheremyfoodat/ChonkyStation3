@@ -50,19 +50,15 @@ MemoryRegion::MapEntry* MemoryRegion::alloc(size_t size, u64 start_addr, bool sy
     // Allocate block of memory
     u64 paddr = allocPhys(aligned_size, system)->start;
 
+#ifdef DISABLE_FASTMEM_FOR_ALLOCATED_MEM
+    constexpr bool fastmem = false;
+#else
+    constexpr bool fastmem = true;
+#endif
+    
     // Map area
     u64 vaddr = findNextAllocatableVaddr(size, start_addr);
-    MapEntry* entry = mmap(vaddr, paddr, aligned_size);
-
-#ifndef DISABLE_FASTMEM_FOR_ALLOCATED_MEM
-    // Fastmem
-    for (u64 page_addr = entry->vaddr; page_addr < entry->vaddr + entry->size; page_addr += PAGE_SIZE) {
-        const u64 page = page_addr >> PAGE_SHIFT;
-        u8* ptr = getPtrPhys(paddr);
-        mem_manager.markAsFastMem(page, ptr, true, true);
-        paddr += PAGE_SIZE;
-    }
-#endif
+    MapEntry* entry = mmap(vaddr, paddr, aligned_size, fastmem);
 
     log("Allocated 0x%08llx bytes at 0x%016llx\n", aligned_size, vaddr);
     return entry;
@@ -219,7 +215,7 @@ std::pair<bool, MemoryRegion::MapEntry*> MemoryRegion::isMapped(u64 vaddr) {
 }
 
 // Maps a virtual address to a physical one.
-MemoryRegion::MapEntry* MemoryRegion::mmap(u64 vaddr, u64 paddr, size_t size) {
+MemoryRegion::MapEntry* MemoryRegion::mmap(u64 vaddr, u64 paddr, size_t size, bool fastmem) {
     std::lock_guard<std::recursive_mutex> lock(mutex);
     
     if (isMapped(vaddr).first) {
@@ -231,6 +227,17 @@ MemoryRegion::MapEntry* MemoryRegion::mmap(u64 vaddr, u64 paddr, size_t size) {
     size_t aligned_size = pageAlign(size);
 
     map.push_back({ vaddr, paddr, aligned_size });
+    
+    // Fastmem
+    if (fastmem) {
+        for (u64 page_addr = vaddr; page_addr < vaddr + size; page_addr += PAGE_SIZE) {
+            const u64 page = page_addr >> PAGE_SHIFT;
+            u8* ptr = getPtrPhys(paddr);
+            mem_manager.markAsFastMem(page, ptr, true, true);
+            paddr += PAGE_SIZE;
+        }
+    }
+    
     return &map.back();
 }
 

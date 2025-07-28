@@ -2,7 +2,7 @@
 #include "PlayStation3.hpp"
 
 
-#define LOG_LLE_FUNC_RESULT
+//#define LOG_LLE_FUNC_RESULT
 
 void ModuleManager::call(u32 nid) {
     if (!import_map.contains(nid)) {

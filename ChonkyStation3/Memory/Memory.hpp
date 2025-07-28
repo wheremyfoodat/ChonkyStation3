@@ -67,7 +67,7 @@ public:
     u64 findNextAllocatableVaddr(size_t size, u64 start_addr = 0);
     std::pair<bool, MapEntry*> findMapEntryWithHandle(u64 handle);
     std::pair<bool, MapEntry*> isMapped(u64 vaddr);
-    MapEntry* mmap(u64 vaddr, u64 paddr, size_t size);
+    MapEntry* mmap(u64 vaddr, u64 paddr, size_t size, bool fastmem = true);
     void unmap(u64 vaddr);
     u64 translateAddr(u64 vaddr);
     static inline u64 pageAlign(u64 addr) { return (addr + PAGE_SIZE - 1) & ~PAGE_MASK; }
@@ -121,7 +121,7 @@ public:
     u64 findNextAllocatableVaddr(size_t size, u64 start_addr = 0) { return ram.findNextAllocatableVaddr(size, start_addr); }
     std::pair<bool, MemoryRegion::MapEntry*> findMapEntryWithHandle(u64 handle) { return ram.findMapEntryWithHandle(handle); }
     std::pair<bool, MemoryRegion::MapEntry*> isMapped(u64 vaddr) { return ram.isMapped(vaddr); }
-    MemoryRegion::MapEntry* mmap(u64 vaddr, u64 paddr, size_t size) { return ram.mmap(vaddr, paddr, size); }
+    MemoryRegion::MapEntry* mmap(u64 vaddr, u64 paddr, size_t size, bool fastmem = true) { return ram.mmap(vaddr, paddr, size, fastmem); }
     void unmap(u64 vaddr) { ram.unmap(vaddr); }
     u64 translateAddr(u64 vaddr) { return ram.translateAddr(vaddr); }
 
