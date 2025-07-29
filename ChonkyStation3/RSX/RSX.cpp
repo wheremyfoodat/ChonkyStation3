@@ -24,7 +24,7 @@ void RSX::initGL() {
     glGenBuffers(1, &ibo);
     glGenBuffers(1, &quad_ibo);
 
-    OpenGL::setDepthFunc(OpenGL::DepthFunc::Less);
+    OpenGL::setDepthFunc(OpenGL::DepthFunc::Lequal);
     OpenGL::disableScissor();
     OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
     OpenGL::setBlendEquation(OpenGL::BlendEquation::Add);
@@ -337,7 +337,7 @@ void RSX::uploadTexture() {
             }
 
             glTexImage2D(GL_TEXTURE_2D, 0, internal, texture.width, texture.height, 0, fmt, type, (void*)(!unswizzled_tex ? tex_ptr : unswizzled_tex));
-            checkGLError();
+            //checkGLError();
 
             delete[] unswizzled_tex;
         }
@@ -847,6 +847,27 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         break;
     }
 
+    case NV4097_SET_DEPTH_FUNC: {
+        glDepthFunc(args[0]);
+        args.pop_front();
+        break;
+    }
+            
+    case NV4097_SET_DEPTH_MASK: {
+        depth_mask = args[0];
+        
+        if (args[0]) {
+            log("Enabled depth mask\n");
+            glDepthMask(GL_TRUE);
+        }
+        else {
+            log("Disabled depth mask\n");
+            glDepthMask(GL_FALSE);
+        }
+        args.pop_front();
+        break;
+    }
+            
     case NV4097_SET_DEPTH_TEST_ENABLE: {
         if (args[0]) {
             log("Enabled depth test\n");
@@ -1194,6 +1215,20 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         args.clear();
         break;
     }
+            
+    case NV4097_SET_CULL_FACE_ENABLE: {
+        if (args[0]) {
+            log("Enabled cull face\n");
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+        } else {
+            log("Disabled cull face\n");
+            glDisable(GL_CULL_FACE);
+        }
+        
+        args.pop_front();
+        break;
+    }
 
     case NV4097_SET_TEXTURE_CONTROL3: {
         tex_pitch = args[0] & 0xfffff;
@@ -1372,8 +1407,11 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
         OpenGL::setClearColor(clear_color.r(), clear_color.g(), clear_color.b(), clear_color.a());
         if (args[0] & 0xf0)
             OpenGL::clearColor();
-        if (args[0] & 1)
+        if (args[0] & 1) {
+            glDepthMask(GL_TRUE);
             OpenGL::clearDepth();
+            glDepthMask(depth_mask ? GL_TRUE : GL_FALSE);
+        }
         if (args[0] & 2)
             OpenGL::clearStencil();
 

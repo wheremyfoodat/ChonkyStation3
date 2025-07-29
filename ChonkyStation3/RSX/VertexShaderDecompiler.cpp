@@ -18,7 +18,6 @@ uniform vec3 viewport_offs;
 uniform vec3 viewport_scale;
 uniform ivec2 surface_clip;
 
-
 )";
     std::string shader;
     std::string main = "";
@@ -42,6 +41,8 @@ uniform ivec2 surface_clip;
     for (int i = start * 4; i < 512 * 4; i += 4) {
         VertexInstruction* instr = (VertexInstruction*)&shader_data[i];
 
+        if (instr->w1.vector_opc == RSXVertex::VECTOR::NOP) continue;
+        
         // Input data sources
         // Instructions can have up to 3 inputs (for example the multiply-add instruction)
         // They can be an input vector (i.e. "in_pos"), a data vector (each shader has 16 general purpose vectors to work with), or a constant register (uniforms)
@@ -56,7 +57,6 @@ uniform ivec2 surface_clip;
         std::string decompiled_src;
 
         switch (instr->w1.vector_opc) {
-        case RSXVertex::VECTOR::NOP:    break;
         case RSXVertex::VECTOR::MOV: {
             decompiled_src = std::format("{}", source(src0, instr));
             break;
@@ -137,6 +137,8 @@ offs.x  /= half_clip.x;
 offs.y  -= half_clip.y;
 offs.y  /= half_clip.y;
 gl_Position = vec4(fs_pos.xyz * scale + offs, fs_pos.w);
+
+gl_Position.z = gl_Position.z * 2.0f - gl_Position.w;
 )";
 
     declareFunction("void main", initialization + "\n" + main, shader);
@@ -269,7 +271,12 @@ std::string VertexShaderDecompiler::mask(VertexInstruction* instr, int& num_lane
         num_lanes++;
     }
 
-    if (mask == full) mask = "";
+    if (mask == ".") {
+        num_lanes = 4;
+        mask = "";
+    }
+    else if (mask == full) mask = "";
+    
     return mask;
 }
 

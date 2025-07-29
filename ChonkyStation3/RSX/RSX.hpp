@@ -196,6 +196,7 @@ public:
     bool viewport_offs_dirty = true;
     bool viewport_scale_dirty = true;
     bool surface_clip_dirty = true;
+    bool depth_mask = true;
 
     static constexpr GLuint swizzle_map[] = {
         GL_ALPHA,
@@ -442,8 +443,8 @@ public:
         NV4097_SET_POLY_OFFSET_POINT_ENABLE                     = 0x00000a60,
         NV4097_SET_POLY_OFFSET_LINE_ENABLE                      = 0x00000a64,
         NV4097_SET_POLY_OFFSET_FILL_ENABLE                      = 0x00000a68,
-        NV4097_SET_DEPTH_FUNC                                   = 0x00000a6c,
-        NV4097_SET_DEPTH_MASK                                   = 0x00000a70,
+        NV4097_SET_DEPTH_FUNC                                   = 0x00000a6c,   // I
+        NV4097_SET_DEPTH_MASK                                   = 0x00000a70,   // I
         NV4097_SET_DEPTH_TEST_ENABLE                            = 0x00000a74,   // I
         NV4097_SET_POLYGON_OFFSET_SCALE_FACTOR                  = 0x00000a78,
         NV4097_SET_POLYGON_OFFSET_BIAS                          = 0x00000a7c,
@@ -485,7 +486,7 @@ public:
         NV4097_SET_CULL_FACE                                    = 0x00001830,
         NV4097_SET_FRONT_FACE                                   = 0x00001834,
         NV4097_SET_POLY_SMOOTH_ENABLE                           = 0x00001838,
-        NV4097_SET_CULL_FACE_ENABLE                             = 0x0000183c,
+        NV4097_SET_CULL_FACE_ENABLE                             = 0x0000183c,   // I
         NV4097_SET_TEXTURE_CONTROL3                             = 0x00001840,   // I
         NV4097_SET_VERTEX_DATA2F_M                              = 0x00001880,   // I
         NV4097_SET_VERTEX_DATA2S_M                              = 0x00001900,
