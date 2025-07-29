@@ -5,7 +5,6 @@
 #include <opengl.hpp>
 
 #include <unordered_map>
-#include <optional>
 
 #include <xxhash.h>
 
@@ -29,7 +28,6 @@ public:
 
     struct CachedShader {
         OpenGL::Shader shader;
-        std::optional<std::vector<u32>> required_constants;    // For vertex only
     };
     
     bool getShader(u64 hash, CachedShader& shader) {

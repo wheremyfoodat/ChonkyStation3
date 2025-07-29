@@ -18,7 +18,13 @@ public:
     struct VertexInstruction {
         union {
             u32 raw;
-            BitField<14, 1, u32> cond_enable_0;
+            BitField<0,  2, u32> addr_swizzle;
+            BitField<2,  2, u32> cond_swizzle_w;
+            BitField<4,  2, u32> cond_swizzle_z;
+            BitField<6,  2, u32> cond_swizzle_y;
+            BitField<8,  2, u32> cond_swizzle_x;
+            BitField<10, 3, u32> cond;
+            BitField<13, 1, u32> cond_enable;
             BitField<15, 6, u32> temp_dst_idx;
             BitField<21, 1, u32> src0_abs;
             BitField<22, 1, u32> src1_abs;
@@ -46,6 +52,7 @@ public:
         union {
             u32 raw;
             BitField<0,  1,  u32> end;
+            BitField<1,  1,  u32> is_indexed_const;
             BitField<2,  5,  u32> dst;
             BitField<13, 1,  u32> w;
             BitField<14, 1,  u32> z;
@@ -65,24 +72,27 @@ public:
         BitField<14, 2, u32> x;
         BitField<16, 1, u32> neg;
     };
+    
+    struct SourceIndexPair {
+        int idx;
+        VertexSource src;
+    };
 
     MAKE_LOG_FUNCTION(log, vertex_shader);
 
-    std::string decompile(u32* shader_data, u32 start, std::vector<u32>& required_constants);
+    std::string decompile(u32* shader_data, u32 start);
     
     void declareFunction(std::string name, std::string code, std::string& shader);
     void markInputAsUsed(std::string name, int location);
     void markOutputAsUsed(std::string name, int location);
-    void markConstantAsUsed(std::string name);
 
-    std::string source(VertexSource& src, VertexInstruction* instr);
+    std::string source(SourceIndexPair& src_idx, VertexInstruction* instr);
     std::string dest(VertexInstruction* instr, bool is_addr_reg = false);
     std::string mask(VertexInstruction* instr, int& num_lanes);
     std::string getType(const int num_lanes);
 
     bool used_inputs[16];
     bool used_outputs[16];
-    std::vector<u32>* curr_constants;
     std::string inputs;
     std::string outputs;
     std::string constants;

@@ -53,6 +53,12 @@ void RSX::initGL() {
     fb.bind(GL_FRAMEBUFFER);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex.m_handle, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    // Setup vertex constant UBO
+    glGenBuffers(1, &vertex_consts_ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, vertex_consts_ubo);
+    glBufferData(GL_UNIFORM_BUFFER, 468 * 4 * sizeof(float), (void*)0, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 10, vertex_consts_ubo);
 }
 
 void RSX::setEaTableAddr(u32 addr) {
@@ -82,17 +88,15 @@ void RSX::compileProgram() {
     const u64 hash_vertex = cache.computeHash((u8*)&vertex_shader_data[vertex_shader_start_idx * 4], 512 * 4 - vertex_shader_start_idx * 4);
     if (!cache.getShader(hash_vertex, cached_shader)) {
         // Shader wasn't cached, compile it and add it to the cache
-        required_constants.clear();
-        auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, vertex_shader_start_idx, required_constants);
+        auto vertex_shader = vertex_shader_decompiler.decompile(vertex_shader_data, vertex_shader_start_idx);
         OpenGL::Shader new_shader;
         if(!new_shader.create(vertex_shader, OpenGL::ShaderType::Vertex))
             Helpers::panic("Failed to create vertex shader object");
-        cache.cacheShader(hash_vertex, { new_shader, required_constants });
+        cache.cacheShader(hash_vertex, { new_shader });
         vertex = new_shader;
     }
     else {
         vertex = cached_shader.shader;
-        required_constants = cached_shader.required_constants.value();
     }
 
     const u64 hash_fragment = cache.computeHash(fragment_shader_program.getData(ps3->mem), fragment_shader_program.getSize(ps3->mem));
@@ -102,7 +106,7 @@ void RSX::compileProgram() {
         OpenGL::Shader new_shader;
         if(!new_shader.create(fragment_shader, OpenGL::ShaderType::Fragment))
             Helpers::panic("Failed to create fragment shader object");;
-        cache.cacheShader(hash_fragment, { new_shader, std::nullopt });
+        cache.cacheShader(hash_fragment, { new_shader });
         fragment = new_shader;
     }
     else {
@@ -121,6 +125,10 @@ void RSX::compileProgram() {
         // Texture samplers
         const int loc = glGetUniformLocation(program.handle(), "tex");
         glUniform1i(loc, 0);
+        
+        // Vertex constants uniform buffer
+        const int block_idx = glGetUniformBlockIndex(program.handle(), "VertexConstants");
+        glUniformBlockBinding(program.handle(), block_idx, 10);
 
         // Cache it
         cache.cacheProgram(hash_program, new_program);
@@ -239,18 +247,12 @@ void RSX::uploadVertexConstants() {
         glUniform2i(glGetUniformLocation(program.handle(), "surface_clip"), surface_clip[0], surface_clip[1]);
     }
 
-    if (!constants_dirty && !program_changed) return;
+    if (!constants_dirty) return;
     constants_dirty = false;
-
+    
     // Constants
-    // TODO: don't upload constants if they weren't changed
-    for (auto& i : required_constants) {
-        u32 x = constants[i * 4 + 0];
-        u32 y = constants[i * 4 + 1];
-        u32 z = constants[i * 4 + 2];
-        u32 w = constants[i * 4 + 3];
-        glUniform4f(glGetUniformLocation(program.handle(), std::format("const_{}", i).c_str()), reinterpret_cast<float&>(x), reinterpret_cast<float&>(y), reinterpret_cast<float&>(z), reinterpret_cast<float&>(w));
-    }
+    glBindBuffer(GL_UNIFORM_BUFFER, vertex_consts_ubo); // I don't think I need to rebind this here
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 468 * 4 * sizeof(float), constants);
 }
 
 void RSX::uploadFragmentUniforms() {

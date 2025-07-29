@@ -1,7 +1,7 @@
 #include "VertexShaderDecompiler.hpp"
 
 
-std::string VertexShaderDecompiler::decompile(u32* shader_data, u32 start, std::vector<u32>& required_constants) {
+std::string VertexShaderDecompiler::decompile(u32* shader_data, u32 start) {
     std::string shader_base =
 R"(
 #version 410 core
@@ -12,6 +12,10 @@ ivec4 addr0;
 ivec4 addr1;
 vec4 cc0;
 vec4 cc1;
+
+layout (std140) uniform VertexConstants {
+    vec4 c[468];
+};
 
 // Viewport transformation
 uniform vec3 viewport_offs;
@@ -28,8 +32,11 @@ uniform ivec2 surface_clip;
     outputs = "";
     constants = "";
     initialization = "";
-    required_constants.clear();
-    curr_constants = &required_constants;
+    
+    initialization += "cc0 = vec4(0.0f);\n";
+    initialization += "cc1 = vec4(0.0f);\n";
+    initialization += "addr0 = ivec4(0);\n";
+    initialization += "addr1 = ivec4(0);\n";
 
     for (int i = start * 4; i < 512 * 4; i += 4) {
         VertexInstruction* instr = (VertexInstruction*)&shader_data[i];
@@ -46,9 +53,9 @@ uniform ivec2 surface_clip;
         // Input data sources
         // Instructions can have up to 3 inputs (for example the multiply-add instruction)
         // They can be an input vector (i.e. "in_pos"), a data vector (each shader has 16 general purpose vectors to work with), or a constant register (uniforms)
-        VertexSource src0 = { .raw = (instr->w1.src0_hi << 9) | instr->w2.src0_lo };
-        VertexSource src1 = { .raw = instr->w2.src1 };
-        VertexSource src2 = { .raw = (instr->w2.src2_hi << 11) | instr->w3.src2_lo };
+        SourceIndexPair src0 = { 0, { .raw = (instr->w1.src0_hi << 9) | instr->w2.src0_lo } };
+        SourceIndexPair src1 = { 1, { .raw = instr->w2.src1 } };
+        SourceIndexPair src2 = { 2, { .raw = (instr->w2.src2_hi << 11) | instr->w3.src2_lo } };
         
         int num_lanes;
         const auto mask_str = mask(instr, num_lanes);
@@ -118,11 +125,35 @@ uniform ivec2 surface_clip;
             Helpers::panic("Unimplemented vertex vector instruction 0x%02x\n", (u8)instr->w1.vector_opc);
         }
 
-        if (!instr->w0.saturate)
-            main += std::format("{}{} = {}{};\n", decompiled_dest, mask_str, decompiled_src, mask_str);
-        else
-            main += std::format("{}{} = clamp({}{}, 0.0f, 1.0f);\n", decompiled_dest, mask_str, decompiled_src, mask_str);
+        if (instr->w0.saturate)
+            decompiled_src = std::format("clamp({}, 0.0f, 1.0f)", decompiled_src);
+
+        if (instr->w0.cond_enable) {
+            std::string cond_reg = "cc" + std::to_string(instr->w0.cond_reg_sel);
+            const std::string all = "xyzw";
+            std::string swizzle = "    ";
+            swizzle[0] = all[instr->w0.cond_swizzle_x];
+            swizzle[1] = all[instr->w0.cond_swizzle_y];
+            swizzle[2] = all[instr->w0.cond_swizzle_z];
+            swizzle[3] = all[instr->w0.cond_swizzle_w];
+            if (swizzle != all) cond_reg += "." + swizzle;
+            
+            static const std::string cond_func[] = {
+                "invalidCond",
+                "lessThan",
+                "equal",
+                "lessThanEqual",
+                "greaterThan",
+                "notEqual",
+                "greaterThanEqual"
+            };
+            
+            std::string cond = std::format("{}({}, vec4(0.0f))", cond_func[instr->w0.cond], cond_reg);
+            decompiled_src = std::format("mix({}{}, {}{}, {}({}))", decompiled_dest, mask_str, decompiled_src, mask_str, type, cond);
+        }
         
+        main += std::format("{}{} = {}{};\n", decompiled_dest, mask_str, decompiled_src, mask_str);
+
         if (instr->w3.end) break;
     }
     main += R"(
@@ -178,13 +209,13 @@ void VertexShaderDecompiler::markOutputAsUsed(std::string name, int location) {
     initialization += name + " = vec4(0.0f, 0.0f, 0.0f, 1.0f);\n";
 }
 
-void VertexShaderDecompiler::markConstantAsUsed(std::string name) {
-    constants += "uniform vec4 " + name + ";\n";
-}
-
-std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction* instr) {
+std::string VertexShaderDecompiler::source(SourceIndexPair& src_idx, VertexInstruction* instr) {
+    VertexSource& src = src_idx.src;
+    const int idx = src_idx.idx;
+    
     std::string source = "";
-
+    const std::string all = "xyzw";
+    
     switch (src.type) {
     case VERTEX_SOURCE_TYPE::TEMP: {
         source = "r[" + std::to_string(src.temp_src_idx) + "]";
@@ -197,12 +228,15 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
         break;
     }
     case VERTEX_SOURCE_TYPE::CONST: {
-        source = "const_" + std::to_string(instr->w1.const_src_idx);
-        //source = "c[" + std::to_string(instr->w1.const_src_idx) + "]";
-        if (std::find(curr_constants->begin(), curr_constants->end(), instr->w1.const_src_idx) == curr_constants->end()) {
-            curr_constants->push_back(instr->w1.const_src_idx);
-            markConstantAsUsed(source);
+        std::string idx = std::to_string(instr->w1.const_src_idx);
+        if (instr->w3.is_indexed_const) {
+            const std::string addr_reg = "addr" + std::to_string(instr->w0.addr_reg_sel);
+            std::string mask = ". ";
+            mask[1] = all[instr->w0.addr_swizzle];
+            
+            idx += " + " + addr_reg + mask;
         }
+        source = "c[" + idx + "]";
         break;
     }
     default:
@@ -211,7 +245,6 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
 
     // Swizzle
     // Each field in the src contains a value ranging from 0 to 3, each corrisponding to a lane
-    const std::string all = "xyzw";
     std::string swizzle = "    ";
     swizzle[0] = all[src.x];
     swizzle[1] = all[src.y];
@@ -221,6 +254,16 @@ std::string VertexShaderDecompiler::source(VertexSource& src, VertexInstruction*
     // We can omit ".xyzw"
     if (swizzle != all)
         source += "." + swizzle;
+    
+    bool abs = false;
+    switch (idx) {
+    case 0: abs = instr->w0.src0_abs;   break;
+    case 1: abs = instr->w0.src1_abs;   break;
+    case 2: abs = instr->w0.src2_abs;   break;
+    }
+    
+    if (abs)
+        source = "abs(" + source + ")";
     
     if (src.neg)
         source = "-" + source;

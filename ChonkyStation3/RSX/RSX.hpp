@@ -130,11 +130,10 @@ public:
     u32 vertex_shader_data [512 * 4];   // 512 instructions, 1 qword each
     u32 vertex_shader_load_idx = 0;
     u32 vertex_shader_start_idx = 0;
-    std::vector<u32> required_constants;    // For vertex shader
     FragmentShader fragment_shader_program;
     std::vector<u32> quad_index_array;
 
-    u32* constants = new u32[512 * 4]; // 512 * sizeof(vec4) / sizeof(float)
+    u32* constants = new u32[468 * 4]; // 468 * sizeof(vec4) / sizeof(float)
     bool constants_dirty = true;
     
     u64 last_program_hash = 0;
@@ -227,6 +226,7 @@ public:
     OpenGL::Texture tex;
     OpenGL::Framebuffer fb;
     OpenGL::Texture depth_tex;
+    GLuint vertex_consts_ubo;
 
     GLuint ibo;
     GLuint quad_ibo;
