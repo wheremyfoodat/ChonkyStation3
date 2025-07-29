@@ -163,7 +163,11 @@ uniform bool flip_tex;
             decompiled_src = std::format("({} / {})", source(instr, 0), source(instr, 1));
             break;
         }
-
+        case RSXFragment::DIVSQ: {
+            decompiled_src = std::format("({} / sqrt({}))", source(instr, 0), source(instr, 1));
+            break;
+        }
+                
         default:
             log("Shader so far:\n");
             log("%s\n", main.c_str());
