@@ -95,7 +95,7 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
         const int64_t disp = getPCOffset(xptr<const void*>(), ptr);
 
         // If the displacement can fit in a 26-bit int, that means we can emit a direct call to the address
-        // Otherwise, load the address into a register and emit a blr
+        // Otherwise, load the address into a register and emit a br
         const bool canDoDirectJump = isInt26(disp) && false;
 
         if (canDoDirectJump) {
@@ -117,8 +117,30 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
     // Hence the static asserts. Those are all we need though, thankfully.
     template <typename T>
     void emitMemberFunctionCall(T func, void* thisObject, XReg scratch) {
-        void* functionPtr;
-        uintptr_t thisPtr = reinterpret_cast<uintptr_t>(thisObject);
+        void* function_ptr;
+        uintptr_t this_ptr = reinterpret_cast<uintptr_t>(thisObject);
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+        static_assert(sizeof(T) == 8, "[x64 JIT] Invalid size for member function pointer");
+        std::memcpy(&function_ptr, &func, sizeof(T));
+#else
+        static_assert(sizeof(T) == 16, "[x64 JIT] Invalid size for member function pointer");
+        uintptr_t arr[2];
+        std::memcpy(arr, &func, sizeof(T));
+        // First 8 bytes correspond to the actual pointer to the function
+        function_ptr = reinterpret_cast<void*>(arr[0]);
+        // Next 8 bytes correspond to the "this" pointer adjustment
+        this_ptr += arr[1];
+#endif
+
+        MOV(arg1, this_ptr);
+        call(function_ptr, scratch);
+    }
+
+    template <typename T>
+    void emitInterpreterFunctionCall(T func, XReg scratch) {
+        void* function_ptr;
+        uintptr_t interpreter_ptr = reinterpret_cast<uintptr_t>(&interpreter);
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
         static_assert(sizeof(T) == 8, "[x64 JIT] Invalid size for member function pointer");
@@ -128,13 +150,14 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
         uintptr_t arr[2];
         std::memcpy(arr, &func, sizeof(T));
         // First 8 bytes correspond to the actual pointer to the function
-        functionPtr = reinterpret_cast<void*>(arr[0]);
+        function_ptr = reinterpret_cast<void*>(arr[0]);
         // Next 8 bytes correspond to the "this" pointer adjustment
-        thisPtr += arr[1];
+        interpreter_ptr += arr[1];
 #endif
 
-        MOV(arg1, thisPtr);
-        call(functionPtr, scratch);
+        uintptr_t interpreter_offset = ((uintptr_t)interpreter_ptr - (uintptr_t)this);
+        ADD(arg1, state_pointer, interpreter_offset);
+        call(function_ptr, scratch);
     }
 
 public:

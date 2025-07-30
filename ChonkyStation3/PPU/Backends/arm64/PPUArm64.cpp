@@ -5,7 +5,7 @@
 
 #define FALLBACK(instructionName, instructionRaw) \
     MOV(arg2, instructionRaw); \
-    emitMemberFunctionCall(&PPUInterpreter::instructionName, &interpreter, X4);
+    emitInterpreterFunctionCall(&PPUInterpreter::instructionName, X4);
 
 PPUArm64::PPUArm64(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3), interpreter(mem, ps3, stateInternal),
     oaknut::CodeBlock(alloc_size), oaknut::CodeGenerator(oaknut::CodeBlock::ptr()) {
