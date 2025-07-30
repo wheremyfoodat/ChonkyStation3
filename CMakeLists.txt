@@ -91,3 +91,50 @@ endif()
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral -Wno-format-security -Wno-invalid-offsetof")
 endif()
+
+# Detect target architecture
+if (NOT APPLE OR "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
+  # Normal target detection
+  if (CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86-64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    set(HOST_X64 TRUE)
+  else()
+    set(HOST_X64 FALSE)
+  endif()
+
+  if (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    set(HOST_ARM64 TRUE)
+  else()
+    set(HOST_ARM64 FALSE)
+  endif()
+else()
+  # Apple target detection
+  if("x86_64" IN_LIST CMAKE_OSX_ARCHITECTURES)
+    set(HOST_X64 TRUE)
+  else()
+    set(HOST_X64 FALSE)
+  endif()
+
+  if("arm64" IN_LIST CMAKE_OSX_ARCHITECTURES)
+    set(HOST_ARM64 TRUE)
+  else()
+    set(HOST_ARM64 FALSE)
+  endif()
+
+  if (HOST_ARM64 AND HOST_X64)
+    message(WARNING "Universal builds will soon not be supported like this! Please compile separately and stitch the builds together!")
+  endif()
+endif()
+
+if (HOST_X64)
+    target_compile_definitions(ChonkyStation3 PRIVATE CHONKYSTATION3_X64_HOST)
+    message(STATUS "Detected target architecture: x64")
+endif()
+
+if (HOST_ARM64)
+    target_compile_definitions(ChonkyStation3 PRIVATE CHONKYSTATION3_ARM64_HOST)
+    message(STATUS "Detected target architecture: arm64")
+endif()
+
+if (NOT HOST_X64 AND NOT HOST_ARM64)
+    message(STATUS "Unknown target architecture")
+endif()
