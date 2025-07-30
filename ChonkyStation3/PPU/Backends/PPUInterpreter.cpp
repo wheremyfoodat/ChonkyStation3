@@ -38,365 +38,374 @@ void PPUInterpreter::printFunctionCall() {
         printf("[DEBUG] %s @ 0x%08llx\n", symbol.value().name.c_str(), state.pc);
 }
 
-void PPUInterpreter::step() {
-    const u32 instr_raw = mem.read<u32>(state.pc);
-    const Instruction instr = { .raw = instr_raw };
+int PPUInterpreter::step() {
+    int cycles = 0;
 
+    should_break = false;
+    while (!should_break) {
+        const u32 instr_raw = mem.read<u32>(state.pc);
+        const Instruction instr = { .raw = instr_raw };
+        
 #ifndef CHONKYSTATION3_USER_BUILD
 
-#ifdef ENABLE_CONDITIONAL_TRACE_LOG 
-    if (should_log) printf("%s\n", PPUDisassembler::disasm(state, instr, &mem).c_str());
+#ifdef ENABLE_CONDITIONAL_TRACE_LOG
+    if (should_log)
+        printf("%s\n", PPUDisassembler::disasm(state, instr, &mem).c_str());
 #endif
 #ifdef TRACK_STATE
     ps3->crash_analyzer.saveState({ state, instr });
 #endif
 
 #endif
-
-    switch (instr.opc) {
+        
+        switch (instr.opc) {
+                
+            case G_04: {
+                switch (instr.g_04_field & 0x3f) {
+                        
+                    case VMADDFP:       vmaddfp(instr);     break;
+                    case VMHRADDSHS:    vmhraddshs(instr);  break;
+                    case VMLADDUHM:     vmladduhm(instr);   break;
+                    case VNMSUBFP:      vnmsubfp(instr);    break;
+                    case VMSUMSHM:      vmsumshm(instr);    break;
+                    case VSEL:          vsel(instr);        break;
+                    case VPERM:         vperm(instr);       break;
+                    case VSLDOI:        vsldoi(instr);      break;
+                        
+                    default:
+                        switch (instr.g_04_field) {
+                                
+                            case VCMPEQUB:  vcmpequb(instr);    break;
+                            case VADDFP:    vaddfp(instr);      break;
+                            case VADDUHM:   vadduhm(instr);     break;
+                            case VMULOUH:   vmulouh(instr);     break;
+                            case VSUBFP:    vsubfp(instr);      break;
+                            case VMRGHH:    vmrghh(instr);      break;
+                            case VADDUWM:   vadduwm(instr);     break;
+                            case VRLW:      vrlw(instr);        break;
+                            case VCMPEQUW_:
+                            case VCMPEQUW:  vcmpequw(instr);    break;
+                            case VMRGHW:    vmrghw(instr);      break;
+                            case VCMPEQFP_:
+                            case VCMPEQFP:  vcmpeqfp(instr);    break;
+                            case VREFP:     vrefp(instr);       break;
+                            case VPKSHUS:   vpkshus(instr);     break;
+                            case VSLH:      vslh(instr);        break;
+                            case VMULOSH:   vmulosh(instr);     break;
+                            case VRSQRTEFP: vrsqrtefp(instr);   break;
+                            case VMRGLH:    vmrglh(instr);      break;
+                            case VSLW:      vslw(instr);        break;
+                            case VMRGLW:    vmrglw(instr);      break;
+                            case VCMPGEFP_:
+                            case VCMPGEFP:  vcmpgefp(instr);    break;
+                            case VPKSWSS:   vpkswss(instr);     break;
+                            case VSPLTB:    vspltb(instr);      break;
+                            case VUPKHSB:   vupkhsb(instr);     break;
+                            case VCMPGTUH_:
+                            case VCMPGTUH:  vcmpgtuh(instr);    break;
+                            case VSPLTH:    vsplth(instr);      break;
+                            case VUPKHSH:   vupkhsh(instr);     break;
+                            case VSRW:      vsrw(instr);        break;
+                            case VCMPGTUW_:
+                            case VCMPGTUW:  vcmpgtuw(instr);    break;
+                            case VSPLTW:    vspltw(instr);      break;
+                            case VUPKLSB:   vupklsb(instr);     break;
+                            case VCMPGTFP_:
+                            case VCMPGTFP:  vcmpgtfp(instr);    break;
+                            case VUPKLSH:   vupklsh(instr);     break;
+                            case VCFUX:     vcfux(instr);       break;
+                            case VSPLTISB:  vspltisb(instr);    break;
+                            case VADDSHS:   vaddshs(instr);     break;
+                            case VSRAH:     vsrah(instr);       break;
+                            case VMULESH:   vmulesh(instr);     break;
+                            case VCFSX:     vcfsx(instr);       break;
+                            case VSPLTISH:  vspltish(instr);    break;
+                            case VSRAW:     vsraw(instr);       break;
+                            case VCMPGTSW:  vcmpgtsw(instr);    break;
+                            case VCTUXS:    vctuxs(instr);      break;
+                            case VSPLTISW:  vspltisw(instr);    break;
+                            case VCTSXS:    vctsxs(instr);      break;
+                            case VAND:      vand(instr);        break;
+                            case VMAXFP:    vmaxfp(instr);      break;
+                            case VSUBUHM:   vsubuhm(instr);     break;
+                            case VANDC:     vandc(instr);       break;
+                            case VMINFP:    vminfp(instr);      break;
+                            case VSUBUWM:   vsubuwm(instr);     break;
+                            case VOR:       vor(instr);         break;
+                            case VNOR:      vnor(instr);        break;
+                            case VXOR:      vxor(instr);        break;
+                            case VSUBSHS:   vsubshs(instr);     break;
+                                
+                            default:
+                                Helpers::panic("Unimplemented G_04 instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_04_field, (u32)instr.g_04_field, instr.raw, state.pc);
+                        }
+                }
+                break;
+            }
+            case MULLI:  mulli(instr);   break;
+            case SUBFIC: subfic(instr);  break;
+            case CMPLI:  cmpli(instr);   break;
+            case CMPI:   cmpi(instr);    break;
+            case ADDIC:  addic(instr);   break;
+            case ADDIC_: addic_(instr);  break;
+            case ADDI:   addi(instr);    break;
+            case ADDIS:  addis(instr);   break;
+            case BC:     bc(instr);      break;
+            case SC:     sc(instr);      break;
+            case B:      b(instr);       break;
+            case G_13: {
+                switch (instr.g_13_field) {
+                        
+                    case MCRF:      mcrf(instr);    break;
+                    case BCLR:      bclr(instr);    break;
+                    case CRNOR:     crnor(instr);   break;
+                    case CRANDC:    crandc(instr);  break;
+                    case ISYNC:     break;
+                    case CRNAND:    crnand(instr);  break;
+                    case CRAND:     crand(instr);  break;
+                    case CRORC:     crorc(instr);   break;
+                    case CROR:      cror(instr);    break;
+                    case BCCTR:     bcctr(instr);   break;
+                        
+                    default:
+                        Helpers::panic("Unimplemented G_13 instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_13_field, (u32)instr.g_13_field, instr.raw, state.pc);
+                }
+                break;
+            }
+            case RLWIMI:    rlwimi(instr);  break;
+            case RLWINM:    rlwinm(instr);  break;
+            case RLWNM:     rlwnm(instr);   break;
+            case ORI:       ori(instr);     break;
+            case ORIS:      oris(instr);    break;
+            case XORI:      xori(instr);    break;
+            case XORIS:     xoris(instr);   break;
+            case ANDI:      andi(instr);    break;
+            case ANDIS:     andis(instr);   break;
+            case G_1E: {
+                switch (instr.g_1e_field) {
+                        
+                    case RLDICL_:
+                    case RLDICL:    rldicl(instr);  break;
+                    case RLDICR_:
+                    case RLDICR:    rldicr(instr);  break;
+                    case RLDIC_:
+                    case RLDIC:     rldic(instr);   break;
+                    case RLDIMI_:
+                    case RLDIMI:    rldimi(instr);  break;
+                    case RLDCL:     rldcl(instr);   break;
+                        
+                    default:
+                        Helpers::panic("Unimplemented G_1E instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_1e_field, (u32)instr.g_1e_field, instr.raw);
+                }
+                break;
+            }
+            case G_1F: {
+                switch (instr.g_1f_field) {
+                        
+                    case CMP:       cmp(instr);     break;
+                        //case TW:        ps3->thread_manager.getCurrentThread()->wait(); break;
+                    case LVSL:      lvsl(instr);    break;
+                    case SUBFC:     subfc(instr);   break;
+                    case MULHDU:    mulhdu(instr);  break;
+                    case ADDC:      addc(instr);    break;
+                    case MULHWU:    mulhwu(instr);  break;
+                    case MFCR:      mfcr(instr);    break;
+                    case LWARX:     lwarx(instr);   break;
+                    case LDX:       ldx(instr);     break;
+                    case LWZX:      lwzx(instr);    break;
+                    case CNTLZW:    cntlzw(instr);  break;
+                    case SLW:       slw(instr);     break;
+                    case SLD:       sld(instr);     break;
+                    case AND:       and_(instr);    break;
+                    case CMPL:      cmpl(instr);    break;
+                    case LVSR:      lvsr(instr);    break;
+                    case SUBF:      subf(instr);    break;
+                    case DCBST:     break;
+                    case LWZUX:     lwzux(instr);   break;
+                    case CNTLZD:    cntlzd(instr);  break;
+                    case ANDC:      andc(instr);    break;
+                    case LVEWX:     lvewx(instr);   break;
+                    case MULHD:     mulhd(instr);   break;
+                    case MULHW:     mulhw(instr);   break;
+                    case LDARX:     ldarx(instr);   break;
+                    case LBZX:      lbzx(instr);    break;
+                    case LVX:       lvx(instr);     break;
+                    case NEG:       neg(instr);     break;
+                    case NOR:       nor(instr);     break;
+                    case STVEBX:    stvebx(instr);  break;
+                    case SUBFE:     subfe(instr);   break;
+                    case ADDE:      adde(instr);    break;
+                    case MTCRF:     mtcrf(instr);   break;
+                    case STDX:      stdx(instr);    break;
+                    case STWCX_:    stwcx(instr);   break;
+                    case STWX:      stwx(instr);    break;
+                    case STVEHX:    stvehx(instr);  break;
+                    case STDUX:     stdux(instr);   break;
+                    case STVEWX:    stvewx(instr);  break;
+                    case ADDZE:     addze(instr);   break;
+                    case STDCX_:    stdcx(instr);   break;
+                    case STBX:      stbx(instr);    break;
+                    case STVX:      stvx(instr);    break;
+                    case MULLD:     mulld(instr);   break;
+                    case MULLW:     mullw(instr);   break;
+                    case STBUX:     stbux(instr);   break;
+                    case DCBTST:    break;
+                    case ADD:       add(instr);     break;
+                    case DCBT:      break;
+                    case LHZX:      lhzx(instr);    break;
+                    case XOR:       xor_(instr);    break;
+                    case MFSPR:     mfspr(instr);   break;
+                    case DST:       break;
+                    case MFTB:      mftb(instr);    break;
+                    case DSTST:     break;
+                    case STHX:      sthx(instr);    break;
+                    case ORC:       orc(instr);     break;
+                    case OR:        or_(instr);     break;
+                    case DIVDU:     divdu(instr);   break;
+                    case DIVWU:     divwu(instr);   break;
+                    case MTSPR:     mtspr(instr);   break;
+                    case NAND:      nand(instr);    break;
+                    case DIVD:      divd(instr);    break;
+                    case DIVW:      divw(instr);    break;
+                    case LVLX:      lvlx(instr);    break;
+                    case LWBRX:     lwbrx(instr);   break;
+                    case LFSX:      lfsx(instr);    break;
+                    case SRW:       srw(instr);     break;
+                    case SRD:       srd(instr);     break;
+                    case LVRX:      lvrx(instr);    break;
+                    case SYNC:      break;
+                    case LFDX:      lfdx(instr);    break;
+                    case STVLX:     stvlx(instr);   break;
+                    case STFSX:     stfsx(instr);   break;
+                    case STVRX:     stvrx(instr);   break;
+                    case STFDX:     stfdx(instr);   break;
+                    case LHBRX:     lhbrx(instr);   break;
+                    case SRAW:      sraw(instr);    break;
+                    case SRAD:      srad(instr);    break;
+                    case DSS:       break;
+                    case SRAWI:     srawi(instr);   break;
+                    case SRADI1:
+                    case SRADI2:    sradi(instr);   break;
+                    case EIEIO:     break;
+                    case EXTSH:     extsh(instr);   break;
+                    case EXTSB:     extsb(instr);   break;
+                    case EXTSW:     extsw(instr);   break;
+                    case STFIWX:    stfiwx(instr);  break;
+                    case DCBZ:      dcbz(instr);    break;
+                        
+                    default:
+                        Helpers::panic("Unimplemented G_1F instruction 0x%03x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_1f_field, (u32)instr.g_1f_field, instr.raw, state.pc);
+                }
+                break;
+            }
+            case LWZ:   lwz(instr);     break;
+            case LWZU:  lwzu(instr);    break;
+            case LBZ:   lbz(instr);     break;
+            case LBZU:  lbzu(instr);    break;
+            case STW:   stw(instr);     break;
+            case STWU:  stwu(instr);    break;
+            case STB:   stb(instr);     break;
+            case STBU:  stbu(instr);    break;
+            case LHZ:   lhz(instr);     break;
+            case LHZU:  lhzu(instr);    break;
+            case STH:   sth(instr);     break;
+            case STHU:  sthu(instr);    break;
+            case LFS:   lfs(instr);     break;
+            case LFSU:  lfsu(instr);     break;
+            case LFD:   lfd(instr);     break;
+            case LFDU:  lfdu(instr);    break;
+            case STFS:  stfs(instr);    break;
+            case STFSU: stfsu(instr);   break;
+            case STFD:  stfd(instr);    break;
+            case STFDU: stfdu(instr);   break;
+            case G_3A: {
+                switch (instr.g_3a_field) {
+                        
+                    case LD:    ld(instr);      break;
+                    case LDU:   ldu(instr);     break;
+                    case LWA:   lwa(instr);     break;
+                        
+                    default:
+                        Helpers::panic("Unimplemented G_3A instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3a_field, (u32)instr.g_3a_field, instr.raw);
+                }
+                break;
+            }
+            case G_3B: {
+                switch (instr.g_3b_field) {
+                        
+                    case FDIVS:     fdivs(instr);   break;
+                    case FSUBS:     fsubs(instr);   break;
+                    case FADDS:     fadds(instr);   break;
+                    case FSQRTS:    fsqrts(instr);  break;
+                    case FMULS:     fmuls(instr);   break;
+                    case FMSUBS:    fmsubs(instr);  break;
+                    case FMADDS:    fmadds(instr);  break;
+                    case FNMSUBS:   fnmsubs(instr); break;
+                    case FNMADDS:   fnmadds(instr); break;
+                        
+                    default:
+                        Helpers::panic("Unimplemented G_3B instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3b_field, (u32)instr.g_3b_field, instr.raw);
+                }
+                break;
+            }
+            case G_3E: {
+                switch (instr.g_3e_field) {
+                        
+                    case STD:   std(instr);     break;
+                    case STDU:  stdu(instr);    break;
+                        
+                    default:
+                        Helpers::panic("Unimplemented G_3E instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3e_field, (u32)instr.g_3e_field, instr.raw);
+                }
+                break;
+            }
+            case G_3F: {
+                switch (instr.g_3f_field & 0x1f) {
+                        
+                    case FSEL:      fsel(instr);    break;
+                    case FMUL:      fmul(instr);    break;
+                    case FRSQRTE:   frsqrte(instr); break;
+                    case FMSUB:     fmsub(instr);   break;
+                    case FMADD:     fmadd(instr);   break;
+                    case FNMSUB:    fnmsub(instr);  break;
+                    case FNMADD:    fnmadd(instr);  break;
+                        
+                    default:
+                        switch (instr.g_3f_field) {
+                                
+                            case MFFS:      mffs(instr);    break;
+                            case MTFSF:     mtfsf(instr);   break;
+                            case FCMPU:     fcmpu(instr);   break;
+                            case FRSP:      frsp(instr);    break;
+                            case FCTIW:
+                            case FCTIWZ:    fctiwz(instr);  break;
+                            case FDIV:      fdiv(instr);    break;
+                            case FSUB:      fsub(instr);    break;
+                            case FADD:      fadd(instr);    break;
+                            case FSQRT:     fsqrt(instr);   break;
+                            case FMR:       fmr(instr);     break;
+                            case FNEG:      fneg(instr);    break;
+                            case FABS:      fabs_(instr);   break;
+                            case FCTID:     fctid(instr);   break;
+                            case FCTIDZ:    fctidz(instr);  break;
+                            case FCFID:     fcfid(instr);   break;
+                                
+                            default:
+                                Helpers::panic("Unimplemented G_3F instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_3f_field, (u32)instr.g_3f_field, instr.raw, state.pc);
+                        }
+                }
+                break;
+            }
+                
+            default:
+                Helpers::panic("Unimplemented opcode 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.opc, (u32)instr.opc, instr.raw, state.pc);
+        }
+        
+        state.pc += 4;
+        if (cycles++ > 4096) should_break = true;
+    }
     
-    case G_04: {
-        switch (instr.g_04_field & 0x3f) {
-
-        case VMADDFP:       vmaddfp(instr);     break;
-        case VMHRADDSHS:    vmhraddshs(instr);  break;
-        case VMLADDUHM:     vmladduhm(instr);   break;
-        case VNMSUBFP:      vnmsubfp(instr);    break;
-        case VMSUMSHM:      vmsumshm(instr);    break;
-        case VSEL:          vsel(instr);        break;
-        case VPERM:         vperm(instr);       break;
-        case VSLDOI:        vsldoi(instr);      break;
-
-        default:
-            switch (instr.g_04_field) {
-
-            case VCMPEQUB:  vcmpequb(instr);    break;
-            case VADDFP:    vaddfp(instr);      break;
-            case VADDUHM:   vadduhm(instr);     break;
-            case VMULOUH:   vmulouh(instr);     break;
-            case VSUBFP:    vsubfp(instr);      break;
-            case VMRGHH:    vmrghh(instr);      break;
-            case VADDUWM:   vadduwm(instr);     break;
-            case VRLW:      vrlw(instr);        break;
-            case VCMPEQUW_:
-            case VCMPEQUW:  vcmpequw(instr);    break;
-            case VMRGHW:    vmrghw(instr);      break;
-            case VCMPEQFP_:
-            case VCMPEQFP:  vcmpeqfp(instr);    break;
-            case VREFP:     vrefp(instr);       break;
-            case VPKSHUS:   vpkshus(instr);     break;
-            case VSLH:      vslh(instr);        break;
-            case VMULOSH:   vmulosh(instr);     break;
-            case VRSQRTEFP: vrsqrtefp(instr);   break;
-            case VMRGLH:    vmrglh(instr);      break;
-            case VSLW:      vslw(instr);        break;
-            case VMRGLW:    vmrglw(instr);      break;
-            case VCMPGEFP_:
-            case VCMPGEFP:  vcmpgefp(instr);    break;
-            case VPKSWSS:   vpkswss(instr);     break;
-            case VSPLTB:    vspltb(instr);      break;
-            case VUPKHSB:   vupkhsb(instr);     break;
-            case VCMPGTUH_:
-            case VCMPGTUH:  vcmpgtuh(instr);    break;
-            case VSPLTH:    vsplth(instr);      break;
-            case VUPKHSH:   vupkhsh(instr);     break;
-            case VSRW:      vsrw(instr);        break;
-            case VCMPGTUW_:
-            case VCMPGTUW:  vcmpgtuw(instr);    break;
-            case VSPLTW:    vspltw(instr);      break;
-            case VUPKLSB:   vupklsb(instr);     break;
-            case VCMPGTFP_:
-            case VCMPGTFP:  vcmpgtfp(instr);    break;
-            case VUPKLSH:   vupklsh(instr);     break;
-            case VCFUX:     vcfux(instr);       break;
-            case VSPLTISB:  vspltisb(instr);    break;
-            case VADDSHS:   vaddshs(instr);     break;
-            case VSRAH:     vsrah(instr);       break;
-            case VMULESH:   vmulesh(instr);     break;
-            case VCFSX:     vcfsx(instr);       break;
-            case VSPLTISH:  vspltish(instr);    break;
-            case VSRAW:     vsraw(instr);       break;
-            case VCMPGTSW:  vcmpgtsw(instr);    break;
-            case VCTUXS:    vctuxs(instr);      break;
-            case VSPLTISW:  vspltisw(instr);    break;
-            case VCTSXS:    vctsxs(instr);      break;
-            case VAND:      vand(instr);        break;
-            case VMAXFP:    vmaxfp(instr);      break;
-            case VSUBUHM:   vsubuhm(instr);     break;
-            case VANDC:     vandc(instr);       break;
-            case VMINFP:    vminfp(instr);      break;
-            case VSUBUWM:   vsubuwm(instr);     break;
-            case VOR:       vor(instr);         break;
-            case VNOR:      vnor(instr);        break;
-            case VXOR:      vxor(instr);        break;
-            case VSUBSHS:   vsubshs(instr);     break;
-
-            default:
-                Helpers::panic("Unimplemented G_04 instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_04_field, (u32)instr.g_04_field, instr.raw, state.pc);
-            }
-        }
-        break;
-    }
-    case MULLI:  mulli(instr);   break;
-    case SUBFIC: subfic(instr);  break;
-    case CMPLI:  cmpli(instr);   break;
-    case CMPI:   cmpi(instr);    break;
-    case ADDIC:  addic(instr);   break;
-    case ADDIC_: addic_(instr);  break;
-    case ADDI:   addi(instr);    break;
-    case ADDIS:  addis(instr);   break;
-    case BC:     bc(instr);      break;
-    case SC:     sc(instr);      break;
-    case B:      b(instr);       break;
-    case G_13: {
-        switch (instr.g_13_field) {
-
-        case MCRF:      mcrf(instr);    break;
-        case BCLR:      bclr(instr);    break;
-        case CRNOR:     crnor(instr);   break;
-        case CRANDC:    crandc(instr);  break;
-        case ISYNC:     break;
-        case CRNAND:    crnand(instr);  break;
-        case CRAND:     crand(instr);  break;
-        case CRORC:     crorc(instr);   break;
-        case CROR:      cror(instr);    break;
-        case BCCTR:     bcctr(instr);   break;
-
-        default:
-            Helpers::panic("Unimplemented G_13 instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_13_field, (u32)instr.g_13_field, instr.raw, state.pc);
-        }
-        break;
-    }
-    case RLWIMI:    rlwimi(instr);  break;
-    case RLWINM:    rlwinm(instr);  break;
-    case RLWNM:     rlwnm(instr);   break;
-    case ORI:       ori(instr);     break;
-    case ORIS:      oris(instr);    break;
-    case XORI:      xori(instr);    break;
-    case XORIS:     xoris(instr);   break;
-    case ANDI:      andi(instr);    break;
-    case ANDIS:     andis(instr);   break;
-    case G_1E: {
-        switch (instr.g_1e_field) {
-
-        case RLDICL_:
-        case RLDICL:    rldicl(instr);  break;
-        case RLDICR_:
-        case RLDICR:    rldicr(instr);  break;
-        case RLDIC_:
-        case RLDIC:     rldic(instr);   break;
-        case RLDIMI_:
-        case RLDIMI:    rldimi(instr);  break;
-        case RLDCL:     rldcl(instr);   break;
-
-        default:
-            Helpers::panic("Unimplemented G_1E instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_1e_field, (u32)instr.g_1e_field, instr.raw);
-        }
-        break;
-    }
-    case G_1F: {
-        switch (instr.g_1f_field) {
-
-        case CMP:       cmp(instr);     break;
-        //case TW:        ps3->thread_manager.getCurrentThread()->wait(); break;
-        case LVSL:      lvsl(instr);    break;
-        case SUBFC:     subfc(instr);   break;
-        case MULHDU:    mulhdu(instr);  break;
-        case ADDC:      addc(instr);    break;
-        case MULHWU:    mulhwu(instr);  break;
-        case MFCR:      mfcr(instr);    break;
-        case LWARX:     lwarx(instr);   break;
-        case LDX:       ldx(instr);     break;
-        case LWZX:      lwzx(instr);    break;
-        case CNTLZW:    cntlzw(instr);  break;
-        case SLW:       slw(instr);     break;
-        case SLD:       sld(instr);     break;
-        case AND:       and_(instr);    break;
-        case CMPL:      cmpl(instr);    break;
-        case LVSR:      lvsr(instr);    break;
-        case SUBF:      subf(instr);    break;
-        case DCBST:     break;
-        case LWZUX:     lwzux(instr);   break;
-        case CNTLZD:    cntlzd(instr);  break;
-        case ANDC:      andc(instr);    break;
-        case LVEWX:     lvewx(instr);   break;
-        case MULHD:     mulhd(instr);   break;
-        case MULHW:     mulhw(instr);   break;
-        case LDARX:     ldarx(instr);   break;
-        case LBZX:      lbzx(instr);    break;
-        case LVX:       lvx(instr);     break;
-        case NEG:       neg(instr);     break;
-        case NOR:       nor(instr);     break;
-        case STVEBX:    stvebx(instr);  break;
-        case SUBFE:     subfe(instr);   break;
-        case ADDE:      adde(instr);    break;
-        case MTCRF:     mtcrf(instr);   break;
-        case STDX:      stdx(instr);    break;
-        case STWCX_:    stwcx(instr);   break;
-        case STWX:      stwx(instr);    break;
-        case STVEHX:    stvehx(instr);  break;
-        case STDUX:     stdux(instr);   break;
-        case STVEWX:    stvewx(instr);  break;
-        case ADDZE:     addze(instr);   break;
-        case STDCX_:    stdcx(instr);   break;
-        case STBX:      stbx(instr);    break;
-        case STVX:      stvx(instr);    break;
-        case MULLD:     mulld(instr);   break;
-        case MULLW:     mullw(instr);   break;
-        case STBUX:     stbux(instr);   break;
-        case DCBTST:    break;
-        case ADD:       add(instr);     break;
-        case DCBT:      break;
-        case LHZX:      lhzx(instr);    break;
-        case XOR:       xor_(instr);    break;
-        case MFSPR:     mfspr(instr);   break;
-        case DST:       break;
-        case MFTB:      mftb(instr);    break;
-        case DSTST:     break;
-        case STHX:      sthx(instr);    break;
-        case ORC:       orc(instr);     break;
-        case OR:        or_(instr);     break;
-        case DIVDU:     divdu(instr);   break;
-        case DIVWU:     divwu(instr);   break;
-        case MTSPR:     mtspr(instr);   break;
-        case NAND:      nand(instr);    break;
-        case DIVD:      divd(instr);    break;
-        case DIVW:      divw(instr);    break;
-        case LVLX:      lvlx(instr);    break;
-        case LWBRX:     lwbrx(instr);   break;
-        case LFSX:      lfsx(instr);    break;
-        case SRW:       srw(instr);     break;
-        case SRD:       srd(instr);     break;
-        case LVRX:      lvrx(instr);    break;
-        case SYNC:      break;
-        case LFDX:      lfdx(instr);    break;
-        case STVLX:     stvlx(instr);   break;
-        case STFSX:     stfsx(instr);   break;
-        case STVRX:     stvrx(instr);   break;
-        case STFDX:     stfdx(instr);   break;
-        case LHBRX:     lhbrx(instr);   break;
-        case SRAW:      sraw(instr);    break;
-        case SRAD:      srad(instr);    break;
-        case DSS:       break;
-        case SRAWI:     srawi(instr);   break;
-        case SRADI1:
-        case SRADI2:    sradi(instr);   break;
-        case EIEIO:     break;
-        case EXTSH:     extsh(instr);   break;
-        case EXTSB:     extsb(instr);   break;
-        case EXTSW:     extsw(instr);   break;
-        case STFIWX:    stfiwx(instr);  break;
-        case DCBZ:      dcbz(instr);    break;
-
-        default:
-            Helpers::panic("Unimplemented G_1F instruction 0x%03x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_1f_field, (u32)instr.g_1f_field, instr.raw, state.pc);
-        }
-        break;
-    }
-    case LWZ:   lwz(instr);     break;
-    case LWZU:  lwzu(instr);    break;
-    case LBZ:   lbz(instr);     break;
-    case LBZU:  lbzu(instr);    break;
-    case STW:   stw(instr);     break;
-    case STWU:  stwu(instr);    break;
-    case STB:   stb(instr);     break;
-    case STBU:  stbu(instr);    break;
-    case LHZ:   lhz(instr);     break;
-    case LHZU:  lhzu(instr);    break;
-    case STH:   sth(instr);     break;
-    case STHU:  sthu(instr);    break;
-    case LFS:   lfs(instr);     break;
-    case LFSU:  lfsu(instr);     break;
-    case LFD:   lfd(instr);     break;
-    case LFDU:  lfdu(instr);    break;
-    case STFS:  stfs(instr);    break;
-    case STFSU: stfsu(instr);   break;
-    case STFD:  stfd(instr);    break;
-    case STFDU: stfdu(instr);   break;
-    case G_3A: {
-        switch (instr.g_3a_field) {
-
-        case LD:    ld(instr);      break;
-        case LDU:   ldu(instr);     break;
-        case LWA:   lwa(instr);     break;
-
-        default:
-            Helpers::panic("Unimplemented G_3A instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3a_field, (u32)instr.g_3a_field, instr.raw);
-        }
-        break;
-    }
-    case G_3B: {
-        switch (instr.g_3b_field) {
-
-        case FDIVS:     fdivs(instr);   break;
-        case FSUBS:     fsubs(instr);   break;
-        case FADDS:     fadds(instr);   break;
-        case FSQRTS:    fsqrts(instr);  break;
-        case FMULS:     fmuls(instr);   break;
-        case FMSUBS:    fmsubs(instr);  break;
-        case FMADDS:    fmadds(instr);  break;
-        case FNMSUBS:   fnmsubs(instr); break;
-        case FNMADDS:   fnmadds(instr); break;
-
-        default:
-            Helpers::panic("Unimplemented G_3B instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3b_field, (u32)instr.g_3b_field, instr.raw);
-        }
-        break;
-    }
-    case G_3E: {
-        switch (instr.g_3e_field) {
-
-        case STD:   std(instr);     break;
-        case STDU:  stdu(instr);    break;
-
-        default:
-            Helpers::panic("Unimplemented G_3E instruction 0x%02x (decimal: %d) (full instr: 0x%08x)\n", (u32)instr.g_3e_field, (u32)instr.g_3e_field, instr.raw);
-        }
-        break;
-    }
-    case G_3F: {
-        switch (instr.g_3f_field & 0x1f) {
-
-        case FSEL:      fsel(instr);    break;
-        case FMUL:      fmul(instr);    break;
-        case FRSQRTE:   frsqrte(instr); break;
-        case FMSUB:     fmsub(instr);   break;
-        case FMADD:     fmadd(instr);   break;
-        case FNMSUB:    fnmsub(instr);  break;
-        case FNMADD:    fnmadd(instr);  break;
-
-        default:
-            switch (instr.g_3f_field) {
-
-            case MFFS:      mffs(instr);    break;
-            case MTFSF:     mtfsf(instr);   break;
-            case FCMPU:     fcmpu(instr);   break;
-            case FRSP:      frsp(instr);    break;
-            case FCTIW:
-            case FCTIWZ:    fctiwz(instr);  break;
-            case FDIV:      fdiv(instr);    break;
-            case FSUB:      fsub(instr);    break;
-            case FADD:      fadd(instr);    break;
-            case FSQRT:     fsqrt(instr);   break;
-            case FMR:       fmr(instr);     break;
-            case FNEG:      fneg(instr);    break;
-            case FABS:      fabs_(instr);   break;
-            case FCTID:     fctid(instr);  break;
-            case FCTIDZ:    fctidz(instr);  break;
-            case FCFID:     fcfid(instr);   break;
-
-            default:
-                Helpers::panic("Unimplemented G_3F instruction 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.g_3f_field, (u32)instr.g_3f_field, instr.raw, state.pc);
-            }
-        }
-        break;
-    }
-
-    default:
-        Helpers::panic("Unimplemented opcode 0x%02x (decimal: %d) (full instr: 0x%08x) @ 0x%016llx\n", (u32)instr.opc, (u32)instr.opc, instr.raw, state.pc);
-    }
-
-    state.pc += 4;
+    return cycles;
 }
 
 // Main
@@ -484,6 +493,7 @@ void PPUInterpreter::bc(const Instruction& instr) {
 }
 
 void PPUInterpreter::sc(const Instruction& instr) {
+    should_break = true;
     ps3->syscall.doSyscall(true);
 }
 

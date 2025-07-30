@@ -85,13 +85,12 @@ void Thread::finalizeArgsAndEnv() {
 // We put the reschedule on the scheduler instead of having it happen instantly because it would break
 // if a reschedule is called in the middle of an HLE function
 void Thread::reschedule(u64 cycles) {
-    mgr->ps3->scheduler.push(std::bind(&ThreadManager::reschedule, mgr), mgr->ps3->curr_block_cycles + cycles, "thread reschedule");
-    mgr->ps3->forceSchedulerUpdate();
+    mgr->ps3->scheduler.push(std::bind(&ThreadManager::reschedule, mgr), cycles, "thread reschedule");
 }
 
 void Thread::sleep(u64 us) {
     const u64 cycles = Scheduler::uSecondsToCycles(us);
-    mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), mgr->ps3->curr_block_cycles + cycles, "thread wakeup");
+    mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), cycles, "thread wakeup");
     status = ThreadStatus::Sleeping;
     reschedule();
     mgr->setAllHighPriority();
@@ -99,7 +98,7 @@ void Thread::sleep(u64 us) {
 }
 
 void Thread::sleepForCycles(u64 cycles) {
-    mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), mgr->ps3->curr_block_cycles + cycles, "thread wakeup");
+    mgr->ps3->scheduler.push(std::bind(&Thread::wakeUp, this), cycles, "thread wakeup");
     status = ThreadStatus::Sleeping;
     reschedule();
     log("Sleeping thread %d for %lld cycles\n", id, cycles);
@@ -114,7 +113,7 @@ void Thread::wait(std::string wait_reason) {
 
 void Thread::timeout(u64 us) {
     const u64 cycles = Scheduler::uSecondsToCycles(us);
-    mgr->ps3->scheduler.push(std::bind(&Thread::timeoutEvent, this), mgr->ps3->curr_block_cycles + cycles, std::format("timeout {:d}", id));
+    mgr->ps3->scheduler.push(std::bind(&Thread::timeoutEvent, this), cycles, std::format("timeout {:d}", id));
     reschedule();
 }
 

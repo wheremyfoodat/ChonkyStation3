@@ -2,8 +2,9 @@
 #include "PlayStation3.hpp"
 
 
-void PPU::step() {
+int PPU::step() {
     Helpers::panic("Backend did not define step function\n");
+    return 0;   // Unreachable
 }
 
 void PPU::runFunc(u32 addr, u32 toc, bool save_all_state) {

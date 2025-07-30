@@ -98,8 +98,7 @@ void SPUThread::setID(u64 id) {
 }
 
 void SPUThread::reschedule() {
-    ps3->scheduler.push(std::bind(&SPUThreadManager::reschedule, &ps3->spu_thread_manager), ps3->curr_block_cycles, "spu thread reschedule");
-    ps3->forceSchedulerUpdate();
+    ps3->scheduler.push(std::bind(&SPUThreadManager::reschedule, &ps3->spu_thread_manager), 0, "spu thread reschedule");
 }
 
 void SPUThread::halt() {
@@ -110,7 +109,7 @@ void SPUThread::halt() {
 
 void SPUThread::sleep(u64 us) {
     const u64 cycles = Scheduler::uSecondsToCycles(us);
-    ps3->scheduler.push(std::bind(&SPUThread::wakeUp, this), ps3->curr_block_cycles + cycles, "spu thread wakeup");
+    ps3->scheduler.push(std::bind(&SPUThread::wakeUp, this), cycles, "spu thread wakeup");
     status = ThreadStatus::Sleeping;
     reschedule();
     log("Sleeping SPU thread %d for %d us\n", id, us);

@@ -60,9 +60,7 @@ public:
     std::function<void(void)> flip_handler;
     u64 cycle_count = 0;
     u64 curr_block_cycles = 0;
-    u64 curr_block = 0;
     u64 skipped_cycles = 0;
-    bool force_scheduler_update = false;
     
     u32 ppu_ret_func = 0;
     u32 ppu_ret_func_all_state = 0;
@@ -77,7 +75,6 @@ public:
     void flip();
     void vblank();
     bool skipToNextEvent();
-    void forceSchedulerUpdate();
 
     void pressButton(u32 button);
     void setLeftStick(float x, float y);    // Accepts a value ranging from 0.0 (left/up) to 1.0 (right/down), same for the right stick

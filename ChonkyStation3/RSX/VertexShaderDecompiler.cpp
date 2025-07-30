@@ -150,9 +150,10 @@ uniform ivec2 surface_clip;
             
             std::string cond = std::format("{}({}, vec4(0.0f))", cond_func[instr->w0.cond], cond_reg);
             decompiled_src = std::format("mix({}{}, {}{}, {}({}))", decompiled_dest, mask_str, decompiled_src, mask_str, type, cond);
-        }
-        
-        main += std::format("{}{} = {}{};\n", decompiled_dest, mask_str, decompiled_src, mask_str);
+            
+            main += std::format("{}{} = {};\n", decompiled_dest, mask_str, decompiled_src);
+        } else
+            main += std::format("{}{} = {}{};\n", decompiled_dest, mask_str, decompiled_src, mask_str);
 
         if (instr->w3.end) break;
     }
@@ -167,6 +168,7 @@ offs.x  -= half_clip.x;
 offs.x  /= half_clip.x;
 offs.y  -= half_clip.y;
 offs.y  /= half_clip.y;
+offs.z -= 0.5f;
 gl_Position = vec4(fs_pos.xyz * scale + offs, fs_pos.w);
 
 gl_Position.z = gl_Position.z * 2.0f - gl_Position.w;

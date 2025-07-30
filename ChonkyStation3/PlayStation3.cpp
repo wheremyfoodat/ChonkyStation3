@@ -152,7 +152,6 @@ void PlayStation3::init() {
 void PlayStation3::run() {
     try {
         curr_block_cycles = 0;
-        curr_block = 0;
         while (cycle_count < CPU_FREQ)
             step();
         cycle_count = 0;
@@ -162,22 +161,16 @@ void PlayStation3::run() {
     }
 }
 
-static constexpr int reschedule_every_n_blocks = 48;
+static constexpr int reschedule_every_n_cycles = 512 * 2048;
 void PlayStation3::step() {
-    ppu->step();
+    const int cycles = ppu->step();
     spu->step();
 
-    if (force_scheduler_update || curr_block_cycles++ >= 2048) {
-        scheduler.tick(curr_block_cycles);
-        cycle_count += curr_block_cycles;
-        
+    scheduler.tick(cycles);
+    curr_block_cycles += cycles;
+    if (curr_block_cycles > reschedule_every_n_cycles) {
         curr_block_cycles = 0;
-        force_scheduler_update = false;
-
-        if (curr_block++ >= reschedule_every_n_blocks) {
-            curr_block = 0;
-            thread_manager.reschedule();
-        }
+        thread_manager.reschedule();
     }
 }
 
@@ -243,10 +236,6 @@ bool PlayStation3::skipToNextEvent() {
         skipped_cycles += ticks;
     }
     return ok;
-}
-
-void PlayStation3::forceSchedulerUpdate() {
-    force_scheduler_update = true;
 }
 
 void PlayStation3::pressButton(u32 button) {

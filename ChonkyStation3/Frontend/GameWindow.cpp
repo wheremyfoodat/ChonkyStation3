@@ -198,7 +198,6 @@ void GameWindow::breakpoint() {
 
 void GameWindow::breakOnNextInstr(u64 addr) {
     ps3->scheduler.push(std::bind(&GameWindow::breakpoint, this), ps3->curr_block_cycles, "breakpoint");
-    ps3->forceSchedulerUpdate();
 }
 
 void GameWindow::breakOnNextInstrIfExec(u64 addr) {

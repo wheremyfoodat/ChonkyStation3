@@ -17,7 +17,8 @@ using namespace PPUTypes;
 class PPUInterpreter : public PPU {
 public:
     PPUInterpreter(Memory& mem, PlayStation3* ps3);
-    void step() override;
+    int step() override;
+    bool should_break = false;
 
     u64 rotation_mask[64][64];
 

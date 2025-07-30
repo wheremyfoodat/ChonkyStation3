@@ -28,6 +28,7 @@ void RSX::initGL() {
     OpenGL::disableScissor();
     OpenGL::setFillMode(OpenGL::FillMode::FillPoly);
     OpenGL::setBlendEquation(OpenGL::BlendEquation::Add);
+    //glFrontFace(GL_CW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_ibo);
     quad_index_array.push_back(0);
@@ -1221,7 +1222,7 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
     case NV4097_SET_CULL_FACE_ENABLE: {
         if (args[0]) {
             log("Enabled cull face\n");
-            glEnable(GL_CULL_FACE);
+            //glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
         } else {
             log("Disabled cull face\n");
@@ -1508,6 +1509,9 @@ void RSX::doCmd(u32 cmd_num, std::deque<u32>& args) {
             GL_COLOR_BUFFER_BIT,
             GL_NEAREST
         );
+        
+        // Reset state
+        OpenGL::disableScissor();
 
         // Probably not right
         last_flip_time = std::chrono::system_clock::now().time_since_epoch().count() * 8;
