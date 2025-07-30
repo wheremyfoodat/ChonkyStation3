@@ -2,6 +2,9 @@
 #include <PlayStation3.hpp>
 
 #define PC_OFFSET ((uintptr_t) &state.pc - (uintptr_t)this)
+#define GPR_OFFSET(i) ((uintptr_t) &state.gprs[i] - (uintptr_t)this)
+#define FPR_OFFSET(i) ((uintptr_t) &state.fprs[i] - (uintptr_t)this)
+#define VPR_OFFSET(i) ((uintptr_t) &state.vprs[i] - (uintptr_t)this)
 
 #define FALLBACK(instructionName, instructionRaw) \
     MOV(arg2, instructionRaw); \
@@ -66,12 +69,6 @@ PPUArm64::JITCallback PPUArm64::compileBlock() {
     // Mark memory as RX and invalidate affect icache ranges before returning and executing the block
     oaknut::CodeBlock::protect();
     oaknut::CodeBlock::invalidate((u32*)cb, uintptr_t(xptr<u32*>()) - uintptr_t(cb));
-    
-    using namespace std;
-    ofstream fout("code.bin", ios::binary);
-    fout.write((char*)cb, uintptr_t(xptr<char*>()) - uintptr_t(cb));
-    fout.close();
-
     return cb;
 }
 
@@ -124,6 +121,26 @@ void PPUArm64::bcctr(Instruction instr) {
     FALLBACK(bcctr, instr.raw);
     LDR(scratch1, state_pointer, PC_OFFSET); ADD(scratch1, scratch1, 4); STR(scratch1, state_pointer, PC_OFFSET);
 }
+
+void PPUArm64::add(Instruction instr) {
+    if (!instr.rc) {
+        if (instr.rb == instr.ra + 1) {
+            LDP(scratch1, scratch2, state_pointer, GPR_OFFSET(instr.ra));
+        }
+        else {
+            LDR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
+            LDR(scratch2, state_pointer, GPR_OFFSET(instr.rb));
+        }
+
+        ADD(scratch1, scratch1, scratch2);
+        STR(scratch1, state_pointer, GPR_OFFSET(instr.rt));
+    }
+
+    else {
+        FALLBACK(add, instr.raw); 
+    }
+}
+
 
 void PPUArm64::mulli      (Instruction instr) { FALLBACK(mulli, instr.raw); }
 void PPUArm64::subfic     (Instruction instr) { FALLBACK(subfic, instr.raw); }
@@ -281,7 +298,6 @@ void PPUArm64::stvx       (Instruction instr) { FALLBACK(stvx, instr.raw); }
 void PPUArm64::mulld      (Instruction instr) { FALLBACK(mulld, instr.raw); }
 void PPUArm64::mullw      (Instruction instr) { FALLBACK(mullw, instr.raw); }
 void PPUArm64::stbux      (Instruction instr) { FALLBACK(stbux, instr.raw); }
-void PPUArm64::add        (Instruction instr) { FALLBACK(add, instr.raw); }
 void PPUArm64::lhzx       (Instruction instr) { FALLBACK(lhzx, instr.raw); }
 void PPUArm64::xor_       (Instruction instr) { FALLBACK(xor_, instr.raw); }
 void PPUArm64::mfspr      (Instruction instr) { FALLBACK(mfspr, instr.raw); }

@@ -74,12 +74,12 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
     template <typename T>
     void call(T func, XReg scratch) {
         const auto ptr = reinterpret_cast<const void*>(func);
-        // Displacement (in words)
-        const int64_t disp = getPCOffset(xptr<const void*>(), ptr) / 4;
+        // Displacement
+        const int64_t disp = getPCOffset(xptr<const void*>(), ptr);
 
         // If the displacement can fit in a 26-bit int, that means we can emit a direct call to the address
         // Otherwise, load the address into a register and emit a blr
-        const bool canDoDirectCall = isInt26(disp);
+        const bool canDoDirectCall = isInt26(disp) && false;
 
         if (canDoDirectCall) {
             BL(disp);
@@ -93,8 +93,8 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
     template <typename T>
     void jump(T func, XReg scratch) {
         const auto ptr = reinterpret_cast<const void*>(func);
-        // Displacement (in words)
-        const int64_t disp = getPCOffset(xptr<const void*>(), ptr) / 4;
+        // Displacement
+        const int64_t disp = getPCOffset(xptr<const void*>(), ptr) ;
 
         // If the displacement can fit in a 26-bit int, that means we can emit a direct call to the address
         // Otherwise, load the address into a register and emit a br
