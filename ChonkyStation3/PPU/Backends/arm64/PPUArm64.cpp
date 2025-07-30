@@ -122,25 +122,63 @@ void PPUArm64::bcctr(Instruction instr) {
     LDR(scratch1, state_pointer, PC_OFFSET); ADD(scratch1, scratch1, 4); STR(scratch1, state_pointer, PC_OFFSET);
 }
 
+#define LOAD2(reg1, reg2, field1, field2)                                      \
+  if (instr.field2 == instr.field1 + 1) {                                      \
+    LDP(reg1, reg2, state_pointer, GPR_OFFSET(instr.field1));                  \
+  } else if (instr.field1 == instr.field2 + 1) {                               \
+    LDP(reg2, reg1, state_pointer, GPR_OFFSET(instr.field2));                  \
+  } else {                                                                     \
+    LDR(reg1, state_pointer, GPR_OFFSET(instr.field1));                        \
+    LDR(reg2, state_pointer, GPR_OFFSET(instr.field2));                        \
+  }
+
 void PPUArm64::add(Instruction instr) {
     if (!instr.rc) {
-        if (instr.rb == instr.ra + 1) {
-            LDP(scratch1, scratch2, state_pointer, GPR_OFFSET(instr.ra));
-        }
-        else {
-            LDR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
-            LDR(scratch2, state_pointer, GPR_OFFSET(instr.rb));
-        }
-
+        LOAD2(scratch1, scratch2, ra, rb);
         ADD(scratch1, scratch1, scratch2);
         STR(scratch1, state_pointer, GPR_OFFSET(instr.rt));
     }
 
     else {
-        FALLBACK(add, instr.raw); 
+        FALLBACK(add, instr.raw);
     }
 }
 
+void PPUArm64::and_(Instruction instr) {
+    if (!instr.rc) {
+        LOAD2(scratch1, scratch2, rs, rb);
+        AND(scratch1, scratch1, scratch2);
+        STR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
+    }
+
+    else {
+        FALLBACK(and_, instr.raw); 
+    }
+}
+
+void PPUArm64::or_(Instruction instr) {
+    if (!instr.rc) {
+        LOAD2(scratch1, scratch2, rs, rb);
+        ORR(scratch1, scratch1, scratch2);
+        STR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
+    }
+
+    else {
+        FALLBACK(or_, instr.raw); 
+    }
+}
+
+void PPUArm64::xor_(Instruction instr) {
+    if (!instr.rc) {
+        LOAD2(scratch1, scratch2, rs, rb);
+        EOR(scratch1, scratch1, scratch2);
+        STR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
+    }
+
+    else {
+        FALLBACK(xor_, instr.raw); 
+    }
+}
 
 void PPUArm64::mulli      (Instruction instr) { FALLBACK(mulli, instr.raw); }
 void PPUArm64::subfic     (Instruction instr) { FALLBACK(subfic, instr.raw); }
@@ -266,7 +304,6 @@ void PPUArm64::lwzx       (Instruction instr) { FALLBACK(lwzx, instr.raw); }
 void PPUArm64::cntlzw     (Instruction instr) { FALLBACK(cntlzw, instr.raw); }
 void PPUArm64::slw        (Instruction instr) { FALLBACK(slw, instr.raw); }
 void PPUArm64::sld        (Instruction instr) { FALLBACK(sld, instr.raw); }
-void PPUArm64::and_       (Instruction instr) { FALLBACK(and_, instr.raw); }
 void PPUArm64::cmpl       (Instruction instr) { FALLBACK(cmpl, instr.raw); }
 void PPUArm64::lvsr       (Instruction instr) { FALLBACK(lvsr, instr.raw); }
 void PPUArm64::subf       (Instruction instr) { FALLBACK(subf, instr.raw); }
@@ -299,12 +336,10 @@ void PPUArm64::mulld      (Instruction instr) { FALLBACK(mulld, instr.raw); }
 void PPUArm64::mullw      (Instruction instr) { FALLBACK(mullw, instr.raw); }
 void PPUArm64::stbux      (Instruction instr) { FALLBACK(stbux, instr.raw); }
 void PPUArm64::lhzx       (Instruction instr) { FALLBACK(lhzx, instr.raw); }
-void PPUArm64::xor_       (Instruction instr) { FALLBACK(xor_, instr.raw); }
 void PPUArm64::mfspr      (Instruction instr) { FALLBACK(mfspr, instr.raw); }
 void PPUArm64::mftb       (Instruction instr) { FALLBACK(mftb, instr.raw); }
 void PPUArm64::sthx       (Instruction instr) { FALLBACK(sthx, instr.raw); }
 void PPUArm64::orc        (Instruction instr) { FALLBACK(orc, instr.raw); }
-void PPUArm64::or_        (Instruction instr) { FALLBACK(or_, instr.raw); }
 void PPUArm64::divdu      (Instruction instr) { FALLBACK(divdu, instr.raw); }
 void PPUArm64::divwu      (Instruction instr) { FALLBACK(divwu, instr.raw); }
 void PPUArm64::mtspr      (Instruction instr) { FALLBACK(mtspr, instr.raw); }
