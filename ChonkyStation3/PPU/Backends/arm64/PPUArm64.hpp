@@ -23,7 +23,7 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
     static constexpr XReg arg2 = X1;
     static constexpr XReg scratch1 = X9;
     static constexpr XReg scratch2 = X10;
-    static constexpr XReg state_pointer = X15;
+    static constexpr XReg state_pointer = X29;
 
     static constexpr size_t executable_memory_size = 128_MB;
     // Allocate some extra space as padding for security purposes in the extremely unlikely occasion we manage to overflow the above size
@@ -40,19 +40,23 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
     JITCallback** code_blocks; // First level of 2-level lookup for code
     JITCallback dispatcher;    // Assembly dispatcher
 
-    u32 recompiler_pc;
+    u32 block_size = 0; // Size of block in instructions
+    u32 recompiler_pc = 0; // Current PC we're compiling instructions from
+    bool stop_compiling = false; // Flag for whether it's time to end the block
 
     void emitDispatcher();
     void emitBlockLookup();
+
     JITCallback compileBlock();
+    void compileInstruction(Instruction instruction);
+
+    void writebackPC(u32 newPC);
 
     template <typename T>
     T getLabelPointer(const oaknut::Label& label) {
         auto pointer = reinterpret_cast<u8*>(oaknut::CodeBlock::ptr()) + label.offset();
         return reinterpret_cast<T>(pointer);
     }
-
-    static u32 runInterpreterThunk(PPUArm64* ppu) { return ppu->interpreter.step(); }
 
     // Calculate the number of instructions between the current PC and the branch target
     // Returns a negative number for backwards jumps
@@ -74,7 +78,7 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
 
         // If the displacement can fit in a 26-bit int, that means we can emit a direct call to the address
         // Otherwise, load the address into a register and emit a blr
-        const bool canDoDirectCall = isInt26(disp);
+        const bool canDoDirectCall = isInt26(disp) && false;
 
         if (canDoDirectCall) {
             BL(disp);
@@ -102,6 +106,36 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
         }
     }
 
+    // Should we continue compiling a block? Depends on how big the block currently is, and whether we've hit the block size limit
+    bool shouldContinue() {
+        static constexpr u32 maximum_block_size = 2048;
+        return !stop_compiling; //&& block_size < maximum_block_size;
+    }
+
+    // Emit a call to a class member function, passing "thisObject" (+ an adjustment if necessary)
+    // As the function's "this" pointer. Only works with classes with single, non-virtual inheritance
+    // Hence the static asserts. Those are all we need though, thankfully.
+    template <typename T>
+    void emitMemberFunctionCall(T func, void* thisObject, XReg scratch) {
+        void* functionPtr;
+        uintptr_t thisPtr = reinterpret_cast<uintptr_t>(thisObject);
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+        static_assert(sizeof(T) == 8, "[x64 JIT] Invalid size for member function pointer");
+        std::memcpy(&functionPtr, &func, sizeof(T));
+#else
+        static_assert(sizeof(T) == 16, "[x64 JIT] Invalid size for member function pointer");
+        uintptr_t arr[2];
+        std::memcpy(arr, &func, sizeof(T));
+        // First 8 bytes correspond to the actual pointer to the function
+        functionPtr = reinterpret_cast<void*>(arr[0]);
+        // Next 8 bytes correspond to the "this" pointer adjustment
+        thisPtr += arr[1];
+#endif
+
+        MOV(arg1, thisPtr);
+        call(functionPtr, scratch);
+    }
 
 public:
     PPUArm64(Memory& mem, PlayStation3* ps3);
@@ -109,244 +143,244 @@ public:
     bool should_break = false;
     
     // Main
-    void mulli      (const Instruction& instr);
-    void subfic     (const Instruction& instr);
-    void cmpli      (const Instruction& instr);
-    void cmpi       (const Instruction& instr);
-    void addic      (const Instruction& instr);
-    void addic_     (const Instruction& instr);
-    void addi       (const Instruction& instr);
-    void addis      (const Instruction& instr);
-    void bc         (const Instruction& instr);
-    void sc         (const Instruction& instr);
-    void b          (const Instruction& instr);
-    void rlwimi     (const Instruction& instr);
-    void rlwinm     (const Instruction& instr);
-    void rlwnm      (const Instruction& instr);
-    void ori        (const Instruction& instr);
-    void oris       (const Instruction& instr);
-    void xori       (const Instruction& instr);
-    void xoris      (const Instruction& instr);
-    void andi       (const Instruction& instr);
-    void andis      (const Instruction& instr);
-    void lwz        (const Instruction& instr);
-    void lwzu       (const Instruction& instr);
-    void lbz        (const Instruction& instr);
-    void lbzu       (const Instruction& instr);
-    void stw        (const Instruction& instr);
-    void stwu       (const Instruction& instr);
-    void stb        (const Instruction& instr);
-    void stbu       (const Instruction& instr);
-    void lhz        (const Instruction& instr);
-    void lhzu       (const Instruction& instr);
-    void sth        (const Instruction& instr);
-    void sthu       (const Instruction& instr);
-    void lfs        (const Instruction& instr);
-    void lfsu       (const Instruction& instr);
-    void lfd        (const Instruction& instr);
-    void lfdu       (const Instruction& instr);
-    void stfs       (const Instruction& instr);
-    void stfsu      (const Instruction& instr);
-    void stfd       (const Instruction& instr);
-    void stfdu      (const Instruction& instr);
+    void mulli      (Instruction instr);
+    void subfic     (Instruction instr);
+    void cmpli      (Instruction instr);
+    void cmpi       (Instruction instr);
+    void addic      (Instruction instr);
+    void addic_     (Instruction instr);
+    void addi       (Instruction instr);
+    void addis      (Instruction instr);
+    void bc         (Instruction instr);
+    void sc         (Instruction instr);
+    void b          (Instruction instr);
+    void rlwimi     (Instruction instr);
+    void rlwinm     (Instruction instr);
+    void rlwnm      (Instruction instr);
+    void ori        (Instruction instr);
+    void oris       (Instruction instr);
+    void xori       (Instruction instr);
+    void xoris      (Instruction instr);
+    void andi       (Instruction instr);
+    void andis      (Instruction instr);
+    void lwz        (Instruction instr);
+    void lwzu       (Instruction instr);
+    void lbz        (Instruction instr);
+    void lbzu       (Instruction instr);
+    void stw        (Instruction instr);
+    void stwu       (Instruction instr);
+    void stb        (Instruction instr);
+    void stbu       (Instruction instr);
+    void lhz        (Instruction instr);
+    void lhzu       (Instruction instr);
+    void sth        (Instruction instr);
+    void sthu       (Instruction instr);
+    void lfs        (Instruction instr);
+    void lfsu       (Instruction instr);
+    void lfd        (Instruction instr);
+    void lfdu       (Instruction instr);
+    void stfs       (Instruction instr);
+    void stfsu      (Instruction instr);
+    void stfd       (Instruction instr);
+    void stfdu      (Instruction instr);
     // G_04
-    void vcmpequb   (const Instruction& instr);
-    void vaddfp     (const Instruction& instr);
-    void vmhraddshs (const Instruction& instr);
-    void vmladduhm  (const Instruction& instr);
-    void vmsumshm   (const Instruction& instr);
-    void vsel       (const Instruction& instr);
-    void vperm      (const Instruction& instr);
-    void vsldoi     (const Instruction& instr);
-    void vmaddfp    (const Instruction& instr);
-    void vnmsubfp   (const Instruction& instr);
-    void vadduhm    (const Instruction& instr);
-    void vmulouh    (const Instruction& instr);
-    void vsubfp     (const Instruction& instr);
-    void vmrghh     (const Instruction& instr);
-    void vadduwm    (const Instruction& instr);
-    void vrlw       (const Instruction& instr);
-    void vcmpequw   (const Instruction& instr);
-    void vmrghw     (const Instruction& instr);
-    void vcmpeqfp   (const Instruction& instr);
-    void vrefp      (const Instruction& instr);
-    void vpkshus    (const Instruction& instr);
-    void vslh       (const Instruction& instr);
-    void vmulosh    (const Instruction& instr);
-    void vrsqrtefp  (const Instruction& instr);
-    void vmrglh     (const Instruction& instr);
-    void vslw       (const Instruction& instr);
-    void vmrglw     (const Instruction& instr);
-    void vcmpgefp   (const Instruction& instr);
-    void vpkswss    (const Instruction& instr);
-    void vspltb     (const Instruction& instr);
-    void vupkhsb    (const Instruction& instr);
-    void vcmpgtuh   (const Instruction& instr);
-    void vsplth     (const Instruction& instr);
-    void vupkhsh    (const Instruction& instr);
-    void vsrw       (const Instruction& instr);
-    void vcmpgtuw   (const Instruction& instr);
-    void vspltw     (const Instruction& instr);
-    void vupklsb    (const Instruction& instr);
-    void vcmpgtfp   (const Instruction& instr);
-    void vupklsh    (const Instruction& instr);
-    void vcfux      (const Instruction& instr);
-    void vspltisb   (const Instruction& instr);
-    void vaddshs    (const Instruction& instr);
-    void vsrah      (const Instruction& instr);
-    void vmulesh    (const Instruction& instr);
-    void vcfsx      (const Instruction& instr);
-    void vspltish   (const Instruction& instr);
-    void vsraw      (const Instruction& instr);
-    void vcmpgtsw   (const Instruction& instr);
-    void vctuxs     (const Instruction& instr);
-    void vspltisw   (const Instruction& instr);
-    void vctsxs     (const Instruction& instr);
-    void vand       (const Instruction& instr);
-    void vmaxfp     (const Instruction& instr);
-    void vsubuhm    (const Instruction& instr);
-    void vandc      (const Instruction& instr);
-    void vminfp     (const Instruction& instr);
-    void vsubuwm    (const Instruction& instr);
-    void vor        (const Instruction& instr);
-    void vnor       (const Instruction& instr);
-    void vxor       (const Instruction& instr);
-    void vsubshs    (const Instruction& instr);
+    void vcmpequb   (Instruction instr);
+    void vaddfp     (Instruction instr);
+    void vmhraddshs (Instruction instr);
+    void vmladduhm  (Instruction instr);
+    void vmsumshm   (Instruction instr);
+    void vsel       (Instruction instr);
+    void vperm      (Instruction instr);
+    void vsldoi     (Instruction instr);
+    void vmaddfp    (Instruction instr);
+    void vnmsubfp   (Instruction instr);
+    void vadduhm    (Instruction instr);
+    void vmulouh    (Instruction instr);
+    void vsubfp     (Instruction instr);
+    void vmrghh     (Instruction instr);
+    void vadduwm    (Instruction instr);
+    void vrlw       (Instruction instr);
+    void vcmpequw   (Instruction instr);
+    void vmrghw     (Instruction instr);
+    void vcmpeqfp   (Instruction instr);
+    void vrefp      (Instruction instr);
+    void vpkshus    (Instruction instr);
+    void vslh       (Instruction instr);
+    void vmulosh    (Instruction instr);
+    void vrsqrtefp  (Instruction instr);
+    void vmrglh     (Instruction instr);
+    void vslw       (Instruction instr);
+    void vmrglw     (Instruction instr);
+    void vcmpgefp   (Instruction instr);
+    void vpkswss    (Instruction instr);
+    void vspltb     (Instruction instr);
+    void vupkhsb    (Instruction instr);
+    void vcmpgtuh   (Instruction instr);
+    void vsplth     (Instruction instr);
+    void vupkhsh    (Instruction instr);
+    void vsrw       (Instruction instr);
+    void vcmpgtuw   (Instruction instr);
+    void vspltw     (Instruction instr);
+    void vupklsb    (Instruction instr);
+    void vcmpgtfp   (Instruction instr);
+    void vupklsh    (Instruction instr);
+    void vcfux      (Instruction instr);
+    void vspltisb   (Instruction instr);
+    void vaddshs    (Instruction instr);
+    void vsrah      (Instruction instr);
+    void vmulesh    (Instruction instr);
+    void vcfsx      (Instruction instr);
+    void vspltish   (Instruction instr);
+    void vsraw      (Instruction instr);
+    void vcmpgtsw   (Instruction instr);
+    void vctuxs     (Instruction instr);
+    void vspltisw   (Instruction instr);
+    void vctsxs     (Instruction instr);
+    void vand       (Instruction instr);
+    void vmaxfp     (Instruction instr);
+    void vsubuhm    (Instruction instr);
+    void vandc      (Instruction instr);
+    void vminfp     (Instruction instr);
+    void vsubuwm    (Instruction instr);
+    void vor        (Instruction instr);
+    void vnor       (Instruction instr);
+    void vxor       (Instruction instr);
+    void vsubshs    (Instruction instr);
     // G_13
-    void mcrf       (const Instruction& instr);
-    void bclr       (const Instruction& instr);
-    void crnor      (const Instruction& instr);
-    void crandc     (const Instruction& instr);
-    void crnand     (const Instruction& instr);
-    void crand      (const Instruction& instr);
-    void crorc      (const Instruction& instr);
-    void cror       (const Instruction& instr);
-    void bcctr      (const Instruction& instr);
+    void mcrf       (Instruction instr);
+    void bclr       (Instruction instr);
+    void crnor      (Instruction instr);
+    void crandc     (Instruction instr);
+    void crnand     (Instruction instr);
+    void crand      (Instruction instr);
+    void crorc      (Instruction instr);
+    void cror       (Instruction instr);
+    void bcctr      (Instruction instr);
     // G_1E
-    void rldicl     (const Instruction& instr);
-    void rldicr     (const Instruction& instr);
-    void rldic      (const Instruction& instr);
-    void rldimi     (const Instruction& instr);
-    void rldcl      (const Instruction& instr);
+    void rldicl     (Instruction instr);
+    void rldicr     (Instruction instr);
+    void rldic      (Instruction instr);
+    void rldimi     (Instruction instr);
+    void rldcl      (Instruction instr);
     // G_1F
-    void cmp        (const Instruction& instr);
-    void lvsl       (const Instruction& instr);
-    void subfc      (const Instruction& instr);
-    void mulhdu     (const Instruction& instr);
-    void addc       (const Instruction& instr);
-    void mulhwu     (const Instruction& instr);
-    void mfcr       (const Instruction& instr);
-    void lwarx      (const Instruction& instr);
-    void ldx        (const Instruction& instr);
-    void lwzx       (const Instruction& instr);
-    void cntlzw     (const Instruction& instr);
-    void slw        (const Instruction& instr);
-    void sld        (const Instruction& instr);
-    void and_       (const Instruction& instr);
-    void cmpl       (const Instruction& instr);
-    void lvsr       (const Instruction& instr);
-    void subf       (const Instruction& instr);
-    void lwzux      (const Instruction& instr);
-    void cntlzd     (const Instruction& instr);
-    void andc       (const Instruction& instr);
-    void lvewx      (const Instruction& instr);
-    void mulhd      (const Instruction& instr);
-    void mulhw      (const Instruction& instr);
-    void ldarx      (const Instruction& instr);
-    void lbzx       (const Instruction& instr);
-    void lvx        (const Instruction& instr);
-    void neg        (const Instruction& instr);
-    void nor        (const Instruction& instr);
-    void stvebx     (const Instruction& instr);
-    void subfe      (const Instruction& instr);
-    void adde       (const Instruction& instr);
-    void mtcrf      (const Instruction& instr);
-    void stdx       (const Instruction& instr);
-    void stwcx      (const Instruction& instr);
-    void stwx       (const Instruction& instr);
-    void stvehx     (const Instruction& instr);
-    void stdux      (const Instruction& instr);
-    void stvewx     (const Instruction& instr);
-    void addze      (const Instruction& instr);
-    void stdcx      (const Instruction& instr);
-    void stbx       (const Instruction& instr);
-    void stvx       (const Instruction& instr);
-    void mulld      (const Instruction& instr);
-    void mullw      (const Instruction& instr);
-    void stbux      (const Instruction& instr);
-    void add        (const Instruction& instr);
-    void lhzx       (const Instruction& instr);
-    void xor_       (const Instruction& instr);
-    void mfspr      (const Instruction& instr);
-    void mftb       (const Instruction& instr);
-    void sthx       (const Instruction& instr);
-    void orc        (const Instruction& instr);
-    void or_        (const Instruction& instr);
-    void divdu      (const Instruction& instr);
-    void divwu      (const Instruction& instr);
-    void mtspr      (const Instruction& instr);
-    void nand       (const Instruction& instr);
-    void divd       (const Instruction& instr);
-    void divw       (const Instruction& instr);
-    void lvlx       (const Instruction& instr);
-    void lwbrx      (const Instruction& instr);
-    void lfsx       (const Instruction& instr);
-    void srw        (const Instruction& instr);
-    void srd        (const Instruction& instr);
-    void lvrx       (const Instruction& instr);
-    void lfdx       (const Instruction& instr);
-    void stvlx      (const Instruction& instr);
-    void stfsx      (const Instruction& instr);
-    void stvrx      (const Instruction& instr);
-    void stfdx      (const Instruction& instr);
-    void lhbrx      (const Instruction& instr);
-    void sraw       (const Instruction& instr);
-    void srad       (const Instruction& instr);
-    void srawi      (const Instruction& instr);
-    void sradi      (const Instruction& instr);
-    void extsh      (const Instruction& instr);
-    void extsb      (const Instruction& instr);
-    void extsw      (const Instruction& instr);
-    void stfiwx     (const Instruction& instr);
-    void dcbz       (const Instruction& instr);
+    void cmp        (Instruction instr);
+    void lvsl       (Instruction instr);
+    void subfc      (Instruction instr);
+    void mulhdu     (Instruction instr);
+    void addc       (Instruction instr);
+    void mulhwu     (Instruction instr);
+    void mfcr       (Instruction instr);
+    void lwarx      (Instruction instr);
+    void ldx        (Instruction instr);
+    void lwzx       (Instruction instr);
+    void cntlzw     (Instruction instr);
+    void slw        (Instruction instr);
+    void sld        (Instruction instr);
+    void and_       (Instruction instr);
+    void cmpl       (Instruction instr);
+    void lvsr       (Instruction instr);
+    void subf       (Instruction instr);
+    void lwzux      (Instruction instr);
+    void cntlzd     (Instruction instr);
+    void andc       (Instruction instr);
+    void lvewx      (Instruction instr);
+    void mulhd      (Instruction instr);
+    void mulhw      (Instruction instr);
+    void ldarx      (Instruction instr);
+    void lbzx       (Instruction instr);
+    void lvx        (Instruction instr);
+    void neg        (Instruction instr);
+    void nor        (Instruction instr);
+    void stvebx     (Instruction instr);
+    void subfe      (Instruction instr);
+    void adde       (Instruction instr);
+    void mtcrf      (Instruction instr);
+    void stdx       (Instruction instr);
+    void stwcx      (Instruction instr);
+    void stwx       (Instruction instr);
+    void stvehx     (Instruction instr);
+    void stdux      (Instruction instr);
+    void stvewx     (Instruction instr);
+    void addze      (Instruction instr);
+    void stdcx      (Instruction instr);
+    void stbx       (Instruction instr);
+    void stvx       (Instruction instr);
+    void mulld      (Instruction instr);
+    void mullw      (Instruction instr);
+    void stbux      (Instruction instr);
+    void add        (Instruction instr);
+    void lhzx       (Instruction instr);
+    void xor_       (Instruction instr);
+    void mfspr      (Instruction instr);
+    void mftb       (Instruction instr);
+    void sthx       (Instruction instr);
+    void orc        (Instruction instr);
+    void or_        (Instruction instr);
+    void divdu      (Instruction instr);
+    void divwu      (Instruction instr);
+    void mtspr      (Instruction instr);
+    void nand       (Instruction instr);
+    void divd       (Instruction instr);
+    void divw       (Instruction instr);
+    void lvlx       (Instruction instr);
+    void lwbrx      (Instruction instr);
+    void lfsx       (Instruction instr);
+    void srw        (Instruction instr);
+    void srd        (Instruction instr);
+    void lvrx       (Instruction instr);
+    void lfdx       (Instruction instr);
+    void stvlx      (Instruction instr);
+    void stfsx      (Instruction instr);
+    void stvrx      (Instruction instr);
+    void stfdx      (Instruction instr);
+    void lhbrx      (Instruction instr);
+    void sraw       (Instruction instr);
+    void srad       (Instruction instr);
+    void srawi      (Instruction instr);
+    void sradi      (Instruction instr);
+    void extsh      (Instruction instr);
+    void extsb      (Instruction instr);
+    void extsw      (Instruction instr);
+    void stfiwx     (Instruction instr);
+    void dcbz       (Instruction instr);
     // G_3A
-    void ld         (const Instruction& instr);
-    void ldu        (const Instruction& instr);
-    void lwa        (const Instruction& isntr);
+    void ld         (Instruction instr);
+    void ldu        (Instruction instr);
+    void lwa        (Instruction isntr);
     // G_3B
-    void fdivs      (const Instruction& instr);
-    void fsubs      (const Instruction& instr);
-    void fadds      (const Instruction& instr);
-    void fsqrts     (const Instruction& instr);
-    void fmuls      (const Instruction& instr);
-    void fmsubs     (const Instruction& instr);
-    void fmadds     (const Instruction& instr);
-    void fnmsubs    (const Instruction& instr);
-    void fnmadds    (const Instruction& instr);
+    void fdivs      (Instruction instr);
+    void fsubs      (Instruction instr);
+    void fadds      (Instruction instr);
+    void fsqrts     (Instruction instr);
+    void fmuls      (Instruction instr);
+    void fmsubs     (Instruction instr);
+    void fmadds     (Instruction instr);
+    void fnmsubs    (Instruction instr);
+    void fnmadds    (Instruction instr);
     // G_3E
-    void std        (const Instruction& instr);
-    void stdu       (const Instruction& instr);
+    void std        (Instruction instr);
+    void stdu       (Instruction instr);
     // G_3F
-    void mffs       (const Instruction& instr);
-    void mtfsf      (const Instruction& instr);
-    void fcmpu      (const Instruction& instr);
-    void frsp       (const Instruction& instr);
-    void fctiwz     (const Instruction& instr);
-    void fdiv       (const Instruction& instr);
-    void fsub       (const Instruction& instr);
-    void fadd       (const Instruction& instr);
-    void fsqrt      (const Instruction& instr);
-    void fsel       (const Instruction& instr);
-    void fmul       (const Instruction& instr);
-    void frsqrte    (const Instruction& instr);
-    void fmr        (const Instruction& instr);
-    void fmsub      (const Instruction& instr);
-    void fmadd      (const Instruction& instr);
-    void fnmsub     (const Instruction& instr);
-    void fnmadd     (const Instruction& instr);
-    void fneg       (const Instruction& instr);
-    void fabs_      (const Instruction& instr);
-    void fctid      (const Instruction& instr);
-    void fctidz     (const Instruction& instr);
-    void fcfid      (const Instruction& instr);
+    void mffs       (Instruction instr);
+    void mtfsf      (Instruction instr);
+    void fcmpu      (Instruction instr);
+    void frsp       (Instruction instr);
+    void fctiwz     (Instruction instr);
+    void fdiv       (Instruction instr);
+    void fsub       (Instruction instr);
+    void fadd       (Instruction instr);
+    void fsqrt      (Instruction instr);
+    void fsel       (Instruction instr);
+    void fmul       (Instruction instr);
+    void frsqrte    (Instruction instr);
+    void fmr        (Instruction instr);
+    void fmsub      (Instruction instr);
+    void fmadd      (Instruction instr);
+    void fnmsub     (Instruction instr);
+    void fnmadd     (Instruction instr);
+    void fneg       (Instruction instr);
+    void fabs_      (Instruction instr);
+    void fctid      (Instruction instr);
+    void fctidz     (Instruction instr);
+    void fcfid      (Instruction instr);
 };
