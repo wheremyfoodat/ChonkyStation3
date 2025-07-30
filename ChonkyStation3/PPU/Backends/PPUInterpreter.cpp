@@ -13,13 +13,11 @@ static inline u64 rotl32(u32 v, u32 sh) { return std::rotl<u64>(v | ((u64)v << 3
 static inline u64 rotr32(u32 v, u32 sh) { return std::rotr<u64>(v | ((u64)v << 32), sh); }
 
 PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3) {
-    // Generate a rotation mask array - this code is adapted from RPCS3
-    for (u32 mb = 0; mb < 64; mb++) {
-        for (u32 me = 0; me < 64; me++) {
-            const u64 mask = ((u64)-1 >> mb) ^ ((me >= 63) ? 0 : (u64)-1 >> (me + 1));
-            rotation_mask[mb][me] = mb > me ? ~mask : mask;
-        }
-    }
+    generateRotationMasks();
+}
+
+PPUInterpreter::PPUInterpreter(Memory& mem, PlayStation3* ps3, PPUTypes::State& state) : PPU(mem, ps3, state) {
+    generateRotationMasks();
 }
 
 void PPUInterpreter::printCallStack() {
@@ -36,6 +34,16 @@ void PPUInterpreter::printFunctionCall() {
     auto symbol = ps3->elf_parser.getSymbol(state.pc);
     if (symbol.has_value())
         printf("[DEBUG] %s @ 0x%08llx\n", symbol.value().name.c_str(), state.pc);
+}
+
+void PPUInterpreter::generateRotationMasks() {
+    // Generate a rotation mask array - this code is adapted from RPCS3
+    for (u32 mb = 0; mb < 64; mb++) {
+        for (u32 me = 0; me < 64; me++) {
+            const u64 mask = ((u64)-1 >> mb) ^ ((me >= 63) ? 0 : (u64)-1 >> (me + 1));
+            rotation_mask[mb][me] = mb > me ? ~mask : mask;
+        }
+    }
 }
 
 int PPUInterpreter::step() {

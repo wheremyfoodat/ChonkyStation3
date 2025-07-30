@@ -13,3 +13,6 @@
 [submodule "Dependencies/capstone"]
 	path = Dependencies/capstone
 	url = https://github.com/capstone-engine/capstone
+[submodule "Dependencies/oaknut"]
+	path = Dependencies/oaknut
+	url = https://github.com/Panda3DS-emu/oaknut

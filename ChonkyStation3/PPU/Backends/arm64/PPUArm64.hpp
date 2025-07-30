@@ -1,51 +1,112 @@
 #pragma once
 
 #include <PPU.hpp>
+#include <PPU/Backends/PPUInterpreter.hpp>
 
-#include <cmath>
-#if _MSC_VER
-#include <intrin.h>
-#pragma intrinsic(_mul128)
-#endif
+#include <oaknut/code_block.hpp>
+#include <oaknut/oaknut.hpp>
 
+#include <limits>
 
 // Circular dependency
 class PlayStation3;
 
 using namespace PPUTypes;
+using namespace oaknut;
+using namespace oaknut::util;
 
-class PPUInterpreter : public PPU {
-    void generateRotationMasks();
+class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGenerator {
+    // Interpreter for instruction fallbacks
+    PPUInterpreter interpreter;
+
+    static constexpr XReg arg1 = X0;
+    static constexpr XReg arg2 = X1;
+    static constexpr XReg scratch1 = X9;
+    static constexpr XReg scratch2 = X10;
+    static constexpr XReg state_pointer = X15;
+
+    static constexpr size_t executable_memory_size = 128_MB;
+    // Allocate some extra space as padding for security purposes in the extremely unlikely occasion we manage to overflow the above size
+    static constexpr size_t alloc_size = executable_memory_size + 0x10000;
+
+    static constexpr u32 page_shift = 12;
+    static constexpr u32 page_size = 1 << page_shift;
+    static constexpr u32 page_mask = page_size - 1;
+
+    // A function pointer to JIT-emitted code
+    // JIT code returns the number of cycles executed, and takes a pointer to the JIT object in arg0
+    using JITCallback = u32 (*)(PPUArm64* ppu);
+    
+    JITCallback** code_blocks; // First level of 2-level lookup for code
+    JITCallback dispatcher;    // Assembly dispatcher
+
+    u32 recompiler_pc;
+
+    void emitDispatcher();
+    void emitBlockLookup();
+    JITCallback compileBlock();
+
+    template <typename T>
+    T getLabelPointer(const oaknut::Label& label) {
+        auto pointer = reinterpret_cast<u8*>(oaknut::CodeBlock::ptr()) + label.offset();
+        return reinterpret_cast<T>(pointer);
+    }
+
+    static u32 runInterpreterThunk(PPUArm64* ppu) { return ppu->interpreter.step(); }
+
+    // Calculate the number of instructions between the current PC and the branch target
+    // Returns a negative number for backwards jumps
+    int64_t getPCOffset(const void* current, const void* target) {
+        return (int64_t)((ptrdiff_t)target - (ptrdiff_t)current) >> 2;
+    }
+
+    // Checks if a branch displacement can fit in a 26-bit int, to emit a direct call/jump instead of an indirect one
+    bool isInt26(int64_t disp) {
+        return disp >= -(1ll << 25) && disp <= ((1ll << 25) - 1);
+    }
+
+    // Prepare for a call to a C++ function and then actually emit it
+    // Can use and thrash a register if the function we're calling is too far away and needs an indirect call
+    template <typename T>
+    void call(T func, XReg scratch) {
+        const auto ptr = reinterpret_cast<const void*>(func);
+        const int64_t disp = getPCOffset(xptr<const void*>(), ptr);
+
+        // If the displacement can fit in a 26-bit int, that means we can emit a direct call to the address
+        // Otherwise, load the address into a register and emit a blr
+        const bool canDoDirectCall = isInt26(disp);
+
+        if (canDoDirectCall) {
+            BL(disp);
+        } else {
+            MOV(scratch, (uintptr_t)ptr);
+            BLR(scratch);
+        }
+    }
+
+    // Same as above, but jumps instead of calling
+    template <typename T>
+    void jump(T func, XReg scratch) {
+        const auto ptr = reinterpret_cast<const void*>(func);
+        const int64_t disp = getPCOffset(xptr<const void*>(), ptr);
+
+        // If the displacement can fit in a 26-bit int, that means we can emit a direct call to the address
+        // Otherwise, load the address into a register and emit a blr
+        const bool canDoDirectJump = isInt26(disp) && false;
+
+        if (canDoDirectJump) {
+            B(disp);
+        } else {
+            MOV(scratch, (uintptr_t)ptr);
+            BR(scratch);
+        }
+    }
+
 
 public:
-    PPUInterpreter(Memory& mem, PlayStation3* ps3);
-    PPUInterpreter(Memory& mem, PlayStation3* ps3, PPUTypes::State& state);
-
+    PPUArm64(Memory& mem, PlayStation3* ps3);
     int step() override;
     bool should_break = false;
-
-    u64 rotation_mask[64][64];
-
-    template<typename T>
-    inline bool isShOK(int v) {
-        return !(v >= sizeof(T) * 8);
-    }
-
-    template<typename T>
-    inline T safeShl(T v, int sh) {
-        return isShOK<T>(sh) ? (v << sh) : 0;
-    }
-
-    template<typename T>
-    inline T safeShr(T v, int sh) {
-        return isShOK<T>(sh) ? (v >> sh) : 0;
-    }
-
-    void printCallStack() override;
-    std::unordered_map<u32, std::string> known_funcs;   // Used for debugging
-    std::vector<std::pair<u32, u32>> call_stack;    // First: addr of function, second: addr the function is called from
-    // Debug symbols
-    void printFunctionCall();
     
     // Main
     void mulli      (const Instruction& instr);

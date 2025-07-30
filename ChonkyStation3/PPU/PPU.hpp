@@ -12,8 +12,16 @@
 class PlayStation3;
 
 class PPU {
+protected:
+    PPUTypes::State stateInternal;
+
 public:
-    PPU(Memory& mem, PlayStation3* ps3) : mem(mem), ps3(ps3) {}
+    // We have two constructor overloads.
+    // The first one uses an internal state struct for registers, and is used in the PPU interpreter core
+    PPU(Memory& mem, PlayStation3* ps3) : mem(mem), ps3(ps3), state(stateInternal) {}
+    // The second one uses an external state struct for registers, and is used for interpreter fallbacks in the JIT cores
+    PPU(Memory& mem, PlayStation3* ps3, PPUTypes::State& state) : mem(mem), ps3(ps3), state(state) {}
+
     Memory& mem;
     PlayStation3* ps3;
     virtual int step(); // Returns number of cycles executed
@@ -21,7 +29,7 @@ public:
 
     void runFunc(u32 addr, u32 toc = 0, bool save_all_state = true);
 
-    PPUTypes::State state;
+    PPUTypes::State& state;
 
     bool should_log = false;    // For debugging, unused normally
 
