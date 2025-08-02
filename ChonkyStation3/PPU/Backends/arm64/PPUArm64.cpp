@@ -6,9 +6,10 @@
 #define FPR_OFFSET(i) ((uintptr_t) &state.fprs[i] - (uintptr_t)this)
 #define VPR_OFFSET(i) ((uintptr_t) &state.vprs[i] - (uintptr_t)this)
 
-#define FALLBACK(instructionName, instructionRaw) \
-    MOV(arg2, instructionRaw); \
-    emitInterpreterFunctionCall(&PPUInterpreter::instructionName, X4);
+#define FALLBACK(instructionName, instructionRaw)                              \
+  flushRegs();                                                                 \
+  MOV(arg2, instructionRaw);                                                   \
+  emitInterpreterFunctionCall(&PPUInterpreter::instructionName, X4);
 
 PPUArm64::PPUArm64(Memory& mem, PlayStation3* ps3) : PPU(mem, ps3), interpreter(mem, ps3, stateInternal),
     oaknut::CodeBlock(alloc_size), oaknut::CodeGenerator(oaknut::CodeBlock::ptr()) {
@@ -30,8 +31,8 @@ void PPUArm64::emitBlockLookup() {
 }
 
 void PPUArm64::writebackPC(u32 newPC) {
-    MOV(scratch1, newPC);
-    STR(scratch1, state_pointer, PC_OFFSET);
+    MOV(X0, newPC);
+    STR(X0, state_pointer, PC_OFFSET);
 }
 
 PPUArm64::JITCallback PPUArm64::compileBlock() {
@@ -49,6 +50,9 @@ PPUArm64::JITCallback PPUArm64::compileBlock() {
     // Make the state pointer point to the JIT object
     MOV(state_pointer, arg1);
 
+    // Back up all our allocateable volatile regs. TODO: This should be done only once, in the asm dispatcher
+    pushNonVolatiles();
+
     while (shouldContinue()) {
         const u32 instr_raw = mem.read<u32>(recompiler_pc);
         const Instruction instruction = { .raw = instr_raw };
@@ -58,13 +62,17 @@ PPUArm64::JITCallback PPUArm64::compileBlock() {
         compileInstruction(instruction);
         recompiler_pc += 4;
     }
+    flushRegs();
+
+    // TODO: Write back PC if the block ended because it got too long
+
+    // Restore all our allocateable volatile regs. TODO: This should be done only once, in the asm dispatcher
+    popNonVolatiles();
 
     // Restore x29 and LR, return the number of instructions executed as the cycle count
     LDP(state_pointer, X30, SP, POST_INDEXED, 16);
     MOV(X0, block_size);
     RET();
-
-    // TODO: Write back PC if the block ended because it got too long
 
     // Mark memory as RX and invalidate affect icache ranges before returning and executing the block
     oaknut::CodeBlock::protect();
@@ -91,52 +99,41 @@ void PPUArm64::bc(Instruction instr) {
     writebackPC(recompiler_pc);
     stop_compiling = true;
     FALLBACK(bc, instr.raw);
-    LDR(scratch1, state_pointer, PC_OFFSET); ADD(scratch1, scratch1, 4); STR(scratch1, state_pointer, PC_OFFSET);
+    LDR(X0, state_pointer, PC_OFFSET); ADD(X0, X0, 4); STR(X0, state_pointer, PC_OFFSET);
 }
 
 void PPUArm64::sc(Instruction instr) {
     writebackPC(recompiler_pc);
     stop_compiling = true;
     FALLBACK(sc, instr.raw);
-    LDR(scratch1, state_pointer, PC_OFFSET); ADD(scratch1, scratch1, 4); STR(scratch1, state_pointer, PC_OFFSET);
+    LDR(X0, state_pointer, PC_OFFSET); ADD(X0, X0, 4); STR(X0, state_pointer, PC_OFFSET);
 }
 
 void PPUArm64::b(Instruction instr) {
     writebackPC(recompiler_pc);
     stop_compiling = true;
     FALLBACK(b, instr.raw);
-    LDR(scratch1, state_pointer, PC_OFFSET); ADD(scratch1, scratch1, 4); STR(scratch1, state_pointer, PC_OFFSET);
+    LDR(X0, state_pointer, PC_OFFSET); ADD(X0, X0, 4); STR(X0, state_pointer, PC_OFFSET);
 }
 
 void PPUArm64::bclr(Instruction instr) {
     writebackPC(recompiler_pc);
     stop_compiling = true;
     FALLBACK(bclr, instr.raw);
-    LDR(scratch1, state_pointer, PC_OFFSET); ADD(scratch1, scratch1, 4); STR(scratch1, state_pointer, PC_OFFSET);
+    LDR(X0, state_pointer, PC_OFFSET); ADD(X0, X0, 4); STR(X0, state_pointer, PC_OFFSET);
 }
 
 void PPUArm64::bcctr(Instruction instr) {
     writebackPC(recompiler_pc);
     stop_compiling = true;
     FALLBACK(bcctr, instr.raw);
-    LDR(scratch1, state_pointer, PC_OFFSET); ADD(scratch1, scratch1, 4); STR(scratch1, state_pointer, PC_OFFSET);
+    LDR(X0, state_pointer, PC_OFFSET); ADD(X0, X0, 4); STR(X0, state_pointer, PC_OFFSET);
 }
-
-#define LOAD2(reg1, reg2, field1, field2)                                      \
-  if (instr.field2 == instr.field1 + 1) {                                      \
-    LDP(reg1, reg2, state_pointer, GPR_OFFSET(instr.field1));                  \
-  } else if (instr.field1 == instr.field2 + 1) {                               \
-    LDP(reg2, reg1, state_pointer, GPR_OFFSET(instr.field2));                  \
-  } else {                                                                     \
-    LDR(reg1, state_pointer, GPR_OFFSET(instr.field1));                        \
-    LDR(reg2, state_pointer, GPR_OFFSET(instr.field2));                        \
-  }
 
 void PPUArm64::add(Instruction instr) {
     if (!instr.rc) {
-        LOAD2(scratch1, scratch2, ra, rb);
-        ADD(scratch1, scratch1, scratch2);
-        STR(scratch1, state_pointer, GPR_OFFSET(instr.rt));
+        alloc_ra_rb_wb_rt(instr);
+        ADD(gprs[instr.rt].allocatedReg, gprs[instr.ra].allocatedReg, gprs[instr.rb].allocatedReg);
     }
 
     else {
@@ -144,11 +141,37 @@ void PPUArm64::add(Instruction instr) {
     }
 }
 
+void PPUArm64::addi(Instruction instr) {
+    s64 imm = (s64)(s16)instr.si;
+
+    // If RA == 0 then the sign extended immediate is loaded into rt directly
+    if (instr.ra == 0) {
+        allocateRegWithoutLoad(instr.rt);
+        gprs[instr.rt].setWriteback(true);
+
+        MOV(gprs[instr.rt].allocatedReg, imm);
+    }
+
+    else {
+        FALLBACK(addi, instr.raw); return;
+        alloc_ra_wb_rt(instr);
+
+        // The arm64 add instruction can add up to a 12-bit unsigned immediate, so from 0 to 4095
+        if (imm >= 0 && imm <= 4095) {
+            ADD(gprs[instr.rt].allocatedReg, gprs[instr.ra].allocatedReg, u16(imm & 0xFFF));
+        }
+        
+        else {
+            MOV(X4, imm);
+            ADD(gprs[instr.rt].allocatedReg, gprs[instr.ra].allocatedReg, X4);
+        }
+    }
+}
+
 void PPUArm64::and_(Instruction instr) {
     if (!instr.rc) {
-        LOAD2(scratch1, scratch2, rs, rb);
-        AND(scratch1, scratch1, scratch2);
-        STR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
+        alloc_rs_rb_wb_ra(instr);
+        AND(gprs[instr.ra].allocatedReg, gprs[instr.rs].allocatedReg, gprs[instr.rb].allocatedReg);
     }
 
     else {
@@ -158,9 +181,8 @@ void PPUArm64::and_(Instruction instr) {
 
 void PPUArm64::or_(Instruction instr) {
     if (!instr.rc) {
-        LOAD2(scratch1, scratch2, rs, rb);
-        ORR(scratch1, scratch1, scratch2);
-        STR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
+        alloc_rs_rb_wb_ra(instr);
+        ORR(gprs[instr.ra].allocatedReg, gprs[instr.rs].allocatedReg, gprs[instr.rb].allocatedReg);
     }
 
     else {
@@ -170,9 +192,8 @@ void PPUArm64::or_(Instruction instr) {
 
 void PPUArm64::xor_(Instruction instr) {
     if (!instr.rc) {
-        LOAD2(scratch1, scratch2, rs, rb);
-        EOR(scratch1, scratch1, scratch2);
-        STR(scratch1, state_pointer, GPR_OFFSET(instr.ra));
+        alloc_rs_rb_wb_ra(instr);
+        EOR(gprs[instr.ra].allocatedReg, gprs[instr.rs].allocatedReg, gprs[instr.rb].allocatedReg);
     }
 
     else {
@@ -186,7 +207,6 @@ void PPUArm64::cmpli      (Instruction instr) { FALLBACK(cmpli, instr.raw); }
 void PPUArm64::cmpi       (Instruction instr) { FALLBACK(cmpi, instr.raw); }
 void PPUArm64::addic      (Instruction instr) { FALLBACK(addic, instr.raw); }
 void PPUArm64::addic_     (Instruction instr) { FALLBACK(addic_, instr.raw); }
-void PPUArm64::addi       (Instruction instr) { FALLBACK(addi, instr.raw); }
 void PPUArm64::addis      (Instruction instr) { FALLBACK(addis, instr.raw); }
 void PPUArm64::rlwimi     (Instruction instr) { FALLBACK(rlwimi, instr.raw); }
 void PPUArm64::rlwinm     (Instruction instr) { FALLBACK(rlwinm, instr.raw); }

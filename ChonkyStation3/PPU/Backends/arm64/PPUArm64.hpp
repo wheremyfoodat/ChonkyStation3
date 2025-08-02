@@ -6,6 +6,7 @@
 #include <oaknut/code_block.hpp>
 #include <oaknut/oaknut.hpp>
 
+#include <optional>
 #include <limits>
 
 // Circular dependency
@@ -21,8 +22,8 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
 
     static constexpr XReg arg1 = X0;
     static constexpr XReg arg2 = X1;
-    static constexpr XReg scratch1 = X9;
-    static constexpr XReg scratch2 = X10;
+    static constexpr XReg arg3 = X2;
+    static constexpr XReg arg4 = X3;
     static constexpr XReg state_pointer = X29;
 
     static constexpr size_t executable_memory_size = 128_MB;
@@ -34,7 +35,7 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
     static constexpr u32 page_mask = page_size - 1;
 
     // A function pointer to JIT-emitted code
-    // JIT code returns the number of cycles executed, and takes a pointer to the JIT object in arg0
+    // JIT code returns the number of cycles executed, and takes a pointer to the JIT object in arg1
     using JITCallback = u32 (*)(PPUArm64* ppu);
     
     JITCallback** code_blocks; // First level of 2-level lookup for code
@@ -89,25 +90,6 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
         }
     }
 
-    // Same as above, but jumps instead of calling
-    template <typename T>
-    void jump(T func, XReg scratch) {
-        const auto ptr = reinterpret_cast<const void*>(func);
-        // Displacement
-        const int64_t disp = getPCOffset(xptr<const void*>(), ptr) ;
-
-        // If the displacement can fit in a 26-bit int, that means we can emit a direct call to the address
-        // Otherwise, load the address into a register and emit a br
-        const bool canDoDirectJump = isInt26(disp);
-
-        if (canDoDirectJump) {
-            B(disp);
-        } else {
-            MOV(scratch, (uintptr_t)ptr);
-            BR(scratch);
-        }
-    }
-
     // Should we continue compiling a block? Depends on how big the block currently is, and whether we've hit the block size limit
     bool shouldContinue() {
         static constexpr u32 maximum_block_size = 2048;
@@ -146,7 +128,7 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
         static_assert(sizeof(T) == 8, "[x64 JIT] Invalid size for member function pointer");
-        std::memcpy(&functionPtr, &func, sizeof(T));
+        std::memcpy(&function_ptr, &func, sizeof(T));
 #else
         static_assert(sizeof(T) == 16, "[x64 JIT] Invalid size for member function pointer");
         uintptr_t arr[2];
@@ -161,6 +143,84 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
         ADD(arg1, state_pointer, interpreter_offset);
         call(function_ptr, scratch);
     }
+
+    // Register allocation info
+    static constexpr int ALLOCATEABLE_GPR_COUNT = 15;
+
+    // Our allocateable registers and the order they should be allocated
+    // We prefer using non-volatile regs first
+    const std::array<XReg, ALLOCATEABLE_GPR_COUNT> allocateableRegisters = {X21, X22, X23, X24, X25, X26, X27, X28,
+                                                                                X9,  X10, X11, X12, X13, X14, X15};
+    // Which of our allocateables are volatile?
+    const std::array<XReg, 7> allocateableVolatiles = {X9,  X10, X11, X12, X13, X14, X15};
+    // Which of them are not volatile?
+    const std::array<XReg, 8> allocateableNonVolatiles = {X21, X22, X23, X24, X25, X26, X27, X28};
+
+    enum class RegState { Unknown, Constant };
+    enum class LoadingMode { DoNotLoad, Load };
+
+    struct Reg {
+        uint64_t val = 0;                    // The register's cached value used for constant propagation (Not implemented yet)
+        RegState state = RegState::Unknown;  // Is this register's value a constant, or an unknown value?
+
+        bool allocated = false;  // Has this guest register been allocated to a host reg?
+        bool writeback = false;  // Does this register need to be written back to memory at the end of the block?
+        
+        // If a host reg has been allocated to this register, which reg is it?
+        XReg allocatedReg = XZR;
+        int allocatedRegIndex = 0;
+
+        inline bool isConst() { return state == RegState::Constant; }
+        inline bool isAllocated() { return allocated; }
+
+        inline void markConst(uint32_t value) {
+            Helpers::panic("JIT: Recompiler doesn't support constant propagation yet");
+            val = value;
+            state = RegState::Constant;
+            writeback = false;  // Disable writeback in case the reg was previously allocated with writeback
+            allocated = false;  // Unallocate register
+        }
+
+        // Note: It's important that markUnknown does not modify the val field as that would mess up codegen
+        inline void markUnknown() { state = RegState::Unknown; }
+        inline void setWriteback(bool wb) { writeback = wb; }
+    };
+
+    inline void markGPRConst(int index, uint32_t value) {
+        gprs[index].markConst(value);
+        if (hostGPRs[gprs[index].allocatedRegIndex].mappedReg == index) {
+            hostGPRs[gprs[index].allocatedRegIndex].mappedReg =
+                std::nullopt;  // Unmap the register on the host reg side too
+        }
+    }
+
+    struct HostRegister {
+        std::optional<int> mappedReg = std::nullopt;  // The register this is allocated to, if any
+    };
+
+    Reg gprs[32];
+    std::array<HostRegister, ALLOCATEABLE_GPR_COUNT> hostGPRs;
+
+    template <LoadingMode mode = LoadingMode::Load>
+    void reserveReg(int index);
+    void allocateReg(int reg);
+    void allocateRegWithoutLoad(int reg);
+
+    template <size_t T, size_t U>
+    void allocateRegisters(std::array<uint, T> regsWithoutWb, std::array<uint, U> regsWithWb);
+
+    void flushRegs();
+    void spillRegisterCache();
+    void prepareForCall();
+    uint allocatedRegisterCount = 0;  // How many registers have been allocated in this block at this point?
+
+    void pushNonVolatiles();
+    void popNonVolatiles();
+
+    void alloc_ra_wb_rt(Instruction instruction);
+
+    void alloc_rs_rb_wb_ra(Instruction instruction);
+    void alloc_ra_rb_wb_rt(Instruction instruction);
 
 public:
     PPUArm64(Memory& mem, PlayStation3* ps3);
