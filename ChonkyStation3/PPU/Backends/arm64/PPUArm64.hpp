@@ -218,6 +218,7 @@ class PPUArm64 : public PPU, private oaknut::CodeBlock, public oaknut::CodeGener
     void popNonVolatiles();
 
     void alloc_ra_wb_rt(Instruction instruction);
+    void alloc_rs_wb_rt(Instruction instruction);
 
     void alloc_rs_rb_wb_ra(Instruction instruction);
     void alloc_ra_rb_wb_rt(Instruction instruction);

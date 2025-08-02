@@ -62,7 +62,7 @@ void PPUArm64::prepareForCall() {
             if (hostGPRs[i].mappedReg) {  // Unallocate and spill to guest regs as appropriate
                 const auto previous = hostGPRs[i].mappedReg.value();  // Get previously allocated register
                 if (gprs[previous].writeback) {                       // Spill to guest reg if writeback is enabled
-                    STR(allocateableRegisters[i], state_pointer, GPR_OFFSET(i));
+                    STR(allocateableRegisters[i], state_pointer, GPR_OFFSET(previous));
                     gprs[previous].writeback = false;
                 }
 
@@ -85,7 +85,7 @@ void PPUArm64::spillRegisterCache() {
             const auto previous = hostGPRs[i].mappedReg.value();  // Get the reg it's allocated to
 
             if (gprs[previous].writeback) {  // Spill to guest register if writeback is enabled and disable writeback
-                STR(allocateableRegisters[i], state_pointer, GPR_OFFSET(i));
+                STR(allocateableRegisters[i], state_pointer, GPR_OFFSET(previous));
                 gprs[previous].writeback = false;
             }
 
@@ -170,6 +170,10 @@ start:
         }
         gprs[reg].writeback = true;
     }
+}
+
+void PPUArm64::alloc_rs_wb_rt(Instruction instr) {
+    allocateRegisters<1, 1>({instr.rs.Value()}, {instr.rt.Value()});
 }
 
 void PPUArm64::alloc_ra_wb_rt(Instruction instr) {

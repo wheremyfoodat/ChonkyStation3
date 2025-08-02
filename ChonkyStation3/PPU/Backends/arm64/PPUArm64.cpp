@@ -58,10 +58,11 @@ PPUArm64::JITCallback PPUArm64::compileBlock() {
         const Instruction instruction = { .raw = instr_raw };
         block_size++;
 
-        // printf("%s\n", PPUDisassembler::disasm(state, instruction, &mem).c_str());
+        printf("%s\n", PPUDisassembler::disasm(state, instruction, &mem).c_str());
         compileInstruction(instruction);
         recompiler_pc += 4;
     }
+    printf("Blockus Endus\n");
     flushRegs();
 
     // TODO: Write back PC if the block ended because it got too long
@@ -73,6 +74,11 @@ PPUArm64::JITCallback PPUArm64::compileBlock() {
     LDP(state_pointer, X30, SP, POST_INDEXED, 16);
     MOV(X0, block_size);
     RET();
+
+    using namespace std;
+    ofstream fout("code.bin", ios::binary);
+    fout.write((char*)cb, uintptr_t(xptr<char*>()) - uintptr_t(ptr()));
+    fout.close();
 
     // Mark memory as RX and invalidate affect icache ranges before returning and executing the block
     oaknut::CodeBlock::protect();
@@ -153,7 +159,6 @@ void PPUArm64::addi(Instruction instr) {
     }
 
     else {
-        FALLBACK(addi, instr.raw); return;
         alloc_ra_wb_rt(instr);
 
         // The arm64 add instruction can add up to a 12-bit unsigned immediate, so from 0 to 4095
@@ -201,6 +206,27 @@ void PPUArm64::xor_(Instruction instr) {
     }
 }
 
+void PPUArm64::ori(Instruction instr) {
+    if (instr.rs == instr.rt && instr.ui == 0) return; // NOP
+
+    printf("ORI rs=%d rt=%d ui=0x%04x\n", instr.rs.Value(), instr.rt.Value(), instr.ui.Value());
+    printf("RS reg: %d\n", (gprs[instr.rs].allocatedReg).index());
+    printf("RT reg: %d\n", (gprs[instr.rt].allocatedReg).index());
+
+    alloc_rs_wb_rt(instr);
+    MOV(X4, u64(instr.ui.Value()));
+    ORR(gprs[instr.rt].allocatedReg, gprs[instr.rs].allocatedReg, X4);
+}
+
+void PPUArm64::xori(Instruction instr) {
+    if (instr.rs == instr.rt && instr.ui == 0) return; // NOP
+
+    FALLBACK(xori, instr.raw); return;
+    alloc_rs_wb_rt(instr);
+    MOV(X4, instr.ui);
+    EOR(gprs[instr.rt].allocatedReg, gprs[instr.rs].allocatedReg, X4);
+}
+
 void PPUArm64::mulli      (Instruction instr) { FALLBACK(mulli, instr.raw); }
 void PPUArm64::subfic     (Instruction instr) { FALLBACK(subfic, instr.raw); }
 void PPUArm64::cmpli      (Instruction instr) { FALLBACK(cmpli, instr.raw); }
@@ -211,9 +237,7 @@ void PPUArm64::addis      (Instruction instr) { FALLBACK(addis, instr.raw); }
 void PPUArm64::rlwimi     (Instruction instr) { FALLBACK(rlwimi, instr.raw); }
 void PPUArm64::rlwinm     (Instruction instr) { FALLBACK(rlwinm, instr.raw); }
 void PPUArm64::rlwnm      (Instruction instr) { FALLBACK(rlwnm, instr.raw); }
-void PPUArm64::ori        (Instruction instr) { FALLBACK(ori, instr.raw); }
 void PPUArm64::oris       (Instruction instr) { FALLBACK(oris, instr.raw); }
-void PPUArm64::xori       (Instruction instr) { FALLBACK(xori, instr.raw); }
 void PPUArm64::xoris      (Instruction instr) { FALLBACK(xoris, instr.raw); }
 void PPUArm64::andi       (Instruction instr) { FALLBACK(andi, instr.raw); }
 void PPUArm64::andis      (Instruction instr) { FALLBACK(andis, instr.raw); }
